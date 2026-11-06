@@ -107,6 +107,24 @@
       "purpose": "boinga-translator"
     },
     {
+      "kind": "doc",
+      "lines": 19,
+      "path": "docs/DEBUG_LOG.md",
+      "purpose": "Debug log"
+    },
+    {
+      "kind": "doc",
+      "lines": 47,
+      "path": "docs/DECISIONS.md",
+      "purpose": "Decisions"
+    },
+    {
+      "kind": "doc",
+      "lines": 60,
+      "path": "docs/PROGRESS.md",
+      "purpose": "Progress"
+    },
+    {
       "kind": "config",
       "lines": 35,
       "path": "pyproject.toml",
