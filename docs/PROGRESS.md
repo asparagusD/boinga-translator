@@ -15,10 +15,15 @@ promptbook for that chunk is handed over.
 - [x] C0.5b Repo graph tests (`73bed9f`)
 - [x] C0.5c Claude Code PostToolUse hook + permissions allow list (`c0fb112`)
 - [x] C0.6 Git hooks: commit-msg format, binary guard, fresh repo graph (`8f56f81`)
-- [x] C0.7 PROGRESS, DECISIONS and DEBUG_LOG docs (this commit)
+- [x] C0.7 PROGRESS, DECISIONS and DEBUG_LOG docs (`28ea218`)
 
-## C1
-- [ ] C1.x (subchunks not yet defined)
+## C1 — Paths, settings, report I/O, env report, Colab bootstrap
+- [ ] C1.1 paths.py: single source of truth for paths (Drive on Colab, ./local elsewhere)
+- [ ] C1.2 settings.py: pinned model ids, dataset URL and sha256, seed
+- [ ] C1.3 report_io.py: print files between BEGIN/END markers and import pasted output
+- [ ] C1.4 env_report.py + `boinga env` CLI
+- [ ] C1.5a notebooks/colab_bootstrap.py: mount Drive, clone/pull with Colab secret, install pinned deps (local tests)
+- [ ] C1.5b Run the bootstrap on Colab and commit the pasted env report (colab-handoff)
 
 ## C2
 - [ ] C2.x (subchunks not yet defined)
