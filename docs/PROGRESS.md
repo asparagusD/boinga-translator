@@ -18,7 +18,7 @@ promptbook for that chunk is handed over.
 - [x] C0.7 PROGRESS, DECISIONS and DEBUG_LOG docs (`28ea218`)
 
 ## C1 — Paths, settings, report I/O, env report, Colab bootstrap
-- [ ] C1.1 paths.py: single source of truth for paths (Drive on Colab, ./local elsewhere)
+- [x] C1.1 paths.py: single source of truth for paths (Drive on Colab, ./local elsewhere)
 - [ ] C1.2 settings.py: pinned model ids, dataset URL and sha256, seed
 - [ ] C1.3 report_io.py: print files between BEGIN/END markers and import pasted output
 - [ ] C1.4 env_report.py + `boinga env` CLI

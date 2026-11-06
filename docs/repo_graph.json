@@ -12,6 +12,11 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_paths.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_repo_graph.py",
       "target": "tools/repo_graph.py"
     },
@@ -143,10 +148,22 @@
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
     {
+      "kind": "module",
+      "lines": 133,
+      "path": "src/boinga_translator/paths.py",
+      "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
+    },
+    {
       "kind": "test",
       "lines": 57,
       "path": "tests/test_hooks.py",
       "purpose": "Tests for tools/hooks/commit_msg.py: valid messages pass, bad ones fail with the right reason."
+    },
+    {
+      "kind": "test",
+      "lines": 102,
+      "path": "tests/test_paths.py",
+      "purpose": "Tests for paths.py: env overrides, Colab/local defaults, run_dir and ensure_dirs."
     },
     {
       "kind": "test",
