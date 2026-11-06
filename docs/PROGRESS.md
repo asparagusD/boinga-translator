@@ -48,8 +48,8 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
   baked in, spec hash in metadata (the commit is recorded at run time by C1.7), `--check` for stale notebooks
 - [x] C1.6c retire tools/build_notebooks.py: C1 bootstrap notebook is now
   notebooks/runs/C1_bootstrap_run1.ipynb from notebooks/specs/c1_bootstrap.py
-- [ ] C1.7 src/boinga_translator/colab_runtime.py: run header, cell_ok (machine-readable
-  PASS/FAIL line, stops Run all on FAIL), notes recording
+- [x] C1.7 src/boinga_translator/colab_runtime.py: run_header (RUN-HEADER line + env
+  report), cell_ok (CELL-OK line), record_notes, expect_files, play
   Merge gate: C1N must not merge to main without C1.7 (every built notebook's HDR cell
   calls run_header; BOOT.2 checks out the spec's branch, main for the C1 bootstrap)
 - [ ] C1.8a tools/read_colab_run.py: executed .ipynb -> per-cell digest (status, outputs,
@@ -60,6 +60,13 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
   (`colab_runs/`), DECISIONS entry
 - [ ] C1.10 pilot: env-check spec + notebook, run on Colab, verified with the reader
   (A = spec + notebook, B = reports from the verified run)
+
+### C1N follow-ups (before the C1N merge)
+- [ ] reports/env.json is emitted twice per run (BOOT.4 and HDR's run_header);
+  report_io.parse_blocks rejects duplicates, so save_pasted_reports fails on a full paste.
+  Make HDR the only emitter in built notebooks; the C1.8 reader parses per cell anyway
+- [ ] Stop-on-FAIL: cell_ok only prints CELL-OK and expect_files only returns False, so a
+  FAIL line does not stop Run all; decide raise-in-cell vs reader-only (C1.8 / C1.9)
 
 ## C2
 - [ ] C2.x (subchunks not yet defined; draft plan parked in `git stash` on

@@ -13,7 +13,7 @@
     {
       "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
-      "target": "src/boinga_translator/__init__.py"
+      "target": "src/boinga_translator/colab_runtime.py"
     },
     {
       "kind": "notebook",
@@ -42,6 +42,21 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/colab_runtime.py",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/colab_runtime.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/colab_runtime.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/env_report.py",
       "target": "src/boinga_translator/paths.py"
     },
@@ -63,6 +78,16 @@
     {
       "kind": "test",
       "source": "tests/test_colab_bootstrap.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_colab_runtime.py",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_colab_runtime.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -255,7 +280,7 @@
     },
     {
       "kind": "doc",
-      "lines": 102,
+      "lines": 109,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -303,6 +328,12 @@
     },
     {
       "kind": "module",
+      "lines": 104,
+      "path": "src/boinga_translator/colab_runtime.py",
+      "purpose": "Helpers called inside generated Colab cells: run header, cell markers, notes, file checks."
+    },
+    {
+      "kind": "module",
       "lines": 100,
       "path": "src/boinga_translator/env_report.py",
       "purpose": "Record python, torch/CUDA, GPU, coqui-tts, numpy, git and disk info to reports/env.json."
@@ -336,6 +367,12 @@
       "lines": 59,
       "path": "tests/test_colab_bootstrap.py",
       "purpose": "Tests for notebooks/colab_bootstrap.py: parses as Python, 4 cells, guards, no secrets in it."
+    },
+    {
+      "kind": "test",
+      "lines": 134,
+      "path": "tests/test_colab_runtime.py",
+      "purpose": "Tests for colab_runtime.py: run header, cell marker, notes, expect_files and play fallbacks."
     },
     {
       "kind": "test",
