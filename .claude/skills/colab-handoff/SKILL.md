@@ -18,6 +18,27 @@ You cannot see Colab. The user is your hands there.
 3. Say what output you expect (shapes, counts, file paths, roughly how long).
 4. Ask the user to paste the full output, including warnings.
 
+## Standard cell header
+Every Colab cell you give the user after the bootstrap (notebooks/colab_bootstrap.py,
+cells 1-4) must start with these lines. Replace the example branch `chunk/C1-paths-env`
+with the real current chunk branch (`git branch --show-current`); a cell you hand
+the user never contains a placeholder:
+```python
+import os; assert os.path.exists("/content/boinga-translator"), "FAIL: run the bootstrap cells first"
+%cd /content/boinga-translator
+!git checkout -q -- reports/ && git fetch -q && git switch chunk/C1-paths-env && git pull -q && git log -1 --oneline
+```
+- `git checkout -- reports/` drops reports re-generated on Colab so switch/pull
+  can't fail on "local changes"; the pasted block and the Drive copy are the record.
+- If the cell re-imports `boinga_translator` after a pull, restart the session
+  first (Runtime > Restart session) or the old code stays cached.
+- Add `!pip install -q -e ".[train]"` right after these lines whenever
+  pyproject.toml changed on this branch since the last Colab run
+  (`git diff <last Colab commit> -- pyproject.toml`).
+- The cell must end with a `PASS:` or `FAIL:` line.
+- Fetch/pull work without the token in any URL because bootstrap cell 2 stored
+  it in git's credential store on the VM. After a VM reset, run the bootstrap again.
+
 ## Receiving output
 - Compare with what you expected. Quote the lines that matter.
 - If there's any traceback or FAIL line, switch to `debug-protocol`.
