@@ -43,19 +43,19 @@ promptbook for that chunk is handed over.
 Branch `chunk/C1N-notebook-pipeline`. Per chunk: Claude Code writes code + a notebook spec;
 the generated notebook is run once on Colab; the executed .ipynb goes to `colab_runs/`
 (git-ignored); `tools/read_colab_run.py` verifies it and saves its reports per subchunk.
-- [ ] C1.7a tools/nbkit.py: spec API (md / code / form cells, cell ids, expectations)
-- [ ] C1.7b tools/build_notebook.py: spec -> .ipynb with the bootstrap cells and branch
+- [ ] C1.6a tools/nbkit.py: spec API (md / code / form cells, cell ids, expectations)
+- [ ] C1.6b tools/build_notebook.py: spec -> .ipynb with the bootstrap cells and branch
   baked in, run metadata (commit, spec hash), `--check` for stale notebooks
-- [ ] C1.7c retire tools/build_notebooks.py: c1_colab_bootstrap.ipynb built by build_notebook
-- [ ] C1.8 src/boinga_translator/colab_runtime.py: run header, cell_ok (machine-readable
+- [ ] C1.6c retire tools/build_notebooks.py: c1_colab_bootstrap.ipynb built by build_notebook
+- [ ] C1.7 src/boinga_translator/colab_runtime.py: run header, cell_ok (machine-readable
   PASS/FAIL line, stops Run all on FAIL), notes recording
-- [ ] C1.9a tools/read_colab_run.py: executed .ipynb -> per-cell digest (status, outputs,
+- [ ] C1.8a tools/read_colab_run.py: executed .ipynb -> per-cell digest (status, outputs,
   errors), form values, secret scan
-- [ ] C1.9b read_colab_run: expectation check against the spec, report blocks saved via
+- [ ] C1.8b read_colab_run: expectation check against the spec, report blocks saved via
   report_io, exit code
-- [ ] C1.10 colab-handoff skill update, new colab-verify skill, CLAUDE.md, .gitignore
+- [ ] C1.9 colab-handoff skill update, new colab-verify skill, CLAUDE.md, .gitignore
   (`colab_runs/`), DECISIONS entry
-- [ ] C1.11 pilot: env-check spec + notebook, run on Colab, verified with the reader
+- [ ] C1.10 pilot: env-check spec + notebook, run on Colab, verified with the reader
   (A = spec + notebook, B = reports from the verified run)
 
 ## C2
