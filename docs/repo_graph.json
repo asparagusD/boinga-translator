@@ -7,7 +7,37 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/env_report.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/env_report.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/report_io.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_env_report.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_env_report.py",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_env_report.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -183,9 +213,15 @@
     },
     {
       "kind": "module",
-      "lines": 25,
+      "lines": 28,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
+    },
+    {
+      "kind": "module",
+      "lines": 100,
+      "path": "src/boinga_translator/env_report.py",
+      "purpose": "Record python, torch/CUDA, GPU, coqui-tts, numpy, git and disk info to reports/env.json."
     },
     {
       "kind": "module",
@@ -204,6 +240,12 @@
       "lines": 43,
       "path": "src/boinga_translator/settings.py",
       "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
+    },
+    {
+      "kind": "test",
+      "lines": 117,
+      "path": "tests/test_env_report.py",
+      "purpose": "Tests for env_report.py and `boinga env`: missing torch, fake GPU, JSON keys, CLI wiring."
     },
     {
       "kind": "test",
