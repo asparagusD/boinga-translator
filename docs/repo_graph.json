@@ -1,16 +1,6 @@
 {
   "edges": [
     {
-      "kind": "notebook",
-      "source": "notebooks/c1_colab_bootstrap.ipynb",
-      "target": "src/boinga_translator/env_report.py"
-    },
-    {
-      "kind": "notebook",
-      "source": "notebooks/c1_colab_bootstrap.ipynb",
-      "target": "src/boinga_translator/paths.py"
-    },
-    {
       "kind": "import",
       "source": "notebooks/colab_bootstrap.py",
       "target": "src/boinga_translator/env_report.py"
@@ -19,6 +9,26 @@
       "kind": "import",
       "source": "notebooks/colab_bootstrap.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
+      "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c1_bootstrap.py",
+      "target": "tools/nbkit.py"
     },
     {
       "kind": "import",
@@ -88,7 +98,7 @@
     {
       "kind": "test",
       "source": "tests/test_notebooks.py",
-      "target": "tools/build_notebooks.py"
+      "target": "tools/build_notebook.py"
     },
     {
       "kind": "test",
@@ -227,7 +237,7 @@
     },
     {
       "kind": "doc",
-      "lines": 30,
+      "lines": 31,
       "path": "README.md",
       "purpose": "boinga-translator"
     },
@@ -245,21 +255,27 @@
     },
     {
       "kind": "doc",
-      "lines": 99,
+      "lines": 102,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
     {
-      "kind": "notebook",
-      "lines": 183,
-      "path": "notebooks/c1_colab_bootstrap.ipynb",
+      "kind": "module",
+      "lines": 130,
+      "path": "notebooks/colab_bootstrap.py",
       "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."
     },
     {
+      "kind": "notebook",
+      "lines": 266,
+      "path": "notebooks/runs/C1_bootstrap_run1.ipynb",
+      "purpose": "C1 run 1 — Colab bootstrap"
+    },
+    {
       "kind": "module",
-      "lines": 129,
-      "path": "notebooks/colab_bootstrap.py",
-      "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."
+      "lines": 12,
+      "path": "notebooks/specs/c1_bootstrap.py",
+      "purpose": "Spec: C1 bootstrap-only notebook on main (mount Drive, clone, install deps, record env)."
     },
     {
       "kind": "config",
@@ -341,9 +357,9 @@
     },
     {
       "kind": "test",
-      "lines": 50,
+      "lines": 31,
       "path": "tests/test_notebooks.py",
-      "purpose": "Tests for tools/build_notebooks.py: committed .ipynb files match their \"# %%\" sources."
+      "purpose": "Tests for the committed run notebooks: in sync with their specs; C1 bootstrap shape, no secrets."
     },
     {
       "kind": "test",
@@ -380,12 +396,6 @@
       "lines": 171,
       "path": "tools/build_notebook.py",
       "purpose": "Build a per-chunk Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/."
-    },
-    {
-      "kind": "tool",
-      "lines": 70,
-      "path": "tools/build_notebooks.py",
-      "purpose": "Build Colab .ipynb files from \"# %%\" cell files; the header comment becomes a markdown cell."
     },
     {
       "kind": "tool",

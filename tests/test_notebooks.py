@@ -1,50 +1,31 @@
-"""Tests for tools/build_notebooks.py: committed .ipynb files match their "# %%" sources."""
+"""Tests for the committed run notebooks: in sync with their specs; C1 bootstrap shape, no secrets."""
 
 from __future__ import annotations
 
 import ast
 import json
 import re
-from pathlib import Path
 
-import build_notebooks
-import pytest
+import build_notebook
 
 from boinga_translator import paths
 
-
-@pytest.mark.parametrize(("src", "dst"), sorted(build_notebooks.PAIRS.items()))
-def test_committed_notebook_is_in_sync(src: str, dst: str) -> None:
-    expected = build_notebooks.build((paths.REPO / src).read_text(encoding="utf-8"))
-    committed = (paths.REPO / dst).read_text(encoding="utf-8")
-    assert committed == expected, f"{dst} is stale: run `python tools/build_notebooks.py`"
+C1_NOTEBOOK = paths.REPO / "notebooks" / "runs" / "C1_bootstrap_run1.ipynb"
 
 
-def test_c1_notebook_shape() -> None:
-    nb = json.loads(build_notebooks.build(
-        (paths.REPO / "notebooks" / "colab_bootstrap.py").read_text(encoding="utf-8")))
-    kinds = [c["cell_type"] for c in nb["cells"]]
-    assert kinds == ["markdown", "code", "code", "code", "code"]
+def test_committed_notebooks_are_in_sync() -> None:
+    assert build_notebook.main(["--all", "--check"]) == 0, "run `tools/build_notebook.py --all`"
+
+
+def test_c1_bootstrap_notebook_shape() -> None:
+    nb = json.loads(C1_NOTEBOOK.read_text(encoding="utf-8"))
+    ids = [c["metadata"].get("boinga", {}).get("id") for c in nb["cells"]]
+    assert ids == [None, "BOOT.1", "BOOT.2", "BOOT.3", "BOOT.4", "HDR"]
     assert nb["nbformat"] == 4 and nb["metadata"]["colab"]["gpuType"] == "T4"
     assert nb["metadata"]["accelerator"] == "GPU"
+    assert nb["metadata"]["boinga"]["branch"] == "main"
     for cell in nb["cells"][1:]:
         ast.parse("".join(cell["source"]))
         assert cell["outputs"] == [] and cell["execution_count"] is None
-    assert "".join(nb["cells"][1]["source"]).startswith("# %% Cell 1/4")
+    assert 'BRANCH = "main"' in "".join(nb["cells"][2]["source"])
     assert not re.search(r"ghp_|github_pat_", json.dumps(nb))
-
-
-def test_build_splits_header_and_cells() -> None:
-    text = '"""Demo."""\n\n# Intro line\n\n# %% A\nx = 1\n\n# %% B\ny = 2\n'
-    nb = json.loads(build_notebooks.build(text))
-    assert "".join(nb["cells"][0]["source"]) == "# Demo.\n\nIntro line"
-    assert ["".join(c["source"]) for c in nb["cells"][1:]] == ["# %% A\nx = 1", "# %% B\ny = 2"]
-
-
-def test_check_mode_detects_stale(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    (tmp_path / "a.py").write_text('"""A."""\n# %% one\nx = 1\n', encoding="utf-8")
-    monkeypatch.setattr(build_notebooks, "ROOT", tmp_path)
-    monkeypatch.setattr(build_notebooks, "PAIRS", {"a.py": "a.ipynb"})
-    assert build_notebooks.main(["--check"]) == 1
-    assert build_notebooks.main([]) == 0
-    assert build_notebooks.main(["--check"]) == 0

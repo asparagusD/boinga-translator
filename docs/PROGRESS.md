@@ -46,9 +46,12 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
 - [x] C1.6a tools/nbkit.py: spec API (md / code / form cells, cell ids, expectations)
 - [x] C1.6b tools/build_notebook.py: spec -> .ipynb with the bootstrap cells and branch
   baked in, spec hash in metadata (the commit is recorded at run time by C1.7), `--check` for stale notebooks
-- [ ] C1.6c retire tools/build_notebooks.py: c1_colab_bootstrap.ipynb built by build_notebook
+- [x] C1.6c retire tools/build_notebooks.py: C1 bootstrap notebook is now
+  notebooks/runs/C1_bootstrap_run1.ipynb from notebooks/specs/c1_bootstrap.py
 - [ ] C1.7 src/boinga_translator/colab_runtime.py: run header, cell_ok (machine-readable
   PASS/FAIL line, stops Run all on FAIL), notes recording
+  Merge gate: C1N must not merge to main without C1.7 (every built notebook's HDR cell
+  calls run_header; BOOT.2 checks out the spec's branch, main for the C1 bootstrap)
 - [ ] C1.8a tools/read_colab_run.py: executed .ipynb -> per-cell digest (status, outputs,
   errors), form values, secret scan
 - [ ] C1.8b read_colab_run: expectation check against the spec, report blocks saved via
