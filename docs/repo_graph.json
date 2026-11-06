@@ -7,6 +7,11 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_hooks.py",
+      "target": "tools/hooks/commit_msg.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_repo_graph.py",
       "target": "tools/repo_graph.py"
     },
@@ -78,6 +83,18 @@
       "purpose": "Coqui-TTS VITS fine-tuning specifics for boinga-translator."
     },
     {
+      "kind": "hook",
+      "lines": 8,
+      "path": ".githooks/commit-msg",
+      "purpose": "Commit-msg: enforce the atomic-commit message format."
+    },
+    {
+      "kind": "hook",
+      "lines": 8,
+      "path": ".githooks/pre-commit",
+      "purpose": "Pre-commit: block binaries/large files, stale repo graph, ruff errors, failing tests."
+    },
+    {
       "kind": "doc",
       "lines": 48,
       "path": "CLAUDE.md",
@@ -85,7 +102,7 @@
     },
     {
       "kind": "doc",
-      "lines": 10,
+      "lines": 21,
       "path": "README.md",
       "purpose": "boinga-translator"
     },
@@ -109,6 +126,12 @@
     },
     {
       "kind": "test",
+      "lines": 57,
+      "path": "tests/test_hooks.py",
+      "purpose": "Tests for tools/hooks/commit_msg.py: valid messages pass, bad ones fail with the right reason."
+    },
+    {
+      "kind": "test",
       "lines": 93,
       "path": "tests/test_repo_graph.py",
       "purpose": "Tests for tools/repo_graph.py: node kinds, edge types, stability and --check on a fake repo."
@@ -118,6 +141,18 @@
       "lines": 7,
       "path": "tests/test_smoke_import.py",
       "purpose": "Smoke test: the package imports and exposes a version."
+    },
+    {
+      "kind": "tool",
+      "lines": 80,
+      "path": "tools/hooks/commit_msg.py",
+      "purpose": "Commit-msg guard: enforce the atomic-commit message format (header, Chunk/What/Why/How verified)."
+    },
+    {
+      "kind": "tool",
+      "lines": 89,
+      "path": "tools/hooks/pre_commit.py",
+      "purpose": "Pre-commit guard: block binaries/large files, stale repo graph, ruff errors and failing tests."
     },
     {
       "kind": "tool",

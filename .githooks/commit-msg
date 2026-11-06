@@ -1,0 +1,8 @@
+#!/bin/sh
+# Commit-msg: enforce the atomic-commit message format.
+# Enable once per clone: git config core.hooksPath .githooks
+ROOT=$(git rev-parse --show-toplevel)
+if [ -x "$ROOT/.venv/Scripts/python.exe" ]; then PY="$ROOT/.venv/Scripts/python.exe"
+elif [ -x "$ROOT/.venv/bin/python" ]; then PY="$ROOT/.venv/bin/python"
+else PY=python; fi
+exec "$PY" "$ROOT/tools/hooks/commit_msg.py" "$@"

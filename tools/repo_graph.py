@@ -125,13 +125,13 @@ def module_name(rel: str) -> str:
 
 
 def module_index(files: list[str]) -> dict[str, str]:
-    """Map importable dotted names to repo files (src/ stripped; tools/* also by bare stem)."""
+    """Map importable dotted names to repo files (src/ stripped; tools/ is on pytest's path)."""
     idx: dict[str, str] = {}
     for rel in (f for f in files if f.endswith(".py")):
         idx.setdefault(module_name(rel), rel)
         parts = rel[:-3].split("/")
-        if parts[0] == "tools" and len(parts) == 2:
-            idx.setdefault(parts[1], rel)
+        if parts[0] == "tools" and len(parts) > 1:
+            idx.setdefault(".".join(parts[1:]), rel)
     return idx
 
 

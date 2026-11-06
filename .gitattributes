@@ -1,2 +1,4 @@
 *.ipynb text eol=lf
 *.py text eol=lf
+.githooks/* text eol=lf
+*.sh text eol=lf
