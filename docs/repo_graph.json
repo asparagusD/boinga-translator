@@ -2,8 +2,58 @@
   "edges": [
     {
       "kind": "import",
+      "source": "notebooks/colab_bootstrap.py",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/colab_bootstrap.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/env_report.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/env_report.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/report_io.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_colab_bootstrap.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_env_report.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_env_report.py",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_env_report.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "test",
@@ -12,13 +62,53 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_paths.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_repo_graph.py",
       "target": "tools/repo_graph.py"
     },
     {
       "kind": "test",
+      "source": "tests/test_report_io.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_report_io.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_report_io.py",
+      "target": "tools/save_pasted_reports.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_settings.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_settings.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_smoke_import.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/save_pasted_reports.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/save_pasted_reports.py",
+      "target": "src/boinga_translator/report_io.py"
     }
   ],
   "nodes": [
@@ -54,7 +144,7 @@
     },
     {
       "kind": "skill",
-      "lines": 29,
+      "lines": 68,
       "path": ".claude/skills/colab-handoff/SKILL.md",
       "purpose": "How to hand work to Google Colab and take results back."
     },
@@ -108,26 +198,38 @@
     },
     {
       "kind": "doc",
-      "lines": 19,
+      "lines": 47,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
     {
       "kind": "doc",
-      "lines": 47,
+      "lines": 75,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 60,
+      "lines": 77,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
     {
+      "kind": "module",
+      "lines": 123,
+      "path": "notebooks/colab_bootstrap.py",
+      "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."
+    },
+    {
       "kind": "config",
-      "lines": 35,
+      "lines": 39,
       "path": "pyproject.toml",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 16,
+      "path": "reports/env.json",
       "purpose": ""
     },
     {
@@ -138,9 +240,45 @@
     },
     {
       "kind": "module",
-      "lines": 25,
+      "lines": 28,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
+    },
+    {
+      "kind": "module",
+      "lines": 100,
+      "path": "src/boinga_translator/env_report.py",
+      "purpose": "Record python, torch/CUDA, GPU, coqui-tts, numpy, git and disk info to reports/env.json."
+    },
+    {
+      "kind": "module",
+      "lines": 133,
+      "path": "src/boinga_translator/paths.py",
+      "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
+    },
+    {
+      "kind": "module",
+      "lines": 124,
+      "path": "src/boinga_translator/report_io.py",
+      "purpose": "Move Colab reports into the repo: print files between BEGIN/END markers, parse pasted output."
+    },
+    {
+      "kind": "module",
+      "lines": 43,
+      "path": "src/boinga_translator/settings.py",
+      "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
+    },
+    {
+      "kind": "test",
+      "lines": 59,
+      "path": "tests/test_colab_bootstrap.py",
+      "purpose": "Tests for notebooks/colab_bootstrap.py: parses as Python, 4 cells, guards, no secrets in it."
+    },
+    {
+      "kind": "test",
+      "lines": 117,
+      "path": "tests/test_env_report.py",
+      "purpose": "Tests for env_report.py and `boinga env`: missing torch, fake GPU, JSON keys, CLI wiring."
     },
     {
       "kind": "test",
@@ -150,9 +288,27 @@
     },
     {
       "kind": "test",
+      "lines": 102,
+      "path": "tests/test_paths.py",
+      "purpose": "Tests for paths.py: env overrides, Colab/local defaults, run_dir and ensure_dirs."
+    },
+    {
+      "kind": "test",
       "lines": 93,
       "path": "tests/test_repo_graph.py",
       "purpose": "Tests for tools/repo_graph.py: node kinds, edge types, stability and --check on a fake repo."
+    },
+    {
+      "kind": "test",
+      "lines": 160,
+      "path": "tests/test_report_io.py",
+      "purpose": "Tests for report_io.py and tools/save_pasted_reports.py: round trip, traversal, big-file skip."
+    },
+    {
+      "kind": "test",
+      "lines": 31,
+      "path": "tests/test_settings.py",
+      "purpose": "Tests for settings.py: pinned hash format, https URLs, both voices, seed and the coqui pin."
     },
     {
       "kind": "test",
@@ -177,6 +333,12 @@
       "lines": 309,
       "path": "tools/repo_graph.py",
       "purpose": "Generate the repo map (docs/REPO_GRAPH.md + docs/repo_graph.json): file purposes and edges."
+    },
+    {
+      "kind": "tool",
+      "lines": 35,
+      "path": "tools/save_pasted_reports.py",
+      "purpose": "Save BEGIN/END report blocks pasted from Colab into the repo (from a file or stdin)."
     }
   ]
 }
