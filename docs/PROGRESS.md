@@ -23,7 +23,19 @@ promptbook for that chunk is handed over.
 - [x] C1.3 report_io.py: print files between BEGIN/END markers and import pasted output (`63f4c1b`)
 - [x] C1.4 env_report.py + `boinga env` CLI (`4d3399f`)
 - [x] C1.5 Colab bootstrap cells (notebooks/colab_bootstrap.py) + first Colab env report;
-  two commits: A code + local tests (`cc31783`), B pasted reports/env.json
+  two commits: A code + local tests (`cc31783`), B pasted reports/env.json (`9f760cf`);
+  fix: drop untracked Colab reports before pulling (`29c7184`)
+
+### C1 follow-ups (from the whole-chunk review; not blocking)
+- [ ] Bootstrap cell 2: warn loudly when BRANCH == "main" and newer chunk/* branches exist
+- [ ] Drive budget: 13.0 GiB free after cleanup (was 5.9); keep unzipped data on /content,
+  last 2 + best checkpoints, empty Drive trash after deletes (decide in the data/train chunks)
+- [ ] report_io: Drive copy lands at ROOT/reports/reports/...; mirror repo paths as root()/rel
+- [ ] paths.require_drive(): reusable Drive-mount guard instead of ensure_dirs() in write_report
+- [ ] paths.COLAB_REPO constant + test that bootstrap literals match paths constants
+- [ ] paths.REPO assumes an editable/source install: assert REPO/pyproject.toml exists
+- [ ] DECISIONS: bootstrap cells may hold logic (they run before the package is importable)
+- [ ] Optional: enforce ruff E501 (100 chars) and wrap the existing long lines
 
 ## C2
 - [ ] C2.x (subchunks not yet defined)
