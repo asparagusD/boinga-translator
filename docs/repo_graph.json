@@ -144,7 +144,7 @@
     },
     {
       "kind": "skill",
-      "lines": 66,
+      "lines": 68,
       "path": ".claude/skills/colab-handoff/SKILL.md",
       "purpose": "How to hand work to Google Colab and take results back."
     },
@@ -198,7 +198,7 @@
     },
     {
       "kind": "doc",
-      "lines": 31,
+      "lines": 47,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
@@ -216,7 +216,7 @@
     },
     {
       "kind": "module",
-      "lines": 120,
+      "lines": 123,
       "path": "notebooks/colab_bootstrap.py",
       "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."
     },
@@ -270,7 +270,7 @@
     },
     {
       "kind": "test",
-      "lines": 55,
+      "lines": 59,
       "path": "tests/test_colab_bootstrap.py",
       "purpose": "Tests for notebooks/colab_bootstrap.py: parses as Python, 4 cells, guards, no secrets in it."
     },

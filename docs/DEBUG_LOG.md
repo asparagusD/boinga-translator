@@ -29,3 +29,19 @@ cell 4 printed `PASS: env recorded`.
 **Test added:** none (no code change). Follow-up idea: make cell 2 warn loudly when
 `BRANCH == "main"` and newer `chunk/*` branches exist.
 **Commit:** chore(colab): record first Colab environment report (C1.5 commit B)
+
+## 2026-11-07 C1.5 Colab cell 2 pull aborts on an untracked reports/env.json
+**Symptom:** Found in the whole-chunk C1 review: on a reused Colab VM where cell 4
+ran before reports/env.json was committed, re-running cell 2 to pull a commit that
+tracks it fails with `error: The following untracked working tree files would be
+overwritten by merge: reports/env.json` -> `FAIL: git pull failed`.
+**Root cause:** cell 2 (and the skill's standard cell header) only ran
+`git checkout -- reports/`, which restores tracked files; reports created on Colab
+stay untracked until they are committed locally and pushed.
+**Fix:** also run `git clean -fdq -- reports/` before fetch/switch/pull in cell 2 and
+in the colab-handoff standard header (header pull aligned to `--ff-only`). The pasted
+block and the Drive copy are the record.
+**Test added:** tests/test_colab_bootstrap.py::test_guards_and_branch asserts
+checkout -> clean -> switch order; scratch-repo repro: old sequence errors, fixed
+sequence pulls `track env`.
+**Commit:** fix(colab): drop untracked Colab reports before pulling

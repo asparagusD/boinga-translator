@@ -26,10 +26,12 @@ the user never contains a placeholder:
 ```python
 import os; assert os.path.exists("/content/boinga-translator"), "FAIL: run the bootstrap cells first"
 %cd /content/boinga-translator
-!git checkout -q -- reports/ && git fetch -q && git switch chunk/C1-paths-env && git pull -q && git log -1 --oneline
+!git checkout -q -- reports/ && git clean -fdq -- reports/ && git fetch -q && git switch chunk/C1-paths-env && git pull -q --ff-only && git log -1 --oneline
 ```
-- `git checkout -- reports/` drops reports re-generated on Colab so switch/pull
-  can't fail on "local changes"; the pasted block and the Drive copy are the record.
+- `git checkout -- reports/` + `git clean -fdq -- reports/` drop reports generated on
+  Colab (edited tracked files and new untracked files), so switch/pull can't abort on
+  "local changes" or "untracked files would be overwritten"; the pasted block and the
+  Drive copy are the record.
 - If the cell re-imports `boinga_translator` after a pull, restart the session
   first (Runtime > Restart session) or the old code stays cached.
 - Add `!pip install -q -e ".[train]"` right after these lines whenever

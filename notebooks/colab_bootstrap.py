@@ -67,7 +67,10 @@ with os.fdopen(fd, "w", encoding="utf-8") as fh:
     fh.write(f"https://x-access-token:{token}@github.com\n")
 git("config", "--global", "credential.helper", "store", cwd="/content")
 if os.path.isdir(f"{REPO_DIR}/.git"):
-    git("checkout", "-q", "--", "reports/")  # drop re-generated reports; Drive keeps a copy
+    # Drop reports generated on this VM (tracked edits and untracked new files) so switch/pull
+    # can't abort on "local changes" / "untracked files would be overwritten"; Drive keeps a copy.
+    git("checkout", "-q", "--", "reports/")
+    git("clean", "-fdq", "--", "reports/")
     git("fetch", "-q", "origin")
 else:
     git("clone", "-q", f"https://github.com/{OWNER}/{REPO}.git", REPO_DIR, cwd="/content")

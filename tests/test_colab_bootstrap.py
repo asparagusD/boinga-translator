@@ -49,6 +49,10 @@ def test_guards_and_branch(text: str) -> None:
     assert "drive.mount" in cells[0]
     assert re.search(r'^BRANCH = "main"', cells[1], flags=re.MULTILINE)
     assert "/content/drive/MyDrive" in cells[1]  # cell 2 needs cell 1
+    # Colab-made reports (tracked or untracked) must be dropped before switch/pull
+    cleanup = cells[1].index('git("clean", "-fdq", "--", "reports/")')
+    assert cells[1].index('git("checkout", "-q", "--", "reports/")') < cleanup
+    assert cleanup < cells[1].index('git("switch", BRANCH)')
     for cell in cells[2:]:
         assert "FAIL: run the bootstrap cells first" in cell
     assert '".[train]"' in cells[2]
