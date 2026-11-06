@@ -1,4 +1,4 @@
-"""Pre-commit guard: block binaries/large files, stale repo graph, ruff errors and failing tests."""
+"""Pre-commit guard: block binaries/large files, stale map/notebooks, ruff errors, failing tests."""
 
 from __future__ import annotations
 
@@ -61,6 +61,9 @@ def main() -> int:
     if _run([sys.executable, "tools/repo_graph.py", "--check"]) != 0 or map_unstaged:
         print("Repo graph is stale: run `python tools/repo_graph.py` and stage docs/",
               file=sys.stderr)
+        ok = False
+
+    if _run([sys.executable, "tools/build_notebook.py", "--all", "--check"]) != 0:
         ok = False
 
     py_files = [f for f in files if f.endswith(".py")]

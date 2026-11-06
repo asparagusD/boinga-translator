@@ -47,6 +47,11 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_build_notebook.py",
+      "target": "tools/build_notebook.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_colab_bootstrap.py",
       "target": "src/boinga_translator/paths.py"
     },
@@ -124,6 +129,11 @@
       "kind": "test",
       "source": "tests/test_smoke_import.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/build_notebook.py",
+      "target": "tools/nbkit.py"
     },
     {
       "kind": "import",
@@ -253,7 +263,7 @@
     },
     {
       "kind": "config",
-      "lines": 39,
+      "lines": 41,
       "path": "pyproject.toml",
       "purpose": ""
     },
@@ -298,6 +308,12 @@
       "lines": 43,
       "path": "src/boinga_translator/settings.py",
       "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
+    },
+    {
+      "kind": "test",
+      "lines": 126,
+      "path": "tests/test_build_notebook.py",
+      "purpose": "Tests for tools/build_notebook.py: tiny spec -> .ipynb layout, determinism and --check."
     },
     {
       "kind": "test",
@@ -361,6 +377,12 @@
     },
     {
       "kind": "tool",
+      "lines": 171,
+      "path": "tools/build_notebook.py",
+      "purpose": "Build a per-chunk Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/."
+    },
+    {
+      "kind": "tool",
       "lines": 70,
       "path": "tools/build_notebooks.py",
       "purpose": "Build Colab .ipynb files from \"# %%\" cell files; the header comment becomes a markdown cell."
@@ -373,9 +395,9 @@
     },
     {
       "kind": "tool",
-      "lines": 89,
+      "lines": 92,
       "path": "tools/hooks/pre_commit.py",
-      "purpose": "Pre-commit guard: block binaries/large files, stale repo graph, ruff errors and failing tests."
+      "purpose": "Pre-commit guard: block binaries/large files, stale map/notebooks, ruff errors, failing tests."
     },
     {
       "kind": "tool",

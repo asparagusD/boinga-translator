@@ -44,8 +44,8 @@ Branch `chunk/C1N-notebook-pipeline`. Per chunk: Claude Code writes code + a not
 the generated notebook is run once on Colab; the executed .ipynb goes to `colab_runs/`
 (git-ignored); `tools/read_colab_run.py` verifies it and saves its reports per subchunk.
 - [x] C1.6a tools/nbkit.py: spec API (md / code / form cells, cell ids, expectations)
-- [ ] C1.6b tools/build_notebook.py: spec -> .ipynb with the bootstrap cells and branch
-  baked in, run metadata (commit, spec hash), `--check` for stale notebooks
+- [x] C1.6b tools/build_notebook.py: spec -> .ipynb with the bootstrap cells and branch
+  baked in, spec hash in metadata (the commit is recorded at run time by C1.7), `--check` for stale notebooks
 - [ ] C1.6c retire tools/build_notebooks.py: c1_colab_bootstrap.ipynb built by build_notebook
 - [ ] C1.7 src/boinga_translator/colab_runtime.py: run header, cell_ok (machine-readable
   PASS/FAIL line, stops Run all on FAIL), notes recording
