@@ -6,6 +6,11 @@
       "target": "src/boinga_translator/__init__.py"
     },
     {
+      "kind": "import",
+      "source": "src/boinga_translator/report_io.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "test",
       "source": "tests/test_hooks.py",
       "target": "tools/hooks/commit_msg.py"
@@ -22,6 +27,21 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_report_io.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_report_io.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_report_io.py",
+      "target": "tools/save_pasted_reports.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_settings.py",
       "target": "src/boinga_translator/paths.py"
     },
@@ -34,6 +54,16 @@
       "kind": "test",
       "source": "tests/test_smoke_import.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/save_pasted_reports.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/save_pasted_reports.py",
+      "target": "src/boinga_translator/report_io.py"
     }
   ],
   "nodes": [
@@ -69,7 +99,7 @@
     },
     {
       "kind": "skill",
-      "lines": 29,
+      "lines": 45,
       "path": ".claude/skills/colab-handoff/SKILL.md",
       "purpose": "How to hand work to Google Colab and take results back."
     },
@@ -165,6 +195,12 @@
     },
     {
       "kind": "module",
+      "lines": 124,
+      "path": "src/boinga_translator/report_io.py",
+      "purpose": "Move Colab reports into the repo: print files between BEGIN/END markers, parse pasted output."
+    },
+    {
+      "kind": "module",
       "lines": 43,
       "path": "src/boinga_translator/settings.py",
       "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
@@ -186,6 +222,12 @@
       "lines": 93,
       "path": "tests/test_repo_graph.py",
       "purpose": "Tests for tools/repo_graph.py: node kinds, edge types, stability and --check on a fake repo."
+    },
+    {
+      "kind": "test",
+      "lines": 160,
+      "path": "tests/test_report_io.py",
+      "purpose": "Tests for report_io.py and tools/save_pasted_reports.py: round trip, traversal, big-file skip."
     },
     {
       "kind": "test",
@@ -216,6 +258,12 @@
       "lines": 309,
       "path": "tools/repo_graph.py",
       "purpose": "Generate the repo map (docs/REPO_GRAPH.md + docs/repo_graph.json): file purposes and edges."
+    },
+    {
+      "kind": "tool",
+      "lines": 35,
+      "path": "tools/save_pasted_reports.py",
+      "purpose": "Save BEGIN/END report blocks pasted from Colab into the repo (from a file or stdin)."
     }
   ]
 }
