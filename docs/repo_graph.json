@@ -30,6 +30,12 @@
       "purpose": "Investigates failures in boinga-translator using the debug-protocol skill."
     },
     {
+      "kind": "config",
+      "lines": 29,
+      "path": ".claude/settings.json",
+      "purpose": ""
+    },
+    {
       "kind": "skill",
       "lines": 43,
       "path": ".claude/skills/atomic-commit/SKILL.md",
