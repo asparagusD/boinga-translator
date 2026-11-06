@@ -72,6 +72,11 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_nbkit.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_notebooks.py",
       "target": "src/boinga_translator/paths.py"
     },
@@ -314,6 +319,12 @@
     },
     {
       "kind": "test",
+      "lines": 142,
+      "path": "tests/test_nbkit.py",
+      "purpose": "Tests for tools/nbkit.py: md/code/form cell sources, metadata, validation and Notebook."
+    },
+    {
+      "kind": "test",
       "lines": 50,
       "path": "tests/test_notebooks.py",
       "purpose": "Tests for tools/build_notebooks.py: committed .ipynb files match their \"# %%\" sources."
@@ -365,6 +376,12 @@
       "lines": 89,
       "path": "tools/hooks/pre_commit.py",
       "purpose": "Pre-commit guard: block binaries/large files, stale repo graph, ruff errors and failing tests."
+    },
+    {
+      "kind": "tool",
+      "lines": 173,
+      "path": "tools/nbkit.py",
+      "purpose": "Notebook spec API (stdlib only): md / code / form cells and the Notebook a spec defines."
     },
     {
       "kind": "tool",

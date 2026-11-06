@@ -43,7 +43,7 @@ promptbook for that chunk is handed over.
 Branch `chunk/C1N-notebook-pipeline`. Per chunk: Claude Code writes code + a notebook spec;
 the generated notebook is run once on Colab; the executed .ipynb goes to `colab_runs/`
 (git-ignored); `tools/read_colab_run.py` verifies it and saves its reports per subchunk.
-- [ ] C1.6a tools/nbkit.py: spec API (md / code / form cells, cell ids, expectations)
+- [x] C1.6a tools/nbkit.py: spec API (md / code / form cells, cell ids, expectations)
 - [ ] C1.6b tools/build_notebook.py: spec -> .ipynb with the bootstrap cells and branch
   baked in, run metadata (commit, spec hash), `--check` for stale notebooks
 - [ ] C1.6c retire tools/build_notebooks.py: c1_colab_bootstrap.ipynb built by build_notebook
