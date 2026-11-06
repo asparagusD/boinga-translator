@@ -22,6 +22,16 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_settings.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_settings.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_smoke_import.py",
       "target": "src/boinga_translator/__init__.py"
     }
@@ -119,7 +129,7 @@
     },
     {
       "kind": "doc",
-      "lines": 47,
+      "lines": 75,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
@@ -154,6 +164,12 @@
       "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
     },
     {
+      "kind": "module",
+      "lines": 43,
+      "path": "src/boinga_translator/settings.py",
+      "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
+    },
+    {
       "kind": "test",
       "lines": 57,
       "path": "tests/test_hooks.py",
@@ -170,6 +186,12 @@
       "lines": 93,
       "path": "tests/test_repo_graph.py",
       "purpose": "Tests for tools/repo_graph.py: node kinds, edge types, stability and --check on a fake repo."
+    },
+    {
+      "kind": "test",
+      "lines": 31,
+      "path": "tests/test_settings.py",
+      "purpose": "Tests for settings.py: pinned hash format, https URLs, both voices, seed and the coqui pin."
     },
     {
       "kind": "test",
