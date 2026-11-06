@@ -198,7 +198,7 @@
     },
     {
       "kind": "doc",
-      "lines": 19,
+      "lines": 31,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
@@ -224,6 +224,12 @@
       "kind": "config",
       "lines": 39,
       "path": "pyproject.toml",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 16,
+      "path": "reports/env.json",
       "purpose": ""
     },
     {

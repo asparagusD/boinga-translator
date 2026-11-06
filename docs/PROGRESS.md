@@ -22,8 +22,8 @@ promptbook for that chunk is handed over.
 - [x] C1.2 settings.py: pinned model ids, dataset URL and sha256, seed (`93f6feb`)
 - [x] C1.3 report_io.py: print files between BEGIN/END markers and import pasted output (`63f4c1b`)
 - [x] C1.4 env_report.py + `boinga env` CLI (`4d3399f`)
-- [ ] C1.5 Colab bootstrap cells (notebooks/colab_bootstrap.py) + first Colab env report;
-  two commits: A code + local tests, B pasted reports/env.json
+- [x] C1.5 Colab bootstrap cells (notebooks/colab_bootstrap.py) + first Colab env report;
+  two commits: A code + local tests (`cc31783`), B pasted reports/env.json
 
 ## C2
 - [ ] C2.x (subchunks not yet defined)
