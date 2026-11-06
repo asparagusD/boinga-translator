@@ -7,6 +7,11 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_repo_graph.py",
+      "target": "tools/repo_graph.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_smoke_import.py",
       "target": "src/boinga_translator/__init__.py"
     }
@@ -80,7 +85,7 @@
     },
     {
       "kind": "config",
-      "lines": 34,
+      "lines": 35,
       "path": "pyproject.toml",
       "purpose": ""
     },
@@ -95,6 +100,12 @@
       "lines": 25,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
+    },
+    {
+      "kind": "test",
+      "lines": 93,
+      "path": "tests/test_repo_graph.py",
+      "purpose": "Tests for tools/repo_graph.py: node kinds, edge types, stability and --check on a fake repo."
     },
     {
       "kind": "test",
