@@ -9,6 +9,15 @@ Bangla VITS model (coqui-tts 0.28.0).
 
 **Status:** work in progress (proof of concept).
 
+## Run on Colab
+
+Open the bootstrap notebook (mount Drive, clone, install pinned deps, record the env):
+[notebooks/c1_colab_bootstrap.ipynb](https://colab.research.google.com/github/asparagusD/boinga-translator/blob/main/notebooks/c1_colab_bootstrap.ipynb).
+The repo is private, so Colab must be allowed to read it (File > Open notebook > GitHub,
+tick "Include private repos"). Add a `GH_TOKEN` Colab secret first; the notebook's first
+cell explains how. The notebook is generated from `notebooks/colab_bootstrap.py` with
+`python tools/build_notebooks.py`.
+
 ## Developer setup
 
 ```bash

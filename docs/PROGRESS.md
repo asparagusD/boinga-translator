@@ -25,6 +25,8 @@ promptbook for that chunk is handed over.
 - [x] C1.5 Colab bootstrap cells (notebooks/colab_bootstrap.py) + first Colab env report;
   two commits: A code + local tests (`cc31783`), B pasted reports/env.json (`9f760cf`);
   fix: drop untracked Colab reports before pulling (`29c7184`)
+- [x] C1.6 Colab notebook notebooks/c1_colab_bootstrap.ipynb generated from the bootstrap
+  cells by tools/build_notebooks.py (sync enforced by tests/test_notebooks.py)
 
 ### C1 follow-ups (from the whole-chunk review; not blocking)
 - [ ] Bootstrap cell 2: warn loudly when BRANCH == "main" and newer chunk/* branches exist
