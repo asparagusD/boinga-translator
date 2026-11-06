@@ -36,4 +36,4 @@ src = ["src", "tests"]
 
 [tool.ruff.lint.per-file-ignores]
 # Colab cell files: every "# %%" cell is pasted and re-run on its own, so it re-imports.
-"notebooks/*.py" = ["F811"]
+"notebooks/*" = ["F811"]

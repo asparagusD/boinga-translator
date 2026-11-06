@@ -1,15 +1,21 @@
 """Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."""
 
-# HOW TO USE
-# 1. New Colab notebook -> Runtime > Change runtime type > T4 GPU.
+# Ready-made notebook: notebooks/c1_colab_bootstrap.ipynb is generated from this file by
+# `python tools/build_notebooks.py` (edit this file, never the .ipynb).
+#
+# ## How to use
+# 1. Open notebooks/c1_colab_bootstrap.ipynb in Colab (File > Open notebook > GitHub,
+#    tick "Include private repos"), or paste each "# %%" block into its own cell.
+#    Check Runtime > Change runtime type is T4 GPU.
 # 2. Key icon ("Secrets") -> add GH_TOKEN = a fine-grained, read-only GitHub token for
 #    asparagusD/boinga-translator only (Contents: Read-only), and enable notebook access.
-# 3. Paste each "# %%" block below into its own cell, in order, and run them top to bottom.
-#    In cell 2 set BRANCH to the branch you are testing (default "main").
+# 3. In cell 2 set BRANCH to the branch you are testing (default "main"), then run the
+#    cells top to bottom.
 # 4. Copy the whole output (incl. the === BEGIN/END reports/env.json === block) back to
 #    Claude Code. If pip asks you to restart, do Runtime > Restart session, then run 3 and 4.
-# The token is never printed and never stored in a git URL: cell 2 puts it in git's credential
-# store on this VM only (~/.git-credentials, mode 600), which disappears with the VM.
+#
+# The token is never printed and never stored in a git URL: cell 2 puts it in git's
+# credential store on this VM only (~/.git-credentials, mode 600), which disappears with it.
 
 # %% Cell 1/4 - mount Google Drive
 import os

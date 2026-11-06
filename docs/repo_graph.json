@@ -1,6 +1,16 @@
 {
   "edges": [
     {
+      "kind": "notebook",
+      "source": "notebooks/c1_colab_bootstrap.ipynb",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/c1_colab_bootstrap.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/colab_bootstrap.py",
       "target": "src/boinga_translator/env_report.py"
@@ -59,6 +69,16 @@
       "kind": "test",
       "source": "tests/test_hooks.py",
       "target": "tools/hooks/commit_msg.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_notebooks.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_notebooks.py",
+      "target": "tools/build_notebooks.py"
     },
     {
       "kind": "test",
@@ -192,7 +212,7 @@
     },
     {
       "kind": "doc",
-      "lines": 21,
+      "lines": 30,
       "path": "README.md",
       "purpose": "boinga-translator"
     },
@@ -210,13 +230,19 @@
     },
     {
       "kind": "doc",
-      "lines": 77,
+      "lines": 79,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
     {
+      "kind": "notebook",
+      "lines": 183,
+      "path": "notebooks/c1_colab_bootstrap.ipynb",
+      "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."
+    },
+    {
       "kind": "module",
-      "lines": 123,
+      "lines": 129,
       "path": "notebooks/colab_bootstrap.py",
       "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."
     },
@@ -288,6 +314,12 @@
     },
     {
       "kind": "test",
+      "lines": 50,
+      "path": "tests/test_notebooks.py",
+      "purpose": "Tests for tools/build_notebooks.py: committed .ipynb files match their \"# %%\" sources."
+    },
+    {
+      "kind": "test",
       "lines": 102,
       "path": "tests/test_paths.py",
       "purpose": "Tests for paths.py: env overrides, Colab/local defaults, run_dir and ensure_dirs."
@@ -315,6 +347,12 @@
       "lines": 7,
       "path": "tests/test_smoke_import.py",
       "purpose": "Smoke test: the package imports and exposes a version."
+    },
+    {
+      "kind": "tool",
+      "lines": 70,
+      "path": "tools/build_notebooks.py",
+      "purpose": "Build Colab .ipynb files from \"# %%\" cell files; the header comment becomes a markdown cell."
     },
     {
       "kind": "tool",
