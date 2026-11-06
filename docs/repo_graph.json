@@ -1,0 +1,182 @@
+{
+  "edges": [
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_hooks.py",
+      "target": "tools/hooks/commit_msg.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_repo_graph.py",
+      "target": "tools/repo_graph.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_smoke_import.py",
+      "target": "src/boinga_translator/__init__.py"
+    }
+  ],
+  "nodes": [
+    {
+      "kind": "agent",
+      "lines": 19,
+      "path": ".claude/agents/code-reviewer.md",
+      "purpose": "Reviews staged changes in boinga-translator before every commit."
+    },
+    {
+      "kind": "agent",
+      "lines": 10,
+      "path": ".claude/agents/debugger.md",
+      "purpose": "Investigates failures in boinga-translator using the debug-protocol skill."
+    },
+    {
+      "kind": "config",
+      "lines": 29,
+      "path": ".claude/settings.json",
+      "purpose": ""
+    },
+    {
+      "kind": "skill",
+      "lines": 43,
+      "path": ".claude/skills/atomic-commit/SKILL.md",
+      "purpose": "How to stage and commit in boinga-translator."
+    },
+    {
+      "kind": "skill",
+      "lines": 37,
+      "path": ".claude/skills/boinga-workflow/SKILL.md",
+      "purpose": "The mandatory loop for every subchunk of the boinga-translator project."
+    },
+    {
+      "kind": "skill",
+      "lines": 29,
+      "path": ".claude/skills/colab-handoff/SKILL.md",
+      "purpose": "How to hand work to Google Colab and take results back."
+    },
+    {
+      "kind": "skill",
+      "lines": 46,
+      "path": ".claude/skills/debug-protocol/SKILL.md",
+      "purpose": "Structured debugging for boinga-translator."
+    },
+    {
+      "kind": "skill",
+      "lines": 25,
+      "path": ".claude/skills/dialect-data-rules/SKILL.md",
+      "purpose": "Rules for handling Chittagonian audio and transcripts in boinga-translator."
+    },
+    {
+      "kind": "skill",
+      "lines": 28,
+      "path": ".claude/skills/repo-graph/SKILL.md",
+      "purpose": "Keep and use the repo map of boinga-translator."
+    },
+    {
+      "kind": "skill",
+      "lines": 26,
+      "path": ".claude/skills/vits-finetune/SKILL.md",
+      "purpose": "Coqui-TTS VITS fine-tuning specifics for boinga-translator."
+    },
+    {
+      "kind": "hook",
+      "lines": 8,
+      "path": ".githooks/commit-msg",
+      "purpose": "Commit-msg: enforce the atomic-commit message format."
+    },
+    {
+      "kind": "hook",
+      "lines": 8,
+      "path": ".githooks/pre-commit",
+      "purpose": "Pre-commit: block binaries/large files, stale repo graph, ruff errors, failing tests."
+    },
+    {
+      "kind": "doc",
+      "lines": 48,
+      "path": "CLAUDE.md",
+      "purpose": "boinga-translator — rules for Claude Code"
+    },
+    {
+      "kind": "doc",
+      "lines": 21,
+      "path": "README.md",
+      "purpose": "boinga-translator"
+    },
+    {
+      "kind": "doc",
+      "lines": 19,
+      "path": "docs/DEBUG_LOG.md",
+      "purpose": "Debug log"
+    },
+    {
+      "kind": "doc",
+      "lines": 47,
+      "path": "docs/DECISIONS.md",
+      "purpose": "Decisions"
+    },
+    {
+      "kind": "doc",
+      "lines": 60,
+      "path": "docs/PROGRESS.md",
+      "purpose": "Progress"
+    },
+    {
+      "kind": "config",
+      "lines": 35,
+      "path": "pyproject.toml",
+      "purpose": ""
+    },
+    {
+      "kind": "module",
+      "lines": 3,
+      "path": "src/boinga_translator/__init__.py",
+      "purpose": "Chittagonian TTS proof of concept: fine-tuning a Bangla VITS model."
+    },
+    {
+      "kind": "module",
+      "lines": 25,
+      "path": "src/boinga_translator/cli.py",
+      "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
+    },
+    {
+      "kind": "test",
+      "lines": 57,
+      "path": "tests/test_hooks.py",
+      "purpose": "Tests for tools/hooks/commit_msg.py: valid messages pass, bad ones fail with the right reason."
+    },
+    {
+      "kind": "test",
+      "lines": 93,
+      "path": "tests/test_repo_graph.py",
+      "purpose": "Tests for tools/repo_graph.py: node kinds, edge types, stability and --check on a fake repo."
+    },
+    {
+      "kind": "test",
+      "lines": 7,
+      "path": "tests/test_smoke_import.py",
+      "purpose": "Smoke test: the package imports and exposes a version."
+    },
+    {
+      "kind": "tool",
+      "lines": 80,
+      "path": "tools/hooks/commit_msg.py",
+      "purpose": "Commit-msg guard: enforce the atomic-commit message format (header, Chunk/What/Why/How verified)."
+    },
+    {
+      "kind": "tool",
+      "lines": 89,
+      "path": "tools/hooks/pre_commit.py",
+      "purpose": "Pre-commit guard: block binaries/large files, stale repo graph, ruff errors and failing tests."
+    },
+    {
+      "kind": "tool",
+      "lines": 309,
+      "path": "tools/repo_graph.py",
+      "purpose": "Generate the repo map (docs/REPO_GRAPH.md + docs/repo_graph.json): file purposes and edges."
+    }
+  ]
+}
