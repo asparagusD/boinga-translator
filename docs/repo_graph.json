@@ -1039,13 +1039,13 @@
     },
     {
       "kind": "doc",
-      "lines": 609,
+      "lines": 624,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 299,
+      "lines": 296,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },

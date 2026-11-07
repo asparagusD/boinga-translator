@@ -607,3 +607,18 @@ cap on the largest cluster's share and listen again (one more run; not chosen).
 - The selection lists the official val and test clips too; C5 keeps the official test
   split (incl. clips 386, 29, 625) out of training (G2 condition 3).
 - The run-1 selection (cluster 2) is superseded: run 2 overwrote the Drive copy.
+
+## 2026-11-07 — Gate G3 — speaker data
+**Context:** End of C4. Rule (C4.V promptbook), on the clean minutes of
+configs/speaker_selection.json: >= 30 -> PASS; 10-30 -> PASS WITH RISK; < 10 -> FAIL,
+do C5 and C6, then Chunk F instead of C7-C9 (MMS fine-tuning is reported to work with
+80-150 clips). Selection (DECISIONS "Training speaker", d386d13): cluster 1, mixed voices,
+7,506 clips, 490.73 clean min (train 393.72, val 48.25, test 48.76), base voice male.
+**Decision:** G3: PASS (490.73 >= 30). The VITS fine-tune path (C5 onwards) continues.
+**Alternatives:** the form's single-voice pick (cluster 2, 0.18 min) would have been
+G3: FAIL; the user chose mixed voices instead (DECISIONS "Training speaker").
+**Consequences:** The PASS is on minutes, not on voice consistency: the selection is many
+speakers (DECISIONS "Speakers" A). Training minutes come from the train split only
+(393.72 min); the official test split stays out of training (C5). The C4 plan's own
+G3 draft (train >= 60, val >= 6 min) is also met. If C7-C9 hear an unstable voice, the
+fallback is re-clustering with a cap on the largest cluster's share (PROGRESS follow-up).

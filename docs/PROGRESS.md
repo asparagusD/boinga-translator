@@ -261,12 +261,9 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
 - [x] C4.V2 verify run 2: 6/6 PASS at `fcb64e5`, not stale; results in the C4.3 commit
 - [ ] Follow-up: the threshold rule (best silhouette among largest >= 30 min) picks a
   near-single cluster on this corpus; cap the largest cluster's share before reusing it
-- [ ] C4.4 Gate G3 — speaker (DECISIONS, supersedes or confirms "Speakers"). Proposed PASS
-  rule, to confirm before the run: configs/speaker_selection.json exists (so
-  `ONE_CONSISTENT_VOICE` was "yes"); its `minutes_by_official_split` has train >= 60 and
-  val >= 6; the official test split is kept out of training by the C5 data prep (the
-  selection lists the speaker's test clips on purpose). FAIL -> the next candidate, mixed
-  voices (DECISIONS "Speakers" A), or the fallback corpus, decided in the G3 entry.
+- [x] C4.4 Gate G3: PASS (490.73 clean min >= 30; DECISIONS "Gate G3 — speaker data";
+  this commit). Rule from the C4.V promptbook: >= 30 min PASS, 10-30 PASS WITH RISK,
+  < 10 FAIL -> C5, C6, then Chunk F
 
 ## C5
 - [ ] C5.x (subchunks not yet defined)
