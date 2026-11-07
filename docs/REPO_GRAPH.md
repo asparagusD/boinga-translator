@@ -241,7 +241,4 @@ graph LR
 
 ## Changed since HEAD
 
-- added: `configs/pretrained_facts.json`
-- added: `reports/colab_runs/C2_pretrained-baseline_run1.md`
-- added: `reports/notes/C2.4-notes.json`
-- added: `reports/pretrained_inspect.md`
+No files added or removed.
