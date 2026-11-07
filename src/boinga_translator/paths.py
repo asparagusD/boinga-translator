@@ -91,6 +91,11 @@ def run_dir(name: str) -> Path:
     return runs() / name
 
 
+def speaker_emb() -> Path:
+    """Per-clip speaker embeddings (<clip_id>.npy) on Drive, made by speaker_select.embed."""
+    return root() / "speaker_emb"
+
+
 def best_ckpt() -> Path:
     return root() / "best"
 

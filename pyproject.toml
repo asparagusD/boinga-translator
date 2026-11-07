@@ -17,7 +17,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-train = ["coqui-tts==0.28.0", "openpyxl"]
+# resemblyzer: speaker embeddings (C4.2a); its webrtcvad imports pkg_resources (setuptools<81).
+train = ["coqui-tts==0.28.0", "openpyxl", "resemblyzer==0.1.4", "setuptools<81"]
+# Only if resemblyzer cannot import on Colab (DECISIONS "Speaker encoder").
+speaker-fallback = ["speechbrain==1.1.2"]
 dev = ["pytest", "ruff", "nbformat"]
 
 [project.scripts]

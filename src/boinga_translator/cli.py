@@ -14,6 +14,7 @@ from boinga_translator import (
     env_report,
     paths,
     pretrained,
+    speaker_select,
 )
 
 
@@ -36,6 +37,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("audit-summary", help="summarise audit.csv into reports/audit_summary.md")
     sub.add_parser("pick-baseline-ctg",
                    help="put 3 held-out dialect lines into configs/baseline_prompts.json")
+    sub.add_parser("embed-speakers",
+                   help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
     return parser
 
 
@@ -52,6 +55,16 @@ def _pick_baseline_ctg() -> int:
         print(f"FAIL: pick-baseline-ctg: {type(exc).__name__}: {exc}")
         return 1
     print(f"PASS: picked {len(picks)} dialect prompts")
+    return 0
+
+
+def _embed_speakers() -> int:
+    """One speaker embedding per clean clip of the Drive audit.csv; FAIL + exit 1 on error."""
+    try:
+        speaker_select.embed(data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV))
+    except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
+        print(f"FAIL: embed-speakers: {type(exc).__name__}: {exc}")
+        return 1
     return 0
 
 
@@ -163,6 +176,8 @@ def main(argv: list[str] | None = None) -> int:
         return _audit_summary()
     elif args.command == "pick-baseline-ctg":
         return _pick_baseline_ctg()
+    elif args.command == "embed-speakers":
+        return _embed_speakers()
     return 0
 
 

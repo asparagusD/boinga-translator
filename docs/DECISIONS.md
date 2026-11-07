@@ -507,3 +507,31 @@ Measure-first (one Colab run) was declined.
   cluster. This needs a new DECISIONS entry.
 - Gate G2 condition 2 is met; condition 3 (official test split out of training, incl.
   clips 386, 29, 625) is a C4 data-split rule.
+
+## 2026-11-07 — Speaker encoder: resemblyzer 0.1.4, SpeechBrain ECAPA as fallback
+**Context:** C4.2a needs one speaker embedding per clean clip to find a consistent training
+speaker (the corpus has no speaker ids). The C4.2a promptbook names resemblyzer first and
+speechbrain/spkrec-ecapa-voxceleb as the fallback. Checked from the PyPI files: Resemblyzer
+0.1.4 (2023-10-12) is Apache-2.0 (classifier and LICENSE file), ships its weights
+(pretrained.pt, 256-dim d-vectors), loads them with torch.load (a plain state dict) and
+resamples with keyword arguments (librosa >= 0.10 safe). Its dependency webrtcvad 2.0.10 is
+an sdist (built with gcc on Colab) whose module does `import pkg_resources`, which newer
+setuptools may no longer provide. speechbrain 1.1.2 is Apache-2.0 and needs torch >= 2.7.1.
+**Decision:** resemblyzer==0.1.4 and setuptools<81 in the [train] extra (installed by BOOT.3).
+`speaker_select.load_encoder()` uses resemblyzer (VoiceEncoder on cuda + preprocess_wav);
+on ImportError it falls back to SpeechBrain ECAPA, pinned as speechbrain==1.1.2 in a
+separate `speaker-fallback` extra, so the training install never pulls it in. Embeddings
+are cached per clip on Drive (`speaker_emb/<clip_id>.npy`) with an `encoder.txt` marker; a
+cache from one encoder is never extended with the other, and .npy files without a marker
+are refused. The loop stops as soon as more than 1% of clean clips have failed (e.g. CUDA
+errors), not after the whole pass.
+**Alternatives:** ECAPA only (the earlier plan; better speaker-verification accuracy, but a
+model download and a torch/torchaudio constraint); pin speechbrain in [train] too (could
+upgrade torch under coqui-tts); webrtcvad-wheels (resemblyzer still requires the
+`webrtcvad` distribution).
+**Consequences:** If the C4 run prints "WARN: resemblyzer unavailable", the fallback needs
+`pip install -e '.[speaker-fallback]'` first, otherwise the cell FAILs fast; speechbrain
+may upgrade torch/torchaudio on that VM, so the fallback runs in its own runtime, never in
+the one that trains. The cluster
+step (C4.2b) must read the marker and treat 256-dim (resemblyzer) and 192-dim (ECAPA)
+vectors alike. Model weights stay in the pip package / Drive, never in the repo.

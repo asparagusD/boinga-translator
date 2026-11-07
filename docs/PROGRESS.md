@@ -207,18 +207,15 @@ the form keeps "mixed" selectable, and C4.4 records the outcome as a new entry.
 Line counts are non-test estimates, excluding the generated map/notebook and PROGRESS.
 - [ ] C4.1 skipped: the corpus has no speaker ids, so there is no speaker to pick from
   metadata (DECISIONS "Corpus layout"; audit_summary.md "Speakers")
-- [ ] C4.2a Speaker embeddings (~110 lines): new `speaker_embed.py` (`ensure_deps()`
-  pip-installs the `speaker` extra and fails loudly; `embed(audit_csv)` runs SpeechBrain ECAPA
-  `speechbrain/spkrec-ecapa-voxceleb` at the native 16 kHz on every clean clip of all three
-  splits (clean_mask), in resumable parts, -> Drive `speakers/ecapa.npy` + `ecapa_ids.csv`;
-  the encoder is injected so tests never load it); `paths.speakers()`; `boinga
-  embed-speakers` in cli.py; `speaker = ["speechbrain", "scikit-learn"]` extra in
-  pyproject.toml. Before install: confirm licences (Apache-2.0 code and model card) and
-  Colab's Python support; DECISIONS entry "Speaker encoder".
-  Tests `tests/test_speaker_embed.py`: only clean rows embedded, row order <-> ids, resume
-  skips finished parts, shape (n, 192), CLI wiring.
-  Cells: `C4.2a.fetch` (fetch-data, `PASS: dataset ready`), `C4.2a` (ensure_deps + embed,
-  gpu, timeout 45, `PASS: embedded \d+ clips`)
+- [x] C4.2a code: `speaker_select.embed(audit_df, cache_dir=paths.speaker_emb())`: one
+  embedding per clean clip (clean_mask, all three splits) cached on Drive as
+  `speaker_emb/<clip_id>.npy`, cached clips skipped, `encoder.txt` marker refuses mixing two
+  encoders, >1% failed clips -> FAIL; resemblyzer 0.1.4 (VoiceEncoder + preprocess_wav,
+  pinned in [train] with setuptools<81), SpeechBrain ECAPA fallback if it cannot import
+  (extra `speaker-fallback`); `boinga embed-speakers`; `paths.speaker_emb()`; cells `C4.0`
+  (fetch-data) and `C4.2a` in `notebooks/specs/c4_speaker.py`; DECISIONS "Speaker encoder";
+  tests `tests/test_speaker_select.py` (fake encoder) (this commit)
+  - [ ] C4.2a results: embeddings count from the verified run (C4.V)
 - [ ] C4.2b Cluster and rank (~120 lines): new `speaker_cluster.py`: L2-normalise,
   agglomerative clustering (cosine, average linkage, fixed distance threshold), clusters
   ranked by clean train hours, per-cluster hours by split, mean within-cluster cosine,
@@ -228,7 +225,7 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
   right sizes, ranking by hours, deterministic labels, report table, CLI.
   Cells: `C4.2b` (`PASS: \d+ clusters`, `=== BEGIN reports/speaker_clusters.md ===`),
   `C4.2b.play` (5 clips from each of the top 3 clusters)
-- [ ] C4.3 Training selection (~120 lines): new `speaker_select.py`: `select(cluster|
+- [ ] C4.3 Training selection (~120 lines): `speaker_select.select(cluster|
   "mixed")` -> clean clips of that cluster in the official splits (test held out, incl.
   clips 386, 29, 625); `duplicate_text` recomputed on `ctg_text_model`, a text present in two
   splits is dropped from train (C3 follow-up); text via text_frontend.prepare (verbatim

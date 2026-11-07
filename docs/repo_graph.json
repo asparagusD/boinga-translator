@@ -101,6 +101,21 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run1.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -138,6 +153,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c3_data_audit_run3.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c4_speaker.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -267,6 +287,11 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/colab_runtime.py",
       "target": "src/boinga_translator/env_report.py"
     },
@@ -348,6 +373,16 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/report_io.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -692,6 +727,26 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_speaker_select.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_select.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_select.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_select.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_synth_basic.py",
       "target": "src/boinga_translator/settings.py"
     },
@@ -868,13 +923,13 @@
     },
     {
       "kind": "doc",
-      "lines": 509,
+      "lines": 537,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 284,
+      "lines": 281,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -921,6 +976,12 @@
       "purpose": "C3 run 3 — Char-mapped re-audit"
     },
     {
+      "kind": "notebook",
+      "lines": 324,
+      "path": "notebooks/runs/C4_speaker_run1.ipynb",
+      "purpose": "C4 run 1 — C4 — training speaker"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -957,8 +1018,14 @@
       "purpose": "Spec: C3 run 3, re-audit the corpus on the char-mapped text and re-summarise (CPU)."
     },
     {
+      "kind": "module",
+      "lines": 29,
+      "path": "notebooks/specs/c4_speaker.py",
+      "purpose": "Spec: C4 run 1, training speaker: embed every clean clip's speaker, then cluster and pick (T4)."
+    },
+    {
       "kind": "config",
-      "lines": 41,
+      "lines": 44,
       "path": "pyproject.toml",
       "purpose": ""
     },
@@ -1054,7 +1121,7 @@
     },
     {
       "kind": "module",
-      "lines": 170,
+      "lines": 185,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1090,7 +1157,7 @@
     },
     {
       "kind": "module",
-      "lines": 133,
+      "lines": 138,
       "path": "src/boinga_translator/paths.py",
       "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
     },
@@ -1111,6 +1178,12 @@
       "lines": 43,
       "path": "src/boinga_translator/settings.py",
       "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
+    },
+    {
+      "kind": "module",
+      "lines": 131,
+      "path": "src/boinga_translator/speaker_select.py",
+      "purpose": "Speaker selection: one speaker embedding per clean clip (resemblyzer, cached per clip)."
     },
     {
       "kind": "module",
@@ -1267,6 +1340,12 @@
       "lines": 7,
       "path": "tests/test_smoke_import.py",
       "purpose": "Smoke test: the package imports and exposes a version."
+    },
+    {
+      "kind": "test",
+      "lines": 139,
+      "path": "tests/test_speaker_select.py",
+      "purpose": "Tests for speaker_select.embed() and `boinga embed-speakers`: clean clips only, per-clip cache."
     },
     {
       "kind": "test",
