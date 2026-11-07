@@ -63,6 +63,11 @@ def build_parser() -> argparse.ArgumentParser:
     bcfg.add_argument("--run", required=True, help="run name (one folder under runs/)")
     sub.add_parser("check-loader", help="load one coqui train batch from the fine-tune config "
                                         "and check token ids and finite audio")
+    train = sub.add_parser("train", help="start a new fine-tune run from the pretrained "
+                                         "checkpoint (run folder on Drive)")
+    train.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    train.add_argument("--max-steps", type=int, default=None,
+                       help="stop after N optimiser steps and save a checkpoint")
     return parser
 
 
@@ -93,6 +98,18 @@ def _check_loader() -> int:
     except Exception as exc:  # noqa: BLE001 - coqui/torch errors vary; show the type
         print(f"FAIL: loader {type(exc).__name__}: {exc}")
         return 1
+
+
+def _train(run_name: str, max_steps: int | None) -> int:
+    """Start a fine-tune run; FAIL + exit 1 on any error."""
+    try:
+        session = train_runner.run(run_name, max_steps=max_steps)
+    except Exception as exc:  # noqa: BLE001 - coqui/torch/CUDA errors vary; show the type
+        print(f"FAIL: train {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: run {run_name} at step {session['steps_done']} "
+          f"(peak GPU memory {session['peak_gpu_memory_gb']} GB)")
+    return 0
 
 
 def _check_tokenizer() -> int:
@@ -289,6 +306,8 @@ def main(argv: list[str] | None = None) -> int:
         return _build_config(args.run)
     elif args.command == "check-loader":
         return _check_loader()
+    elif args.command == "train":
+        return _train(args.run, args.max_steps)
     return 0
 
 

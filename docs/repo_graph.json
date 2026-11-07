@@ -703,7 +703,17 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/train_runner.py",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_runner.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_runner.py",
+      "target": "src/boinga_translator/pretrained.py"
     },
     {
       "kind": "import",
@@ -1262,6 +1272,26 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_train_run.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_run.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_run.py",
+      "target": "src/boinga_translator/train_config.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_run.py",
+      "target": "src/boinga_translator/train_runner.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_train_runner.py",
       "target": "src/boinga_translator/cli.py"
     },
@@ -1465,13 +1495,13 @@
     },
     {
       "kind": "doc",
-      "lines": 830,
+      "lines": 859,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 549,
+      "lines": 551,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1777,7 +1807,7 @@
     },
     {
       "kind": "module",
-      "lines": 296,
+      "lines": 315,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1873,9 +1903,9 @@
     },
     {
       "kind": "module",
-      "lines": 113,
+      "lines": 246,
       "path": "src/boinga_translator/train_runner.py",
-      "purpose": "Training runner: coqui VITS loader check now; training, resume and throughput follow (C7.3/4)."
+      "purpose": "Training runner: coqui VITS loader check and fine-tune runs (resume, throughput: C7.3b/4)."
     },
     {
       "kind": "test",
@@ -2080,6 +2110,12 @@
       "lines": 213,
       "path": "tests/test_train_config.py",
       "purpose": "Tests for train_config.py and `boinga build-config`: overrides, protected keys, outputs."
+    },
+    {
+      "kind": "test",
+      "lines": 199,
+      "path": "tests/test_train_run.py",
+      "purpose": "Tests for train_runner.run() and `boinga train`: TrainerArgs, step stop, boinga_run.json (fakes)."
     },
     {
       "kind": "test",

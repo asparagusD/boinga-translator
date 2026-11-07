@@ -498,13 +498,15 @@ map/notebook and PROGRESS.
   loader ok" or "FAIL: loader <reason>". Cell C7.2. Tests `tests/test_train_runner.py`
   (numpy batches, torch ones via importorskip, fake coqui modules) (this commit). Results:
   C7 run 1
-- [ ] C7.3a `train_runner.run(run_name, max_steps=None)` for a new run: TrainerArgs
-  `restore_path` = cached pretrained model.pth, `continue_path` empty; output under
-  `paths.run_dir(run_name)` on Drive; restore check logs how many `disc.`/`dec.`/text-encoder
-  keys loaded (G1: 111 disc keys expected; none -> log, longer warm-up, consider F);
-  `max_steps` stop via a trainer step-end callback, mechanism confirmed first against the
-  installed coqui-tts-trainer source (it must leave a checkpoint behind; DECISIONS entry).
-  Factories injected so tests use a fake Trainer. ~110 lines
+- [x] C7.3a code: `train_runner.run(run_name, max_steps=None)` + `boinga train --run NAME
+  [--max-steps N]`: train_config.build, VitsConfig, `Vits(config)`, load_tts_samples, coqui
+  Trainer with `TrainerArgs(restore_path=base_dir()/model.pth)`, `parse_command_line_args=
+  False`, output `paths.run_dir(run_name)`; `trainer._fit()` (fit() os._exits on interrupt);
+  max_steps via an `on_train_step_end` callback raising StopTraining, then a forced
+  save_checkpoint and "STOP at step N"; `boinga_run.json` per session (git, env, config,
+  restore, max_steps, start/end, steps, peak GPU memory, error; sessions appended); an
+  interrupt saves a checkpoint first; refuses a run folder with checkpoints. DECISIONS "Training run". Tests `tests/test_train_run.py` (fake Trainer, no
+  torch) (this commit). No notebook cell yet (C7.4 adds smoke/resume). Results: C7 run 1
 - [ ] C7.3b auto-resume: `latest_run_folder(run_dir)` finds the coqui run folder with the
   newest readable `checkpoint_*.pth` (0-byte/unreadable last file -> previous one); found ->
   `continue_path` and never `restore_path`; none -> new run (C7.3a). Refuses both set. Tests
