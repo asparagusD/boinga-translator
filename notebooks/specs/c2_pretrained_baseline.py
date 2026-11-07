@@ -12,5 +12,8 @@ NOTEBOOK = Notebook(
     cells=[
         code("C2.1", "Fetch pretrained voices", "!boinga fetch-pretrained --voice both",
              expect=[r"PASS: female cached", r"PASS: male cached"]),
+        code("C2.2", "Inspect pretrained voices", "!boinga inspect-pretrained --voice both",
+             expect=[r"PASS: inspected female", r"PASS: inspected male",
+                     r"=== BEGIN configs/pretrained_facts.json ==="]),
     ],
 )

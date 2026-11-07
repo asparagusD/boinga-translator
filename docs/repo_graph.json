@@ -103,6 +103,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/pretrained.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/pretrained.py",
       "target": "src/boinga_translator/settings.py"
     },
     {
@@ -189,6 +194,21 @@
       "kind": "test",
       "source": "tests/test_pretrained.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_pretrained_inspect.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_pretrained_inspect.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_pretrained_inspect.py",
+      "target": "src/boinga_translator/pretrained.py"
     },
     {
       "kind": "test",
@@ -376,7 +396,7 @@
     },
     {
       "kind": "doc",
-      "lines": 145,
+      "lines": 148,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -400,7 +420,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 293,
+      "lines": 321,
       "path": "notebooks/runs/C2_pretrained-baseline_run1.ipynb",
       "purpose": "C2 run 1 — C2 — pretrained model and baseline"
     },
@@ -418,7 +438,7 @@
     },
     {
       "kind": "module",
-      "lines": 16,
+      "lines": 19,
       "path": "notebooks/specs/c2_pretrained_baseline.py",
       "purpose": "Spec: C2 run 1, pretrained Bangla VITS voices: fetch, inspect and baseline audio."
     },
@@ -454,7 +474,7 @@
     },
     {
       "kind": "module",
-      "lines": 44,
+      "lines": 66,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -478,9 +498,9 @@
     },
     {
       "kind": "module",
-      "lines": 126,
+      "lines": 256,
       "path": "src/boinga_translator/pretrained.py",
-      "purpose": "Download the pretrained Bangla VITS voices once and cache model.pth + config.json on Drive."
+      "purpose": "Pretrained Bangla VITS voices: cache model.pth + config.json on Drive and report their facts."
     },
     {
       "kind": "module",
@@ -547,6 +567,12 @@
       "lines": 183,
       "path": "tests/test_pretrained.py",
       "purpose": "Tests for pretrained.py and `boinga fetch-pretrained`: cache hit, download, fallback, bad input."
+    },
+    {
+      "kind": "test",
+      "lines": 165,
+      "path": "tests/test_pretrained_inspect.py",
+      "purpose": "Tests for pretrained.inspect(): config facts, checkpoint facts, charset table, reports, CLI."
     },
     {
       "kind": "test",

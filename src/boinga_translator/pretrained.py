@@ -1,16 +1,20 @@
-"""Download the pretrained Bangla VITS voices once and cache model.pth + config.json on Drive."""
+"""Pretrained Bangla VITS voices: cache model.pth + config.json on Drive and report their facts."""
 
 from __future__ import annotations
 
+import json
+import math
 import os
 import shutil
 import tempfile
+import unicodedata
 import urllib.request
 import zipfile
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
+from typing import Any
 
-from boinga_translator import paths, settings
+from boinga_translator import paths, report_io, settings
 
 # A downloader gets (voice, empty scratch dir) and returns a folder holding the model files.
 Downloader = Callable[[str, Path], Path]
@@ -124,3 +128,129 @@ def fetch(voice: str, downloaders: Sequence[Downloader] | None = None) -> dict[s
     print(f"{voice}: {MODEL_FILE} {_mb(files['model'])}, {CONFIG_FILE} {_mb(files['config'])}")
     print(f"PASS: {voice} cached ({target})")
     return files
+
+
+# --- inspect ---------------------------------------------------------------------------------
+
+CHAR_KEYS = ("characters", "punctuations", "pad", "eos", "bos", "blank", "characters_class",
+             "phonemes")
+TEXT_KEYS = ("use_phonemes", "phonemizer", "phoneme_language", "text_cleaner", "add_blank",
+             "enable_eos_bos_chars")
+FACTS_REL = "configs/pretrained_facts.json"
+INSPECT_REL = "reports/pretrained_inspect.md"
+
+
+def _absolute_paths(node: object, prefix: str = "") -> dict[str, str]:
+    """Config values that are absolute paths (coqui may rewrite them to its download folder)."""
+    found: dict[str, str] = {}
+    if isinstance(node, Mapping):
+        for key, value in node.items():
+            if key != "characters":  # symbols, not paths
+                found.update(_absolute_paths(value, f"{prefix}{key}."))
+        return found
+    if isinstance(node, list):
+        for i, value in enumerate(node):
+            found.update(_absolute_paths(value, f"{prefix}{i}."))
+        return found
+    if isinstance(node, str) and (node.startswith("/") or node[1:3] in (":\\", ":/")):
+        return {prefix.rstrip("."): node}
+    return {}
+
+
+def config_facts(cfg: Mapping[str, Any]) -> dict[str, Any]:
+    """Audio, characters, text front-end and speaker facts from a parsed config.json."""
+    chars = cfg.get("characters") or {}
+    args = cfg.get("model_args") or {}
+    return {
+        "model": cfg.get("model"),
+        "audio": dict(cfg.get("audio") or {}),
+        "characters": {k: chars.get(k) for k in CHAR_KEYS},
+        **{k: cfg.get(k) for k in TEXT_KEYS},
+        "num_speakers": args.get("num_speakers"),
+        "use_speaker_embedding": args.get("use_speaker_embedding"),
+        "absolute_paths": _absolute_paths(cfg),
+    }
+
+
+def checkpoint_facts(ckpt: Mapping[str, Any]) -> dict[str, Any]:
+    """Top-level keys, parameter counts and discriminator (`disc.`) keys of a loaded checkpoint."""
+    state = ckpt["model"] if isinstance(ckpt.get("model"), Mapping) else ckpt
+    sizes = {k: math.prod(v.shape) for k, v in state.items() if hasattr(v, "shape")}
+    disc = [n for k, n in sizes.items() if k.startswith("disc.")]
+    step = ckpt.get("step", ckpt.get("global_step"))
+    return {
+        "top_level_keys": sorted(map(str, ckpt)),
+        "n_params": sum(sizes.values()),
+        "n_disc_keys": len(disc),
+        "n_disc_params": sum(disc),
+        "has_discriminator": bool(disc),
+        "step": None if step is None else int(step),  # numpy/torch scalars -> JSON int
+    }
+
+
+def charset_lines(chars: Mapping[str, Any]) -> str:
+    """One line per distinct character/punctuation: char, U+XXXX, Unicode name (tab-separated)."""
+    seen = dict.fromkeys((chars.get("characters") or "") + (chars.get("punctuations") or ""))
+    rows = []
+    for c in seen:
+        shown = c if c.isprintable() and not c.isspace() else f"\\u{ord(c):04x}"
+        rows.append(f"{shown}\tU+{ord(c):04X}\t{unicodedata.name(c, '(unnamed)')}")
+    return "".join(f"{r}\n" for r in rows)
+
+
+def _load_checkpoint(path: Path) -> Mapping[str, Any]:
+    """torch.load on CPU (needs the [train] extra)."""
+    import torch
+
+    # weights_only=False: coqui checkpoints hold config objects; the file is the pinned release
+    return torch.load(path, map_location="cpu", weights_only=False)
+
+
+def inspect(voice: str) -> dict[str, Any]:
+    """Facts of one cached voice; writes + emits its charset table and prints a summary."""
+    _check_voice(voice)
+    target = paths.pretrained() / voice
+    if not _cached(target):
+        raise RuntimeError(f"{voice} is not cached in {target}: run `boinga fetch-pretrained`")
+    cfg = config_facts(json.loads((target / CONFIG_FILE).read_text(encoding="utf-8")))
+    ckpt = checkpoint_facts(_load_checkpoint(target / MODEL_FILE))
+    rel = f"reports/pretrained_charset_{voice}.txt"
+    report_io.emit(report_io.write_report(charset_lines(cfg["characters"]), rel)[0], rel)
+    print(f"{voice}: sample_rate={cfg['audio'].get('sample_rate')} "
+          f"use_phonemes={cfg['use_phonemes']} cleaner={cfg['text_cleaner']} "
+          f"add_blank={cfg['add_blank']} params={ckpt['n_params']:,} "
+          f"disc_params={ckpt['n_disc_params']:,} step={ckpt['step']}")
+    for key, value in cfg["absolute_paths"].items():
+        print(f"WARN: {voice}: config {key} is an absolute path: {value}")
+    print(f"PASS: inspected {voice}")
+    return {"config": cfg, "checkpoint": ckpt}
+
+
+def _facts_entry(result: Mapping[str, Any]) -> dict[str, Any]:
+    cfg, ckpt = result["config"], result["checkpoint"]
+    chars = {k: v for k, v in cfg["characters"].items() if k != "phonemes"}
+    return {"sample_rate": cfg["audio"].get("sample_rate"), **chars,
+            "use_phonemes": cfg["use_phonemes"], "text_cleaner": cfg["text_cleaner"],
+            "add_blank": cfg["add_blank"], "has_discriminator": ckpt["has_discriminator"],
+            "n_params": ckpt["n_params"], "n_disc_params": ckpt["n_disc_params"]}
+
+
+def _render_md(results: Mapping[str, Mapping[str, Any]]) -> str:
+    lines = ["# Pretrained voices", "", "Generated by `boinga inspect-pretrained`.", ""]
+    for voice, result in results.items():
+        lines += [f"## {voice}", "", "```json",
+                  json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True), "```", ""]
+    return "\n".join(lines)
+
+
+def write_inspect_reports(results: Mapping[str, Mapping[str, Any]]) -> None:
+    """Merge the voices into configs/pretrained_facts.json, write the .md; emit each once."""
+    facts_path = paths.REPO / FACTS_REL
+    try:
+        facts = json.loads(facts_path.read_text(encoding="utf-8")) if facts_path.is_file() else {}
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"{FACTS_REL} is not valid JSON ({exc}); fix or delete it") from exc
+    facts.update({voice: _facts_entry(r) for voice, r in results.items()})
+    for text, rel in ((json.dumps(facts, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+                       FACTS_REL), (_render_md(results), INSPECT_REL)):
+        report_io.emit(report_io.write_report(text, rel)[0], rel)
