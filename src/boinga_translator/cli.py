@@ -15,6 +15,7 @@ from boinga_translator import (
     paths,
     pretrained,
     speaker_select,
+    text_oov,
 )
 
 
@@ -46,7 +47,19 @@ def build_parser() -> argparse.ArgumentParser:
     save.add_argument("--id", type=int, required=True, help="cluster rank from speaker_ranking.md")
     save.add_argument("--base-voice", choices=pretrained.voices(), required=True,
                       help="pretrained voice to fine-tune: the speaker's gender")
+    sub.add_parser("oov", help="report characters of the selected speaker's text unknown "
+                               "to the base voice (reports/oov_report.md)")
     return parser
+
+
+def _oov() -> int:
+    """OOV report for the selected speaker's model text; FAIL + exit 1 on error."""
+    try:
+        text_oov.run()
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: oov: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
 
 
 def _pick_baseline_ctg() -> int:
@@ -211,6 +224,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cluster_speakers()
     elif args.command == "save-speaker":
         return _save_speaker(args.id, args.base_voice)
+    elif args.command == "oov":
+        return _oov()
     return 0
 
 

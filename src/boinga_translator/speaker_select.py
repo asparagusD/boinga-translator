@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import tempfile
@@ -310,6 +311,21 @@ def save_selection(candidate_id: int, base_voice: str) -> dict[str, object]:
     report_io.emit(repo_path, SELECTION_REL)
     print("PASS: selection saved")
     return sel
+
+
+def load_selection() -> tuple[pd.DataFrame, dict[str, object]]:
+    """The saved training speaker: Drive speaker_selection.csv and configs/ JSON.
+
+    Refuses a CSV whose sha256 differs from the JSON's csv_sha256 (a re-save on Drive that
+    the repo has not caught up with, or the reverse).
+    """
+    sel = json.loads((paths.REPO / SELECTION_REL).read_text(encoding="utf-8"))
+    csv = paths.speaker_selection()
+    data = csv.read_bytes()
+    if (sha := hashlib.sha256(data).hexdigest()) != sel["csv_sha256"]:
+        raise ValueError(f"{csv} sha256 {sha[:12]} does not match "
+                         f"{SELECTION_REL} csv_sha256 {str(sel['csv_sha256'])[:12]}")
+    return pd.read_csv(io.BytesIO(data), dtype={"clip_id": str}), sel
 
 
 def save_from_form(chosen_id: str, one_voice: str, gender: str) -> None:

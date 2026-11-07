@@ -269,6 +269,8 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
 - [ ] C5 checks `csv_sha256` of configs/speaker_selection.json against the Drive
   speaker_selection.csv before building training lists (with a test); the CSV holds only
   clip_id, split_official, duration_s, so join audit.csv for wav paths and transcripts
+  - [x] sha check: `speaker_select.load_selection()` + tests (C5.2); training lists must
+    still use it (C6)
 - [ ] Take the speaker only from configs/speaker_selection.json: reports/notes/C4.3-notes.json
   keeps the superseded run-1 pick (CHOSEN_ID "2")
 - [ ] save_selection writes the Drive CSV before the repo JSON: write the JSON first or rely
@@ -286,12 +288,17 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
 - [x] C5.1 `text_frontend.normalise()` (local): NFC + collapse + strip moved from
   `corpus.normalise_text` into text_frontend (single home; corpus and baseline call it),
   behaviour unchanged, so audit charset_id/map digest stay valid; tests pin what Python's
-  NFC does (U+09DC -> U+09A1 U+09BC; U+09A1 U+09BC unchanged) (this commit)
-- [ ] C5.2 `text_frontend.oov_report()` + `boinga oov` + cell C5.2 (spec
-  `notebooks/specs/c5_text_frontend_run1.py`, CPU): selected clips only (configs/
-  speaker_selection.json, csv_sha256 checked against the Drive CSV), base-voice charset,
-  per character before/after char_map: count, rows, splits, examples ->
-  reports/oov_report.md + .json
+  NFC does (U+09DC -> U+09A1 U+09BC; U+09A1 U+09BC unchanged) (`9faf56c`)
+- [x] C5.2 code: `text_oov.oov_report(texts, charset)` (char, U+XXXX, name, count,
+  clips_affected, 3 example words) + `render()` + `boinga oov`: the selected clips
+  (`speaker_select.load_selection()`, csv_sha256 checked against the Drive CSV) as
+  text_frontend.prepare(ctg_text_nfc), char_map-excluded rows counted, not checked, vs
+  the base voice's charset -> reports/oov_report.md (table, OOV char rate, share of clips),
+  emitted; spec `notebooks/specs/c5_text_frontend_run1.py` (cells C5.0 fetch-data, C5.2;
+  CPU) -> `notebooks/runs/C5_text-frontend_run1.ipynb`; own module text_oov.py because
+  data_audit imports text_frontend (this commit). Narrower than the C5.0 plan, per the
+  C5.2 promptbook: after-map text only, no per-split counts, no .json (add later if Gate G4
+  needs them)
 - [ ] C5.H1 hand-off run 1
 - [ ] C5.V1 verify run 1
 - [ ] C5.3 `apply_char_map()` extracted from prepare() + configs/char_map.json entries for
