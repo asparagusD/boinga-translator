@@ -99,26 +99,32 @@ C2.H hands it over. Local tests never import torch/TTS (fakes only).
 - [x] coqui temp-path rewrite: none seen; the 4 absolute config paths are the model
   author's (/home/ansary/Shabab/...); the fine-tune config must override them (C4)
 - [ ] Record and pin sha256 of the cached model.pth/config.json (moved from C2.5)
-- [ ] C3 text front-end: check how coqui's tokenizer treats "।" (the EOS token, not in
-  characters/punctuations; the baseline WARN is probably spurious because coqui adds
-  pad/eos/bos/blank to the vocab) and the "Initializing with English" language log
-- [ ] C3: decide precomposed vs NFC-decomposed য়/ড়/ঢ় (U+09DF/09DC/09DD vs base + U+09BC)
-  against the corpus and the pretrained vocab; char_map.json + DECISIONS entry
-- [ ] C3: one pretrained.model_symbols(config) helper used by baseline and the text
-  front-end (charset is read twice today); use paths.configs_dir() in pretrained.py
+- [x] C3 text front-end: how coqui's tokenizer treats "।": it is in the vocab as the eos
+  token (characters.py _create_vocab); mapped to "." anyway (DECISIONS "Character map",
+  `ae735d9`)
+- [ ] C4: the "Initializing with English" language log of the coqui synthesizer (harmless?
+  check that no English text processing is applied to Bangla input)
+- [x] C3: precomposed vs NFC-decomposed য়/ড়/ঢ়: precomposed after NFC via char_map
+  (DECISIONS "Character map", `ae735d9`)
+- [ ] C4 (was C3): one pretrained.model_symbols(config) helper; the charset is read two
+  ways today (baseline._model_charset from the cached config.json,
+  data_audit.load_model_charset from pretrained_facts.json); use paths.configs_dir()
 - [ ] C4: copy the full characters block from the pretrained config.json (is_unique /
   is_sorted fix embedding row order); measure RTF/throughput in the smoke test
 - [ ] `inspect-pretrained --voice <one>` rebuilds pretrained_inspect.md with that voice
   only; use `--voice both` to refresh it (or merge the .md like the facts JSON)
-- [ ] Choose the fine-tune voice by the corpus speaker (C3/C4); baseline quality is equal
+- [ ] C4: choose the voice to fine-tune (female or male); baseline quality was "same", the
+  corpus has many speakers (DECISIONS "Speakers": mixed voices); the audit defaults to
+  female, re-run it with `--voice male` if male is chosen
 - [ ] `!boinga fetch-pretrained` exiting 1 does not stop Run all; once later cells depend on
   C2.1, call pretrained from Python and stop with colab_runtime.fail()
-- [ ] After C3: add held-out Chittagonian corpus lines (verbatim transcripts) to the
-  baseline prompts and re-run the pretrained baseline on them
+- [x] After C3: add held-out Chittagonian corpus lines (verbatim transcripts) to the
+  baseline prompts and re-run the pretrained baseline on them (C3.6 `05e51ce`, `8893a67`)
 
 ## C3 — Chittagonian corpus download and audit
-Branch `chunk/C3-data-audit`. Two notebooks, one per run: run 1 records the real
-corpus layout, run 2 is written against it. Local tests use tiny synthetic data only.
+Branch `chunk/C3-data-audit`. Three notebooks, one per run: run 1 records the real
+corpus layout, run 2 is written against it (index, audit, summary, dialect baseline),
+run 3 re-audits on the char-mapped text. Local tests use tiny synthetic data only.
 
 Run 1 (spec `notebooks/specs/c3_data_audit_run1.py`, CPU):
 - [x] C3.1 code: data_download.fetch() + `boinga fetch-data` + cell C3.1: zip to Drive with
@@ -178,6 +184,17 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
 - [x] C3.9 Speakers: mixed voices (user decision, measuring declined); fallback = largest
   SpeechBrain ECAPA cluster if C4 hears an unstable voice (DECISIONS "Speakers"; this commit)
 - [ ] Keep the official test split (incl. clips 386, 29, 625) out of training in C4
+
+### C3 follow-ups (from the whole-chunk review; for C4)
+- [ ] Before C4 builds splits: compute duplicate_text on ctg_text_model (the mapped text)
+  instead of ctg_text_nfc, so identical model inputs cannot land in two splits
+- [ ] audit_summary: reject an audit.csv whose charset_id was made with another char map
+  (compare with text_frontend.map_digest()), not only one missing columns
+- [ ] baseline._model_charset docstring: the check now runs on text_frontend.prepare()
+  output, not "raw text before coqui's cleaner"
+- [ ] Tests: move ROWS/_corpus (test_corpus) and _row (test_audit_summary) into
+  tests/conftest.py or tests/fakes.py; pin test_repo_prompts_file_shape to the filled state
+- [ ] oov_ratio and has_digits are informational now (no rule reads them); drop or label
 
 ## C4
 - [ ] C4.x (subchunks not yet defined)
