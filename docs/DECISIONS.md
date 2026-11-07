@@ -644,3 +644,24 @@ speakers (DECISIONS "Speakers" A). Training minutes come from the train split on
 (393.72 min); the official test split stays out of training (C5). The C4 plan's own
 G3 draft (train >= 60, val >= 6 min) is also met. If C7-C9 hear an unstable voice, the
 fallback is re-clustering with a cap on the largest cluster's share (PROGRESS follow-up).
+
+## 2026-11-07 — Gate G4 — text frontend
+**Context:** End of C5. Rule (C5.V2 promptbook), on the unknown-character rate of the
+real coqui tokenizer over the training speaker's text: < 1% -> PASS; otherwise FAIL with
+(a) widen configs/char_map.json (user approval; redo C5.3, C5.4 and run 2) or (b) extend
+the model's text embedding as C7.0. Evidence: C5 run 2 (90b60c3, reports/
+tokenizer_check.md, e0beff4): coqui-tts 0.28.0 TTSTokenizer from the male voice's
+config.json on text_frontend.prepare_text() of all 7,506 selected clips (0 excluded by
+char_map, char map 151ac177e2): 0 of 297,218 characters unknown (0.000000, spaces
+included), 0 round-trip failures. C5 run 1 (reports/oov_report.md, 5d35740) agrees: 0 of
+251,223 non-space characters outside the male charset.
+**Decision:** G4: PASS (0.00% < 1%). The text front-end (normalise -> apply_char_map,
+DECISIONS "Character map") is the one used for training and inference; no embedding
+change. The VITS fine-tune path continues with C6.
+**Alternatives:** (a) and (b) above were not needed. The eight optional inference-only
+map entries (dash variants, invisible format characters) were declined in C5.V1.
+**Consequences:** Training (C6 onwards) must feed prepare_text() output to coqui and
+must not re-normalise it (it is not NFC-stable). Any later char_map change changes
+map_digest, makes audit.csv stale and needs this check (C5 run 2) again. Inference text
+outside the corpus (typed prompts) can still hold characters the voice lacks: coqui drops
+them with only a warning, so the demo should check prompts with count_unknown().
