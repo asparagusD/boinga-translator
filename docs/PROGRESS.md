@@ -125,8 +125,9 @@ Run 1 (spec `notebooks/specs/c3_data_audit_run1.py`, CPU):
   Range resume, size + sha256 check, one-time unzip on Drive, per-VM copy to the fast disk
   (this commit; Colab result and timing come with C3.V1)
   Review follow-up: time unzip-to-Drive + copy vs extracting the Drive zip straight to /content
-- [ ] C3.2 tools/inspect_layout.py + cell: tree, file types, table heads, audio headers
-  -> reports/data_layout.md
+- [x] C3.2 code: tools/inspect_layout.py + cell C3.2: tree to depth 3 with counts per
+  extension, table heads (csv/tsv/txt/json/xlsx/xls < 5 MB), 3 wav headers, speaker/gender/
+  region/age/split values -> reports/corpus_layout.txt (this commit; result with C3.V1)
 - [ ] C3.H1 hand-off run 1
 - [ ] C3.V1 verify run 1 (records the real layout in reports/data_layout.md)
 

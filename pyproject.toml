@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-train = ["coqui-tts==0.28.0"]
+train = ["coqui-tts==0.28.0", "openpyxl"]
 dev = ["pytest", "ruff", "nbformat"]
 
 [project.scripts]

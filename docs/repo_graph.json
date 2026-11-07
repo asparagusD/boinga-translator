@@ -282,6 +282,21 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_inspect_layout.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_inspect_layout.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_inspect_layout.py",
+      "target": "tools/inspect_layout.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_nbkit.py",
       "target": "tools/nbkit.py"
     },
@@ -399,6 +414,11 @@
       "kind": "import",
       "source": "tools/build_notebook.py",
       "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/inspect_layout.py",
+      "target": "src/boinga_translator/report_io.py"
     },
     {
       "kind": "import",
@@ -548,7 +568,7 @@
     },
     {
       "kind": "doc",
-      "lines": 175,
+      "lines": 176,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -578,7 +598,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 290,
+      "lines": 317,
       "path": "notebooks/runs/C3_data-audit_run1.ipynb",
       "purpose": "C3 run 1 — Download and layout"
     },
@@ -602,7 +622,7 @@
     },
     {
       "kind": "module",
-      "lines": 16,
+      "lines": 20,
       "path": "notebooks/specs/c3_data_audit_run1.py",
       "purpose": "Spec: C3 run 1, Chittagonian corpus: download, verify and unpack it, then record its layout."
     },
@@ -758,6 +778,12 @@
     },
     {
       "kind": "test",
+      "lines": 200,
+      "path": "tests/test_inspect_layout.py",
+      "purpose": "Tests for tools/inspect_layout.py: tree counts, table heads, wav headers, metadata values, cap."
+    },
+    {
+      "kind": "test",
       "lines": 142,
       "path": "tests/test_nbkit.py",
       "purpose": "Tests for tools/nbkit.py: md/code/form cell sources, metadata, validation and Notebook."
@@ -839,6 +865,12 @@
       "lines": 92,
       "path": "tools/hooks/pre_commit.py",
       "purpose": "Pre-commit guard: block binaries/large files, stale map/notebooks, ruff errors, failing tests."
+    },
+    {
+      "kind": "tool",
+      "lines": 197,
+      "path": "tools/inspect_layout.py",
+      "purpose": "Describe the raw corpus tree (folders, tables, wav headers, metadata values) for the repo."
     },
     {
       "kind": "tool",
