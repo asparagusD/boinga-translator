@@ -196,8 +196,62 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
   tests/conftest.py or tests/fakes.py; pin test_repo_prompts_file_shape to the filled state
 - [ ] oov_ratio and has_digits are informational now (no rule reads them); drop or label
 
-## C4
-- [ ] C4.x (subchunks not yet defined)
+## C4 — Choose one consistent training speaker
+Branch `chunk/C4-speaker`. One notebook for the chunk: spec `notebooks/specs/c4_speaker.py`
+-> `notebooks/runs/C4_speaker_run1.ipynb` (T4). Every subchunk that adds cells rebuilds
+the notebook (pre-commit `--check`); only C4.H hands it over. Local tests use fake
+encoders and synthetic embeddings, never speechbrain or the corpus.
+Path: no speaker ids (reports/audit_summary.md "no speaker field"; DECISIONS "Corpus
+layout") -> C4.2a, C4.2b, C4.3. This chunk revisits DECISIONS "Speakers" (A, mixed voices):
+the form keeps "mixed" selectable, and C4.4 records the outcome as a new entry.
+Line counts are non-test estimates, excluding the generated map/notebook and PROGRESS.
+- [ ] C4.1 skipped: the corpus has no speaker ids, so there is no speaker to pick from
+  metadata (DECISIONS "Corpus layout"; audit_summary.md "Speakers")
+- [ ] C4.2a Speaker embeddings (~110 lines): new `speaker_embed.py` (`ensure_deps()`
+  pip-installs the `speaker` extra and fails loudly; `embed(audit_csv)` runs SpeechBrain ECAPA
+  `speechbrain/spkrec-ecapa-voxceleb` at the native 16 kHz on every clean clip of all three
+  splits (clean_mask), in resumable parts, -> Drive `speakers/ecapa.npy` + `ecapa_ids.csv`;
+  the encoder is injected so tests never load it); `paths.speakers()`; `boinga
+  embed-speakers` in cli.py; `speaker = ["speechbrain", "scikit-learn"]` extra in
+  pyproject.toml. Before install: confirm licences (Apache-2.0 code and model card) and
+  Colab's Python support; DECISIONS entry "Speaker encoder".
+  Tests `tests/test_speaker_embed.py`: only clean rows embedded, row order <-> ids, resume
+  skips finished parts, shape (n, 192), CLI wiring.
+  Cells: `C4.2a.fetch` (fetch-data, `PASS: dataset ready`), `C4.2a` (ensure_deps + embed,
+  gpu, timeout 45, `PASS: embedded \d+ clips`)
+- [ ] C4.2b Cluster and rank (~120 lines): new `speaker_cluster.py`: L2-normalise,
+  agglomerative clustering (cosine, average linkage, fixed distance threshold), clusters
+  ranked by clean train hours, per-cluster hours by split, mean within-cluster cosine,
+  `sample_clips(cluster, n)`; -> Drive `speakers/clusters.csv` and
+  `reports/speaker_clusters.md` (top 10 table, emitted); `boinga cluster-speakers`.
+  Tests `tests/test_speaker_cluster.py`: 3 separated synthetic blobs -> 3 clusters with the
+  right sizes, ranking by hours, deterministic labels, report table, CLI.
+  Cells: `C4.2b` (`PASS: \d+ clusters`, `=== BEGIN reports/speaker_clusters.md ===`),
+  `C4.2b.play` (5 clips from each of the top 3 clusters)
+- [ ] C4.3 Training selection (~120 lines): new `speaker_select.py`: `select(cluster|
+  "mixed")` -> clean clips of that cluster in the official splits (test held out, incl.
+  clips 386, 29, 625); `duplicate_text` recomputed on `ctg_text_model`, a text present in two
+  splits is dropped from train (C3 follow-up); text via text_frontend.prepare (verbatim
+  transcript, no rewriting) -> Drive `data_prepared/{train,val,test}.csv` (`wav|text`) and
+  `reports/speaker_choice.md` (cluster, clips and hours per split, removed counts);
+  `boinga select-speaker --cluster N|mixed` (default: rank 1). Audio stays 16 kHz here;
+  resampling to 22,050 Hz is training-data prep (C5).
+  Tests `tests/test_speaker_select.py`: cluster filter, test split never in train,
+  cross-split duplicate dropped, verbatim text, "mixed" == all clean, report numbers, CLI.
+  Cells: `C4.3` (`PASS: speaker manifests`, `=== BEGIN reports/speaker_choice.md ===`),
+  `C4.3.play` (10 random train clips of the selection); form `C4.3-notes`:
+  `CLUSTER_1_ONE_VOICE` [(choose), yes, mostly, no], `SELECTION_ONE_VOICE` [(choose), yes,
+  mostly, no], `CHOICE` [(choose), 1, 2, 3, mixed], `VOICE_GENDER` [(choose), female, male]
+  (picks the pretrained voice to fine-tune; settles the C2 voice follow-up), `NOTES`.
+  If `CHOICE` is not 1, run 2 re-runs C4.3 with `--cluster <choice>`.
+- [ ] C4.H hand-off: build `notebooks/runs/C4_speaker_run1.ipynb` (T4), push, give the Colab
+  link, form fields and save name `colab_runs/C4_speaker_run1.ipynb`; duration not measured
+- [ ] C4.V verify run 1 (colab-verify): every cell PASS and not stale; save
+  reports/speaker_clusters.md, reports/speaker_choice.md, reports/notes/C4.3-notes.json
+- [ ] C4.4 Gate G3 — speaker (DECISIONS, supersedes or confirms "Speakers"). Proposed PASS
+  rule, to confirm before the run: chosen selection has >= 1.0 h clean train and >= 0.1 h
+  val; `SELECTION_ONE_VOICE` is yes or mostly; no test clip and no text in two splits in
+  train. FAIL -> next cluster, "mixed" (DECISIONS "Speakers" A), or the fallback corpus.
 
 ## C5
 - [ ] C5.x (subchunks not yet defined)
