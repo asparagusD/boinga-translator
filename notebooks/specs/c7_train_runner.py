@@ -34,5 +34,15 @@ NOTEBOOK = Notebook(
         code("C7.1", "Build and validate config",
              "!boinga build-config --run smoke\n!python tools/validate_config.py",
              expect=[r"PASS: config written", r"PASS: coqui accepts config"]),
+        md("""
+            **One-batch loader check.** Loads the fine-tune config into coqui, builds the VITS
+            model and its train data loader exactly as training will, and pulls one batch
+            (a few seconds, no progress bar needed). It prints the loader's signature first,
+            then per tensor the shape, token id range against the text-embedding size, clip
+            seconds and NaN/inf counts (spectrograms included). Expect `PASS: loader ok`; a
+            token id outside the vocabulary or a NaN/inf prints `FAIL: loader <reason>`.
+        """),
+        code("C7.2", "One-batch loader check", "!boinga check-loader",
+             expect=[r"PASS: loader ok"]),
     ],
 )

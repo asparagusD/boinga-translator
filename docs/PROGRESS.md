@@ -488,11 +488,16 @@ map/notebook and PROGRESS.
   `notebooks/specs/c7_train_runner.py` (slug `train-runner`: nbkit slugs allow no "_"),
   cells C7.pre (fetch-data + prepare) and C7.1. Tests `tests/test_train_config.py` (this
   commit). Results: C7 run 1
-- [ ] C7.2 `train_runner.check_loader(cfg_path, n_batches=3)` + `boinga check-loader`:
-  load_tts_samples + Vits.init_from_config + model.get_data_loader (train, no model weights
-  needed beyond init); per batch: shapes, max token id < num_chars, no NaN in wavs/specs, text
-  and audio length bounds, sec/batch; sample counts after the length filter vs
-  configs/splits_summary.json. Cell C7.2. Tests with an injected fake loader. ~70 lines
+- [x] C7.2 code: `train_runner.check_loader(config_path=None)` + `boinga check-loader`:
+  coqui VitsConfig from configs/vits_ctg_finetune.json, `Vits(config)` (0.28 has no
+  Vits.init_from_config), `load_tts_samples(config, eval_split=True)` (0.28 takes the config,
+  not config.datasets), prints `inspect.signature(model.get_data_loader)` and passes only the
+  keyword arguments it names (0.28: is_eval, samples, verbose), one train batch through
+  format_batch + format_batch_on_device (spec/mel); `judge_batch()`: per tensor shape/dtype,
+  token ids vs the text-embedding rows, token lengths, clip seconds, NaN/inf counts; "PASS:
+  loader ok" or "FAIL: loader <reason>". Cell C7.2. Tests `tests/test_train_runner.py`
+  (numpy batches, torch ones via importorskip, fake coqui modules) (this commit). Results:
+  C7 run 1
 - [ ] C7.3a `train_runner.run(run_name, max_steps=None)` for a new run: TrainerArgs
   `restore_path` = cached pretrained model.pth, `continue_path` empty; output under
   `paths.run_dir(run_name)` on Drive; restore check logs how many `disc.`/`dec.`/text-encoder
