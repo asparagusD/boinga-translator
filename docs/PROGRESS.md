@@ -228,7 +228,10 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
   emitted); `candidates(n=3)`; `boinga cluster-speakers`; cell `C4.2b`; DECISIONS "Speaker
   clustering"; tests `tests/test_speaker_cluster.py` (synthetic 2- and 3-voice embeddings)
   (this commit). Listening to the top clusters is not in this subchunk (C4.3 play cell)
-  - [ ] C4.2b results: chosen threshold and cluster minutes from the verified run (C4.V)
+  - [x] C4.2b results: C4 run 1: the rule chose threshold 0.50 (silhouette 0.196), 3
+    clusters: #1 7,506 clips / 490.73 min (all speakers merged), #2 5 clips / 0.18 min, #3 2
+    clips / 0.11 min; threshold 0.30 had 187 clusters, largest 72.08 min (silhouette 0.125)
+    (this commit). The rule is degenerate on this corpus: see C4.4
 - [x] C4.3 code: `speaker_select.listen_clips(id, n=10, seed)` (seeded clips of one
   ranked cluster, labelled with the verbatim transcript), `play_candidates(3)` (heading with
   clean minutes per candidate), `save_selection(id, base_voice)` -> Drive
