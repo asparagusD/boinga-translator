@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 import soundfile as sf
 
-from boinga_translator import paths, prepare
+from boinga_translator import paths, prepare, text_frontend
 
 TARGET = 22050
 PEAK = 10 ** (prepare.PEAK_DBFS / 20)
@@ -305,3 +305,165 @@ def test_save_splits_needs_make_splits_metadata(tmp_path: Path) -> None:
     bare = pd.DataFrame({"clip_id": ["1"], "split": ["train"], "duration_s": [1.0]})
     with pytest.raises(ValueError, match="make_splits"):
         prepare.save_splits(bare, tmp_path / "a.csv", tmp_path / "b.json")
+
+
+# --- manifests ---------------------------------------------------------------------------------
+
+NAMES = {"train": "metadata_train.csv", "val": "metadata_val.csv", "test": "metadata_test.csv"}
+BN = "আঁই তোঁয়ারে ভালা পাই।"  # Chittagonian line; NFC already, the danda maps to "." (char_map)
+
+
+def _facts(tmp_path: Path, dataset: object = None) -> Path:
+    facts = tmp_path / "facts.json"
+    ds = {"formatter": "ljspeech", "meta_files": NAMES} if dataset is None else dataset
+    facts.write_text(json.dumps({"male": {"sample_rate": 22050}, "dataset": ds}),
+                     encoding="utf-8")
+    return facts
+
+
+def _split_frames(texts: dict[str, str]) -> tuple[pd.DataFrame, pd.DataFrame]:
+    ids = list(texts)
+    split = ["train"] * (len(ids) - 2) + ["val", "test"]
+    sp = pd.DataFrame({"clip_id": ids, "split": split, "duration_s": 2.0})
+    return sp, pd.DataFrame({"clip_id": ids, "ctg_text": list(texts.values())})
+
+
+def test_manifest_names_come_from_the_repo_facts() -> None:
+    assert prepare.manifest_names() == NAMES
+
+
+@pytest.mark.parametrize("bad", [{"formatter": "vctk", "meta_files": NAMES},
+                                 {"formatter": "ljspeech", "meta_files": {"train": "a.csv"}},
+                                 "nope"])
+def test_manifest_names_refuse_bad_facts(tmp_path: Path, bad: object) -> None:
+    with pytest.raises(ValueError):
+        prepare.manifest_names(_facts(tmp_path, bad))
+
+
+def test_write_manifests_ljspeech_lines(tmp_path: Path) -> None:
+    sp, idx = _split_frames({"10": BN, "11": "  এক   দুই ", "12": "তিন", "13": "চার"})
+    out = prepare.write_manifests(sp, idx, tmp_path, facts_path=_facts(tmp_path))
+    assert out == {k: tmp_path / v for k, v in NAMES.items()}
+    raw = (tmp_path / NAMES["train"]).read_bytes()
+    assert b"\r" not in raw and raw.endswith(b"\n")
+    lines = raw.decode("utf-8").split("\n")[:-1]
+    assert len(lines) == 2  # no header
+    cols = [line.split("|") for line in lines]
+    assert all(len(c) == 3 for c in cols)  # separator "|", exactly 3 columns
+    want = text_frontend.prepare_text(BN)
+    assert cols[0] == ["10", want, want]
+    assert "আঁই" in want and want.endswith(".")  # Bengali kept, only char_map applied
+    assert cols[1] == ["11", "এক দুই", "এক দুই"]  # prepare_text: whitespace collapsed
+    assert (tmp_path / NAMES["val"]).read_text(encoding="utf-8") == "12|তিন|তিন\n"
+    assert (tmp_path / NAMES["test"]).read_text(encoding="utf-8") == "13|চার|চার\n"
+
+
+def test_wav_paths_live_under_wavs(tmp_path: Path) -> None:
+    assert prepare.manifest_wav(tmp_path, "386") == tmp_path / "wavs" / "386.wav"
+
+
+@pytest.mark.parametrize("text", ["a|b", "a\rb", "", "   "])
+def test_write_manifests_refuses_unsafe_text(tmp_path: Path, text: str,
+                                             monkeypatch: pytest.MonkeyPatch) -> None:
+    # char_map turns "|" into "." and normalise() collapses CR, so bypass the front-end to
+    # prove the guard itself holds if either ever changes
+    monkeypatch.setattr(prepare.text_frontend, "prepare_text", lambda t: t.strip())
+    sp, idx = _split_frames({"1": "এক", "2": text, "3": "দুই", "4": "তিন"})
+    with pytest.raises(ValueError, match="clip 2"):
+        prepare.write_manifests(sp, idx, tmp_path, facts_path=_facts(tmp_path))
+    assert not list(tmp_path.glob("metadata_*.csv"))
+
+
+def test_write_manifests_refuses_missing_text(tmp_path: Path) -> None:
+    sp, idx = _split_frames({"1": "এক", "2": "দুই", "3": "তিন"})
+    with pytest.raises(ValueError, match="no transcript"):
+        prepare.write_manifests(sp, idx.iloc[1:], tmp_path, facts_path=_facts(tmp_path))
+    with pytest.raises(ValueError, match="twice"):
+        prepare.write_manifests(sp, pd.concat([idx, idx]), tmp_path,
+                                facts_path=_facts(tmp_path))
+    with pytest.raises(ValueError, match="unknown split"):
+        prepare.write_manifests(sp.assign(split="dev"), idx, tmp_path,
+                                facts_path=_facts(tmp_path))
+
+
+# --- parse check (fake coqui: the ljspeech formatter keeps the line's "\n" on column 2) ------
+
+
+def _ljspeech(root: Path, meta: str) -> list[dict[str, str]]:
+    items = []
+    with open(root / meta, encoding="utf-8") as f:
+        for line in f:
+            cols = line.split("|")
+            items.append({"text": cols[2], "audio_file": str(root / "wavs" / f"{cols[0]}.wav"),
+                          "root_path": str(root)})
+    return items
+
+
+def _fake_load(root: Path, train: str, val: str | None) -> tuple[list, list]:
+    return _ljspeech(root, train), _ljspeech(root, val) if val else []
+
+
+def _prepared(tmp_path: Path, wavs: bool = True) -> Path:
+    sp, idx = _split_frames({"1": "এক", "2": "দুই", "3": "তিন", "4": "চার", "5": "পাঁচ"})
+    facts = _facts(tmp_path)
+    root = tmp_path / "prepared"
+    prepare.write_manifests(sp, idx, root, facts_path=facts)
+    if wavs:
+        (root / "wavs").mkdir()
+        for cid in sp["clip_id"]:
+            _write(prepare.manifest_wav(root, cid), _sine(0.2, 0.5, TARGET), TARGET)
+    return facts
+
+
+def test_parse_check_passes_and_reports(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
+    facts = _prepared(tmp_path)
+    counts = prepare.parse_check(tmp_path / "prepared", loader=_fake_load, facts_path=facts)
+    assert counts == {"train": 3, "val": 1, "test": 1}
+    out = capsys.readouterr().out
+    assert "PASS: coqui parsed 3 train / 1 val samples" in out
+    assert "text='এক\\n'" in out  # first sample's text shown with repr, trailing newline visible
+    assert "1.wav" in out
+
+
+def test_parse_check_fails_on_a_missing_wav(tmp_path: Path) -> None:
+    facts = _prepared(tmp_path)
+    prepare.manifest_wav(tmp_path / "prepared", "4").unlink()
+    with pytest.raises(RuntimeError, match="1 audio file"):
+        prepare.parse_check(tmp_path / "prepared", loader=_fake_load, facts_path=facts)
+
+
+def test_parse_check_fails_when_the_text_differs(tmp_path: Path) -> None:
+    facts = _prepared(tmp_path)
+
+    def column1(root: Path, train: str, val: str | None) -> tuple[list, list]:
+        a, b = _fake_load(root, train, val)
+        return [{**s, "text": s["text"] + "x"} for s in a], b
+
+    with pytest.raises(RuntimeError, match="text differs"):
+        prepare.parse_check(tmp_path / "prepared", loader=column1, facts_path=facts)
+
+
+def test_parse_check_fails_on_a_count_mismatch(tmp_path: Path) -> None:
+    facts = _prepared(tmp_path)
+
+    def drop(root: Path, train: str, val: str | None) -> tuple[list, list]:
+        a, b = _fake_load(root, train, val)
+        return a[1:], b
+
+    with pytest.raises(RuntimeError, match="train: parsed 2"):
+        prepare.parse_check(tmp_path / "prepared", loader=drop, facts_path=facts)
+
+
+def test_check_manifest_parse_tool(monkeypatch: pytest.MonkeyPatch,
+                                   capsys: pytest.CaptureFixture) -> None:
+    import check_manifest_parse
+
+    monkeypatch.setattr(prepare, "parse_check", lambda: {"train": 1, "val": 1, "test": 1})
+    assert check_manifest_parse.main() == 0
+
+    def boom() -> None:
+        raise RuntimeError("bad")
+
+    monkeypatch.setattr(prepare, "parse_check", boom)
+    assert check_manifest_parse.main() == 1
+    assert "FAIL: manifest parse check: bad" in capsys.readouterr().out

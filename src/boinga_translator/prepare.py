@@ -1,4 +1,4 @@
-"""Training-data prep: model sample rate, per-clip audio transform, leak-free train/val/test split."""
+"""Training-data prep: model rate, audio transform, leak-free splits, coqui ljspeech manifests."""
 
 # dialect-data-rules: mono, resample to the checkpoint's rate (never change the model's
 # rate), trim only leading/trailing silence keeping >= 100 ms, peak-safe normalisation.
@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any
 
@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 import soundfile as sf
 
-from boinga_translator import data_audit, paths, settings, speaker_select
+from boinga_translator import data_audit, paths, settings, speaker_select, text_frontend
 
 PAD_S = 0.1  # silence kept before the first and after the last non-silent frame
 TRIM_TOP_DB = data_audit.TRIM_TOP_DB  # same silence threshold as the audit (40 dB below peak)
@@ -179,3 +179,122 @@ def save_splits(df: pd.DataFrame, csv_path: Path | None = None,
     }
     _atomic_write(summary_path, (json.dumps(summary, indent=2) + "\n").encode("utf-8"))
     return summary
+
+
+# --- manifests -------------------------------------------------------------------------------
+# coqui's "ljspeech" formatter (coqui-tts 0.28.0) reads <root>/<meta_file>, splits each line on
+# "|", takes column 0 as the wav id (<root>/wavs/<id>.wav) and column 2 as the text, without
+# stripping: the last column keeps the line's "\n", which the tokenizer drops as an unknown
+# character (DECISIONS "Training manifests"). Names come from pretrained_facts.json "dataset".
+
+FORMATTER = "ljspeech"
+Samples = list[dict[str, Any]]
+Loader = Callable[[Path, str, str | None], tuple[Samples, Samples]]
+
+
+def manifest_names(facts_path: Path | None = None) -> dict[str, str]:
+    """{split: meta file name} from configs/pretrained_facts.json "dataset" (ljspeech only)."""
+    facts = json.loads((facts_path or paths.configs_dir() / data_audit.FACTS_FILE).read_text(
+        encoding="utf-8"))
+    ds = facts.get("dataset")
+    if not isinstance(ds, dict) or ds.get("formatter") != FORMATTER:
+        raise ValueError(f"pretrained facts need dataset.formatter {FORMATTER!r}, got {ds!r}")
+    names = ds.get("meta_files")
+    if not isinstance(names, dict) or set(names) != set(SPLIT_NAMES):
+        raise ValueError(f"pretrained facts dataset.meta_files must name {SPLIT_NAMES}: "
+                         f"{names!r}")
+    return {k: str(names[k]) for k in SPLIT_NAMES}
+
+
+def manifest_wav(root: Path, clip_id: str) -> Path:
+    """Where the ljspeech formatter looks for a clip's audio: <root>/wavs/<clip_id>.wav."""
+    return root / "wavs" / f"{clip_id}.wav"
+
+
+def write_manifests(splits_df: pd.DataFrame, index_df: pd.DataFrame,
+                    out_root: Path | None = None,
+                    facts_path: Path | None = None) -> dict[str, Path]:
+    """Write <out_root>/<meta file> per split: "<clip_id>|<text>|<text>\\n", UTF-8, no header.
+
+    text = text_frontend.prepare_text(ctg_text): the verbatim transcript plus char_map only.
+    Refuses, before writing anything, a clip with no transcript, an empty model text, or a
+    "|", CR or LF in the id or text. Default out_root: paths.data_prepared().
+    """
+    out_root = Path(out_root) if out_root is not None else paths.data_prepared()
+    names = manifest_names(facts_path)
+    raw = index_df.assign(clip_id=index_df["clip_id"].astype(str)).set_index("clip_id")
+    if raw.index.duplicated().any():
+        raise ValueError("index_df lists a clip_id twice")
+    if odd := set(splits_df["split"]) - set(SPLIT_NAMES):
+        raise ValueError(f"unknown split name(s) {sorted(map(str, odd))}; use {SPLIT_NAMES}")
+    ids = splits_df["clip_id"].astype(str)
+    if missing := sorted(set(ids) - set(raw.index)):
+        raise ValueError(f"{len(missing)} clip(s) have no transcript in the index: "
+                         f"{missing[:5]}")
+    lines: dict[str, list[str]] = {k: [] for k in SPLIT_NAMES}
+    for cid, split in zip(ids, splits_df["split"], strict=True):
+        text = text_frontend.prepare_text(str(raw.at[cid, "ctg_text"]))
+        if not text or any(c in cid + text for c in "|\r\n"):
+            raise ValueError(f"clip {cid}: empty model text or '|'/newline in id or text: "
+                             f"{text!r}")
+        lines[str(split)].append(f"{cid}|{text}|{text}\n")
+    out = {}
+    for split in SPLIT_NAMES:
+        out[split] = out_root / names[split]
+        _atomic_write(out[split], "".join(lines[split]).encode("utf-8"))
+    return out
+
+
+def _coqui_load(root: Path, train: str, val: str | None) -> tuple[Samples, Samples]:
+    """coqui load_tts_samples on one ljspeech dataset (0.28 wants a config with `datasets`)."""
+    from TTS.tts.configs.shared_configs import BaseDatasetConfig, BaseTTSConfig
+    from TTS.tts.datasets import load_tts_samples
+
+    ds = BaseDatasetConfig(formatter=FORMATTER, path=str(root), meta_file_train=train,
+                           meta_file_val=val or "")
+    return load_tts_samples(BaseTTSConfig(datasets=[ds]), eval_split=val is not None)
+
+
+def _check_samples(split: str, samples: Samples, manifest: Path) -> list[str]:
+    """Problems with one split's parsed samples, compared with the manifest we wrote."""
+    want = {}
+    for line in manifest.read_text(encoding="utf-8").splitlines():
+        cid, text, _ = line.split("|")
+        want[cid] = text
+    problems = []
+    if len(samples) != len(want):
+        problems.append(f"{split}: parsed {len(samples)} samples, manifest has {len(want)}")
+    if gone := [s["audio_file"] for s in samples if not Path(s["audio_file"]).is_file()]:
+        problems.append(f"{split}: {len(gone)} audio file(s) missing, e.g. {gone[:3]}")
+    # Only the line's own newline may trail the text (the formatter does not strip it).
+    if bad := [s["audio_file"] for s in samples
+               if want.get(Path(s["audio_file"]).stem) != s["text"].removesuffix("\n")]:
+        problems.append(f"{split}: text differs from the manifest for {len(bad)} sample(s), "
+                        f"e.g. {bad[:3]}")
+    return problems
+
+
+def parse_check(root: Path | None = None, loader: Loader | None = None,
+                facts_path: Path | None = None) -> dict[str, int]:
+    """Load the 3 manifests with coqui's ljspeech formatter, check them and print PASS.
+
+    Counts must match the manifests, every audio_file must exist and every parsed text must
+    equal ours (one trailing "\\n" allowed). Raises RuntimeError listing every problem.
+    """
+    root = Path(root) if root is not None else paths.data_prepared()
+    names = manifest_names(facts_path)
+    load = loader or _coqui_load
+    train, val = load(root, names["train"], names["val"])
+    test, _ = load(root, names["test"], None)
+    parsed = {"train": train, "val": val, "test": test}
+    for split in SPLIT_NAMES:
+        print(f"{split}: {len(parsed[split])} samples from {names[split]}")
+    if train:
+        print(f"first train sample: text={train[0]['text']!r} "
+              f"audio_file={train[0]['audio_file']}")
+    problems = [p for k in SPLIT_NAMES for p in _check_samples(k, parsed[k], root / names[k])]
+    if problems:
+        raise RuntimeError("; ".join(problems))
+    print(f"PASS: coqui parsed {len(train)} train / {len(val)} val samples "
+          f"(+ {len(test)} test)")
+    return {k: len(v) for k, v in parsed.items()}

@@ -377,12 +377,16 @@ the generated map/notebook and PROGRESS.
   (counts, minutes, csv_sha256, seed, test_source, dropped_duplicate_text), refuses to
   change a saved test set. In prepare.py (not splits.py), per the C6.2 promptbook.
   DECISIONS "Training splits". Tests in `tests/test_prepare.py` (this commit)
-- [ ] C6.3 `manifests.write_manifests(splits_df, out_dir)` (~70 lines): coqui `ljspeech`
-  format, `metadata_{train,val,test}.csv`, `id|text|text`, no header, refuses `|` or
-  newlines in text; `check_manifests()` parses them with coqui `load_tts_samples`
-  (lazy import), checks every wav exists at the target rate and the parsed text equals
-  ours; `boinga check-manifests`; parse-check cell in the spec. Tests
-  `tests/test_manifests.py` (fake loader)
+- [x] C6.3 code: `prepare.write_manifests(splits_df, index_df, out_root)` -> coqui ljspeech
+  `metadata_{train,val,test}.csv` (`<clip_id>|<text>|<text>`, UTF-8, LF, no header, text =
+  prepare_text(ctg_text); refuses missing/empty text and "|"/CR/LF), wavs at
+  `<root>/wavs/<clip_id>.wav` (`manifest_wav`); formatter + file names in
+  configs/pretrained_facts.json "dataset" (`manifest_names`); `prepare.parse_check()` +
+  `tools/check_manifest_parse.py`: coqui load_tts_samples (0.28 needs a config with
+  `datasets`) on all 3, counts, audio files exist, text equal (trailing "\n" allowed: the
+  formatter keeps it); spec `notebooks/specs/c6_prepare.py` (cell C6.3, CPU) ->
+  `notebooks/runs/C6_prepare_run1.ipynb`. DECISIONS "Training manifests". Tests in
+  `tests/test_prepare.py` (fake loader) (this commit). Confirmed on Colab in C6.V
 - [ ] C6.4a `prepare.build()` (local, ~100 lines; in prepare.py): selection -> splits -> transform each
   clip to fast `prepared/wavs/<clip_id>.wav` (skip done, process pool) -> post-trim
   exclusions (outside 1-15 s) by reason -> manifests -> `reports/prepare_summary.md`

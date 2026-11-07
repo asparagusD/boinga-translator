@@ -1,4 +1,12 @@
 {
+  "dataset": {
+    "formatter": "ljspeech",
+    "meta_files": {
+      "test": "metadata_test.csv",
+      "train": "metadata_train.csv",
+      "val": "metadata_val.csv"
+    }
+  },
   "female": {
     "add_blank": true,
     "blank": "<BLNK>",

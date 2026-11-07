@@ -716,3 +716,33 @@ duplicate_text exclusion already removed every ctg_text_nfc duplicate from the c
 so this is the only residual leak path (follow-up: count it in the C6.4 summary). Changing
 the seed or the selection later needs a deliberate delete of splits.csv, and a new test
 set makes earlier evaluations incomparable.
+
+## 2026-11-07 — Training manifests: coqui ljspeech format, names in pretrained_facts.json
+**Context:** C6.3. Coqui must read our prepared clips. The C6.3 promptbook picks coqui's
+built-in `ljspeech` formatter. Reading the coqui-tts v0.28.0 source (idiap/coqui-ai-TTS,
+TTS/tts/datasets) showed two facts that shape the code: (1) `ljspeech` splits each line on
+"|", takes column 0 as the id (`<root>/wavs/<id>.wav`) and column 2 as the text, and does
+not strip, so column 2 keeps the line's "\n"; (2) `load_tts_samples` in 0.28 takes a model
+config with a `datasets` field, not a BaseDatasetConfig (a TypeError otherwise).
+**Decision:** `prepare.write_manifests()` writes `metadata_{train,val,test}.csv` under
+`paths.data_prepared()`: `<clip_id>|<text>|<text>\n`, UTF-8, LF, no header, text =
+`text_frontend.prepare_text(ctg_text)`; it refuses a missing transcript, an empty model
+text, or "|"/CR/LF in an id or text (char_map already maps "|" to "."). The file names and
+the formatter live in `configs/pretrained_facts.json` "dataset" (read by
+`prepare.manifest_names()`). `prepare.parse_check()` (run by
+`tools/check_manifest_parse.py`, cell C6.3) loads train+val with
+`load_tts_samples(BaseTTSConfig(datasets=[BaseDatasetConfig(formatter="ljspeech", ...)]))`
+and test the same way with eval_split False, checks counts, that every audio_file exists
+and that each parsed text equals ours with at most the trailing "\n", then prints
+"PASS: coqui parsed N train / M val samples".
+**Alternatives:** A 4th empty column (`id|text|text|`) would keep the "\n" off the text,
+and a custom formatter could strip it; both were left out because the promptbook fixes the
+3-column ljspeech layout and the "\n" is harmless (below). A BaseDatasetConfig passed
+straight to load_tts_samples (the promptbook's wording) fails on 0.28.
+**Consequences:** Every training text reaches the tokenizer with a trailing "\n", which
+the Graphemes tokenizer drops as an unknown character with a one-time warning (C5: coqui
+discards unknown characters); no token is added. If coqui's training log shows anything
+else for "\n", switch to a custom formatter. The "dataset" key sits beside the voices in
+pretrained_facts.json; `pretrained.write_inspect_reports` merges with `update`, so a
+re-inspect keeps it. The parse check runs only on Colab (coqui is not installed locally);
+its shell cell does not stop "Run all", so it stays last or moves into cli later.
