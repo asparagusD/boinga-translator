@@ -335,6 +335,24 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
   Rule from the C5.V2 promptbook: < 1% PASS, else FAIL -> widen char_map or extend the
   text embedding (C7.0)
 
+### C5 follow-ups (from the whole-chunk review; for C6)
+- [ ] `text_oov.selected_texts()` returns every selected clip, official test split
+  included: G4 checked a superset of the training text (verdict holds), but C6 must
+  filter on split_official when it builds training lists and not reuse it as-is
+- [ ] One "unknown character" predicate: oov_report's inline loop, count_unknown and the
+  tokenizer's _known agree in practice; the run-1 rate excludes spaces, the run-2 rate
+  includes them; share the predicate and word both reports the same way
+- [ ] prepare and prepare_text are the same function (text_oov.run uses prepare,
+  check_tokenizer uses prepare_text): pick one name for C6 and inference
+- [ ] cli `_oov` vs `_check_tokenizer` exception lists differ (FileNotFoundError is
+  redundant next to OSError; `_oov` lacks RuntimeError/ImportError): align them
+- [ ] The C4 follow-up note on reports/env.json is stale: since `e0beff4` it holds C5
+  run 2's CPU environment (git 90b60c3)
+- [ ] Inference/demo: check typed prompts with count_unknown() before synthesis (coqui
+  drops unknown characters with only a warning; DECISIONS "Gate G4")
+- [ ] Optional skip-if-no-TTS (or Colab) test of round_trip on the real TTSTokenizer, so a
+  change in coqui's blank/bos/eos order is caught without a full run
+
 ## C6
 - [ ] C6.x (subchunks not yet defined)
 
