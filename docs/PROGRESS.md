@@ -1,5 +1,16 @@
 # Progress
 
+## End-of-day 1 handover (2026-11-08)
+- Done: C0-C7 merged to main (`d49ee06`); Gate G5 PASS: the runner restores the pretrained male
+  VITS, smoke 50 steps + resume to 60 passed on Colab (0.34 s/step, 3.39 GB, no NaN).
+- On Drive (boinga-translator/): corpus zip + unzip, prepared-fd93f4827c6d2b41.tar, pretrained/
+  {female,male}, runs/smoke (checkpoints 50 and 60, ~2 GB), speaker_emb/, reports/.
+- First task tomorrow: C8 plan: make `boinga train` use RUN_BUDGETS (it ignores it today), pick
+  the C8 batch size for the RTX PRO 6000, then build-config + train the full run.
+- Risks: Drive ~6.4 GB free (~1 GB per checkpoint, the old smoke run sits in the Drive trash);
+  T4-based override reasons; a run's settings are fixed once it starts (new name to change).
+- Open bugs: none blocking; C7 follow-ups below (C8 section); C7.4.d listening note missing.
+
 Tick a subchunk in the same commit that completes it (boinga-workflow step 6),
 with its short commit hash. Chunks C1–C13 get their subchunk list when the
 promptbook for that chunk is handed over.
@@ -579,6 +590,26 @@ map/notebook and PROGRESS.
 
 ## C8
 - [ ] C8.x (subchunks not yet defined)
+
+### C7 follow-ups (from the whole-chunk review; for C8)
+- [ ] `run()` / `boinga train` ignore `train_config.RUN_BUDGETS`: without --max-steps a run
+  goes up to 1000 epochs; fall back to RUN_BUDGETS[run_name] (with a test); DECISIONS "Gate G5"
+  and the `epochs` reason already assume it
+- [ ] configs/vits_ctg_finetune.json and the DECISIONS overrides table describe the last built
+  run (now `smoke`, print_step 5): commit them from C8's own build-config and say so in
+  DECISIONS
+- [ ] T4-based reasons (batch_size, num_loader_workers, max_audio_len, mixed_precision; spec
+  docstring "(T4)"): revisit for the RTX PRO 6000 (batch 16 used 3.39 of 95 GB, 48 CPUs) and
+  re-measure throughput after any change
+- [ ] Drive space: 6.4 GB free at the C7 re-run; empty the Drive trash and check free space
+  before C8 (~1 GB per checkpoint x 2 + best)
+- [ ] A resume always uses the run folder's config: setting changes need a new run name
+  (write it into the C8 plan / DECISIONS)
+- [ ] train_report.throughput reports the run-wide peak memory over all sessions: label it so,
+  or add the last session's peak
+- [ ] PROGRESS: replace the remaining "(this commit)" markers of C7.4 / C7.4b with hashes
+  (`1cc1fb5`, `b0ec918`)
+- [ ] C7.4.d listening note (pretrained vs step-60 smoke clip) not given yet
 
 ## C9
 - [ ] C9.x (subchunks not yet defined)
