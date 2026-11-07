@@ -78,11 +78,6 @@ def test_ctg_text_is_verbatim_and_nfc_column_is_normalised(root: Path) -> None:
     assert df.loc[2, "ctg_text_nfc"] == "ভালা"
 
 
-def test_normalise_text() -> None:
-    assert corpus.normalise_text("  a \t b\n\nc  ") == "a b c"
-    assert corpus.normalise_text(YA) == "য়"
-
-
 def test_test_split_and_default_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("BOINGA_FAST", str(tmp_path / "fast"))
     _corpus(paths.data_fast(), {"training": [2], "validation": [3], "test": [4, 5]})

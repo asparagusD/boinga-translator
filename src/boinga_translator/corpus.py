@@ -7,12 +7,11 @@
 from __future__ import annotations
 
 import re
-import unicodedata
 from pathlib import Path
 
 import pandas as pd
 
-from boinga_translator import paths
+from boinga_translator import paths, text_frontend
 
 XLSX_REL = Path("Dataset") / "Chittagonian_translated.xlsx"
 SPEECH_REL = Path("Dataset") / "Speech"
@@ -21,12 +20,6 @@ CTG_COL = "Chittagonian Dialect"
 BN_COL = "Standard Bangla"
 COLUMNS = ["clip_id", "wav_path", "ctg_text", "ctg_text_nfc", "bn_text", "split_official",
            "speaker_id", "wav_exists"]
-_SPACE = re.compile(r"\s+")
-
-
-def normalise_text(text: str) -> str:
-    """The default text normalisation: Unicode NFC, collapse whitespace runs, strip."""
-    return _SPACE.sub(" ", unicodedata.normalize("NFC", text)).strip()
 
 
 def _raw_name(column: str) -> str:
@@ -94,7 +87,7 @@ def load_index(root: Path | None = None) -> pd.DataFrame:
             "clip_id": str(excel_row),
             "wav_path": str(wav) if wav else None,
             "ctg_text": cell.get(CTG_COL, ""),
-            "ctg_text_nfc": normalise_text(cell.get(CTG_COL, "")),
+            "ctg_text_nfc": text_frontend.normalise(cell.get(CTG_COL, "")),
             "bn_text": cell.get(BN_COL, ""),
             "split_official": split,
             "speaker_id": None,  # the corpus has no speaker field (DECISIONS "Corpus layout")

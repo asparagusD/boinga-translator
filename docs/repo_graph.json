@@ -136,6 +136,36 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C5_text-frontend_run1.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C5_text-frontend_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C5_text-frontend_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C5_text-frontend_run2.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C5_text-frontend_run2.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C5_text-frontend_run2.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -192,6 +222,16 @@
     },
     {
       "kind": "import",
+      "source": "notebooks/specs/c5_text_frontend_run1.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c5_text_frontend_run2.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/audit_summary.py",
       "target": "src/boinga_translator/corpus.py"
     },
@@ -229,11 +269,6 @@
       "kind": "import",
       "source": "src/boinga_translator/baseline.py",
       "target": "src/boinga_translator/colab_runtime.py"
-    },
-    {
-      "kind": "import",
-      "source": "src/boinga_translator/baseline.py",
-      "target": "src/boinga_translator/corpus.py"
     },
     {
       "kind": "import",
@@ -327,6 +362,16 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/text_oov.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/colab_runtime.py",
       "target": "src/boinga_translator/env_report.py"
     },
@@ -344,6 +389,11 @@
       "kind": "import",
       "source": "src/boinga_translator/corpus.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/corpus.py",
+      "target": "src/boinga_translator/text_frontend.py"
     },
     {
       "kind": "import",
@@ -461,14 +511,49 @@
       "target": "configs/char_map.json"
     },
     {
-      "kind": "import",
+      "kind": "config",
       "source": "src/boinga_translator/text_frontend.py",
-      "target": "src/boinga_translator/corpus.py"
+      "target": "configs/pretrained_facts.json"
     },
     {
       "kind": "import",
       "source": "src/boinga_translator/text_frontend.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_frontend.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/text_oov.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_oov.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_oov.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_oov.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_oov.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_oov.py",
+      "target": "src/boinga_translator/text_frontend.py"
     },
     {
       "kind": "test",
@@ -866,6 +951,11 @@
       "target": "src/boinga_translator/synth_basic.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_text_frontend.py",
+      "target": "configs/char_map.json"
+    },
+    {
       "kind": "test",
       "source": "tests/test_text_frontend.py",
       "target": "src/boinga_translator/data_audit.py"
@@ -873,7 +963,67 @@
     {
       "kind": "test",
       "source": "tests/test_text_frontend.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_frontend.py",
       "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_oov.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_oov.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_oov.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_oov.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_oov.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_oov.py",
+      "target": "src/boinga_translator/text_oov.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_tokenizer_check.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_tokenizer_check.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_tokenizer_check.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_tokenizer_check.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_tokenizer_check.py",
+      "target": "src/boinga_translator/text_oov.py"
     },
     {
       "kind": "import",
@@ -1039,13 +1189,13 @@
     },
     {
       "kind": "doc",
-      "lines": 624,
+      "lines": 667,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 309,
+      "lines": 381,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1104,6 +1254,18 @@
       "purpose": "C4 run 2 — C4 — save the mixed-voice selection"
     },
     {
+      "kind": "notebook",
+      "lines": 323,
+      "path": "notebooks/runs/C5_text-frontend_run1.ipynb",
+      "purpose": "C5 run 1 — C5 run 1 — OOV report"
+    },
+    {
+      "kind": "notebook",
+      "lines": 323,
+      "path": "notebooks/runs/C5_text-frontend_run2.ipynb",
+      "purpose": "C5 run 2 — C5 run 2 — tokenizer check"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -1150,6 +1312,18 @@
       "lines": 26,
       "path": "notebooks/specs/c4_speaker_run2.py",
       "purpose": "Spec: C4 run 2, save the mixed-voice selection (cluster 1, base voice male) from run 1 (CPU)."
+    },
+    {
+      "kind": "module",
+      "lines": 30,
+      "path": "notebooks/specs/c5_text_frontend_run1.py",
+      "purpose": "Spec: C5 run 1, OOV report: selected speaker's model text vs the base voice's charset (CPU)."
+    },
+    {
+      "kind": "module",
+      "lines": 32,
+      "path": "notebooks/specs/c5_text_frontend_run2.py",
+      "purpose": "Spec: C5 run 2, coqui tokenizer round trip of the selected speaker's model text (CPU)."
     },
     {
       "kind": "config",
@@ -1206,6 +1380,18 @@
       "purpose": "Colab run C4 run 2 — C4 — save the mixed-voice selection"
     },
     {
+      "kind": "doc",
+      "lines": 132,
+      "path": "reports/colab_runs/C5_text-frontend_run1.md",
+      "purpose": "Colab run C5 run 1 — C5 run 1 — OOV report"
+    },
+    {
+      "kind": "doc",
+      "lines": 135,
+      "path": "reports/colab_runs/C5_text-frontend_run2.md",
+      "purpose": "Colab run C5 run 2 — C5 run 2 — tokenizer check"
+    },
+    {
       "kind": "config",
       "lines": 16,
       "path": "reports/env.json",
@@ -1243,6 +1429,12 @@
     },
     {
       "kind": "doc",
+      "lines": 9,
+      "path": "reports/oov_report.md",
+      "purpose": "OOV report"
+    },
+    {
+      "kind": "doc",
       "lines": 123,
       "path": "reports/pretrained_inspect.md",
       "purpose": "Pretrained voices"
@@ -1252,6 +1444,12 @@
       "lines": 21,
       "path": "reports/speaker_ranking.md",
       "purpose": "Speaker clusters"
+    },
+    {
+      "kind": "doc",
+      "lines": 9,
+      "path": "reports/tokenizer_check.md",
+      "purpose": "Tokenizer check"
     },
     {
       "kind": "module",
@@ -1267,13 +1465,13 @@
     },
     {
       "kind": "module",
-      "lines": 157,
+      "lines": 156,
       "path": "src/boinga_translator/baseline.py",
       "purpose": "Baseline smoke synthesis: pretrained voices read configs/baseline_prompts.json for listening."
     },
     {
       "kind": "module",
-      "lines": 218,
+      "lines": 250,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1285,7 +1483,7 @@
     },
     {
       "kind": "module",
-      "lines": 118,
+      "lines": 111,
       "path": "src/boinga_translator/corpus.py",
       "purpose": "Corpus index: one row per spreadsheet line with its wav, dialect text, translation and split."
     },
@@ -1333,7 +1531,7 @@
     },
     {
       "kind": "module",
-      "lines": 326,
+      "lines": 342,
       "path": "src/boinga_translator/speaker_select.py",
       "purpose": "Speaker selection: embed each clean clip's voice (cached per clip), cluster and rank voices."
     },
@@ -1345,9 +1543,15 @@
     },
     {
       "kind": "module",
-      "lines": 69,
+      "lines": 220,
       "path": "src/boinga_translator/text_frontend.py",
-      "purpose": "Text front-end: NFC + configs/char_map.json for every text the model sees (train and infer)."
+      "purpose": "Text front-end: NFC-only normalise() plus configs/char_map.json for every text the model sees."
+    },
+    {
+      "kind": "module",
+      "lines": 122,
+      "path": "src/boinga_translator/text_oov.py",
+      "purpose": "OOV report: characters in the selected clips' model text that the base voice's charset lacks."
     },
     {
       "kind": "test",
@@ -1399,7 +1603,7 @@
     },
     {
       "kind": "test",
-      "lines": 162,
+      "lines": 157,
       "path": "tests/test_corpus.py",
       "purpose": "Tests for corpus.py and `boinga index`: row<->wav mapping, splits, verbatim text, errors."
     },
@@ -1519,9 +1723,21 @@
     },
     {
       "kind": "test",
-      "lines": 64,
+      "lines": 157,
       "path": "tests/test_text_frontend.py",
-      "purpose": "Tests for text_frontend.py: char_map application, row exclusion and idempotence."
+      "purpose": "Tests for text_frontend.py: normalise, apply_char_map, prepare_text, count_unknown, exclusion."
+    },
+    {
+      "kind": "test",
+      "lines": 145,
+      "path": "tests/test_text_oov.py",
+      "purpose": "Tests for text_oov.py, speaker_select.load_selection and `boinga oov` on a fake charset."
+    },
+    {
+      "kind": "test",
+      "lines": 173,
+      "path": "tests/test_tokenizer_check.py",
+      "purpose": "Tests for text_frontend.check_tokenizer and `boinga check-tokenizer` with a fake coqui tokenizer."
     },
     {
       "kind": "tool",

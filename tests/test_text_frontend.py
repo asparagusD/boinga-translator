@@ -1,13 +1,67 @@
-"""Tests for text_frontend.py: char_map application, row exclusion and idempotence."""
+"""Tests for text_frontend.py: normalise, apply_char_map, prepare_text, count_unknown, exclusion."""
 
 from __future__ import annotations
 
 import json
+import unicodedata
 from pathlib import Path
 
 import pytest
 
-from boinga_translator import data_audit, text_frontend
+from boinga_translator import data_audit, paths, text_frontend
+
+# --- normalise(): NFC + collapse whitespace + strip, nothing else -------------------------
+HASANTA, NUKTA, KHANDA_TA = "্", "়", "ৎ"
+ZWJ, ZWNJ = "‍", "‌"
+DIALECT = [  # already NFC and single-spaced: normalise() must return them unchanged
+    "আঁই বাজারত",  # chandrabindu, vowel signs
+    f"ক{HASANTA}ষ",  # hasanta conjunct
+    f"ড{NUKTA}া ঢ{NUKTA} য{NUKTA}",  # base + nukta: NFC of U+09DC/U+09DD/U+09DF
+    f"উ{KHANDA_TA}সব ত{HASANTA}{ZWJ} ক{HASANTA}{ZWNJ}ষ",
+    "কোন কৌশল ঋণ দু’রাত।",
+]
+
+
+def test_dialect_fixture_is_nfc() -> None:
+    for text in DIALECT:
+        assert unicodedata.is_normalized("NFC", text), text
+
+
+@pytest.mark.parametrize("text", DIALECT)
+def test_normalise_keeps_nfc_dialect_text_unchanged(text: str) -> None:
+    assert text_frontend.normalise(text) == text
+
+
+@pytest.mark.parametrize("c", [HASANTA, NUKTA, KHANDA_TA, ZWJ, ZWNJ])
+def test_normalise_preserves_marks_and_joiners(c: str) -> None:
+    assert c in text_frontend.normalise(f"ক{c}ষ")
+
+
+@pytest.mark.parametrize("text", [*DIALECT, "  আঁই \t ব\n\nয ম ",
+                                  "ড়ঢ়য়", "কো"])
+def test_normalise_is_idempotent(text: str) -> None:
+    once = text_frontend.normalise(text)
+    assert text_frontend.normalise(once) == once
+
+
+def test_normalise_collapses_and_strips_whitespace_only() -> None:
+    assert text_frontend.normalise("  a \t b\n\nc  ") == "a b c"
+    assert text_frontend.normalise("আ  ই ।") == "আ ই ।"  # NBSP
+    assert text_frontend.normalise("।'(–)\"|") == "।'(–)\"|"  # char_map's job
+    assert text_frontend.normalise("") == ""
+
+
+def test_python_nfc_decomposes_precomposed_nukta_letters() -> None:
+    # U+09DC/U+09DD/U+09DF are Unicode composition exclusions: NFC turns the precomposed letter
+    # into base + nukta and never recomposes it, so both spellings meet in the decomposed form.
+    # configs/char_map.json maps them back to precomposed for the model (DECISIONS
+    # "Character map"), which is why prepare() output is not NFC.
+    assert text_frontend.normalise("ড়") == "ড়"  # RRA -> DDA + NUKTA
+    assert text_frontend.normalise("ড়") == "ড়"  # unchanged
+    assert text_frontend.normalise("ঢ়") == "ঢ়"
+    assert text_frontend.normalise("য়") == "য়"
+    # NFC also joins a two-part vowel sign: e-kar + aa-kar -> o-kar (U+09CB).
+    assert text_frontend.normalise("কো") == "কো"
 
 YA_PRE, YA_DEC = "য়", "য়"  # precomposed vs NFC (decomposed) য়
 
@@ -62,3 +116,42 @@ def test_custom_map_file_and_validation(tmp_path: Path) -> None:
                                "exclude_rows_with": {"chars": "", "note": ""}}), encoding="utf-8")
     with pytest.raises(ValueError, match="empty 'from'"):
         text_frontend.load_char_map(bad)
+
+
+# --- apply_char_map / prepare_text / count_unknown (C5.3) ---------------------------------
+MAP_ENTRIES = [(e["from"], e["to"]) for e in json.loads(
+    (paths.configs_dir() / text_frontend.CHAR_MAP_FILE).read_text(encoding="utf-8"))["map"]]
+
+
+@pytest.mark.parametrize(("src", "dst"), MAP_ENTRIES, ids=[f"U+{ord(s[0]):04X}" for s, _ in
+                                                           MAP_ENTRIES])
+def test_apply_char_map_each_approved_entry(src: str, dst: str) -> None:
+    assert text_frontend.apply_char_map(src) == dst
+    assert text_frontend.apply_char_map(f"ক{src}খ") == f"ক{dst}খ"
+
+
+def test_apply_char_map_leaves_unknowns_and_spacing_untouched() -> None:
+    for text in ("xyz", "৭৯", "a/b:c*", "é‐\u200b", "ক  খ "):
+        assert text_frontend.apply_char_map(text) == text  # only listed characters change
+    assert text_frontend.apply_char_map("ক (খ) ") == "ক খ "  # no collapse
+
+
+def test_empty_map_is_a_no_op() -> None:
+    empty = text_frontend.CharMap((), frozenset())
+    for text in ("। ' ৰ |", f"য{NUKTA}", ""):
+        assert text_frontend.apply_char_map(text, empty) == text
+    assert text_frontend.prepare_text("  ক। ", empty) == "ক।"  # normalise only
+
+
+def test_prepare_text_is_map_of_normalise_then_recollapsed() -> None:
+    raw = "  আঁই 'চাট' যায়  । "
+    assert text_frontend.prepare_text(raw) == " ".join(
+        text_frontend.apply_char_map(text_frontend.normalise(raw)).split())
+    assert text_frontend.prepare_text(raw) == text_frontend.prepare(raw)  # same front-end
+
+
+def test_count_unknown() -> None:
+    charset = frozenset("abc ")
+    assert text_frontend.count_unknown("abc cab", charset) == 0
+    assert text_frontend.count_unknown("ab xx y\t", charset) == 3  # whitespace never counts
+    assert text_frontend.count_unknown("", charset) == 0

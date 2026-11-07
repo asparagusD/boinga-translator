@@ -483,6 +483,28 @@ rows (৭ ৯ / : *), so no unknown character reaches training. Gate G2 conditio
 (279 vs the 278 above: the preview counted the 8,004 rows with audio, the audit counts
 all 8,009 index rows; one of the 5 rows without a wav has an excluded character.)
 
+**Reviewed in C5.3 (2026-11-07): no new entries; the map above stays as it is.** C5 run 1
+(reports/oov_report.md, commit 5d35740) checked the training speaker's 7,506 clips,
+mapped with this map, against the base voice's (male) charset: 0 of 251,223 characters
+unknown, 0 clips affected. The user declined (chat, C5.V1) eight optional inference-only
+entries that the corpus never uses: ‐ U+2010, ‑ U+2011 and − U+2212 -> "-"; ― U+2015 -> —;
+and dropping U+200B, U+FEFF, U+00AD, U+2060. The user also chose (chat, C5.3) to keep
+the file and its list format instead of an empty {map, drop} file: an empty file would
+undo the decisions above, and any change to the parsed map changes map_digest and makes
+audit.csv stale. The approved mappings are therefore the 18 entries listed above, in
+order:
+- "।" (U+0964) and "৷" (U+09F7) -> "."
+- ৰ (U+09F0) and ৱ (U+09F1) -> র (U+09B0)
+- ' " “ ” ( ) … removed
+- – (U+2013) -> — (U+2014)
+- | -> "."; ; -> ","; ZWJ (U+200D) removed
+- য+় -> য় (U+09DF), ড+় -> ড় (U+09DC), ঢ+় -> ঢ় (U+09DD)
+
+The row exclusions ("/", ":", "*", digits) are unchanged. text_frontend now exposes the
+steps as apply_char_map() (the replacements only), prepare_text() (=
+apply_char_map(normalise(text)), whitespace collapsed again; prepare() is the same) and
+count_unknown(); behaviour and map digest (151ac177e2) are unchanged.
+
 ## 2026-11-07 — Speakers: fine-tune the single-speaker model on the mixed voices
 **Context:** Gate G2 condition 2. The corpus has no speaker field and the C3.5 listening
 heard "many" speakers. Options offered (chat): A mixed voices (all clean clips into the
@@ -622,3 +644,24 @@ speakers (DECISIONS "Speakers" A). Training minutes come from the train split on
 (393.72 min); the official test split stays out of training (C5). The C4 plan's own
 G3 draft (train >= 60, val >= 6 min) is also met. If C7-C9 hear an unstable voice, the
 fallback is re-clustering with a cap on the largest cluster's share (PROGRESS follow-up).
+
+## 2026-11-07 — Gate G4 — text frontend
+**Context:** End of C5. Rule (C5.V2 promptbook), on the unknown-character rate of the
+real coqui tokenizer over the training speaker's text: < 1% -> PASS; otherwise FAIL with
+(a) widen configs/char_map.json (user approval; redo C5.3, C5.4 and run 2) or (b) extend
+the model's text embedding as C7.0. Evidence: C5 run 2 (90b60c3, reports/
+tokenizer_check.md, e0beff4): coqui-tts 0.28.0 TTSTokenizer from the male voice's
+config.json on text_frontend.prepare_text() of all 7,506 selected clips (0 excluded by
+char_map, char map 151ac177e2): 0 of 297,218 characters unknown (0.000000, spaces
+included), 0 round-trip failures. C5 run 1 (reports/oov_report.md, 5d35740) agrees: 0 of
+251,223 non-space characters outside the male charset.
+**Decision:** G4: PASS (0.00% < 1%). The text front-end (normalise -> apply_char_map,
+DECISIONS "Character map") is the one used for training and inference; no embedding
+change. The VITS fine-tune path continues with C6.
+**Alternatives:** (a) and (b) above were not needed. The eight optional inference-only
+map entries (dash variants, invisible format characters) were declined in C5.V1.
+**Consequences:** Training (C6 onwards) must feed prepare_text() output to coqui and
+must not re-normalise it (it is not NFC-stable). Any later char_map change changes
+map_digest, makes audit.csv stale and needs this check (C5 run 2) again. Inference text
+outside the corpus (typed prompts) can still hold characters the voice lacks: coqui drops
+them with only a warning, so the demo should check prompts with count_unknown().

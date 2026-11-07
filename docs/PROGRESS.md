@@ -269,6 +269,8 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
 - [ ] C5 checks `csv_sha256` of configs/speaker_selection.json against the Drive
   speaker_selection.csv before building training lists (with a test); the CSV holds only
   clip_id, split_official, duration_s, so join audit.csv for wav paths and transcripts
+  - [x] sha check: `speaker_select.load_selection()` + tests (C5.2); training lists must
+    still use it (C6)
 - [ ] Take the speaker only from configs/speaker_selection.json: reports/notes/C4.3-notes.json
   keeps the superseded run-1 pick (CHOSEN_ID "2")
 - [ ] save_selection writes the Drive CSV before the repo JSON: write the JSON first or rely
@@ -278,8 +280,78 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
 - [ ] reports/env.json now holds run 2's CPU environment; run 1's T4 environment is in
   DECISIONS "Speaker encoder" and the run-1 digest
 
-## C5
-- [ ] C5.x (subchunks not yet defined)
+## C5 — Text frontend for Chittagonian text
+Branch `chunk/C5-text-frontend`. Builds on C3.8 (text_frontend.prepare/excluded,
+configs/char_map.json, already approved). Two CPU notebooks: run 1 = OOV report on the C4
+selection against the base voice (male), run 2 = coqui tokenizer check. Local tests use
+synthetic text, fake charsets and a fake tokenizer (coqui is not installed locally).
+- [x] C5.1 `text_frontend.normalise()` (local): NFC + collapse + strip moved from
+  `corpus.normalise_text` into text_frontend (single home; corpus and baseline call it),
+  behaviour unchanged, so audit charset_id/map digest stay valid; tests pin what Python's
+  NFC does (U+09DC -> U+09A1 U+09BC; U+09A1 U+09BC unchanged) (`9faf56c`)
+- [x] C5.2 code: `text_oov.oov_report(texts, charset)` (char, U+XXXX, name, count,
+  clips_affected, 3 example words) + `render()` + `boinga oov`: the selected clips
+  (`speaker_select.load_selection()`, csv_sha256 checked against the Drive CSV) as
+  text_frontend.prepare(ctg_text_nfc), char_map-excluded rows counted, not checked, vs
+  the base voice's charset -> reports/oov_report.md (table, OOV char rate, share of clips),
+  emitted; spec `notebooks/specs/c5_text_frontend_run1.py` (cells C5.0 fetch-data, C5.2;
+  CPU) -> `notebooks/runs/C5_text-frontend_run1.ipynb`; own module text_oov.py because
+  data_audit imports text_frontend (this commit). Narrower than the C5.0 plan, per the
+  C5.2 promptbook: after-map text only, no per-split counts, no .json (add later if Gate G4
+  needs them)
+- [x] C5.H1 hand-off run 1: `notebooks/runs/C5_text-frontend_run1.ipynb` (CPU) rebuilt,
+  unchanged since `86064cb`, pushed; link and save name
+  `colab_runs/C5_text-frontend_run1.ipynb` given; no forms; duration not measured (this
+  commit)
+- [x] C5.V1 verify run 1: 7/7 PASS at `9683e31` (notebook built in `86064cb`), not stale;
+  reports/oov_report.md: 7,506 selected clips, 0 excluded, OOV 0 of 251,223 characters
+  (0.00%), 0 clips with an OOV character vs the male charset, char map 151ac177e2 (this
+  commit)
+- [x] C5.3 `apply_char_map(text, mapping=None)`, `prepare_text()` (= apply_char_map of
+  normalise, whitespace re-collapsed; prepare() delegates) and `count_unknown(text,
+  charset)` in text_frontend; configs/char_map.json unchanged (user: no new entries, keep
+  the C3.8 map and its list format; digest 151ac177e2, no re-audit); DECISIONS "Character
+  map" C5.3 note (this commit)
+- [x] C5.4 code: `text_frontend.check_tokenizer(texts, config_path)`: coqui TTSTokenizer
+  (`load_tokenizer`, lazy import, refuses a cleaner or phonemes) on prepare_text() of
+  every kept selected clip (`text_oov.selected_texts()`); `round_trip()` strips bos/eos
+  and blanks, counts characters encode() drops, compares decode with the text ->
+  reports/tokenizer_check.md (unknown-char rate, failing clips with code points, first 10
+  failures in full), emitted, "PASS: tokenizer check unknown_rate=..."; `boinga
+  check-tokenizer` (config from `pretrained.fetch(base voice)`); spec
+  `notebooks/specs/c5_text_frontend_run2.py` (cells C5.0, C5.4; CPU) ->
+  `notebooks/runs/C5_text-frontend_run2.ipynb`; tests with a fake tokenizer
+  (this commit). No token-length stats or .json (narrower than the C5.0 plan, per the
+  C5.4 promptbook)
+- [x] C5.H2 hand-off run 2: `notebooks/runs/C5_text-frontend_run2.ipynb` (CPU) rebuilt,
+  unchanged since `49cc675`, pushed; link and save name
+  `colab_runs/C5_text-frontend_run2.ipynb` given; no forms; duration not measured (this
+  commit)
+- [x] C5.V2 verify run 2: 7/7 PASS at `90b60c3` (notebook built in `49cc675`), not stale;
+  reports/tokenizer_check.md: coqui TTSTokenizer from the male config.json, 7,506 clips,
+  unknown 0 of 297,218 characters (spaces included), 0 round-trip failures (this commit)
+- [x] C5.5 Gate G4 — text frontend: PASS, tokenizer unknown-char rate 0 of 297,218
+  (0.00% < 1%), 0 round-trip failures (DECISIONS "Gate G4 — text frontend"; this commit).
+  Rule from the C5.V2 promptbook: < 1% PASS, else FAIL -> widen char_map or extend the
+  text embedding (C7.0)
+
+### C5 follow-ups (from the whole-chunk review; for C6)
+- [ ] `text_oov.selected_texts()` returns every selected clip, official test split
+  included: G4 checked a superset of the training text (verdict holds), but C6 must
+  filter on split_official when it builds training lists and not reuse it as-is
+- [ ] One "unknown character" predicate: oov_report's inline loop, count_unknown and the
+  tokenizer's _known agree in practice; the run-1 rate excludes spaces, the run-2 rate
+  includes them; share the predicate and word both reports the same way
+- [ ] prepare and prepare_text are the same function (text_oov.run uses prepare,
+  check_tokenizer uses prepare_text): pick one name for C6 and inference
+- [ ] cli `_oov` vs `_check_tokenizer` exception lists differ (FileNotFoundError is
+  redundant next to OSError; `_oov` lacks RuntimeError/ImportError): align them
+- [ ] The C4 follow-up note on reports/env.json is stale: since `e0beff4` it holds C5
+  run 2's CPU environment (git 90b60c3)
+- [ ] Inference/demo: check typed prompts with count_unknown() before synthesis (coqui
+  drops unknown characters with only a warning; DECISIONS "Gate G4")
+- [ ] Optional skip-if-no-TTS (or Colab) test of round_trip on the real TTSTokenizer, so a
+  change in coqui's blank/bos/eos order is caught without a full run
 
 ## C6
 - [ ] C6.x (subchunks not yet defined)
