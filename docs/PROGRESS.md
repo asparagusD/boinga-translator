@@ -488,7 +488,12 @@ map/notebook and PROGRESS.
   (coqui `VitsConfig().load_json`, "PASS: coqui accepts config"). Spec
   `notebooks/specs/c7_train_runner.py` (slug `train-runner`: nbkit slugs allow no "_"),
   cells C7.pre (fetch-data + prepare) and C7.1. Tests `tests/test_train_config.py` (this
-  commit). Results: C7.1 failed in run 1 (seed dropped, fixed `08f29d0`); pending C7.V2
+  commit). Results: C7.1 failed in run 1 (seed dropped, fixed `08f29d0`)
+  - [x] C7.1 results: C7 re-run (f681627, RTX PRO 6000): "PASS: config written ... 23
+    overrides", "sample_rate 22050, batch_size 16, lr_gen 0.0001, lr_disc 0.0001,
+    mixed_precision True", "PASS: coqui accepts config"; training_seed 1234 (pretrained
+    54321), the smoke log shows "Torch seed: 1234"; configs/vits_ctg_finetune.json and the
+    DECISIONS overrides table (built for run smoke: print_step 5) (this commit)
 - [x] C7.2 code: `train_runner.check_loader(config_path=None)` + `boinga check-loader`:
   coqui VitsConfig from configs/vits_ctg_finetune.json, `Vits(config)` (0.28 has no
   Vits.init_from_config), `load_tts_samples(config, eval_split=True)` (0.28 takes the config,

@@ -1,9 +1,9 @@
 # Colab run C7 run 1 — C7 — training runner and smoke test
 
 - File: `C7_train_runner_run1.ipynb` · spec `notebooks/specs/c7_train_runner.py`
-- Run: commit `87c0470` · branch `chunk/C7-train-runner` · GPU `NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition` · time `2026-11-07T20:15:12+00:00`
-- Staleness: OK: the run used 87c0470, notebook built in b0ec918
-- Result: 11/12 cells PASS
+- Run: commit `f681627` · branch `chunk/C7-train-runner` · GPU `NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition` · time `2026-11-07T20:40:43+00:00`
+- Staleness: OK: the run used f681627, notebook built in 90c4504
+- Result: 13/13 cells PASS
 
 ## Cells
 
@@ -15,8 +15,9 @@
 | BOOT.4 | create project folders (the HDR cell records the environment) | PASS |  |
 | HDR | Run header | PASS |  |
 | C7.pre | Restore prepared data on this VM | PASS |  |
-| C7.1 | Build and validate config | FAIL | expected /PASS: coqui accepts config/ not found; forbidden /^FAIL:/ found |
+| C7.1 | Build and validate config | PASS |  |
 | C7.2 | One-batch loader check | PASS |  |
+| C7.4.0 | Fresh smoke run | PASS |  |
 | C7.4.a | Smoke test: 50 steps | PASS |  |
 | C7.4.b | Resume test: to 60 steps | PASS |  |
 | C7.4.c | Throughput | PASS |  |
@@ -34,7 +35,7 @@ PASS: Drive mounted
 ### BOOT.2 — clone or update the private repo with the GH_TOKEN secret
 
 ```text
-87c0470 chore(notebook): build C7 run 1 notebook
+f681627 docs(decisions): record gate G5 verdict before full fine-tune
 PASS: /content/boinga-translator on chunk/C7-train-runner
 ```
 
@@ -66,16 +67,16 @@ gpu_name           NVIDIA RTX PRO 6000 Blackwell Server Edition
 gpu_mem_gb         95.0
 coqui_tts          0.28.0
 numpy              2.4.6
-git_commit         87c0470
-disk_free_gb_root  8.2
+git_commit         f681627
+disk_free_gb_root  6.4
 disk_free_gb_fast  112.5
-utc_time           2026-11-07T20:15:12+00:00
+utc_time           2026-11-07T20:40:43+00:00
 === BEGIN reports/env.json ===
 {
   "coqui_tts": "0.28.0",
   "disk_free_gb_fast": 112.5,
-  "disk_free_gb_root": 8.2,
-  "git_commit": "87c0470",
+  "disk_free_gb_root": 6.4,
+  "git_commit": "f681627",
   "gpu_mem_gb": 95.0,
   "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
   "is_colab": true,
@@ -85,11 +86,11 @@ utc_time           2026-11-07T20:15:12+00:00
   "torch": "2.14.1+cu130",
   "torch_cuda": "13.0",
   "torch_error": null,
-  "utc_time": "2026-11-07T20:15:12+00:00"
+  "utc_time": "2026-11-07T20:40:43+00:00"
 }
 === END reports/env.json ===
 PASS: env recorded
-RUN-HEADER chunk=C7 run=1 branch=chunk/C7-train-runner commit=87c0470 gpu=NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition utc=2026-11-07T20:15:12+00:00
+RUN-HEADER chunk=C7 run=1 branch=chunk/C7-train-runner commit=f681627 gpu=NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition utc=2026-11-07T20:40:43+00:00
 {'python': '3.13.16',
  'platform': 'Linux-6.6.159+-x86_64-with-glibc2.39',
  'is_colab': True,
@@ -100,10 +101,10 @@ RUN-HEADER chunk=C7 run=1 branch=chunk/C7-train-runner commit=87c0470 gpu=NVIDIA
  'gpu_mem_gb': 95.0,
  'coqui_tts': '0.28.0',
  'numpy': '2.4.6',
- 'git_commit': '87c0470',
- 'disk_free_gb_root': 8.2,
+ 'git_commit': 'f681627',
+ 'disk_free_gb_root': 6.4,
  'disk_free_gb_fast': 112.5,
- 'utc_time': '2026-11-07T20:15:12+00:00'}
+ 'utc_time': '2026-11-07T20:40:43+00:00'}
 ```
 
 ### C7.pre — Restore prepared data on this VM
@@ -112,11 +113,11 @@ RUN-HEADER chunk=C7 run=1 branch=chunk/C7-train-runner commit=87c0470 gpu=NVIDIA
 SKIP download (done)
 SKIP verify (done)
 SKIP unzip (done)
-copy to fast disk: 100% 8005/8005 [03:01<00:00, 44.12file/s]
+copy to fast disk: 100% 8005/8005 [02:58<00:00, 44.82file/s]
 DONE copy
 PASS: dataset ready at /content/boinga-fast/data, 8005 files
 selection: 7506 clips, 0 excluded by char_map
-restore: 100% 7512/7512 [00:05<00:00, 1316.55file/s]
+restore: 100% 7512/7512 [00:09<00:00, 751.34file/s]
 restored /content/boinga-fast/prepared from /content/drive/MyDrive/boinga-translator/data/prepared/prepared-fd93f4827c6d2b41.tar
 transform: 0 clip(s) to do, 7506 already done
 0it [00:00, ?it/s]
@@ -222,7 +223,7 @@ CELL-OK C7.pre
   "eval_split_size": 0.01,
   "feat_loss_alpha": 1.0,
   "gen_loss_alpha": 1.0,
-... [182 lines trimmed] ...
+... [181 lines trimmed] ...
     [
       "দশ মিনিট লাইব."
     ],
@@ -232,7 +233,7 @@ CELL-OK C7.pre
   ],
   "test_sentences_file": "",
   "text_cleaner": null,
-  "training_seed": 54321,
+  "training_seed": 1234,
   "use_d_vector_file": false,
   "use_grad_scaler": false,
   "use_language_embedding": false,
@@ -275,13 +276,13 @@ Base: `/content/drive/MyDrive/boinga-translator/pretrained/male/config.json`, ru
 | `save_checkpoints` | true | true | resume after a Colab disconnect needs them |
 | `save_n_checkpoints` | 5 | 2 | keep the last 2 (+ best): ~1 GB each, Drive budget |
 | `save_step` | 500 | 500 | a checkpoint every ~500 steps to Drive (vits-finetune) |
-| `seed` | (missing) | 1234 | the project seed (settings.SEED) for reproducible runs |
 | `test_delay_epochs` | -1 | 0 | test sentences from the first epoch: early sanity listening |
 | `test_sentences` | [["ইয়াহুদ,নয়,ব্যয়,ইয়াহুদী,নেওয়া,উভয়ে,যায়,হয়েছিল,প্রয়োজন।"]] | [["এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন."], ["অনে কন ... | first 5 val manifest texts: prepare_text output as trained, not re-normalised (Gate G4) |
+| `training_seed` | 54321 | 1234 | the project seed (settings.SEED) for reproducible runs |
 === END reports/config_overrides.md ===
 PASS: config written to /content/boinga-translator/configs/vits_ctg_finetune.json (base /content/drive/MyDrive/boinga-translator/pretrained/male/config.json, 23 overrides)
 sample_rate 22050, batch_size 16, lr_gen 0.0001, lr_disc 0.0001, mixed_precision True
-FAIL: coqui loaded the config but not these overrides: ['seed']
+PASS: coqui accepts config
 CELL-OK C7.1
 ```
 
@@ -290,14 +291,14 @@ CELL-OK C7.1
 ```text
 get_data_loader(config: coqpit.coqpit.Coqpit, *, is_eval: bool = False, samples: list[typing.Any] | None = None, verbose: bool = True) -> 'DataLoader'
 samples: 6415 train / 338 eval
-100% 6415/6415 [00:00<00:00, 39924.77it/s]
-অইল্লে এরি.
-
+100% 6415/6415 [00:00<00:00, 40676.03it/s]
 আইয়ী .
 
+অইল্লে এরি.
+
 Character '\n' not found in the vocabulary. Discarding it.
 Character '\n' not found in the vocabulary. Discarding it.
-first batch (incl. worker startup + spec/mel, not a training speed) in 3.74 s
+first batch (incl. worker startup + spec/mel, not a training speed) in 3.55 s
 tokens: shape (16, 29) int64, ids 0..86 of vocab 87
 token_lens: 13..29
 token_rel_lens: shape (16,) float32, nan 0, inf 0
@@ -315,6 +316,13 @@ spec_lens: shape (16,) int32
 mel_lens: shape (16,) int32
 PASS: loader ok
 CELL-OK C7.2
+```
+
+### C7.4.0 — Fresh smoke run
+
+```text
+PASS: cleaned run smoke: removed /content/drive/MyDrive/boinga-translator/runs/smoke (2.00 GB; Drive keeps deleted files in its trash until emptied)
+CELL-OK C7.4.0
 ```
 
 ### C7.4.a — Smoke test: 50 steps
@@ -380,79 +388,79 @@ CELL-OK C7.2
   "eval_split_size": 0.01,
   "feat_loss_alpha": 1.0,
   "gen_loss_alpha": 1.0,
-... [458 lines trimmed] ...
+... [457 lines trimmed] ...
 === END configs/vits_ctg_finetune.json ===
 === BEGIN reports/config_overrides.md ===
 === END reports/config_overrides.md ===
 PASS: config written to /content/boinga-translator/configs/vits_ctg_finetune.json (base /content/drive/MyDrive/boinga-translator/pretrained/male/config.json, 23 overrides)
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-     | > loss_duration: 2.0508363246917725  (2.598838485990252)
-     | > amp_scaler: 512.0  (1375.0857142857142)
-     | > loss_1: 75.00283813476562  (86.98986903599331)
-     | > grad_norm_1: tensor(126.2277, device='cuda:0')  (tensor(185.8538, device='cuda:0'))
-     | > step_time: 0.5797  (0.41103175027029853)
-     | > loader_time: 0.0027  (0.003684289114815848)
+     | > loss_duration: 2.1192009449005127  (2.6903229713439942)
+     | > amp_scaler: 512.0  (1345.8285714285714)
+     | > loss_1: 74.22608184814453  (87.96364430018834)
+     | > grad_norm_1: tensor(109.3967, device='cuda:0')  (tensor(150.3474, device='cuda:0'))
+     | > step_time: 0.5801  (0.41274990354265484)
+     | > loader_time: 0.0024  (0.003660651615687779)
 
 
-   --> TIME: 2026-11-07 20:21:21 -- STEP: 40/400 -- GLOBAL_STEP: 40
+   --> TIME: 2026-11-07 20:47:13 -- STEP: 40/400 -- GLOBAL_STEP: 40
      | > current_lr_0: 9.950121682254156e-05  (9.974416591222455e-05)
-     | > current_lr_1: 9.95883239353732e-05  (9.982429606278683e-05)
-     | > loss_disc: 3.5871920585632324  (8.76216989159584)
-     | > loss_disc_real_0: 0.8240166902542114  (2.429082728922367)
-     | > loss_disc_real_1: 0.2842716872692108  (0.5487079307436943)
-     | > loss_disc_real_2: 0.3894321024417877  (0.5294397667050361)
-     | > loss_disc_real_3: 0.39165642857551575  (0.6380358688533306)
-     | > loss_disc_real_4: 0.2567608058452606  (0.6144590444862841)
-     | > loss_disc_real_5: 0.40240558981895447  (2.576976654306054)
-     | > loss_0: 3.5871920585632324  (8.76216989159584)
-     | > grad_norm_0: tensor(35.3861, device='cuda:0')  (tensor(70.9791, device='cuda:0'))
-     | > loss_gen: 3.3145029544830322  (3.675729602575302)
-     | > loss_kl: 6.810514450073242  (14.534237551689149)
-     | > loss_feat: 19.87938690185547  (27.398195886611937)
-     | > loss_mel: 31.4284725189209  (36.41949372291565)
-     | > loss_duration: 1.9318485260009766  (2.513711762428284)
-     | > amp_scaler: 512.0  (1267.1999999999998)
-     | > loss_1: 63.364723205566406  (84.54136867523195)
-     | > grad_norm_1: tensor(112.8646, device='cuda:0')  (tensor(176.2226, device='cuda:0'))
-     | > step_time: 0.29  (0.39553089141845704)
-     | > loader_time: 0.0025  (0.003535187244415283)
+     | > current_lr_1: 9.95883239353732e-05  (9.982492102372435e-05)
+     | > loss_disc: 3.7293248176574707  (8.544663816690447)
+     | > loss_disc_real_0: 0.8916399478912354  (2.3343529120087623)
+     | > loss_disc_real_1: 0.25575873255729675  (0.5761487621814012)
+     | > loss_disc_real_2: 0.40154704451560974  (0.5675577346235514)
+     | > loss_disc_real_3: 0.3599744737148285  (0.6307933833450079)
+     | > loss_disc_real_4: 0.3881739377975464  (0.5440529253333807)
+     | > loss_disc_real_5: 0.5578170418739319  (2.442156211659312)
+     | > loss_0: 3.7293248176574707  (8.544663816690447)
+     | > grad_norm_0: tensor(45.1611, device='cuda:0')  (tensor(82.6008, device='cuda:0'))
+     | > loss_gen: 3.516704559326172  (3.6687462985515595)
+     | > loss_kl: 6.808310508728027  (15.049708867073056)
+     | > loss_feat: 20.39444351196289  (27.50361270904541)
+     | > loss_mel: 31.369155883789062  (36.6533618927002)
+     | > loss_duration: 1.8995816707611084  (2.596161955595016)
+     | > amp_scaler: 512.0  (1241.6)
+     | > loss_1: 63.988197326660156  (85.471591091156)
+     | > grad_norm_1: tensor(130.1550, device='cuda:0')  (tensor(146.1565, device='cuda:0'))
+     | > step_time: 0.2904  (0.3970996856689454)
+     | > loader_time: 0.0025  (0.003507184982299805)
 
 
-   --> TIME: 2026-11-07 20:21:23 -- STEP: 45/400 -- GLOBAL_STEP: 45
+   --> TIME: 2026-11-07 20:47:15 -- STEP: 45/400 -- GLOBAL_STEP: 45
      | > current_lr_0: 9.943904410714931e-05  (9.971302637580806e-05)
-     | > current_lr_1: 9.952609679164422e-05  (9.979392811554209e-05)
-     | > loss_disc: 3.8996033668518066  (8.210978094736733)
-     | > loss_disc_real_0: 1.3710339069366455  (2.282459416654375)
-     | > loss_disc_real_1: 0.23850160837173462  (0.5151219281885359)
-     | > loss_disc_real_2: 0.365928590297699  (0.5098509867986043)
-     | > loss_disc_real_3: 0.2165547013282776  (0.5979039599498112)
-     | > loss_disc_real_4: 0.268356591463089  (0.5777360118097727)
-     | > loss_disc_real_5: 0.3466905951499939  (2.3401642060942116)
-     | > loss_0: 3.8996033668518066  (8.210978094736733)
-     | > grad_norm_0: tensor(53.2444, device='cuda:0')  (tensor(69.1335, device='cuda:0'))
-     | > loss_gen: 3.5641396045684814  (3.6477260006798637)
-     | > loss_kl: 7.190377712249756  (13.61322347852919)
-     | > loss_feat: 22.08795928955078  (26.813634660508896)
-     | > loss_mel: 32.814056396484375  (35.95539991590712)
-     | > loss_duration: 1.8436484336853027  (2.4462359878751965)
-     | > amp_scaler: 512.0  (1183.2888888888886)
-     | > loss_1: 67.50018310546875  (82.47622010972766)
-     | > grad_norm_1: tensor(136.8300, device='cuda:0')  (tensor(173.4253, device='cuda:0'))
-     | > step_time: 0.1496  (0.3871864000956217)
-     | > loader_time: 0.0021  (0.0034127818213568794)
+     | > current_lr_1: 9.952609679164422e-05  (9.979448363637543e-05)
+     | > loss_disc: 5.47482967376709  (8.050723621580337)
+     | > loss_disc_real_0: 2.657137155532837  (2.2284311850865683)
+     | > loss_disc_real_1: 0.4006015658378601  (0.5517539319064881)
+     | > loss_disc_real_2: 0.4186107814311981  (0.5443456878264746)
+     | > loss_disc_real_3: 0.2522156238555908  (0.5911402530140347)
+     | > loss_disc_real_4: 0.273187518119812  (0.5164227505524954)
+     | > loss_disc_real_5: 0.4202556014060974  (2.2168142408132554)
+     | > loss_0: 5.47482967376709  (8.050723621580337)
+     | > grad_norm_0: tensor(108.1200, device='cuda:0')  (tensor(80.0525, device='cuda:0'))
+     | > loss_gen: 3.52711820602417  (3.667906501558092)
+     | > loss_kl: 7.227449417114258  (14.080929491255016)
+     | > loss_feat: 24.52824592590332  (27.186069107055665)
+     | > loss_mel: 35.1555061340332  (36.26935128106011)
+     | > loss_duration: 1.8877040147781372  (2.5217951748106207)
+     | > amp_scaler: 512.0  (1160.5333333333333)
+     | > loss_1: 72.32601928710938  (83.726050652398)
+     | > grad_norm_1: tensor(137.9020, device='cuda:0')  (tensor(143.7392, device='cuda:0'))
+     | > step_time: 0.1483  (0.38856787681579597)
+     | > loader_time: 0.0021  (0.0033863915337456595)
 
 STOP at step 50
 
- > CHECKPOINT : /content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+20PM-87c0470/checkpoint_50.pth
-PASS: run smoke at step 50 (peak GPU memory 3.385 GB)
+ > CHECKPOINT : /content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+46PM-f681627/checkpoint_50.pth
+PASS: run smoke at step 50 (peak GPU memory 3.39 GB)
 CELL-OK C7.4.a
 ```
 
 ### C7.4.b — Resume test: to 60 steps
 
 ```text
-RESUME from step 50 in /content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+20PM-87c0470
+RESUME from step 50 in /content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+46PM-f681627
  > Training Environment:
  | > Backend: Torch
  | > Mixed precision: True
@@ -461,19 +469,19 @@ RESUME from step 50 in /content/drive/MyDrive/boinga-translator/runs/smoke/smoke
  | > Num. of GPUs: 1
  | > Num. of CPUs: 48
  | > Num. of Torch Threads: 24
- | > Torch seed: 54321
+ | > Torch seed: 1234
  | > Torch CUDNN: True
  | > Torch CUDNN deterministic: False
  | > Torch CUDNN benchmark: True
  | > Torch TF32 MatMul: False
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1794082898.572278   15431 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-I0000 00:00:1794082898.603568   15431 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+I0000 00:00:1794084450.810610   18214 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1794084450.841724   18214 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
 To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1794082899.613137   15431 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-I0000 00:00:1794082899.613393   15431 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
- > Start Tensorboard: tensorboard --logdir=/content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+20PM-87c0470
+I0000 00:00:1794084451.842525   18214 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1794084451.842786   18214 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+ > Start Tensorboard: tensorboard --logdir=/content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+46PM-f681627
  > Continuing from checkpoint_50.pth ...
  > Restoring Model...
  > Restoring Optimizer...
@@ -483,13 +491,13 @@ I0000 00:00:1794082899.613393   15431 cudart_stub.cc:31] Could not find cuda dri
 
  > Model has 83050732 parameters
  > Restoring best loss from checkpoint_50.pth ...
- > Starting with loaded last best loss {'train_loss': 44.41926211483626, 'eval_loss': None}
+ > Starting with loaded last best loss {'train_loss': 44.848531883590084, 'eval_loss': None}
 
  > EPOCH: 0/999
- --> /content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+20PM-87c0470
-100% 6415/6415 [00:00<00:00, 41922.06it/s]
+ --> /content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+46PM-f681627
+100% 6415/6415 [00:00<00:00, 42005.57it/s]
 
- > TRAINING (2026-11-07 20:21:42) 
+ > TRAINING (2026-11-07 20:47:34) 
 আইয়ী .
 
 Character '\n' not found in the vocabulary. Discarding it.
@@ -497,32 +505,32 @@ Character '\n' not found in the vocabulary. Discarding it.
 
 Character '\n' not found in the vocabulary. Discarding it.
 
-   --> TIME: 2026-11-07 20:21:49 -- STEP: 4/400 -- GLOBAL_STEP: 55
+   --> TIME: 2026-11-07 20:47:41 -- STEP: 4/400 -- GLOBAL_STEP: 55
      | > current_lr_0: 9.932723110067987e-05  (9.934585883720885e-05)
      | > current_lr_1: 9.941418589985758e-05  (9.943282994380871e-05)
-     | > loss_disc: 4.577139377593994  (3.8922691345214844)
-     | > loss_disc_real_0: 1.046539545059204  (0.8813933432102203)
-     | > loss_disc_real_1: 0.2953500747680664  (0.2593305930495262)
-     | > loss_disc_real_2: 0.4394058585166931  (0.3375304415822029)
-     | > loss_disc_real_3: 0.4475542902946472  (0.31171995028853416)
-     | > loss_disc_real_4: 0.5626880526542664  (0.34921281784772873)
-     | > loss_disc_real_5: 0.552116334438324  (0.5286746025085449)
-     | > loss_0: 4.577139377593994  (3.8922691345214844)
-     | > grad_norm_0: tensor(54.2939, device='cuda:0')  (tensor(40.0319, device='cuda:0'))
-     | > loss_gen: 3.858236789703369  (3.533273756504059)
-     | > loss_kl: 5.628435134887695  (5.730025768280029)
-     | > loss_feat: 30.47313117980957  (28.011201858520508)
-     | > loss_mel: 30.91847801208496  (30.48617458343506)
-     | > loss_duration: 1.9640508890151978  (2.0354686975479126)
+     | > loss_disc: 4.2839179039001465  (4.176746368408203)
+     | > loss_disc_real_0: 0.7954037189483643  (1.05277119576931)
+     | > loss_disc_real_1: 0.42728447914123535  (0.29751788452267647)
+     | > loss_disc_real_2: 0.4044608473777771  (0.3502687066793442)
+     | > loss_disc_real_3: 0.2580528259277344  (0.28932855278253555)
+     | > loss_disc_real_4: 0.35927993059158325  (0.34266381710767746)
+     | > loss_disc_real_5: 0.5298196077346802  (0.5258325710892677)
+     | > loss_0: 4.2839179039001465  (4.176746368408203)
+     | > grad_norm_0: tensor(62.7535, device='cuda:0')  (tensor(55.6619, device='cuda:0'))
+     | > loss_gen: 3.6788997650146484  (3.4509655237197876)
+     | > loss_kl: 6.001951694488525  (5.766870021820068)
+     | > loss_feat: 30.11858558654785  (27.938390731811523)
+     | > loss_mel: 30.71438217163086  (30.663147926330566)
+     | > loss_duration: 1.9997127056121826  (2.0685315132141113)
      | > amp_scaler: 512.0  (512.0)
-     | > loss_1: 72.84233093261719  (69.79614543914795)
-     | > grad_norm_1: tensor(226.2462, device='cuda:0')  (tensor(157.7954, device='cuda:0'))
-     | > step_time: 0.5731  (0.8302930593490601)
-     | > loader_time: 0.0024  (0.0024257302284240723)
+     | > loss_1: 72.5135269165039  (69.88790321350098)
+     | > grad_norm_1: tensor(121.4775, device='cuda:0')  (tensor(160.8688, device='cuda:0'))
+     | > step_time: 0.5767  (0.8402160406112671)
+     | > loader_time: 0.0026  (0.0025694966316223145)
 
 STOP at step 60
 
- > CHECKPOINT : /content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+20PM-87c0470/checkpoint_60.pth
+ > CHECKPOINT : /content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+46PM-f681627/checkpoint_60.pth
 PASS: run smoke at step 60 (peak GPU memory 3.262 GB)
 CELL-OK C7.4.b
 ```
@@ -533,38 +541,38 @@ CELL-OK C7.4.b
 === BEGIN reports/throughput.json ===
 {
   "run": "smoke",
-  "folder": "/content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+20PM-87c0470",
+  "folder": "/content/drive/MyDrive/boinga-translator/runs/smoke/smoke-November-07-2026_08+46PM-f681627",
   "steps_done": 60,
   "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
   "batch_size": 16,
   "mixed_precision": true,
-  "sec_per_step_mean": 0.3406,
+  "sec_per_step_mean": 0.3418,
   "n_step_samples": 10,
   "warmup_only": false,
-  "steps_per_hour": 10570.2,
-  "sec_per_step_coqui_avg": 0.8302930593490601,
+  "steps_per_hour": 10533.4,
+  "sec_per_step_coqui_avg": 0.8402160406112671,
   "any_nan_loss": false,
   "last_losses": {
-    "loss_disc": 4.577139377593994,
-    "loss_disc_real_0": 1.046539545059204,
-    "loss_disc_real_1": 0.2953500747680664,
-    "loss_disc_real_2": 0.4394058585166931,
-    "loss_disc_real_3": 0.4475542902946472,
-    "loss_disc_real_4": 0.5626880526542664,
-    "loss_disc_real_5": 0.552116334438324,
-    "loss_0": 4.577139377593994,
-    "loss_gen": 3.858236789703369,
-    "loss_kl": 5.628435134887695,
-    "loss_feat": 30.47313117980957,
-    "loss_mel": 30.91847801208496,
-    "loss_duration": 1.9640508890151978,
-    "loss_1": 72.84233093261719
+    "loss_disc": 4.2839179039001465,
+    "loss_disc_real_0": 0.7954037189483643,
+    "loss_disc_real_1": 0.42728447914123535,
+    "loss_disc_real_2": 0.4044608473777771,
+    "loss_disc_real_3": 0.2580528259277344,
+    "loss_disc_real_4": 0.35927993059158325,
+    "loss_disc_real_5": 0.5298196077346802,
+    "loss_0": 4.2839179039001465,
+    "loss_gen": 3.6788997650146484,
+    "loss_kl": 6.001951694488525,
+    "loss_feat": 30.11858558654785,
+    "loss_mel": 30.71438217163086,
+    "loss_duration": 1.9997127056121826,
+    "loss_1": 72.5135269165039
   },
   "last_logged_step": 55,
-  "peak_mem_gb": 3.385
+  "peak_mem_gb": 3.39
 }
 === END reports/throughput.json ===
-PASS: throughput recorded: 0.3406 s/step (10 samples), peak 3.385 GB, losses from logged step 55 of 60
+PASS: throughput recorded: 0.3418 s/step (10 samples), peak 3.39 GB, losses from logged step 55 of 60
 CELL-OK C7.4.c
 ```
 
