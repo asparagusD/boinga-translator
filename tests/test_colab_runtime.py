@@ -97,7 +97,8 @@ def test_expect_files(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> Non
     good.write_bytes(b"x" * 10)
     small.write_bytes(b"x")
     assert colab_runtime.expect_files([good], min_bytes=5) is True
-    assert colab_runtime.expect_files([good, small, tmp_path / "none.wav"], min_bytes=5) is False
+    assert colab_runtime.expect_files([good, small, tmp_path / "none.wav"], min_bytes=5,
+                                      stop=False) is False
     lines = capsys.readouterr().out.splitlines()
     assert lines[0] == f"PASS: {good} (10 bytes)"
     assert lines[2] == f"FAIL: {small} too small (1 < 5 bytes)"
@@ -132,3 +133,18 @@ def test_play_in_ipython_displays_players(
     out = capsys.readouterr().out.splitlines()
     assert shown == [("Audio", str(wav))]
     assert out == ["AUDIO female 1:", f"WARN: missing audio for male 1: {tmp_path / 'gone.wav'}"]
+
+
+def test_expect_files_stops_the_run_by_default(
+        tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit) as exc:
+        colab_runtime.expect_files([tmp_path / "none.wav"])
+    assert exc.value.code == 1
+    assert capsys.readouterr().out == f"FAIL: {tmp_path / 'none.wav'} missing\n"
+
+
+def test_fail_prints_and_stops(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit) as exc:
+        colab_runtime.fail("checkpoint missing")
+    assert exc.value.code == 1
+    assert capsys.readouterr().out == "FAIL: checkpoint missing\n"

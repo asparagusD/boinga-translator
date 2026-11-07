@@ -254,7 +254,7 @@
     },
     {
       "kind": "skill",
-      "lines": 77,
+      "lines": 78,
       "path": ".claude/skills/colab-handoff/SKILL.md",
       "purpose": "\"How to put work on Colab in boinga-translator: write cells into the chunk's notebook spec and hand the whole notebook to the user."
     },
@@ -320,7 +320,7 @@
     },
     {
       "kind": "doc",
-      "lines": 128,
+      "lines": 129,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
@@ -398,7 +398,7 @@
     },
     {
       "kind": "module",
-      "lines": 115,
+      "lines": 116,
       "path": "src/boinga_translator/colab_runtime.py",
       "purpose": "Helpers called inside generated Colab cells: run header, cell markers, notes, file checks."
     },

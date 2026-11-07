@@ -107,3 +107,23 @@ of leaking secrets).
 repeated after a fix. Executed notebooks never reach git; only the digest and
 reports do. tools/save_pasted_reports.py stays as a fallback.
 
+
+## 2026-11-07 — Colab cells stop the run themselves on failure
+**Context:** In a generated notebook, a cell that only prints `FAIL: ...`
+lets Colab's "Run all" carry on into later cells, which then work on bad
+state. The reader marks such a cell FAIL afterwards, but the run has already
+wasted time (and GPU quota). `cell_ok()` cannot see the cell's output, so it
+cannot stop the run.
+**Decision:** A cell that detects a failure stops the run: it calls
+`colab_runtime.fail(msg)` (prints `FAIL: msg`, raises `SystemExit(1)`) or lets
+library code raise. `colab_runtime.expect_files()` stops by default
+(`stop=False` returns a bool instead). The reader still checks every cell's
+output against the spec, so a forgotten `fail()` is caught at verification (FAIL);
+a stopped cell shows as ERROR (`SystemExit: 1`), with its `FAIL:` line in the digest.
+**Alternatives:** Capture each cell's stdout from `run_header()` and make
+`cell_ok()` raise on a `FAIL:` line (rejected for now: depends on IPython
+output internals that cannot be tested locally); reader-only checking
+(rejected: the run keeps going after a failure).
+**Consequences:** colab-handoff tells spec writers to use `fail()`. Not yet
+seen on Colab: the first failing cell in a real run will confirm that
+`SystemExit` stops "Run all".

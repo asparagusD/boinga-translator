@@ -27,7 +27,11 @@ Each `code()` cell:
 - makes **one call** into `boinga_translator` (logic lives in src/);
 - is **idempotent**: skips work already done (files present, hashes match) and
   resumes training from Drive, so "Run all" can always be repeated;
-- prints clear `PASS: ...` / `FAIL: ...` lines;
+- prints clear `PASS: ...` / `FAIL: ...` lines, and **stops on failure**:
+  call `colab_runtime.fail(msg)` (prints `FAIL:` and raises SystemExit) or let
+  library code raise; `expect_files()` stops by default. A printed `FAIL:`
+  alone does not stop "Run all" (the reader still marks the cell FAIL; a stopped
+  cell shows as ERROR `SystemExit: 1`);
 - has `expect=` regexes that prove success, written **before** the run (a
   `!shell` line without `expect=` is refused by nbkit, because a failing shell
   command does not stop Colab);

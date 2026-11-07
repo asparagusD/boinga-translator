@@ -2,6 +2,8 @@
 
 # Output lines are machine-read by tools/read_colab_run.py: "RUN-HEADER k=v ...",
 # "CELL-OK <id>", "NOTES-MISSING <field>", "PASS: ..." / "FAIL: ..." and report blocks.
+# Printing FAIL: alone does not stop Colab's Run all: cells call fail() (or let library code
+# raise) so the run stops; the reader marks the cell FAIL/ERROR either way.
 # Header values never contain spaces (a GPU name like "Tesla T4" prints as Tesla_T4).
 
 from __future__ import annotations
@@ -10,6 +12,7 @@ import json
 import subprocess
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
+from typing import NoReturn
 
 from boinga_translator import env_report, paths, report_io
 
@@ -62,8 +65,15 @@ def record_notes(note_id: str, values: Mapping[str, object]) -> Path:
     return repo_path
 
 
-def expect_files(paths: Iterable[Path | str], min_bytes: int = 1) -> bool:
-    """Print PASS/FAIL for each file (exists and >= min_bytes); True if all pass."""
+def fail(message: str) -> NoReturn:
+    """Print "FAIL: <message>" and stop the cell (and Colab's Run all) with SystemExit(1)."""
+    print(f"FAIL: {message}")
+    raise SystemExit(1)
+
+
+def expect_files(paths: Iterable[Path | str], min_bytes: int = 1, *, stop: bool = True) -> bool:
+    """Print PASS/FAIL per file (exists, >= min_bytes); stop the run if any fail, else return
+    whether all passed (with stop=True it only ever returns True)."""
     ok = True
     for raw in paths:
         path = Path(raw)
@@ -77,6 +87,8 @@ def expect_files(paths: Iterable[Path | str], min_bytes: int = 1) -> bool:
             ok = False
         else:
             print(f"PASS: {path} ({size} bytes)")
+    if not ok and stop:
+        raise SystemExit(1)
     return ok
 
 
