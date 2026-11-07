@@ -819,7 +819,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 540,
+      "lines": 542,
       "path": "notebooks/runs/C3_data-audit_run2.ipynb",
       "purpose": "C3 run 2 — Index, audit, summary"
     },
@@ -849,9 +849,9 @@
     },
     {
       "kind": "module",
-      "lines": 75,
+      "lines": 74,
       "path": "notebooks/specs/c3_data_audit_run2.py",
-      "purpose": "Spec: C3 run 2, Chittagonian corpus: index, audit and summary (CPU)."
+      "purpose": "Spec: C3 run 2, Chittagonian corpus: index, audit, summary and dialect baseline (T4)."
     },
     {
       "kind": "config",

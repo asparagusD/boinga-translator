@@ -1,4 +1,4 @@
-"""Spec: C3 run 2, Chittagonian corpus: index, audit and summary (CPU)."""
+"""Spec: C3 run 2, Chittagonian corpus: index, audit, summary and dialect baseline (T4)."""
 
 from nbkit import Notebook, code, form
 
@@ -11,7 +11,7 @@ NOTEBOOK = Notebook(
     slug="data-audit",
     title="Index, audit, summary",
     branch="chunk/C3-data-audit",
-    gpu=False,
+    gpu=True,  # T4 for the C3.6 baseline synthesis; the audit cells only use the CPU
     cells=[
         code("C3.2.fetch", "Ensure dataset on this VM", """
             from boinga_translator import cli, colab_runtime
@@ -51,7 +51,6 @@ NOTEBOOK = Notebook(
             "NOTES": "",
         }),
         # Gate G1 recorded no preferred voice (quality "same"), so both voices read the lines.
-        # CPU synthesis: this run is gpu=False; a few prompts per voice take seconds each.
         code("C3.6", "Pick dialect prompts and synthesise them", """
             from boinga_translator import cli, colab_runtime
 
