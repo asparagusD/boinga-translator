@@ -304,7 +304,7 @@
     },
     {
       "kind": "doc",
-      "lines": 75,
+      "lines": 90,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
@@ -436,7 +436,7 @@
     },
     {
       "kind": "test",
-      "lines": 289,
+      "lines": 301,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
     },
@@ -490,7 +490,7 @@
     },
     {
       "kind": "tool",
-      "lines": 315,
+      "lines": 317,
       "path": "tools/read_colab_run.py",
       "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
     },

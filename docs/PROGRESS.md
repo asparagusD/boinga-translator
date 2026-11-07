@@ -58,7 +58,7 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
 - [x] C1.8b read_colab_run CLI: spec auto-found from RUN-HEADER, staleness, digest
   reports/colab_runs/<chunk>_run<k>.md, stdout table, --save-reports, exit code
 - [ ] C1.9 colab-handoff skill update, new colab-verify skill, CLAUDE.md, .gitignore
-  (`colab_runs/`), DECISIONS entry
+  (`colab_runs/`), DECISIONS entry; colab-verify must say a STALE run exits 1 (re-run it)
 - [ ] C1.10 pilot: env-check spec + notebook, run on Colab, verified with the reader
   (A = spec + notebook, B = reports from the verified run)
 

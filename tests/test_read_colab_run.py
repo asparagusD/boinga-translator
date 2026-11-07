@@ -258,11 +258,14 @@ def test_executed_without_output_has_reason(run: tuple[Path, read_colab_run.Spec
     assert _results(run)["later"].reasons == ["executed but printed nothing"]
 
 
-def test_exit_code_zero_when_all_pass() -> None:
+def test_exit_code_cells_and_staleness() -> None:
     ok = read_colab_run.CellResult("a", "A", "PASS", [], "", "", None)
     bad = read_colab_run.CellResult("b", "B", "NOT RUN", [], "", "", None)
     assert read_colab_run.exit_code([ok]) == 0
     assert read_colab_run.exit_code([ok, bad]) == 1
+    assert read_colab_run.exit_code([ok], "STALE: the run used 0000000") == 1
+    assert read_colab_run.exit_code([ok], "UNKNOWN: no RUN-HEADER") == 0
+    assert read_colab_run.exit_code([ok], "OK: the run used abc1234") == 0
 
 
 def test_spec_from_metadata_when_header_missing(cli_run: Path, tmp_path: Path) -> None:
@@ -287,3 +290,12 @@ def test_unsafe_block_path_is_an_error_not_a_traceback(
     assert read_colab_run.main([str(cli_run), "--save-reports"]) == 1
     assert "no report files written" in capsys.readouterr().err
     assert not (tmp_path / "src").exists() and not (tmp_path / "reports" / "x.json").exists()
+
+
+def test_cli_exits_1_on_stale_run(cli_run: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(read_colab_run, "exit_code",
+                        lambda results, stale="": 1 if stale.startswith("STALE") else 0)
+    monkeypatch.setattr(read_colab_run, "staleness", lambda commit, rel: "STALE: old run")
+    assert read_colab_run.main([str(cli_run)]) == 1
+    monkeypatch.setattr(read_colab_run, "staleness", lambda commit, rel: "OK: fine")
+    assert read_colab_run.main([str(cli_run)]) == 0

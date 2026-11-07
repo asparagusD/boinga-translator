@@ -73,3 +73,18 @@ loudly on a mismatch. These values were supplied with the C1.2 task and have
 not yet been checked against a real download; the first download (Colab)
 confirms them. If Mendeley or the release changes, update `settings.py` and
 add a new entry here.
+
+## 2026-11-07 — Colab run reader: a STALE run fails verification
+**Context:** `tools/read_colab_run.py` checks an executed notebook from
+`colab_runs/`. Its staleness check compares the commit the run used
+(RUN-HEADER) with the last commit that built the notebook. The C1.8 task
+said "exit 0 if all spec cells PASS"; a run of an older notebook build can
+pass every cell without verifying the current one.
+**Decision:** The reader exits 1 when the run is STALE, even if every cell
+passed. UNKNOWN (no RUN-HEADER, or the run's commit is not in the local
+clone) does not change the exit code; it is printed and written to the digest.
+**Alternatives:** Cell status only (the original task wording); a separate
+exit code 2 for STALE. Rejected: one non-zero code keeps scripts and hooks
+simple, and the digest says why.
+**Consequences:** After rebuilding a notebook, re-run it on Colab before
+committing its results. The colab-verify skill (C1.9) must say this.

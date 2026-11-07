@@ -269,8 +269,10 @@ def save_reports(results: list[CellResult]) -> list[Path]:
     return report_io.save_blocks(blocks, paths.REPO)
 
 
-def exit_code(results: list[CellResult]) -> int:
-    """0 if every spec cell passed, else 1."""
+def exit_code(results: list[CellResult], stale: str = "") -> int:
+    """0 if every spec cell passed and the run is not STALE, else 1 (UNKNOWN does not fail)."""
+    if stale.startswith("STALE"):
+        return 1
     return 0 if results and all(r.status == "PASS" for r in results) else 1
 
 
@@ -308,7 +310,7 @@ def main(argv: list[str] | None = None) -> int:
             print("no '=== BEGIN <path> ===' blocks found")
         for saved in saved_files:
             print(f"saved {saved.relative_to(base).as_posix()} ({saved.stat().st_size} bytes)")
-    return exit_code(results)
+    return exit_code(results, stale)
 
 
 if __name__ == "__main__":
