@@ -104,3 +104,19 @@ committed file still had nulls, so it passed until the run-2 file arrived).
 **Test added:** the updated tests/test_baseline.py::test_repo_prompts_file_shape passes on
 the committed file and on the run-2 file.
 **Commit:** fix(baseline): accept filled dialect prompts in the prompts-file shape test
+
+## 2026-11-07 C6.4 Colab: `boinga prepare` fails with KeyError 'clip_id' before any transform
+**Symptom:** C6 run 1 (1a9b636, Colab CPU, Python 3.13): cell C6.4 printed "selection:
+7506 clips, 0 excluded by char_map" then `FAIL: prepare: KeyError: 'clip_id'`; C6.3 and
+C6.4.play failed on the missing metadata_train.csv. Locally all tests passed.
+**Root cause:** `prepare.make_splits` did `df.loc[wanted].reset_index()` with `wanted` an
+unnamed pd.Index. pandas 3 keeps the frame's index name ("clip_id"); pandas 2.x names
+the result's index after the indexer (None), so reset_index made a column "index" and
+the next `df["clip_id"]` raised. The local venv has pandas 3.1.1, Colab an older 2.x
+(not recorded: env.json has no pandas field). Confirmed by running the prepare tests
+under pandas 2.3.3 with uv: 18 failed with the same KeyError.
+**Fix:** `df.loc[wanted].rename_axis("clip_id").reset_index()`.
+**Test added:** none new; the existing tests/test_prepare.py and test_prepare_build.py
+reproduce it under pandas 2.3.3 (uv run --with pandas==2.3.3) and pass after the fix
+(54 passed; full suite 455 passed under pandas 2.3.3 and 3.1.1).
+**Commit:** fix(prepare): keep the clip_id column name on pandas 2 in make_splits

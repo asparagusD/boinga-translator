@@ -166,6 +166,21 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C6_prepare_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C6_prepare_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C6_prepare_run1.ipynb",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -228,6 +243,16 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c5_text_frontend_run2.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c6_prepare.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c6_prepare.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -353,6 +378,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/pretrained.py"
     },
     {
@@ -434,6 +464,56 @@
       "kind": "import",
       "source": "src/boinga_translator/env_report.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "configs/pretrained_facts.json"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/text_frontend.py"
     },
     {
       "kind": "config",
@@ -787,6 +867,61 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_prepare.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare.py",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare.py",
+      "target": "tools/check_manifest_parse.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_prepare_build.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare_build.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare_build.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare_build.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare_build.py",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare_build.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare_build.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_pretrained.py",
       "target": "src/boinga_translator/cli.py"
     },
@@ -1032,6 +1167,11 @@
     },
     {
       "kind": "import",
+      "source": "tools/check_manifest_parse.py",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
+      "kind": "import",
       "source": "tools/inspect_layout.py",
       "target": "src/boinga_translator/report_io.py"
     },
@@ -1171,7 +1311,7 @@
     },
     {
       "kind": "config",
-      "lines": 34,
+      "lines": 42,
       "path": "configs/pretrained_facts.json",
       "purpose": ""
     },
@@ -1182,20 +1322,26 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 16,
+      "path": "configs/splits_summary.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
-      "lines": 106,
+      "lines": 122,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
     {
       "kind": "doc",
-      "lines": 667,
+      "lines": 800,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 381,
+      "lines": 475,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1266,6 +1412,12 @@
       "purpose": "C5 run 2 — C5 run 2 — tokenizer check"
     },
     {
+      "kind": "notebook",
+      "lines": 369,
+      "path": "notebooks/runs/C6_prepare_run1.ipynb",
+      "purpose": "C6 run 1 — C6 — prepared dataset"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -1324,6 +1476,12 @@
       "lines": 32,
       "path": "notebooks/specs/c5_text_frontend_run2.py",
       "purpose": "Spec: C5 run 2, coqui tokenizer round trip of the selected speaker's model text (CPU)."
+    },
+    {
+      "kind": "module",
+      "lines": 30,
+      "path": "notebooks/specs/c6_prepare.py",
+      "purpose": "Spec: C6 run 1, prepared dataset: resampled clips, splits and coqui manifests (CPU)."
     },
     {
       "kind": "config",
@@ -1390,6 +1548,12 @@
       "lines": 135,
       "path": "reports/colab_runs/C5_text-frontend_run2.md",
       "purpose": "Colab run C5 run 2 — C5 run 2 — tokenizer check"
+    },
+    {
+      "kind": "doc",
+      "lines": 189,
+      "path": "reports/colab_runs/C6_prepare_run1.md",
+      "purpose": "Colab run C6 run 1 — C6 — prepared dataset"
     },
     {
       "kind": "config",
@@ -1471,7 +1635,7 @@
     },
     {
       "kind": "module",
-      "lines": 250,
+      "lines": 266,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1507,9 +1671,15 @@
     },
     {
       "kind": "module",
-      "lines": 148,
+      "lines": 153,
       "path": "src/boinga_translator/paths.py",
       "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
+    },
+    {
+      "kind": "module",
+      "lines": 424,
+      "path": "src/boinga_translator/prepare.py",
+      "purpose": "Training-data prep: audio transform, leak-free splits, ljspeech manifests, `boinga prepare`."
     },
     {
       "kind": "module",
@@ -1657,6 +1827,18 @@
     },
     {
       "kind": "test",
+      "lines": 469,
+      "path": "tests/test_prepare.py",
+      "purpose": "Tests for prepare.py: target rate, transform_audio on synthetic wavs, leak-free splits."
+    },
+    {
+      "kind": "test",
+      "lines": 158,
+      "path": "tests/test_prepare_build.py",
+      "purpose": "Tests for prepare.build() and `boinga prepare` end to end on a tiny fake corpus: skip, restore."
+    },
+    {
+      "kind": "test",
       "lines": 183,
       "path": "tests/test_pretrained.py",
       "purpose": "Tests for pretrained.py and `boinga fetch-pretrained`: cache hit, download, fallback, bad input."
@@ -1744,6 +1926,12 @@
       "lines": 175,
       "path": "tools/build_notebook.py",
       "purpose": "Build a per-chunk Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/."
+    },
+    {
+      "kind": "tool",
+      "lines": 22,
+      "path": "tools/check_manifest_parse.py",
+      "purpose": "Colab check (C6.3): coqui's ljspeech formatter parses our train/val/test manifests."
     },
     {
       "kind": "tool",

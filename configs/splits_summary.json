@@ -1,0 +1,16 @@
+{
+  "counts": {
+    "train": 6415,
+    "val": 338,
+    "test": 753
+  },
+  "minutes": {
+    "train": 419.62,
+    "val": 22.35,
+    "test": 48.76
+  },
+  "csv_sha256": "fd93f4827c6d2b413a51b3703c0debcf294eb436c0ec2391dbe69c85e77e016e",
+  "seed": 1234,
+  "test_source": "official",
+  "dropped_duplicate_text": 0
+}

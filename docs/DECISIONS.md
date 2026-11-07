@@ -665,3 +665,136 @@ must not re-normalise it (it is not NFC-stable). Any later char_map change chang
 map_digest, makes audit.csv stale and needs this check (C5 run 2) again. Inference text
 outside the corpus (typed prompts) can still hold characters the voice lacks: coqui drops
 them with only a warning, so the demo should check prompts with count_unknown().
+
+## 2026-11-07 — Audio preprocessing: mono, soxr_hq to the model rate, 100 ms pad, -1 dBFS peak
+**Context:** C6.1. The corpus is 16 kHz mono PCM_16 (audit_summary.md); the base voice
+(male) was trained at 22,050 Hz (pretrained_facts.json), and the model's sample rate and
+STFT/mel settings must not change (vits-finetune). dialect-data-rules asks for mono,
+resampling to the checkpoint's rate, edge-only silence trimming that keeps >= 100 ms, and
+peak-safe normalisation.
+**Decision:** `prepare.transform_audio()`: average the channels to mono; resample with
+librosa `res_type="soxr_hq"` only when the rate differs; trim leading/trailing silence
+with librosa.effects.trim at top_db 40 (the audit's threshold, data_audit.TRIM_TOP_DB) and
+keep 100 ms on each side, clamped at the clip edges; scale so the peak is -1 dBFS; write
+16-bit PCM atomically (`.tmp` then rename). The target rate comes from
+`prepare.target_sample_rate()` (base voice in configs/speaker_selection.json ->
+pretrained_facts.json), never a constant. Empty, non-finite or all-zero clips raise
+ValueError (counted as exclusions by C6.4). Stats per clip: in/out rate and duration,
+trimmed seconds, gain_db, upsampled.
+**Alternatives:** Loudness (RMS/LUFS) normalisation was in the C6 plan draft; the C6.1
+promptbook chose peak normalisation (simpler, no new dependency, cannot clip). Other
+resamplers (kaiser_best, scipy) were not needed: soxr ships with librosa >= 0.10. Trimming
+before resampling was not chosen: trimming at the output rate makes the 100 ms pad exact
+in output samples.
+**Consequences:** Every training clip is upsampled 16 -> 22.05 kHz, so it has no content
+above 8 kHz; the model will learn to generate band-limited audio (DECISIONS "Corpus
+layout"). Peak normalisation leaves loudness varying with each clip's crest factor across
+the mixed voices; if listening (C6.4 form) finds big level jumps, revisit with RMS/LUFS.
+trim's centred frames can keep up to about half a frame (~46 ms at 22,050 Hz) of extra
+silence on each side; the 100 ms pad is a minimum.
+
+## 2026-11-07 — Training splits: dedupe by transcript, official test, seeded 5% val
+**Context:** C6.2. dialect-data-rules: no transcript in more than one split; the test split
+is fixed once and never trained on (Gate G2 condition 3, incl. baseline clips 386, 29,
+625). The C4 selection (7,506 clips) spans all three official splits.
+**Decision:** `prepare.make_splits(index_df, selection_ids, seed=settings.SEED)` keeps the
+selected clips, drops clips whose ctg_text_nfc repeats (keeping the longest; ties: lowest
+clip id) and counts them; test = the official test clips when >= 20 remain, else a seeded
+5% sample (min 20) of the unique texts; val = a seeded 5% (min 20) of what is left after
+test, official val clips included; train = the rest. It asserts no transcript is in two
+splits. `save_splits()` writes Drive `splits.csv` (`paths.splits_csv()`; clip_id, split,
+duration_s, LF line ends) and `configs/splits_summary.json` (counts, minutes, csv_sha256,
+seed, test_source, dropped_duplicate_text), and refuses to overwrite a splits.csv that
+fixes a different test set.
+**Alternatives:** Keeping the official val split as val (48 min, ~10%) was not chosen: the
+C6.2 promptbook asks for a 5% seeded val, which leaves more audio for training. Dedupe on
+the model text (prepare_text) instead of ctg_text_nfc was not chosen (promptbook); see
+consequences.
+**Consequences:** Duplicates are matched on ctg_text_nfc, so two different transcripts
+that char_map turns into the same model text could still land in two splits; the audit's
+duplicate_text exclusion already removed every ctg_text_nfc duplicate from the clean set,
+so this is the only residual leak path (follow-up: count it in the C6.4 summary). Changing
+the seed or the selection later needs a deliberate delete of splits.csv, and a new test
+set makes earlier evaluations incomparable.
+
+## 2026-11-07 — Training manifests: coqui ljspeech format, names in pretrained_facts.json
+**Context:** C6.3. Coqui must read our prepared clips. The C6.3 promptbook picks coqui's
+built-in `ljspeech` formatter. Reading the coqui-tts v0.28.0 source (idiap/coqui-ai-TTS,
+TTS/tts/datasets) showed two facts that shape the code: (1) `ljspeech` splits each line on
+"|", takes column 0 as the id (`<root>/wavs/<id>.wav`) and column 2 as the text, and does
+not strip, so column 2 keeps the line's "\n"; (2) `load_tts_samples` in 0.28 takes a model
+config with a `datasets` field, not a BaseDatasetConfig (a TypeError otherwise).
+**Decision:** `prepare.write_manifests()` writes `metadata_{train,val,test}.csv` under
+`paths.data_prepared()`: `<clip_id>|<text>|<text>\n`, UTF-8, LF, no header, text =
+`text_frontend.prepare_text(ctg_text)`; it refuses a missing transcript, an empty model
+text, or "|"/CR/LF in an id or text (char_map already maps "|" to "."). The file names and
+the formatter live in `configs/pretrained_facts.json` "dataset" (read by
+`prepare.manifest_names()`). `prepare.parse_check()` (run by
+`tools/check_manifest_parse.py`, cell C6.3) loads train+val with
+`load_tts_samples(BaseTTSConfig(datasets=[BaseDatasetConfig(formatter="ljspeech", ...)]))`
+and test the same way with eval_split False, checks counts, that every audio_file exists
+and that each parsed text equals ours with at most the trailing "\n", then prints
+"PASS: coqui parsed N train / M val samples".
+**Alternatives:** A 4th empty column (`id|text|text|`) would keep the "\n" off the text,
+and a custom formatter could strip it; both were left out because the promptbook fixes the
+3-column ljspeech layout and the "\n" is harmless (below). A BaseDatasetConfig passed
+straight to load_tts_samples (the promptbook's wording) fails on 0.28.
+**Consequences:** Every training text reaches the tokenizer with a trailing "\n", which
+the Graphemes tokenizer drops as an unknown character with a one-time warning (C5: coqui
+discards unknown characters); no token is added. If coqui's training log shows anything
+else for "\n", switch to a custom formatter. The "dataset" key sits beside the voices in
+pretrained_facts.json; `pretrained.write_inspect_reports` merges with `update`, so a
+re-inspect keeps it. The parse check runs only on Colab (coqui is not installed locally);
+its shell cell does not stop "Run all", so it stays last or moves into cli later.
+
+## 2026-11-07 — Prepared data backup: one Drive tar per splits sha256, restored on a new VM
+**Context:** C6.4. The prepared wavs live on the VM's fast disk (paths.data_prepared()),
+which a Colab disconnect loses; thousands of small files are slow to copy to and from
+Drive one by one.
+**Decision:** `boinga prepare` (prepare.build) writes one uncompressed tar of the whole
+prepared folder (wavs, manifests, clip_stats.csv) to Drive as
+`paths.prepared_backup()/prepared-<first 16 hex of splits.csv sha256>.tar`, written to
+`.tmp` then renamed, and never rewritten while it exists. On a VM with no local
+clip_stats.csv it restores that tar (tarfile `filter="data"`) before transforming, so only
+missing clips are redone. Per-clip work is skipped when clip_stats.csv has the clip and its
+wav exists (or the clip failed). Clips whose transform raises are counted by reason and left
+out of the manifests. Defaults: 2 worker processes (Colab CPU runtime has 2 cores).
+**Alternatives:** Copying the folder to Drive file by file (slow, many Drive calls); a
+digest over the transform settings in the tar name (not asked for; see consequences).
+**Consequences:** The tar name depends only on the splits, not on the transform code or
+its constants (pad, top_db, peak, resampler): after changing transform_audio, delete the
+tar (and the local folder) on purpose, or a new VM restores the old audio. The tar holds
+roughly 1.3 GB for ~490 min of 22.05 kHz 16-bit audio (estimate, not measured). Failed
+clips are sticky: their error row is never retried and lands in the tar, so a transient
+I/O error needs clip_stats.csv and the tar deleted by hand. A new splits sha leaves the
+old tar on Drive (15 GB free tier): delete stale `prepared-*.tar` files by hand.
+configs/splits_summary.json is written before the transform, so its counts and minutes
+are the splits (source durations, failed clips included), not the manifests; the printed
+per-split lines after it are the prepared numbers.
+
+## 2026-11-07 — Prepared dataset: 7,506 clips at 22,050 Hz, official test, 5% val
+**Context:** C6 run 1 (93d9796, Colab CPU, coqui-tts 0.28.0, Python 3.13; digest
+reports/colab_runs/C6_prepare_run1.md, 9/9 PASS) ran `boinga prepare` on the C4 training
+speaker (cluster 1, base voice male).
+**Decision:** The training data for C7 is the prepared folder of this run:
+- Selection 7,506 clips, 0 excluded by char_map, 0 duplicate transcripts dropped, 0
+  transform failures; all 7,506 written as mono 16-bit wavs at **22,050 Hz** (the male
+  voice's rate, pretrained_facts.json), every clip upsampled from 16 kHz; mean edge
+  silence trimmed 0.310 s per clip.
+- Splits (configs/splits_summary.json, seed 1234, test_source official, splits.csv
+  sha256 fd93f4827c6d2b41...): train 6,415 / val 338 / test 753 clips; source minutes
+  419.62 / 22.35 / 48.76 (490.73 total, as in Gate G3); prepared (trimmed) minutes
+  **386.64 / 20.48 / 44.81** (451.93 total).
+- Manifests `metadata_{train,val,test}.csv` (ljspeech); coqui's load_tts_samples parsed
+  6,415 train / 338 val (+ 753 test) samples, every audio file present, text equal
+  apart from the formatter's trailing "\n" (DECISIONS "Training manifests").
+- Backup on Drive: `data/prepared/prepared-fd93f4827c6d2b41.tar`; a new VM restores it.
+**Alternatives:** None new; the choices are in "Audio preprocessing", "Training splits",
+"Training manifests" and "Prepared data backup".
+**Consequences:** C7 trains on 386.64 prepared minutes and validates on 20.48; the 753
+official test clips (incl. baseline clips 386, 29, 625) stay out of training. The
+transform took 1 min 42 s for 7,506 clips (73.5 clips/s, 2 processes); the whole run's
+duration was not recorded. Drive had 9.4 GB free before the ~1.2 GB tar (estimate from
+the prepared minutes). Listening check (C6.4.play, seeded train clips 1217, 131,
+1131, 2582, 2124; no form): the user reported in chat "All sounded fine", so the 100 ms
+trim pad and -1 dBFS peak normalisation stay as they are.

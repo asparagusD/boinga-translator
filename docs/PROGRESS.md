@@ -353,8 +353,102 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
 - [ ] Optional skip-if-no-TTS (or Colab) test of round_trip on the real TTSTokenizer, so a
   change in coqui's blank/bos/eos order is caught without a full run
 
-## C6
-- [ ] C6.x (subchunks not yet defined)
+## C6 — Preprocess audio and write training manifests
+Branch `chunk/C6-prepare`. One CPU notebook: spec `notebooks/specs/c6_prepare.py` ->
+`notebooks/runs/C6_prepare_run1.ipynb`. Input = the C4 selection (7,506 clips,
+configs/speaker_selection.json, sha-checked), char_map-excluded rows dropped, text =
+`text_frontend.prepare_text` (C5 follow-up: one name for C6 and inference). Target rate from
+configs/pretrained_facts.json (male 22,050 Hz), never hard-coded. Local tests use synthetic
+wavs/text; coqui is faked locally and only parse-checked on Colab. Line counts exclude tests,
+the generated map/notebook and PROGRESS.
+- [x] C6.1 `prepare.target_sample_rate()` (base voice in configs/speaker_selection.json
+  -> sample_rate in configs/pretrained_facts.json) and `prepare.transform_audio(in_wav,
+  out_wav, target_sr)`: mono mix, librosa resample soxr_hq when the rate differs, trim
+  edge silence (top_db 40) keeping a 100 ms pad each side (clamped), peak to -1 dBFS,
+  16-bit PCM written atomically; returns in_sr, out_sr, in_dur, out_dur, trimmed_s,
+  gain_db, upsampled; empty/non-finite/silent -> ValueError. Peak, not RMS, normalisation
+  per the C6.1 promptbook; module prepare.py (C6.4a's build() joins it). DECISIONS "Audio
+  preprocessing". Tests `tests/test_prepare.py` (this commit)
+- [x] C6.2 `prepare.make_splits(index_df, selection_ids, seed=settings.SEED)` ->
+  (clip_id, split, duration_s): selected clips only, ctg_text_nfc duplicates dropped
+  (longest kept, counted), official test if >= 20 clips else a seeded 5% (min 20) sample,
+  val = seeded 5% (min 20) of the rest, train = the rest, asserts no transcript in two
+  splits; `save_splits()` -> Drive `paths.splits_csv()` + configs/splits_summary.json
+  (counts, minutes, csv_sha256, seed, test_source, dropped_duplicate_text), refuses to
+  change a saved test set. In prepare.py (not splits.py), per the C6.2 promptbook.
+  DECISIONS "Training splits". Tests in `tests/test_prepare.py` (this commit)
+- [x] C6.3 code: `prepare.write_manifests(splits_df, index_df, out_root)` -> coqui ljspeech
+  `metadata_{train,val,test}.csv` (`<clip_id>|<text>|<text>`, UTF-8, LF, no header, text =
+  prepare_text(ctg_text); refuses missing/empty text and "|"/CR/LF), wavs at
+  `<root>/wavs/<clip_id>.wav` (`manifest_wav`); formatter + file names in
+  configs/pretrained_facts.json "dataset" (`manifest_names`); `prepare.parse_check()` +
+  `tools/check_manifest_parse.py`: coqui load_tts_samples (0.28 needs a config with
+  `datasets`) on all 3, counts, audio files exist, text equal (trailing "\n" allowed: the
+  formatter keeps it); spec `notebooks/specs/c6_prepare.py` (cell C6.3, CPU) ->
+  `notebooks/runs/C6_prepare_run1.ipynb`. DECISIONS "Training manifests". Tests in
+  `tests/test_prepare.py` (fake loader) (this commit). Confirmed on Colab in C6.V
+  - [x] C6.3 results: C6 run 1 (93d9796): coqui-tts 0.28.0 load_tts_samples parsed
+    6,415 train / 338 val (+ 753 test) samples, every audio file present, text equal to
+    the manifests; first sample text ends with "\n" as the source read predicted
+    (this commit)
+- [x] C6.4 code (one subchunk per the C6.4 promptbook; replaces the planned C6.4a/b):
+  `prepare.build(workers=2)` + `boinga prepare [--workers N]`: corpus index, C4 selection
+  (sha-checked) minus char_map-excluded rows, target_sample_rate(); make_splits +
+  save_splits; transform_audio of every split clip into `paths.data_prepared()/wavs`
+  (multiprocessing Pool, tqdm; a clip with a `clip_stats.csv` row and its wav, or an
+  error, is skipped); failed clips counted by reason and left out of the manifests;
+  write_manifests; tar of the prepared folder to Drive
+  `paths.prepared_backup()/prepared-<splits sha256[:16]>.tar` (not rewritten if present);
+  a fresh VM (no local clip_stats.csv) restores that tar instead of recomputing; prints
+  clips/minutes per split, upsampled count, mean trimmed s, failures, 3 manifest lines
+  per split; emits configs/splits_summary.json; "PASS: prepared N clips".
+  `prepare.pick_prepared(n)` (seeded train clips + manifest text). Spec cells C6.0
+  (`!boinga fetch-data`), C6.4 (`!boinga prepare`) before C6.3, and C6.4.play after it.
+  DECISIONS "Prepared data backup". Tests `tests/test_prepare_build.py` (fake corpus:
+  end to end, second run skips, lost wav redone, restore, pool, CLI) (this commit)
+  - Not done from the C6 plan (promptbook scope): post-trim 1-15 s exclusions,
+    reports/prepare_summary.md, the listening form, counting model-text collisions
+    across splits (follow-ups). dialect-data-rules wants exclusions written to reports/:
+    char_map exclusions and transform failures are only printed until
+    reports/prepare_summary.md exists. Review suggestions not taken: retry OSError rows,
+    delete stale Drive tars automatically, a clean FAIL in pick_prepared without manifests
+  - [x] C6.4 fix: run 1 attempt 1 (1a9b636) failed in C6.4 with KeyError 'clip_id'
+    (pandas 2 on Colab); `93d9796` fix(prepare), DEBUG_LOG entry
+  - [x] C6.4 results: C6 run 1 (93d9796, CPU): 7,506 clips prepared at 22,050 Hz, 0
+    failed, 0 char_map-excluded, 0 duplicates; train 6,415 / val 338 / test 753 clips
+    (official test), prepared minutes 386.64 / 20.48 / 44.81 (source 419.62 / 22.35 /
+    48.76); all upsampled, mean trim 0.310 s; transform 1:42; Drive tar
+    prepared-fd93f4827c6d2b41.tar; configs/splits_summary.json; DECISIONS "Prepared
+    dataset" (this commit)
+- [x] C6.H hand-off: `notebooks/runs/C6_prepare_run1.ipynb` (CPU) rebuilt, unchanged
+  since `f3564b5`, `--all --check` clean, pushed; link and save name
+  `colab_runs/C6_prepare_run1.ipynb` given; no forms (listening reported in chat);
+  duration not measured (estimate 10-30 min) (this commit)
+- [x] C6.V verify (colab-verify): run 1 attempt 1 (1a9b636) FAIL in C6.4 (pandas 2
+  KeyError, fixed `93d9796`); attempt 2: 9/9 PASS at `93d9796` (notebook built in
+  `f3564b5`), not stale; results `00fd048` (C6.4) and this commit (C6.3). Listening:
+  5 clips played (1217, 131, 1131, 2582, 2124); user (chat): "All sounded fine", no
+  cut-offs or level problems
+
+### C6 follow-ups (from the whole-chunk review; for C7)
+- [ ] C7 notebook runs `boinga fetch-data` and `boinga prepare` first (wavs and manifests
+  live on the VM's fast disk); check it prints "restored ..." and "0 clip(s) to do"
+- [ ] Restore depends on byte-identical splits.csv: a different pandas/numpy on the GPU VM
+  could change its bytes (e.g. float format of duration_s), miss the tar, recompute and
+  write a second ~1.2 GB tar; warn when another prepared-*.tar exists but none matches
+- [ ] C7 config: set min/max audio length on trimmed durations (no post-trim 1-15 s
+  exclusion in C6; trimming can push a clip under the minimum)
+- [ ] env_report: record pandas, librosa and soxr versions (Colab's pandas was unknown
+  when the C6.4 KeyError hit)
+- [ ] reports/prepare_summary.md with exclusions by reason (dialect-data-rules; C6 run 1
+  had 0, counts only in the run digest); count model-text collisions across splits; a
+  clean FAIL in pick_prepared when manifests are missing
+- [ ] cli `_prepare`: also catch `tarfile.TarError` (corrupt Drive tar on restore)
+- [ ] Doc wording: prepare.py header comment covers only the audio transform; DECISIONS
+  "Training splits" / PROGRESS C6.2 say "asserts" (code raises RuntimeError); DECISIONS
+  "Training manifests" says the C6.3 cell stays last (C6.4.play follows it); DECISIONS
+  "Audio preprocessing" mentions a C6.4 form (listening came by chat); tar size estimates
+  1.3 vs 1.2 GB (measure it on Drive)
 
 ## C7
 - [ ] C7.x (subchunks not yet defined)
