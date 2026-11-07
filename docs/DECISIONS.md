@@ -332,3 +332,24 @@ input, but the prompt rule asks for the transcript as published).
 test split out of training (dialect-data-rules: the test split is never trained on).
 Re-running the pick after the audit changes may choose other lines; `_sources` shows
 which ones a baseline used.
+## 2026-11-07 — Audit listening: clean audio, many speakers, speech heard as standard Bangla
+**Context:** C3 run 2 (f4c7ab2) form C3.5-notes, after listening to 20 seeded random clean
+clips (C3.5.play) labelled with their Chittagonian transcript and Standard Bangla
+translation; reports/audit_summary.md gives the numbers.
+**Decision:** Record the listening result as given: TRANSCRIPTS_MATCH_AUDIO "mostly",
+SOUNDS_CHITTAGONIAN "no, standard Bangla", NOISE_LEVEL "clean", SPEAKERS_HEARD "many",
+NOTES "none". Audit numbers: 8,004 decodable clips, 9.04 h (16 kHz mono PCM_16); clean
+2,881 clips, 4.10 h (train 3.30, val 0.37, test 0.42); excluded 5,128 of 8,009 rows
+(64%): oov 5,015 (4,711 of them only because of the danda), speech rate 167, too long
+29, duplicate text 28, too short 8, clipped 7, undecodable/no wav 5; no speaker field.
+**Alternatives:** none (an observation record, not a choice).
+**Consequences:**
+- Open tension for Gate G2: the dialect transcripts "mostly" match audio that sounds like
+  standard Bangla. Either the speakers read the Chittagonian text with standard
+  pronunciation, or the audio follows the Standard Bangla column; the form cannot tell
+  these apart, and the duration/text-length mapping check (r = 0.87) cannot either,
+  because both columns have similar lengths.
+- "Many" speakers and no speaker ids: a single-speaker fine-tune cannot select one
+  speaker from this corpus's metadata.
+- The oov rule mostly measures the danda; a char_map decision on "।" changes clean hours
+  substantially (up to ~4,700 more clips).

@@ -777,13 +777,13 @@
     },
     {
       "kind": "doc",
-      "lines": 334,
+      "lines": 355,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 192,
+      "lines": 193,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -861,6 +861,12 @@
     },
     {
       "kind": "doc",
+      "lines": 65,
+      "path": "reports/audit_summary.md",
+      "purpose": "Corpus audit summary"
+    },
+    {
+      "kind": "doc",
       "lines": 168,
       "path": "reports/colab_runs/C1_pilot_run1.md",
       "purpose": "Colab run C1 run 1 — Pipeline pilot"
@@ -899,6 +905,12 @@
       "kind": "config",
       "lines": 6,
       "path": "reports/notes/C2.4-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 7,
+      "path": "reports/notes/C3.5-notes.json",
       "purpose": ""
     },
     {
