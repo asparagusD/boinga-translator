@@ -170,3 +170,20 @@ male `model.pth` 997.77 MB + `config.json` 0.01 MB (about 2 GB of Drive).
 **Consequences:** The checkpoints are large because they carry optimizer and
 grad-scaler state (C2.2). The cached files' sha256 were not recorded in this
 run; pinning them stays a C2 follow-up.
+
+## 2026-11-07 — Baseline smoke listening: both pretrained voices intelligible
+**Context:** C2.4 synthesised STD_1-3 (standard Bangla) with both pretrained
+voices at the pinned seed and inference scales on a T4 (C2 run 1, `68ab521`).
+Every wav passed the smoke rule (> 0.3 s, > -50 dBFS): female 4.15 / 4.41 /
+4.04 s at -22.9 / -20.9 / -19.8 dBFS; male 5.13 / 4.48 / 5.46 s at
+-20.2 / -18.1 / -19.4 dBFS.
+**Decision:** Record the user's listening form (reports/notes/C2.4-notes.json):
+female intelligible "yes", male intelligible "yes", artefacts "none",
+preferred voice quality "same". Neither voice is ruled out by quality.
+**Alternatives:** none; this is a measurement.
+**Consequences:** The fine-tune voice can be chosen by fit to the corpus
+speaker (C3/C4) rather than by baseline quality. The sentence-final danda
+"।" is the config's EOS token and not in characters/punctuations, so the
+baseline WARNed on it for STD_1 and STD_3; how coqui's tokenizer treats it
+is checked when the text front-end is built (C3). Durations may include
+coqui's per-sentence padding, so they are not used as throughput figures.
