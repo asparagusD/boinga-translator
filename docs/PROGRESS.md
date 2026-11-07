@@ -528,8 +528,11 @@ map/notebook and PROGRESS.
   C7.4.b (resume to 60), C7.4.c (throughput), C7.4.d (listen), each after an md()
   explanation; a and b forbid "Partial model initialization". Tests
   `tests/test_train_report.py` (fake log snippet, fake run folder, fake synth) (this commit).
-  With print_step 25 the smoke (stop after 50) and resume (51-59) log only step 25 after
-  warm-up: n_step_samples 1 plus coqui's running average. Results: C7 run 1
+  With print_step 25 the smoke (stop after 50) and resume (51-59) would log only step 25
+  after warm-up, so C7.4b sets print_step 5 for the smoke run. Results: C7 run 1
+- [x] C7.4b `train_config.RUN_OVERRIDES` (per-run, value + reason) with print_step 5 for run
+  `smoke` only (user, chat 2026-11-08): steps 5-45 and 55 timed (~10 samples) instead of 1;
+  `reasons(run_name)` fills the DECISIONS table; cell texts updated (this commit)
 - [ ] C7.H hand-off: notebook (T4) built, `--all --check` clean, pushed; link, save name
   `colab_runs/C7_train-runner_run1.ipynb`; duration not measured (smoke ~15-30 min estimate)
 - [ ] C7.V verify (colab-verify): every cell PASS, not stale; reports/throughput.json and

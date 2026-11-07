@@ -86,6 +86,22 @@ def test_build_overrides_and_protected(repo: Path) -> None:
     assert PRETRAINED["lr_gen"] == 0.0002  # the fixture dict itself is untouched
 
 
+def test_smoke_run_logs_every_5_steps(repo: Path) -> None:
+    assert train_config.build("smoke")["print_step"] == 5
+    text = (repo / "docs" / "DECISIONS.md").read_text(encoding="utf-8")
+    assert "| `print_step` | (missing) | 5 | smoke run only" in text
+    assert train_config.build("full")["print_step"] == 25
+    text = (repo / "docs" / "DECISIONS.md").read_text(encoding="utf-8")
+    assert "smoke run only" not in text  # the per-run reason does not leak to other runs
+    assert set(train_config.RUN_OVERRIDES["smoke"]) <= set(train_config.OVERRIDES)
+
+
+def test_unknown_run_override_refused(repo: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setitem(train_config.RUN_OVERRIDES, "typo", {"print_stpe": (5, "x")})
+    with pytest.raises(ValueError, match="print_stpe"):
+        train_config.build("typo")
+
+
 def test_every_override_has_a_reason_and_no_protected_key(repo: Path) -> None:
     cfg = train_config.build("smoke")
     keys = set(train_config.overrides(copy.deepcopy(PRETRAINED), "smoke", ["x"] * 5))

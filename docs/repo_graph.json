@@ -1560,13 +1560,13 @@
     },
     {
       "kind": "doc",
-      "lines": 878,
+      "lines": 880,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 561,
+      "lines": 564,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1644,7 +1644,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 585,
+      "lines": 586,
       "path": "notebooks/runs/C7_train-runner_run1.ipynb",
       "purpose": "C7 run 1 — C7 — training runner and smoke test"
     },
@@ -1716,7 +1716,7 @@
     },
     {
       "kind": "module",
-      "lines": 94,
+      "lines": 95,
       "path": "notebooks/specs/c7_train_runner.py",
       "purpose": "Spec: C7 run 1, training runner: prepared data, fine-tune config, loader, smoke and resume (T4)."
     },
@@ -1962,7 +1962,7 @@
     },
     {
       "kind": "module",
-      "lines": 178,
+      "lines": 194,
       "path": "src/boinga_translator/train_config.py",
       "purpose": "Fine-tune config: the base voice's pretrained config.json plus logged, reasoned overrides."
     },
@@ -2178,7 +2178,7 @@
     },
     {
       "kind": "test",
-      "lines": 213,
+      "lines": 229,
       "path": "tests/test_train_config.py",
       "purpose": "Tests for train_config.py and `boinga build-config`: overrides, protected keys, outputs."
     },

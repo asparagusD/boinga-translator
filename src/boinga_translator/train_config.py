@@ -59,6 +59,16 @@ REASONS: dict[str, str] = {**{k: r for k, (_, r) in OVERRIDES.items()}, **COMPUT
 
 RUN_BUDGETS: dict[str, int] = {}  # run name -> max steps (filled in C8 from the smoke test)
 
+# Per-run overrides on top of OVERRIDES, as key: (value, reason); keys must be in OVERRIDES.
+RUN_OVERRIDES: dict[str, dict[str, tuple[Any, str]]] = {
+    "smoke": {"print_step": (5, "smoke run only: ~10 timed steps in 60 instead of 1")},
+}
+
+
+def reasons(run_name: str) -> dict[str, str]:
+    """Reason per overridden key for this run (a per-run reason replaces the general one)."""
+    return {**REASONS, **{k: r for k, (_, r) in RUN_OVERRIDES.get(run_name, {}).items()}}
+
 
 def base_voice(selection_path: Path | None = None) -> str:
     """The pretrained voice to fine-tune, from configs/speaker_selection.json."""
@@ -100,10 +110,14 @@ def val_texts(n: int = N_TEST_SENTENCES) -> list[str]:
 def overrides(pretrained_cfg: dict[str, Any], run_name: str,
               texts: list[str]) -> dict[str, Any]:
     """Every top-level key the fine-tune config changes (static + computed)."""
+    run_specific = RUN_OVERRIDES.get(run_name, {})
+    if unknown := sorted(set(run_specific) - set(OVERRIDES)):
+        raise ValueError(f"RUN_OVERRIDES[{run_name!r}] keys {unknown} are not in OVERRIDES")
     sr = int(pretrained_cfg["audio"]["sample_rate"])
     names = prepare.manifest_names()
     return {
         **{k: v for k, (v, _) in OVERRIDES.items()},
+        **{k: v for k, (v, _) in run_specific.items()},
         "lr_gen": _scaled_lr(pretrained_cfg, "lr_gen"),
         "lr_disc": _scaled_lr(pretrained_cfg, "lr_disc"),
         "max_audio_len": int(MAX_AUDIO_S * sr),
@@ -133,12 +147,14 @@ def _cell(value: Any) -> str:
     return text.replace("|", "\\|")
 
 
-def render_table(pretrained_cfg: dict[str, Any], cfg: dict[str, Any]) -> str:
+def render_table(pretrained_cfg: dict[str, Any], cfg: dict[str, Any],
+                 run_name: str = "") -> str:
     """Markdown table: key | pretrained | fine-tune | reason, for every override."""
     rows = ["| key | pretrained | fine-tune | reason |", "|---|---|---|---|"]
-    for key in sorted(REASONS):
+    why = reasons(run_name)
+    for key in sorted(why):
         old = _cell(pretrained_cfg[key]) if key in pretrained_cfg else "(missing)"
-        rows.append(f"| `{key}` | {old} | {_cell(cfg[key])} | {REASONS[key]} |")
+        rows.append(f"| `{key}` | {old} | {_cell(cfg[key])} | {why[key]} |")
     return "\n".join(rows) + "\n"
 
 
@@ -165,7 +181,7 @@ def build(run_name: str) -> dict[str, Any]:
         raise RuntimeError(f"fine-tune config must keep {changed} equal to the pretrained one")
     if foreign := author_paths(cfg):
         raise RuntimeError(f"fine-tune config still holds foreign absolute paths: {foreign}")
-    table = render_table(base, cfg)
+    table = render_table(base, cfg, run_name)
     for text, rel in ((json.dumps(cfg, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
                        CONFIG_REL),
                       (f"# Fine-tune config overrides\n\nBase: `{src}`, run `{run_name}`.\n\n"

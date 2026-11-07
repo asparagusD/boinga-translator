@@ -47,8 +47,8 @@ NOTEBOOK = Notebook(
         md("""
             **Smoke test: 50 steps (not timed yet; model load plus 50 steps).** Starts run
             `smoke` from the pretrained male checkpoint (fp16, batch 16) and stops after 50
-            steps with a saved checkpoint on Drive. coqui prints a step log every 25 steps, its
-            progress output for this cell. Re-running "Run all" is safe: a run already at
+            steps with a saved checkpoint on Drive. coqui prints a step log every 5 steps (smoke
+            run only; 25 otherwise), its progress output for this cell. Re-running "Run all" is safe: a run already at
             or past step 50 prints `already at step N` and trains nothing. Expect `STOP at step
             50` (or `already at step N` on a re-run); coqui's
             "Partial model initialization" line would mean the restore did not match the model
@@ -71,10 +71,11 @@ NOTEBOOK = Notebook(
              forbid=[r"Partial model initialization"], gpu=True, timeout_min=30),
         md("""
             **Throughput.** Reads the run's coqui log and `boinga_run.json`: seconds per step
-            (coqui logs every 25 steps and step 0 is warm-up, so only step 25 is timed here;
-            coqui's running average is reported too), steps per hour, peak GPU memory, last
-            losses and any NaN loss, into `reports/throughput.json`. Expect `PASS: throughput recorded` and the report
-            block; a NaN loss prints `FAIL: NaN loss` (then switch to fp32).
+            (the smoke run logs every 5 steps; step 0 is warm-up and left out, so steps 5-45
+            and 55 are timed; coqui's running average is reported too), steps per hour, peak
+            GPU memory, last losses and any NaN loss, into `reports/throughput.json`. Expect
+            `PASS: throughput recorded` and the report block; a NaN loss prints `FAIL: NaN
+            loss` (then switch to fp32).
         """),
         code("C7.4.c", "Throughput", "!boinga throughput --run smoke",
              expect=[r"PASS: throughput recorded", r"=== BEGIN reports/throughput.json ==="]),
