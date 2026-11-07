@@ -646,7 +646,10 @@ estimates, excluding the generated map/notebook and PROGRESS.
   MORE_CHITTAGONIAN_THAN_PRETRAINED, ARTEFACTS, NOTES), an md() before each cell (this commit).
   One `boinga train` to the budget (no milestone segments): C8.sample sees only the last 2
   checkpoints + best; earlier steps need C8.2c
-- [ ] C8.H hand-off run 1 (link, GPU, measured-basis duration, form fields, save name)
+- [x] C8.H hand-off run 1: `notebooks/runs/C8_finetune_run1.ipynb` rebuilt, unchanged since
+  `adc2f48`, `--all --check` clean, pushed; link, runtime (RTX PRO 6000; user asked "T4"),
+  ~3.5 h step time + eval/saves/sampling (not measured), disconnect tips, form instructions
+  and save name `colab_runs/C8_finetune_run1.ipynb` given (this commit)
 - [ ] C8.V verify run 1 (colab-verify): record losses, candidates, BEST_STEP and verdict;
   decide promote vs second run (DECISIONS "Run 1 verdict")
 - [ ] C8.4 only if C8.V says so: run-2 settings (RUN_OVERRIDES/RUN_BUDGETS for `run2`) +
