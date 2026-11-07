@@ -257,3 +257,34 @@ Drive tree; not measured, revisit if the per-VM copy is slow).
 free before the run). Per-step timings for unzip/copy were not captured (the cell
 prints no durations); add them if the copy becomes a bottleneck. If a Colab IP is ever
 refused, the IP, not the agent, is the next suspect.
+
+## 2026-11-07 — Corpus layout: folders mark the splits, one xlsx holds the text, no ids or speakers
+**Context:** C3.3 (corpus.load_index) must be written against the real layout.
+reports/corpus_layout.txt (C3 run 1, f06163c) records it; only the clip count, the
+transcript/translation columns and the 6,403/801/800 splits were known before.
+**Decision:** The layout is:
+- Audio: `Dataset/Speech/{training,validation,test}/<integer>.wav`, 6,403 / 801 / 800
+  files (8,004). Sampled: 16,000 Hz, mono, PCM_16 (1.50 s, 3.76 s, 4.67 s). Stems seen:
+  `990`, `1001`, `4596`.
+- Text: one workbook `Dataset/Chittagonian_translated.xlsx`, one sheet
+  `Chittagonian_translated`, 8,009 data rows, 3 columns.
+- Clip id: no id or file-name column. The row <-> wav link is presumably the row
+  number = wav stem, but unverified (base 0 or 1, and 8,009 rows vs 8,004 wavs).
+- Chittagonian text: column `Chittagonian Dialect` (training text, verbatim).
+- Standard Bangla text: column `Standard Bangla` (metadata only, never trained on).
+- Also present: `Translated English` (metadata only; not on the dataset page).
+- Split: no column; marked by the folder (`training` / `validation` / `test`); counts
+  match the dataset page.
+- Speaker: no speaker field (and no gender/region/age field).
+**Alternatives:** none; this records the data as published.
+**Consequences:**
+- C3.3 must establish the row <-> wav mapping before any audit: per-folder stem range
+  and gaps, which 5 rows have no wav (empty/duplicate/header-like rows?), 0- vs 1-based,
+  plus a sanity check (clip duration vs transcript length) and a listening spot-check.
+- Unknown speaker count ("native speakers", plural): the single-speaker goal may need
+  a speaker-consistent subset; C3.5's listening form asks for it.
+- 16 kHz audio vs the model's 22,050 Hz: resampling up adds no content above 8 kHz;
+  the fine-tuned voice will be band-limited. Accepted for a proof of concept; noted for
+  Gate G2.
+- The first rows read like translated encyclopedic prose about Chittagonian, so the
+  text is read speech of written sentences.

@@ -128,10 +128,12 @@ Run 1 (spec `notebooks/specs/c3_data_audit_run1.py`, CPU):
   Review follow-up: time unzip-to-Drive + copy vs extracting the Drive zip straight to /content
 - [x] C3.2 code: tools/inspect_layout.py + cell C3.2: tree to depth 3 with counts per
   extension, table heads (csv/tsv/txt/json/xlsx/xls < 5 MB), 3 wav headers, speaker/gender/
-  region/age/split values -> reports/corpus_layout.txt (this commit; result with C3.V1)
+  region/age/split values -> reports/corpus_layout.txt (`c692819`); fix `1b9275f` (no-wav
+  FAIL); results: layout recorded in DECISIONS "Corpus layout" (this commit)
 - [x] C3.H1 hand-off run 1: notebook built and pushed with C3.2 (`c692819`), re-run at
   `f06163c` after the fixes (no separate commit)
-- [ ] C3.V1 verify run 1 (records the real layout in reports/data_layout.md)
+- [x] C3.V1 verify run 1: 7/7 PASS at `f06163c` (first attempt at `c692819` failed: 403);
+  results `03ae94b` (download) and this commit (reports/corpus_layout.txt + DECISIONS)
 
 Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
 - [ ] C3.3 corpus.load_index() for the recorded layout + cell

@@ -1,0 +1,29 @@
+Corpus layout of /content/boinga-fast/data
+macOS zip leftovers skipped (__MACOSX/, ._*): 0 files
+
+== Tree (depth 3; files per extension) ==
+./  ((none) 1)
+  Dataset/  (.xlsx 1)
+    Speech/  (no files)
+      test/  (.wav 800)
+      training/  (.wav 6403)
+      validation/  (.wav 801)
+
+== Wav headers (first, middle, last) ==
+wav files: 8004
+Dataset/Speech/test/1001.wav: samplerate=16000 channels=1 duration=1.498s format=WAV subtype=PCM_16
+Dataset/Speech/training/4596.wav: samplerate=16000 channels=1 duration=3.762s format=WAV subtype=PCM_16
+Dataset/Speech/validation/990.wav: samplerate=16000 channels=1 duration=4.672s format=WAV subtype=PCM_16
+
+== Metadata columns (speaker/gender/region/age/split; top 20 values) ==
+none found
+
+== Tables (< 5 MB; first 5 rows; long cells cut for display only) ==
+Dataset/Chittagonian_translated.xlsx [Chittagonian_translated]: 8009 rows, 3 columns
+  columns: Standard Bangla, Translated English, Chittagonian Dialect
+                               Standard Bangla                       Translated English                     Chittagonian Dialect
+    0  চাটগাঁইয়া বৃহত্তর চট্টগ্রাম অঞ্চলের ...  Chittagonian is the regional languag...  চাটগাঁইয়া ডঅর চাটগাঁ অঞ্চলর আঞ্চলিক ...
+    1  বাংলা ভাষার সঙ্গে চাটগাঁইয়া ভাষার শা...  It is considered regional Bengali in...  বাঁআলা ভাষার হোঁয়ারে চাটগাঁইয়া ভাষার...
+    2  তবে কেউ কেউ একে স্বতন্ত্র ভাষার মর্য...  But some are keen to give it the sta...  তয় কেউ কেউ এ ভাষারে ওউগগা স্বাধীন ভা...
+    3               চাটগাঁইয়া মূলত মৌখিক ভাষা।  Chittagonian is primarily an oral la...                চাটগাঁইয়া আদতে মুখর ভাষা।
+    4               এর নিজস্ব লিপি পদ্ধতি নেই।  It does not have its own scripting s...         ইবা নিজর মতো লেকনর কন কুদরত নাই।
