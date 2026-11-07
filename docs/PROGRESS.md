@@ -55,7 +55,7 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
 - [x] C1.8a tools/read_colab_run.py core: load executed .ipynb, drop binary outputs, trim text,
   identify cells, per-cell status vs the spec (PASS / FAIL / ERROR / NOT RUN), form values,
   token redaction
-- [ ] C1.8b read_colab_run CLI: spec auto-found from RUN-HEADER, staleness, digest
+- [x] C1.8b read_colab_run CLI: spec auto-found from RUN-HEADER, staleness, digest
   reports/colab_runs/<chunk>_run<k>.md, stdout table, --save-reports, exit code
 - [ ] C1.9 colab-handoff skill update, new colab-verify skill, CLAUDE.md, .gitignore
   (`colab_runs/`), DECISIONS entry

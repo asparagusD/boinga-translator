@@ -183,6 +183,16 @@
     {
       "kind": "import",
       "source": "tools/read_colab_run.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/read_colab_run.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/read_colab_run.py",
       "target": "tools/build_notebook.py"
     },
     {
@@ -426,9 +436,9 @@
     },
     {
       "kind": "test",
-      "lines": 179,
+      "lines": 289,
       "path": "tests/test_read_colab_run.py",
-      "purpose": "Tests for tools/read_colab_run.py core: statuses, form values, binary stripping, trimming."
+      "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
     },
     {
       "kind": "test",
@@ -480,7 +490,7 @@
     },
     {
       "kind": "tool",
-      "lines": 152,
+      "lines": 315,
       "path": "tools/read_colab_run.py",
       "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
     },

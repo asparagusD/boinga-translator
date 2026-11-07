@@ -1,8 +1,9 @@
-"""Tests for tools/read_colab_run.py core: statuses, form values, binary stripping, trimming."""
+"""Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."""
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import build_notebook
@@ -177,3 +178,112 @@ def test_trim_keeps_head_tail_and_marker_lines() -> None:
 def test_digest_keeps_banner_lines() -> None:
     banner = "=" * 120
     assert read_colab_run.digest_text(banner) == banner
+
+
+# ---- C1.8b: CLI, spec lookup, staleness, digest, --save-reports, exit code ----
+
+HEADER = ("RUN-HEADER chunk=C9 run=1 branch=chunk/C9-read commit=abc1234 gpu=Tesla_T4 "
+          "utc=2026-11-07T10:00:00+00:00\n")
+
+
+@pytest.fixture
+def cli_run(run: tuple[Path, read_colab_run.Spec], tmp_path: Path,
+            monkeypatch: pytest.MonkeyPatch) -> Path:
+    """The executed notebook with an HDR header; repo = tmp_path; git answers faked."""
+    path, _spec = run
+    _rewrite(path, "HDR", [{"output_type": "stream", "name": "stdout", "text": HEADER}])
+    monkeypatch.setattr(read_colab_run.paths, "REPO", tmp_path)
+    monkeypatch.setattr(read_colab_run, "_git", lambda *args: {
+        ("rev-parse", "--short", "HEAD"): "def5678",
+        ("log", "-1", "--format=%h", "--", "notebooks/runs/C9_read_run1.ipynb"): "abc1234",
+    }.get(args, "") if args[0] != "merge-base" else "yes")
+    return path
+
+
+def test_cli_digest_save_reports_and_exit_code(
+        cli_run: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert read_colab_run.main([str(cli_run), "--save-reports"]) == 1
+    out = capsys.readouterr().out
+    assert re.search(r"^\| bad \| Bad cell \| FAIL \|", out, re.MULTILINE)
+    assert re.search(r"^\| good \| Good cell \| PASS \|", out, re.MULTILINE)
+    digest = (tmp_path / "reports" / "colab_runs" / "C9_run1.md").read_text(encoding="utf-8")
+    assert "commit `abc1234`" in digest and "GPU `Tesla_T4`" in digest
+    assert "| obs | Listening notes | NOT RUN |" in digest
+    assert '- `VOICE` = "male"' in digest and "- `OK` = False" in digest
+    assert "### boom — Boom cell" in digest and "ZeroDivisionError" in digest
+    assert B64[:40] not in digest and "ghp_" not in digest
+    assert (tmp_path / "reports" / "x.json").read_text(encoding="utf-8") == "{}\n"
+    assert "saved reports/x.json" in out
+
+
+def test_spec_found_from_run_header_or_given(cli_run: Path, tmp_path: Path) -> None:
+    nb = read_colab_run.load_executed(cli_run)
+    assert read_colab_run.find_spec(nb).path == "notebooks/specs/read.py"
+    nb_no_hdr = json.loads(cli_run.read_text(encoding="utf-8"))
+    for c in nb_no_hdr["cells"]:
+        c["outputs"] = []
+    del nb_no_hdr["metadata"]["boinga"]
+    cli_run.write_text(json.dumps(nb_no_hdr), encoding="utf-8")
+    with pytest.raises(ValueError, match="--spec"):
+        read_colab_run.find_spec(read_colab_run.load_executed(cli_run))
+    spec_arg = str(tmp_path / "notebooks" / "specs" / "read.py")
+    assert read_colab_run.main([str(cli_run), "--spec", spec_arg]) == 1
+
+
+def test_staleness(monkeypatch: pytest.MonkeyPatch) -> None:
+    answers = {"head": "def5678", "built": "abc1234", "ancestor": "yes"}
+
+    def fake_git(*args: str) -> str:
+        if args[0] == "merge-base":
+            return answers["ancestor"]
+        return answers["head"] if args[0] == "rev-parse" else answers["built"]
+
+    monkeypatch.setattr(read_colab_run, "_git", fake_git)
+    nb_rel = "notebooks/runs/C9_read_run1.ipynb"
+    assert read_colab_run.staleness("abc1234", nb_rel).startswith("OK")
+    assert "HEAD is def5678" in read_colab_run.staleness("abc1234", nb_rel)
+    answers["ancestor"] = ""
+    assert read_colab_run.staleness("0000000", nb_rel).startswith("STALE")
+    assert read_colab_run.staleness("unknown", nb_rel).startswith("UNKNOWN")
+    answers["built"] = "abc1234"
+    real = fake_git
+    monkeypatch.setattr(read_colab_run, "_git",
+                        lambda *a: "" if a[0] == "cat-file" else real(*a))
+    assert "not in this clone" in read_colab_run.staleness("9999999", nb_rel)
+
+
+def test_executed_without_output_has_reason(run: tuple[Path, read_colab_run.Spec]) -> None:
+    path, _spec = run
+    _rewrite(path, "later", [])
+    assert _results(run)["later"].reasons == ["executed but printed nothing"]
+
+
+def test_exit_code_zero_when_all_pass() -> None:
+    ok = read_colab_run.CellResult("a", "A", "PASS", [], "", "", None)
+    bad = read_colab_run.CellResult("b", "B", "NOT RUN", [], "", "", None)
+    assert read_colab_run.exit_code([ok]) == 0
+    assert read_colab_run.exit_code([ok, bad]) == 1
+
+
+def test_spec_from_metadata_when_header_missing(cli_run: Path, tmp_path: Path) -> None:
+    nb = json.loads(cli_run.read_text(encoding="utf-8"))
+    for c in nb["cells"]:
+        c["outputs"] = []
+    cli_run.write_text(json.dumps(nb), encoding="utf-8")
+    spec = read_colab_run.find_spec(read_colab_run.load_executed(cli_run))
+    assert spec.path == "notebooks/specs/read.py"
+    (tmp_path / "notebooks" / "specs" / "_helper.py").write_text("raise SystemExit(9)\n",
+                                                                encoding="utf-8")
+    other = HEADER.replace("run=1", "run=7")
+    _rewrite(cli_run, "HDR", [{"output_type": "stream", "name": "stdout", "text": other}])
+    with pytest.raises(ValueError, match="no spec for chunk=C9 run=7"):
+        read_colab_run.find_spec(read_colab_run.load_executed(cli_run))
+
+
+def test_unsafe_block_path_is_an_error_not_a_traceback(
+        cli_run: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    bad = "=== BEGIN src/evil.py ===\nx\n=== END src/evil.py ===\n"
+    _rewrite(cli_run, "bad", [{"output_type": "stream", "name": "stdout", "text": bad}])
+    assert read_colab_run.main([str(cli_run), "--save-reports"]) == 1
+    assert "no report files written" in capsys.readouterr().err
+    assert not (tmp_path / "src").exists() and not (tmp_path / "reports" / "x.json").exists()
