@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import contextlib
+import hashlib
 import json
+import os
 import unicodedata
+from multiprocessing import Pool
 from pathlib import Path
 from typing import Any
 
 import numpy as np
+import pandas as pd
 import soundfile as sf
+from tqdm import tqdm
 
 from boinga_translator import paths
 
@@ -102,3 +108,137 @@ def text_stats(text: str, charset: frozenset[str] | set[str]) -> dict[str, Any]:
         "has_latin": any("LATIN" in unicodedata.name(c, "").split() for c in visible),
         "has_digits": any(_is_digit(c) for c in visible),
     }
+
+
+# --- full-corpus audit -----------------------------------------------------------------------
+# Each batch of results is its own part file (written to .tmp, then os.replace), so a dropped
+# session leaves only whole parts behind; audit.csv is rebuilt from the parts atomically.
+
+AUDIT_CSV = "audit.csv"
+_KEY_COLS = ("clip_id", "wav_path", "ctg_text_nfc", "charset_id")  # stale if any changed
+_PART_COLS = (*_KEY_COLS, *AUDIO_KEYS, *TEXT_KEYS, "chars_per_second")
+AUDIT_COLS = ("clip_id", "split_official", "wav_path", "ctg_text_nfc", "charset_id", *AUDIO_KEYS,
+              *TEXT_KEYS, "chars_per_second", "duplicate_text")
+_BOOL_COLS = ("decodable", "empty", "has_latin", "has_digits", "duplicate_text")
+_TEXT_COLS = ("clip_id", "split_official", "wav_path", "ctg_text_nfc", "charset_id", "error",
+              "subtype", "chars_not_in_model")  # missing values become "" (no split, no error)
+_BATCH = 200  # rows per part file (a dropped session loses at most one unwritten batch)
+
+
+def chars_per_second(text: str, duration: float | None, lead: float | None,
+                     trail: float | None) -> float | None:
+    """Non-space characters per second of non-silent audio; None if there is no speech."""
+    if duration is None or lead is None or trail is None:
+        return None
+    speech = duration - lead - trail
+    return sum(not c.isspace() for c in text) / speech if speech > 0 else None
+
+
+def charset_id(voice: str, charset: frozenset[str]) -> str:
+    """Voice name + short hash of its charset: text stats are only valid for this charset."""
+    digest = hashlib.sha256("".join(sorted(charset)).encode("utf-8")).hexdigest()[:10]
+    return f"{voice}-{digest}"
+
+
+def _audit_one(job: tuple[str, str, str, frozenset[str], str]) -> dict[str, Any]:
+    """Pool worker: audio + text stats for one index row (module level so it pickles)."""
+    clip_id, wav_path, text, charset, cs_id = job
+    audio = audio_stats(wav_path) if wav_path else {**dict.fromkeys(AUDIO_KEYS),
+                                                   "decodable": False, "error": "no wav file"}
+    stats = text_stats(text, charset)
+    stats["chars_not_in_model"] = "".join(stats["chars_not_in_model"])
+    cps = chars_per_second(text, audio["duration_s"], audio["lead_silence_s"],
+                           audio["trail_silence_s"])
+    return {"clip_id": clip_id, "wav_path": wav_path, "ctg_text_nfc": text, "charset_id": cs_id,
+            **audio, **stats, "chars_per_second": cps}
+
+
+def _typed(df: pd.DataFrame) -> pd.DataFrame:
+    """Same dtypes whether rows come fresh or from part files: text, bool, numeric."""
+    df = df.copy()
+    for col in df.columns:
+        if col in _TEXT_COLS:
+            df[col] = df[col].fillna("").astype(str)
+        elif col in _BOOL_COLS:
+            df[col] = df[col].map({True: True, False: False, "True": True, "False": False})
+        else:
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype("float64")
+    return df
+
+
+def _write_part(parts: Path, rows: list[dict[str, Any]]) -> None:
+    """Write one batch as the next part-NNNNN.csv, via .tmp + os.replace (all or nothing)."""
+    n = 1 + max((int(p.name[5:10]) for p in parts.glob("part-*.csv")), default=-1)
+    tmp, final = parts / f"part-{n:05d}.csv.tmp", parts / f"part-{n:05d}.csv"
+    pd.DataFrame(rows, columns=list(_PART_COLS)).to_csv(tmp, index=False, encoding="utf-8")
+    os.replace(tmp, final)
+
+
+def _read_parts(parts: Path) -> pd.DataFrame:
+    """All completed parts (strict parse); later parts win for a repeated clip_id."""
+    frames = []
+    for p in sorted(parts.glob("part-*.csv")):
+        try:
+            frames.append(pd.read_csv(p, dtype=str, keep_default_na=False, encoding="utf-8"))
+        except (ValueError, pd.errors.ParserError) as exc:
+            raise ValueError(f"unreadable audit part {p} ({exc}); delete it and re-run") from exc
+    if not frames:
+        return pd.DataFrame(columns=list(_PART_COLS))
+    return _typed(pd.concat(frames, ignore_index=True)).drop_duplicates("clip_id", keep="last")
+
+
+def audit(index_df: pd.DataFrame, voice: str, out_csv: Path | None = None,
+          processes: int = 2) -> pd.DataFrame:
+    """Audit every index row into out_csv (Drive), resuming from the part files next to it."""
+    out_csv = out_csv or paths.drive_reports() / AUDIT_CSV
+    parts = out_csv.with_name(out_csv.stem + ".parts")
+    parts.mkdir(parents=True, exist_ok=True)
+    charset = load_model_charset(voice)
+    cs_id = charset_id(voice, charset)
+    meta = index_df.assign(wav_path=index_df["wav_path"].fillna(""),
+                           duplicate_text=index_df["ctg_text_nfc"].duplicated(keep=False))
+    meta = meta.set_index("clip_id")
+    done_ids = set(_current(_read_parts(parts), meta, cs_id)["clip_id"])
+    print(f"skipped {len(done_ids)} rows already in {parts} ({cs_id})")
+    jobs = [(cid, meta.at[cid, "wav_path"], meta.at[cid, "ctg_text_nfc"], charset, cs_id)
+            for cid in meta.index if cid not in done_ids]
+    batch: list[dict[str, Any]] = []
+    with Pool(processes) if processes > 1 and jobs else contextlib.nullcontext() as pool:
+        rows = (pool.imap_unordered(_audit_one, jobs, chunksize=16) if pool
+                else map(_audit_one, jobs))
+        for row in tqdm(rows, total=len(jobs), mininterval=10, desc="audit", disable=not jobs):
+            batch.append(row)
+            if len(batch) >= _BATCH:
+                _write_part(parts, batch)
+                batch = []
+    if batch:
+        _write_part(parts, batch)
+    print(f"wrote {len(jobs)} rows to {parts}")
+    return _assemble(meta, _current(_read_parts(parts), meta, cs_id), out_csv)
+
+
+def _current(parts_df: pd.DataFrame, meta: pd.DataFrame, cs_id: str) -> pd.DataFrame:
+    """Part rows still valid: same wav_path and text as the index, same charset."""
+    now = parts_df.merge(meta[["wav_path", "ctg_text_nfc"]], left_on="clip_id",
+                         right_index=True, suffixes=("", "_now"))
+    keep = ((now["wav_path"] == now["wav_path_now"])
+            & (now["ctg_text_nfc"] == now["ctg_text_nfc_now"]) & (now["charset_id"] == cs_id))
+    return now.loc[keep, list(_PART_COLS)]
+
+
+def _assemble(meta: pd.DataFrame, parts_df: pd.DataFrame, out_csv: Path) -> pd.DataFrame:
+    """One row per index row in index order, written atomically to out_csv."""
+    keyed = parts_df.set_index("clip_id")
+    missing = [cid for cid in meta.index if cid not in keyed.index]
+    if missing:
+        raise RuntimeError(f"audit incomplete: {len(missing)} index rows have no result "
+                           f"(e.g. {missing[:5]}); re-run to resume from {out_csv.parent}")
+    result = keyed.loc[list(meta.index)].reset_index()
+    result["split_official"] = meta["split_official"].to_numpy()
+    result["duplicate_text"] = meta["duplicate_text"].to_numpy()
+    result = _typed(result[list(AUDIT_COLS)])
+    tmp = out_csv.with_name(out_csv.name + ".tmp")
+    result.to_csv(tmp, index=False, encoding="utf-8")
+    os.replace(tmp, out_csv)
+    print(f"PASS: audited {len(result)} clips")
+    return result

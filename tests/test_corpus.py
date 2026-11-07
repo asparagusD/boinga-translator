@@ -23,8 +23,10 @@ ROWS = [  # Excel rows 2..5 -> wav stems 2..5
 
 
 def _wav(path: Path) -> None:
+    """0.1 s silence + 0.5 s of a 220 Hz tone at 16 kHz (audit tests need some 'speech')."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    sf.write(path, np.zeros(1600, dtype="float32"), 16000)
+    tone = 0.3 * np.sin(2 * np.pi * 220 * np.arange(8000) / 16000)
+    sf.write(path, np.concatenate([np.zeros(1600), tone]).astype("float32"), 16000)
 
 
 def _corpus(root: Path, wavs: dict[str, list[int]], rows: list[tuple[str, ...]] = ROWS) -> Path:

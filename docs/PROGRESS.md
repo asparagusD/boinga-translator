@@ -143,7 +143,9 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
   lead/trail silence (librosa trim, top_db 40) (this commit)
 - [x] C3.4b data_audit.text_stats() + load_model_charset() (local): lengths, chars not in
   the voice's characters|punctuations|space, oov_ratio, Latin, digits (this commit)
-- [ ] C3.4c data_audit.audit() over the corpus + cell
+- [x] C3.4c code: data_audit.audit() + `boinga audit --voice` (default female: G1 "same")
+  + cell C3.4c: every index row -> Drive reports/audit.csv, Pool(2), resumable
+  (this commit; Colab result with C3.V2)
 - [ ] C3.5 data_audit.summarise() + cells + listening form
 - [ ] C3.6 dialect baseline prompts (CTG_1-3, verbatim held-out lines) + baseline re-run + cells
 - [ ] C3.H2 hand-off run 2

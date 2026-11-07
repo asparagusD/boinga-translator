@@ -8,6 +8,7 @@ from boinga_translator import (
     __version__,
     baseline,
     corpus,
+    data_audit,
     data_download,
     env_report,
     pretrained,
@@ -27,7 +28,21 @@ def build_parser() -> argparse.ArgumentParser:
     base.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
     sub.add_parser("fetch-data", help="download, verify and unpack the corpus (resumable)")
     sub.add_parser("index", help="index the corpus: wav, dialect text, translation, split")
+    aud = sub.add_parser("audit", help="audit every clip to Drive reports/audit.csv (resumable)")
+    # Gate G1 recorded no preferred voice (quality "same"), so the default is female.
+    aud.add_argument("--voice", choices=pretrained.voices(), default="female")
     return parser
+
+
+def _audit(voice: str) -> int:
+    """Index then audit every clip against the voice's charset; FAIL + exit 1 on error."""
+    print(f"voice {voice}")
+    try:
+        data_audit.audit(corpus.load_index(), voice)
+    except (FileNotFoundError, ValueError, RuntimeError, OSError) as exc:
+        print(f"FAIL: audit: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
 
 
 def _index() -> int:
@@ -111,6 +126,8 @@ def main(argv: list[str] | None = None) -> int:
         return _fetch_data()
     elif args.command == "index":
         return _index()
+    elif args.command == "audit":
+        return _audit(args.voice)
     return 0
 
 

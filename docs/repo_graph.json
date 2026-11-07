@@ -148,6 +148,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/data_download.py"
     },
     {
@@ -244,6 +249,26 @@
       "kind": "import",
       "source": "src/boinga_translator/synth_basic.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "test",
@@ -633,7 +658,7 @@
     },
     {
       "kind": "doc",
-      "lines": 184,
+      "lines": 186,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -669,7 +694,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 322,
+      "lines": 351,
       "path": "notebooks/runs/C3_data-audit_run2.ipynb",
       "purpose": "C3 run 2 — Index, audit, summary"
     },
@@ -699,7 +724,7 @@
     },
     {
       "kind": "module",
-      "lines": 29,
+      "lines": 35,
       "path": "notebooks/specs/c3_data_audit_run2.py",
       "purpose": "Spec: C3 run 2, Chittagonian corpus: index, audit and summary (CPU)."
     },
@@ -765,7 +790,7 @@
     },
     {
       "kind": "module",
-      "lines": 118,
+      "lines": 135,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -783,7 +808,7 @@
     },
     {
       "kind": "module",
-      "lines": 104,
+      "lines": 244,
       "path": "src/boinga_translator/data_audit.py",
       "purpose": "Corpus audit: per-clip audio stats and per-transcript text/charset stats for exclusions."
     },
@@ -831,6 +856,12 @@
     },
     {
       "kind": "test",
+      "lines": 142,
+      "path": "tests/test_audit_corpus.py",
+      "purpose": "Tests for data_audit.audit() and `boinga audit`: per-row stats, duplicates, resume, CLI."
+    },
+    {
+      "kind": "test",
       "lines": 141,
       "path": "tests/test_baseline.py",
       "purpose": "Tests for baseline.py and `boinga baseline`: prompts file, PASS/FAIL rules, charset warning, players."
@@ -855,7 +886,7 @@
     },
     {
       "kind": "test",
-      "lines": 160,
+      "lines": 162,
       "path": "tests/test_corpus.py",
       "purpose": "Tests for corpus.py and `boinga index`: row<->wav mapping, splits, verbatim text, errors."
     },
