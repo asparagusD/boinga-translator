@@ -187,6 +187,8 @@ speaker (C3/C4) rather than by baseline quality. The sentence-final danda
 baseline WARNed on it for STD_1 and STD_3; how coqui's tokenizer treats it
 is checked when the text front-end is built (C3). Durations may include
 coqui's per-sentence padding, so they are not used as throughput figures.
+**Later (C3.8b):** these wavs and this listening predate the char map; baseline runs now
+synthesise `text_frontend.prepare(text)`, so STD_1/STD_3 end in "." instead of "।".
 
 ## 2026-11-07 — Gate G1 — pretrained model
 **Context:** Before any fine-tuning, Gate G1 checks that the pretrained Bangla
@@ -237,3 +239,271 @@ the full `characters` block from the pretrained config.json (including flags
 such as `is_unique`/`is_sorted` that fix the vocabulary order and so the
 embedding rows), not rebuild it from configs/pretrained_facts.json.
 (Nukta wording corrected at the C2 merge review.)
+
+## 2026-11-07 — Dataset download: pinned Mendeley zip, verified, unpacked once on Drive
+**Context:** C3.1 must put the pinned corpus (Mendeley n9xttk45df v1, CC BY 4.0) on
+Colab reproducibly. Run 1's first attempt failed: data.mendeley.com (Cloudflare)
+answers 403 to urllib's default `Python-urllib/3.x` User-Agent (DEBUG_LOG 2026-11-07).
+**Decision:** `boinga fetch-data` (data_download.fetch) streams the pinned URL with
+`User-Agent: boinga-translator/<version> (research dataset download)` (no personal
+data) via Mendeley's 302 to S3, resuming a `.part` file with HTTP Range; checks size
+843,601,272 B and the pinned sha256; unzips once to Drive data/unzipped; copies to
+/content/boinga-fast/data per VM. Markers hold the pinned sha256; a redone step redoes
+the later ones. Verified on Colab (C3 run 1, commit f06163c, CPU): download 844 MB in
+23 s (35.2 MB/s), `DONE verify`, `PASS: dataset ready at /content/boinga-fast/data,
+8005 files` = 8,004 .wav + 1 .xlsx (matches the 8,004 clips on the dataset page).
+**Alternatives:** Download with a browser and upload to Drive (manual, not
+reproducible); extract the Drive zip straight to /content each session (skips the
+Drive tree; not measured, revisit if the per-VM copy is slow).
+**Consequences:** Drive holds the zip and the unpacked tree (~1.7 GB of the 11.1 GB
+free before the run). Per-step timings for unzip/copy were not captured (the cell
+prints no durations); add them if the copy becomes a bottleneck. If a Colab IP is ever
+refused, the IP, not the agent, is the next suspect.
+
+## 2026-11-07 — Corpus layout: folders mark the splits, one xlsx holds the text, no ids or speakers
+**Context:** C3.3 (corpus.load_index) must be written against the real layout.
+reports/corpus_layout.txt (C3 run 1, f06163c) records it; only the clip count, the
+transcript/translation columns and the 6,403/801/800 splits were known before.
+**Decision:** The layout is:
+- Audio: `Dataset/Speech/{training,validation,test}/<integer>.wav`, 6,403 / 801 / 800
+  files (8,004). Sampled: 16,000 Hz, mono, PCM_16 (1.50 s, 3.76 s, 4.67 s). Stems seen:
+  `990`, `1001`, `4596`.
+- Text: one workbook `Dataset/Chittagonian_translated.xlsx`, one sheet
+  `Chittagonian_translated`, 8,009 data rows, 3 columns.
+- Clip id: no id or file-name column. The row <-> wav link is presumably the row
+  number = wav stem, but unverified (base 0 or 1, and 8,009 rows vs 8,004 wavs).
+- Chittagonian text: column `Chittagonian Dialect` (training text, verbatim).
+- Standard Bangla text: column `Standard Bangla` (metadata only, never trained on).
+- Also present: `Translated English` (metadata only; not on the dataset page).
+- Split: no column; marked by the folder (`training` / `validation` / `test`); counts
+  match the dataset page.
+- Speaker: no speaker field (and no gender/region/age field).
+**Alternatives:** none; this records the data as published.
+**Consequences:**
+- C3.3 must establish the row <-> wav mapping before any audit: per-folder stem range
+  and gaps, which 5 rows have no wav (empty/duplicate/header-like rows?), 0- vs 1-based,
+  plus a sanity check (clip duration vs transcript length) and a listening spot-check.
+- Unknown speaker count ("native speakers", plural): the single-speaker goal may need
+  a speaker-consistent subset; C3.5's listening form asks for it.
+- 16 kHz audio vs the model's 22,050 Hz: resampling up adds no content above 8 kHz;
+  the fine-tuned voice will be band-limited. Accepted for a proof of concept; noted for
+  Gate G2.
+- The first rows read like translated encyclopedic prose about Chittagonian, so the
+  text is read speech of written sentences.
+
+**Verified (C3 run 2, commit f4c7ab2, `boinga index`):** 8,009 index rows: train 6,403,
+val 801, test 800, no split 5 (the rows without a wav); 8,004 with audio; speaker ids:
+none ("no speaker field").
+
+## 2026-11-07 — Corpus row <-> wav mapping: wav stem = Excel row number
+**Context:** The corpus has no clip-id column (DECISIONS "Corpus layout"); C3.3 needs
+the link between Dataset/Chittagonian_translated.xlsx rows and Dataset/Speech wavs.
+**Decision:** wav `<n>.wav` belongs to Excel row n of the first sheet (header = row 1);
+`corpus.load_index` keys on it (`clip_id` = n). Evidence (probe of the pinned zip over
+HTTP Range: file listing, the xlsx and 40 random wavs, nothing committed):
+- wav stems run 2..8010, all unique across the three split folders; the xlsx has
+  8,009 data rows = Excel rows 2..8010.
+- Exactly 5 stems are absent: 1934, 3289, 3352, 4062, 4223 (8,009 - 5 = 8,004 wavs).
+- Duration vs `Chittagonian Dialect` length over 40 random wavs, Pearson r:
+  stem = row -2: 0.13, -1: 0.17, **+0: 0.87**, +1: -0.02, +2: 0.33.
+- The 5 rows without audio are all long sentences (221-256 characters).
+- Local `boinga index` on the real xlsx + empty placeholder files at the real wav paths: train 6403, val 801,
+  test 800, (none) 5; `PASS: index has 8009 rows (8004 with audio)`.
+**Alternatives:** 0-based data-row index (r = 0.17), sequential order (no gaps
+explained); pairing by transcript length alone (not unique).
+**Consequences:** The index has 8,009 rows; the 5 without audio have no split and
+`wav_exists` False and are excluded from training. `load_index` raises if a wav has no
+row, a stem appears in two splits, a wav name is not a number, a split folder is
+missing, or a row with a wav has no dialect text. The C3.5 listening check is the
+final confirmation (clip audio vs its transcript).
+
+## 2026-11-07 — Dialect baseline prompts: 3 held-out test-split lines, least like Bangla
+**Context:** DECISIONS "Baseline prompts" planned verbatim held-out Chittagonian lines
+for CTG_1-3 once the corpus was in (C3.6).
+**Decision:** `boinga pick-baseline-ctg` takes clips that pass `audit_summary.clean_mask`
+and have `split_official == "test"`, prefers 5-12 words, and ranks by
+`difflib` similarity of `ctg_text_nfc` to the normalised `Standard Bangla` text, lowest
+first (ties: seeded shuffle, `settings.SEED`). CTG_1-3 hold the raw `ctg_text` verbatim
+(not NFC; outer/inner spaces kept); `_sources` in configs/baseline_prompts.json records
+their clip ids. Local preview on the real text (no audit): 478 test clips with 5-12
+words, similarity median 0.77; the lowest were 0.19, 0.31, 0.35.
+**Alternatives:** random test lines (often near-standard Bangla, a weak dialect probe);
+user-written lines (unverified against the corpus); NFC text (closer to the training
+input, but the prompt rule asks for the transcript as published).
+**Consequences:** The `_sources` clips are evaluation prompts: C4 must keep the official
+test split out of training (dialect-data-rules: the test split is never trained on).
+Re-running the pick after the audit changes may choose other lines; `_sources` shows
+which ones a baseline used.
+
+## 2026-11-07 — Audit listening: clean audio, many speakers, speech heard as standard Bangla
+**Context:** C3 run 2 (f4c7ab2) form C3.5-notes, after listening to 20 seeded random clean
+clips (C3.5.play) labelled with their Chittagonian transcript and Standard Bangla
+translation; reports/audit_summary.md gives the numbers.
+**Decision:** Record the listening result as given: TRANSCRIPTS_MATCH_AUDIO "mostly",
+SOUNDS_CHITTAGONIAN "no, standard Bangla", NOISE_LEVEL "clean", SPEAKERS_HEARD "many",
+NOTES "none". Audit numbers: 8,004 decodable clips, 9.04 h (16 kHz mono PCM_16); clean
+2,881 clips, 4.10 h (train 3.30, val 0.37, test 0.42); excluded 5,128 of 8,009 rows
+(64%): oov 5,015 (4,711 of them only because of the danda), speech rate 167, too long
+29, duplicate text 28, too short 8, clipped 7, undecodable/no wav 5; no speaker field.
+**Alternatives:** none (an observation record, not a choice).
+**Consequences:**
+- Open tension for Gate G2: the dialect transcripts "mostly" match audio that sounds like
+  standard Bangla. Either the speakers read the Chittagonian text with standard
+  pronunciation, or the audio follows the Standard Bangla column; the form cannot tell
+  these apart, and the duration/text-length mapping check (r = 0.87) cannot either,
+  because both columns have similar lengths.
+- "Many" speakers and no speaker ids: a single-speaker fine-tune cannot select one
+  speaker from this corpus's metadata.
+- The oov rule mostly measures the danda; a char_map decision on "।" changes clean hours
+  substantially (up to ~4,700 more clips).
+
+## 2026-11-07 — Baseline on dialect text: pretrained voices read Chittagonian "partly"
+**Context:** C3 run 2 (f4c7ab2) cell C3.6 picked CTG_1-3 from clean test-split clips
+(DECISIONS "Dialect baseline prompts") and both pretrained voices read all 6 prompts on
+the T4; form C3.6-notes recorded the judgement after C3.6.play.
+**Decision:** Record the result: picks CTG_1 clip 386 "অ্যাক্কানা হুইত পাইজ্জম না, ছার? ",
+CTG_2 clip 29 (a 10-word line about Roman script), CTG_3 clip 625 "আগর ডইল্লা দেইন ন ফার";
+all 12 wavs passed (2.30-6.56 s, -24.6 to -18.1 dBFS); HANDLES_DIALECT "partly",
+NOTES "none". Both voices warned that "।" (STD_1, STD_3, CTG_2) is outside
+characters/punctuations, as expected for the eos symbol.
+**Alternatives:** none (an observation record).
+**Consequences:** The pretrained Bangla voices give a usable but imperfect starting point
+for dialect text; fine-tuning has something to improve. Clips 386, 29 and 625 are
+evaluation prompts and must stay out of training (official test split).
+
+## 2026-11-07 — Gate G2 — data
+**Context:** Gate G2 decides whether "A Synchronized Chittagonian Speech Corpus"
+(n9xttk45df v1) is fit for the Chittagonian fine-tune. Rule (C3.V2 promptbook): PASS if
+(1) undecodable < 1% and (2) transcripts are paired with the audio and Chittagonian,
+judged from the C3.5 listening form. Evidence: reports/audit_summary.md,
+reports/notes/C3.5-notes.json, DECISIONS "Audit listening".
+- Undecodable: 5 of 8,009 rows (0.06%); all 8,004 wavs decode, the 5 rows have no wav.
+  Holds.
+- Paired: TRANSCRIPTS_MATCH_AUDIO "mostly"; row <-> wav mapping r = 0.87 (DECISIONS
+  "Corpus row <-> wav mapping"). Holds.
+- Chittagonian: SOUNDS_CHITTAGONIAN "no, standard Bangla". Does not hold.
+- Total clean: 2,881 clips, 4.10 h (of 9.04 h decodable).
+- Speaker ids: none (no speaker field; SPEAKERS_HEARD "many").
+- Excluded: 5,128 of 8,009 rows (64.0%). Top 3 reasons: oov 5,015 (4,711 only because of
+  the danda "।", the model's eos symbol), speech rate 167, too long 29.
+**Decision:** G2: FAIL (condition 2: the audio was heard as standard Bangla, not
+Chittagonian). Recommended fallback: "Bangla Regional Dialects Speech Dataset" (Mendeley
+777wsgjgtm v1, Chittagong subset, CC BY 4.0); its transcripts may be standard Bangla,
+so it gets the same C3 download, layout, audit and listening checks before it is used.
+**Alternatives:**
+- G2: PASS, reading "standard Bangla" as speakers' accent while they read dialect text
+  (transcripts "mostly" match): would keep this corpus. Not chosen: the rule is decided
+  by the form, and the dialect is the project's point.
+- Fine-tune anyway on the 4.10 h (or ~8 h after a danda char_map): a voice that reads
+  dialect spelling with standard pronunciation would not be a Chittagonian voice.
+**Consequences:**
+- C4 does not start on this corpus. Next: evaluate the fallback dataset with the C3
+  pipeline (download, layout, index, audit, listening) and decide G2 again.
+- Reusable regardless: data_download, the layout inspector, the audit and summary
+  (clean_mask), the dialect baseline picker; corpus.load_index is specific to this layout.
+- If the user revises the C3.5 judgement (e.g. dialect words read with a standard
+  accent count as Chittagonian), G2 can be re-decided in a new entry; the open
+  danda char_map and the many-speakers issue then remain to be solved before C4.
+
+## 2026-11-07 — Gate G2 — data (re-decided): conditional PASS
+**Context:** The user re-decided G2 after the FAIL entry above. Asked what the C3.5
+answer "no, standard Bangla" meant, the user clarified in chat: the 20 clips contain
+the dialect words of the Chittagonian transcripts, read with a standard-Bangla
+pronunciation/intonation ("dialect words, standard accent"); the audio does not follow
+the Standard Bangla column. This matches TRANSCRIPTS_MATCH_AUDIO "mostly" and the
+row <-> wav mapping (r = 0.87). Condition (1) still holds (undecodable 0.06%).
+**Decision:** G2: PASS with conditions; this supersedes "Gate G2 — data" (FAIL). The
+corpus stays. Conditions to meet before C4 (training) starts:
+1. Danda: decide how "।" (U+0964, the model's eos symbol, in 6,254 rows) is handled, in
+   configs/char_map.json with a DECISIONS entry; 4,711 clips are excluded for it alone,
+   so clean hours (4.10 h now) depend on it. The other out-of-charset characters
+   (ৰ U+09F0, ৷ U+09F7, digits 7/9, quotes, brackets) are decided in the same entry.
+2. Speakers: many speakers and no speaker ids. Decide between training the
+   single-speaker model on mixed voices and selecting a consistent subset (e.g. by
+   clustering speaker embeddings), with a DECISIONS entry.
+3. Test split: the official test split (incl. baseline clips 386, 29, 625) stays out of
+   training.
+**Alternatives:** Keep FAIL and evaluate the fallback "Bangla Regional Dialects Speech
+Dataset" (777wsgjgtm v1): not chosen, the dialect is in the words of this corpus and the
+fallback's transcripts may be standard Bangla. Unconditional PASS: not chosen, the danda
+and speaker issues decide how much usable single-voice data exists.
+**Consequences:** The fine-tuned voice will say Chittagonian words with a largely
+standard-Bangla accent (what the corpus contains); the proof of concept targets dialect
+vocabulary and spelling, not regional accent. The fallback stays the plan B if the
+speaker condition leaves too little consistent data.
+
+## 2026-11-07 — Character map: danda to ".", typo fixes, silent punctuation, precomposed nukta
+**Context:** Gate G2 condition 1. coqui-tts 0.28.0 source (TTS/tts/utils/text/
+characters.py `_create_vocab`, tokenizer.py `encode`): the vocab is pad, eos, bos,
+blank, the characters and the punctuations, so the eos symbol "।" is a single-character
+token that text can hit; a character outside the vocab is dropped with only a log
+warning, so text and audio would silently disagree. The pretrained config has no text
+cleaner. Corpus counts (rows): danda 6,254; ৰ U+09F0 59; ৱ U+09F1 1; ৷ U+09F7 4; quotes
+' 40, " 46, “ 2; brackets 45/44; en dash 41; slash 19; colon 7; * 1; … 1; any digit 255
+(৭ and ৯ are not in the model). Nukta letters in the raw text: precomposed য় 5,825
+(3,816 rows), ড় 1,043, ঢ় 2; bare nukta 500 (360 rows); NFC decomposes all of them, and
+both forms are in both voices' charsets.
+**Decision:** configs/char_map.json, applied in order to ctg_text_nfc, then whitespace
+collapsed and stripped again (user choices in chat):
+- "।" and its lookalike "৷" -> "." (the user chose the ASCII full stop over keeping the
+  eos token).
+- Typos: ৰ -> র, ৱ -> র (contexts: আগ্ৰহ, গ্ৰাউন্ড, ৱেষ্টুরেন্টে).
+- Silent marks removed: ' " “ ” ( ) …; en dash – -> em dash —.
+- For inference prompts only (not in the corpus): | -> ".", ; -> ",", ZWJ removed (it
+  only shapes a conjunct; the female voice lacks it).
+- Kept on purpose (both voices know them): ‘ ’ (’ marks elision, e.g. দু’রাত, 37 rows)
+  and ZWNJ (11 rows).
+- Nukta: after NFC, য+় -> য় (U+09DF), ড+় -> ড় (U+09DC), ঢ+় -> ঢ় (U+09DD), the form of
+  about 93% of the raw corpus.
+- Rows containing "/", ":", "*" or any digit (ASCII or Bengali) are excluded from
+  training, not rewritten (278 rows). The colon rows mix punctuation (যেঅন:), a typed
+  visarga (দু:খ, বস্তুত:) and a time (২:৩০), so no single mapping fits (review finding;
+  a first draft mapped ":" to a comma, which would have split দু:খ).
+Preview on the real transcripts (scratchpad): 7,133 of 8,004 rows change; after the map
+and the exclusions, 0 rows contain a character outside either voice's charset.
+**Alternatives:** keep "।" as the eos token (no mapping): it is in the vocab, but the user
+chose ".". NFC-decomposed nukta (no mapping): fewer map entries, but differs from 93% of
+the published text. Exclude every row with any listed punctuation (about 230 rows) or
+map "/" to a comma (keeps 19 rows, risks text/audio mismatch where "বা" was spoken).
+Spell digits out: rewrites transcripts, against dialect-data-rules.
+**Consequences:** Text front-end (C3.8b) applies this map for training and inference
+alike; the audit then judges mapped text and replaces the oov_ratio > 0.02 rule with
+"any character still unknown after mapping" plus the exclusion list, and is re-run on
+Colab (C3.8c). The mapped text is not NFC-stable (precomposed nukta): nothing may
+normalise it again after the map, and C3.8b tests that applying it twice changes
+nothing. The model's "." token replaces its "।" token at sentence ends; inference
+prompts get the same map. Whether the precomposed nukta rows of the checkpoint are the
+trained ones can be checked from embedding norms in C4.
+
+**Verified (C3 run 3, commit eb3d3e0, `boinga audit` + `audit-summary` on the mapped
+text):** clean 7,513 clips, 8.18 h (train 6,010 / 6.56 h, val 748 / 0.81 h, test 755 /
+0.81 h), up from 2,881 clips / 4.10 h before the map. Excluded character 279 rows
+(0.62 h); unknown to the model after the map 114 rows, all of them also excluded-character
+rows (৭ ৯ / : *), so no unknown character reaches training. Gate G2 condition 1 is met.
+(279 vs the 278 above: the preview counted the 8,004 rows with audio, the audit counts
+all 8,009 index rows; one of the 5 rows without a wav has an excluded character.)
+
+## 2026-11-07 — Speakers: fine-tune the single-speaker model on the mixed voices
+**Context:** Gate G2 condition 2. The corpus has no speaker field and the C3.5 listening
+heard "many" speakers. Options offered (chat): A mixed voices (all clean clips into the
+single-speaker VITS); B the largest consistent speaker cluster from a speaker encoder;
+C a multi-speaker VITS with cluster ids (architecture change from the single-speaker
+checkpoint). Measuring clusters first (C3.9a) was offered and declined.
+**Decision:** A, decided by the user in chat: fine-tune the pretrained single-speaker VITS
+on the clean clips regardless of speaker, with no speaker filtering or speaker ids. The
+training pool is the clean official train split only (6,010 clips, 6.56 h); the clean
+val split (748 clips, 0.81 h) is for validation; the clean test split (755 clips,
+0.81 h, incl. baseline clips 386, 29, 625) is held out (G2 condition 3). The 7,513 clean
+clips / 8.18 h is the total over all three splits, not the training pool.
+**Alternatives:** B (consistent voice, but an unknown and possibly thin subset plus a new
+dependency); C (most work, needs speaker embeddings in a model trained without them).
+Measure-first (one Colab run) was declined.
+**Consequences:**
+- The fine-tuned voice may average speakers: timbre or prosody can drift between
+  utterances. C4's smoke-test listening checks this explicitly.
+- If C4 hears an unstable voice, the fallback is B: embed clips with SpeechBrain ECAPA
+  (speechbrain/spkrec-ecapa-voxceleb, the user's choice of encoder; Apache-2.0, licence
+  and Python 3.13 support to be verified before install) and retrain on the largest
+  cluster. This needs a new DECISIONS entry.
+- Gate G2 condition 2 is met; condition 3 (official test split out of training, incl.
+  clips 386, 29, 625) is a C4 data-split rule.

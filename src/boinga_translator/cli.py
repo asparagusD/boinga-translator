@@ -4,7 +4,17 @@ from __future__ import annotations
 
 import argparse
 
-from boinga_translator import __version__, baseline, env_report, pretrained
+from boinga_translator import (
+    __version__,
+    audit_summary,
+    baseline,
+    corpus,
+    data_audit,
+    data_download,
+    env_report,
+    paths,
+    pretrained,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -18,7 +28,74 @@ def build_parser() -> argparse.ArgumentParser:
     insp.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
     base = sub.add_parser("baseline", help="synthesise the baseline prompts with each voice")
     base.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
+    sub.add_parser("fetch-data", help="download, verify and unpack the corpus (resumable)")
+    sub.add_parser("index", help="index the corpus: wav, dialect text, translation, split")
+    aud = sub.add_parser("audit", help="audit every clip to Drive reports/audit.csv (resumable)")
+    # Gate G1 recorded no preferred voice (quality "same"), so the default is female.
+    aud.add_argument("--voice", choices=pretrained.voices(), default="female")
+    sub.add_parser("audit-summary", help="summarise audit.csv into reports/audit_summary.md")
+    sub.add_parser("pick-baseline-ctg",
+                   help="put 3 held-out dialect lines into configs/baseline_prompts.json")
     return parser
+
+
+def _pick_baseline_ctg() -> int:
+    """Pick CTG_1..3 from clean test clips and write them; FAIL + exit 1 on error."""
+    try:
+        picks = baseline.pick_ctg_prompts(
+            data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV),
+            corpus.load_index())
+        for key, (clip_id, text) in picks.items():
+            print(f"{key} clip {clip_id}: {text}")
+        baseline.write_ctg_prompts(picks)
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: pick-baseline-ctg: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: picked {len(picks)} dialect prompts")
+    return 0
+
+
+def _audit_summary() -> int:
+    """Summarise the Drive audit.csv; FAIL + exit 1 if it is missing or unreadable."""
+    try:
+        audit_summary.summarise()
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: audit-summary: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _audit(voice: str) -> int:
+    """Index then audit every clip against the voice's charset; FAIL + exit 1 on error."""
+    print(f"voice {voice}")
+    try:
+        data_audit.audit(corpus.load_index(), voice)
+    except (FileNotFoundError, ValueError, RuntimeError, OSError) as exc:
+        print(f"FAIL: audit: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _index() -> int:
+    """Build the corpus index and print its summary; FAIL + exit 1 if the layout is off."""
+    try:
+        df = corpus.load_index()
+    except (FileNotFoundError, ValueError, OSError) as exc:
+        print(f"FAIL: index: {exc}")
+        return 1
+    print("\n".join(corpus.describe(df)))
+    print(f"PASS: index has {len(df)} rows ({int(df['wav_exists'].sum())} with audio)")
+    return 0
+
+
+def _fetch_data() -> int:
+    """Fetch the corpus; print FAIL and return 1 on a bad download or I/O error."""
+    try:
+        data_download.fetch()
+    except (RuntimeError, OSError) as exc:  # urllib's URLError is an OSError
+        print(f"FAIL: fetch-data: {exc}")
+        return 1
+    return 0
 
 
 def _baseline(voice: str) -> int:
@@ -76,6 +153,16 @@ def main(argv: list[str] | None = None) -> int:
         return _inspect_pretrained(args.voice)
     elif args.command == "baseline":
         return _baseline(args.voice)
+    elif args.command == "fetch-data":
+        return _fetch_data()
+    elif args.command == "index":
+        return _index()
+    elif args.command == "audit":
+        return _audit(args.voice)
+    elif args.command == "audit-summary":
+        return _audit_summary()
+    elif args.command == "pick-baseline-ctg":
+        return _pick_baseline_ctg()
     return 0
 
 

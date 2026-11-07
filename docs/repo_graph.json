@@ -46,6 +46,61 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run1.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run3.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run3.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run3.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -66,6 +121,51 @@
       "target": "tools/nbkit.py"
     },
     {
+      "kind": "import",
+      "source": "notebooks/specs/c3_data_audit_run1.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c3_data_audit_run2.py",
+      "target": "configs/baseline_prompts.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c3_data_audit_run2.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c3_data_audit_run3.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
       "kind": "config",
       "source": "src/boinga_translator/baseline.py",
       "target": "configs/baseline_prompts.json"
@@ -73,7 +173,17 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
       "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/corpus.py"
     },
     {
       "kind": "import",
@@ -88,7 +198,27 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
       "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/cli.py",
+      "target": "configs/baseline_prompts.json"
     },
     {
       "kind": "import",
@@ -98,12 +228,37 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/baseline.py"
     },
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/data_download.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "import",
@@ -124,6 +279,41 @@
       "kind": "import",
       "source": "src/boinga_translator/colab_runtime.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/corpus.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/data_audit.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/data_audit.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/data_download.py",
+      "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/data_download.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/data_download.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/data_download.py",
+      "target": "src/boinga_translator/settings.py"
     },
     {
       "kind": "import",
@@ -166,6 +356,71 @@
       "target": "src/boinga_translator/settings.py"
     },
     {
+      "kind": "config",
+      "source": "src/boinga_translator/text_frontend.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_frontend.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_frontend.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_summary.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_summary.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_summary.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_summary.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "test",
       "source": "tests/test_baseline.py",
       "target": "src/boinga_translator/baseline.py"
@@ -186,9 +441,54 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "configs/baseline_prompts.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "test",
       "source": "tests/test_build_notebook.py",
       "target": "tools/build_notebook.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_char_map.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_char_map.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_char_map.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "test",
@@ -204,6 +504,46 @@
       "kind": "test",
       "source": "tests/test_colab_runtime.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_corpus.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_corpus.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_corpus.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_data_audit.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_data_download.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_data_download.py",
+      "target": "src/boinga_translator/data_download.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_data_download.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_data_download.py",
+      "target": "src/boinga_translator/settings.py"
     },
     {
       "kind": "test",
@@ -224,6 +564,21 @@
       "kind": "test",
       "source": "tests/test_hooks.py",
       "target": "tools/hooks/commit_msg.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_inspect_layout.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_inspect_layout.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_inspect_layout.py",
+      "target": "tools/inspect_layout.py"
     },
     {
       "kind": "test",
@@ -296,6 +651,11 @@
       "target": "tools/read_colab_run.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_repo_graph.py",
+      "target": "configs/char_map.json"
+    },
+    {
       "kind": "test",
       "source": "tests/test_repo_graph.py",
       "target": "tools/repo_graph.py"
@@ -341,9 +701,24 @@
       "target": "src/boinga_translator/synth_basic.py"
     },
     {
+      "kind": "test",
+      "source": "tests/test_text_frontend.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_frontend.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
       "kind": "import",
       "source": "tools/build_notebook.py",
       "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/inspect_layout.py",
+      "target": "src/boinga_translator/report_io.py"
     },
     {
       "kind": "import",
@@ -469,8 +844,14 @@
     },
     {
       "kind": "config",
-      "lines": 8,
+      "lines": 13,
       "path": "configs/baseline_prompts.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 27,
+      "path": "configs/char_map.json",
       "purpose": ""
     },
     {
@@ -481,19 +862,19 @@
     },
     {
       "kind": "doc",
-      "lines": 47,
+      "lines": 106,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
     {
       "kind": "doc",
-      "lines": 239,
+      "lines": 509,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 153,
+      "lines": 230,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -522,6 +903,24 @@
       "purpose": "C2 run 1 — C2 — pretrained model and baseline"
     },
     {
+      "kind": "notebook",
+      "lines": 320,
+      "path": "notebooks/runs/C3_data-audit_run1.ipynb",
+      "purpose": "C3 run 1 — Download and layout"
+    },
+    {
+      "kind": "notebook",
+      "lines": 542,
+      "path": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "purpose": "C3 run 2 — Index, audit, summary"
+    },
+    {
+      "kind": "notebook",
+      "lines": 353,
+      "path": "notebooks/runs/C3_data-audit_run3.ipynb",
+      "purpose": "C3 run 3 — Char-mapped re-audit"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -540,10 +939,34 @@
       "purpose": "Spec: C2 run 1, pretrained Bangla VITS voices: fetch, inspect and baseline audio."
     },
     {
+      "kind": "module",
+      "lines": 26,
+      "path": "notebooks/specs/c3_data_audit_run1.py",
+      "purpose": "Spec: C3 run 1, Chittagonian corpus: download, verify and unpack it, then record its layout."
+    },
+    {
+      "kind": "module",
+      "lines": 74,
+      "path": "notebooks/specs/c3_data_audit_run2.py",
+      "purpose": "Spec: C3 run 2, Chittagonian corpus: index, audit, summary and dialect baseline (T4)."
+    },
+    {
+      "kind": "module",
+      "lines": 37,
+      "path": "notebooks/specs/c3_data_audit_run3.py",
+      "purpose": "Spec: C3 run 3, re-audit the corpus on the char-mapped text and re-summarise (CPU)."
+    },
+    {
       "kind": "config",
       "lines": 41,
       "path": "pyproject.toml",
       "purpose": ""
+    },
+    {
+      "kind": "doc",
+      "lines": 49,
+      "path": "reports/audit_summary.md",
+      "purpose": "Corpus audit summary"
     },
     {
       "kind": "doc",
@@ -556,6 +979,24 @@
       "lines": 325,
       "path": "reports/colab_runs/C2_pretrained-baseline_run1.md",
       "purpose": "Colab run C2 run 1 — C2 — pretrained model and baseline"
+    },
+    {
+      "kind": "doc",
+      "lines": 153,
+      "path": "reports/colab_runs/C3_data-audit_run1.md",
+      "purpose": "Colab run C3 run 1 — Download and layout"
+    },
+    {
+      "kind": "doc",
+      "lines": 386,
+      "path": "reports/colab_runs/C3_data-audit_run2.md",
+      "purpose": "Colab run C3 run 2 — Index, audit, summary"
+    },
+    {
+      "kind": "doc",
+      "lines": 184,
+      "path": "reports/colab_runs/C3_data-audit_run3.md",
+      "purpose": "Colab run C3 run 3 — Char-mapped re-audit"
     },
     {
       "kind": "config",
@@ -576,6 +1017,18 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 7,
+      "path": "reports/notes/C3.5-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 4,
+      "path": "reports/notes/C3.6-notes.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 123,
       "path": "reports/pretrained_inspect.md",
@@ -589,13 +1042,19 @@
     },
     {
       "kind": "module",
-      "lines": 96,
+      "lines": 125,
+      "path": "src/boinga_translator/audit_summary.py",
+      "purpose": "Audit summary: exclusion rules (clean_mask), reports/audit_summary.md, clean clips to hear."
+    },
+    {
+      "kind": "module",
+      "lines": 157,
       "path": "src/boinga_translator/baseline.py",
       "purpose": "Baseline smoke synthesis: pretrained voices read configs/baseline_prompts.json for listening."
     },
     {
       "kind": "module",
-      "lines": 83,
+      "lines": 170,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -604,6 +1063,24 @@
       "lines": 116,
       "path": "src/boinga_translator/colab_runtime.py",
       "purpose": "Helpers called inside generated Colab cells: run header, cell markers, notes, file checks."
+    },
+    {
+      "kind": "module",
+      "lines": 118,
+      "path": "src/boinga_translator/corpus.py",
+      "purpose": "Corpus index: one row per spreadsheet line with its wav, dialect text, translation and split."
+    },
+    {
+      "kind": "module",
+      "lines": 264,
+      "path": "src/boinga_translator/data_audit.py",
+      "purpose": "Corpus audit: per-clip audio stats and per-transcript text/charset stats for exclusions."
+    },
+    {
+      "kind": "module",
+      "lines": 143,
+      "path": "src/boinga_translator/data_download.py",
+      "purpose": "Corpus download: stream the pinned zip to Drive, check size + sha256, unzip once, copy to fast."
     },
     {
       "kind": "module",
@@ -642,16 +1119,46 @@
       "purpose": "Minimal seeded synthesis for any VITS checkpoint: load a coqui Synthesizer, say text to a wav."
     },
     {
+      "kind": "module",
+      "lines": 69,
+      "path": "src/boinga_translator/text_frontend.py",
+      "purpose": "Text front-end: NFC + configs/char_map.json for every text the model sees (train and infer)."
+    },
+    {
       "kind": "test",
-      "lines": 141,
+      "lines": 177,
+      "path": "tests/test_audit_corpus.py",
+      "purpose": "Tests for data_audit.audit() and `boinga audit`: per-row stats, duplicates, resume, CLI."
+    },
+    {
+      "kind": "test",
+      "lines": 131,
+      "path": "tests/test_audit_summary.py",
+      "purpose": "Tests for audit_summary.py and `boinga audit-summary`: exclusion rules, report, samples."
+    },
+    {
+      "kind": "test",
+      "lines": 162,
       "path": "tests/test_baseline.py",
       "purpose": "Tests for baseline.py and `boinga baseline`: prompts file, PASS/FAIL rules, charset warning, players."
+    },
+    {
+      "kind": "test",
+      "lines": 116,
+      "path": "tests/test_baseline_ctg.py",
+      "purpose": "Tests for baseline.pick_ctg_prompts/write_ctg_prompts and `boinga pick-baseline-ctg`."
     },
     {
       "kind": "test",
       "lines": 133,
       "path": "tests/test_build_notebook.py",
       "purpose": "Tests for tools/build_notebook.py: tiny spec -> .ipynb layout, determinism and --check."
+    },
+    {
+      "kind": "test",
+      "lines": 69,
+      "path": "tests/test_char_map.py",
+      "purpose": "Tests for configs/char_map.json: entry shape, targets inside both voices' charsets, exclusions."
     },
     {
       "kind": "test",
@@ -667,6 +1174,24 @@
     },
     {
       "kind": "test",
+      "lines": 162,
+      "path": "tests/test_corpus.py",
+      "purpose": "Tests for corpus.py and `boinga index`: row<->wav mapping, splits, verbatim text, errors."
+    },
+    {
+      "kind": "test",
+      "lines": 184,
+      "path": "tests/test_data_audit.py",
+      "purpose": "Tests for data_audit.py: audio_stats on synthetic wavs, text_stats and the model charset."
+    },
+    {
+      "kind": "test",
+      "lines": 227,
+      "path": "tests/test_data_download.py",
+      "purpose": "Tests for data_download.py and `boinga fetch-data`: resume, sha256 check, one-time unzip, copy."
+    },
+    {
+      "kind": "test",
       "lines": 117,
       "path": "tests/test_env_report.py",
       "purpose": "Tests for env_report.py and `boinga env`: missing torch, fake GPU, JSON keys, CLI wiring."
@@ -676,6 +1201,12 @@
       "lines": 57,
       "path": "tests/test_hooks.py",
       "purpose": "Tests for tools/hooks/commit_msg.py: valid messages pass, bad ones fail with the right reason."
+    },
+    {
+      "kind": "test",
+      "lines": 214,
+      "path": "tests/test_inspect_layout.py",
+      "purpose": "Tests for tools/inspect_layout.py: tree counts, table heads, wav headers, metadata values, cap."
     },
     {
       "kind": "test",
@@ -744,6 +1275,12 @@
       "purpose": "Tests for synth_basic.py: seeding, loader with a fake coqui Synthesizer, say() output and duration."
     },
     {
+      "kind": "test",
+      "lines": 64,
+      "path": "tests/test_text_frontend.py",
+      "purpose": "Tests for text_frontend.py: char_map application, row exclusion and idempotence."
+    },
+    {
       "kind": "tool",
       "lines": 175,
       "path": "tools/build_notebook.py",
@@ -760,6 +1297,12 @@
       "lines": 92,
       "path": "tools/hooks/pre_commit.py",
       "purpose": "Pre-commit guard: block binaries/large files, stale map/notebooks, ruff errors, failing tests."
+    },
+    {
+      "kind": "tool",
+      "lines": 200,
+      "path": "tools/inspect_layout.py",
+      "purpose": "Describe the raw corpus tree (folders, tables, wav headers, metadata values) for the repo."
     },
     {
       "kind": "tool",

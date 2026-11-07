@@ -38,8 +38,15 @@ def _tmp_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_repo_prompts_file_shape() -> None:
     raw = json.loads((paths.configs_dir() / "baseline_prompts.json").read_text(encoding="utf-8"))
-    assert list(raw) == ["STD_1", "STD_2", "STD_3", "CTG_1", "CTG_2", "CTG_3"]
-    assert all(raw[k] is None for k in ("CTG_1", "CTG_2", "CTG_3"))
+    ctg = ("CTG_1", "CTG_2", "CTG_3")
+    if "_sources" in raw:  # filled by `boinga pick-baseline-ctg` (C3.6)
+        assert list(raw) == ["STD_1", "STD_2", "STD_3", *ctg, "_sources"]
+        assert all(isinstance(raw[k], str) and raw[k].strip() for k in ctg)
+        assert sorted(raw["_sources"]) == list(ctg)
+        assert all(v.isdigit() for v in raw["_sources"].values())  # clip ids = Excel rows
+    else:  # before C3.6: dialect prompts not chosen yet
+        assert list(raw) == ["STD_1", "STD_2", "STD_3", *ctg]
+        assert all(raw[k] is None for k in ctg)
     std = [raw[k] for k in ("STD_1", "STD_2", "STD_3")]
     assert all(unicodedata.is_normalized("NFC", s) for s in std)
     assert all(6 <= len(s.split()) <= 12 for s in std)
@@ -74,6 +81,19 @@ def test_run_fail_lists_bad_keys(capsys: pytest.CaptureFixture[str]) -> None:
     assert "FAIL: baseline male B C" in capsys.readouterr().out
 
 
+def test_run_synthesises_the_char_mapped_text() -> None:
+    seen: list[str] = []
+
+    class Recording(FakeSynth):
+        def tts(self, text: str) -> list[float]:
+            seen.append(text)
+            return super().tts(text)
+
+    baseline.run("female", synth=Recording(), prompts={"CTG_1": " কথা (আর)।"},
+                 charset=set("কথাআর. "))
+    assert seen == ["কথা আর."]  # same front-end as training: NFC, char_map, strip
+
+
 def test_run_warns_on_out_of_charset_chars(capsys: pytest.CaptureFixture[str]) -> None:
     baseline.run("female", synth=FakeSynth(), prompts={"A": "কx"}, charset=set("ক"))
     assert "WARN: female A: not in model charset: x (U+0078)" in capsys.readouterr().out
@@ -86,9 +106,10 @@ def _cache_config(voice: str, characters: object) -> None:
 
 
 def test_model_charset_from_cached_config(capsys: pytest.CaptureFixture[str]) -> None:
-    _cache_config("female", {"characters": "কখ", "punctuations": "।"})
-    assert baseline._model_charset("female") == {"ক", "খ", "।", " "}
-    baseline.run("female", synth=FakeSynth(), prompts={"A": "ক গ।"})  # charset read from config
+    _cache_config("female", {"characters": "কখ", "punctuations": "."})
+    assert baseline._model_charset("female") == {"ক", "খ", ".", " "}
+    # charset read from config; the prompt's "।" reaches the model as "." (char_map)
+    baseline.run("female", synth=FakeSynth(), prompts={"A": "ক গ।"})
     out = capsys.readouterr().out
     assert "WARN: female A: not in model charset: গ (U+0997)" in out
 

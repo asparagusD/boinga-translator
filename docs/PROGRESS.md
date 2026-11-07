@@ -99,25 +99,102 @@ C2.H hands it over. Local tests never import torch/TTS (fakes only).
 - [x] coqui temp-path rewrite: none seen; the 4 absolute config paths are the model
   author's (/home/ansary/Shabab/...); the fine-tune config must override them (C4)
 - [ ] Record and pin sha256 of the cached model.pth/config.json (moved from C2.5)
-- [ ] C3 text front-end: check how coqui's tokenizer treats "।" (the EOS token, not in
-  characters/punctuations; the baseline WARN is probably spurious because coqui adds
-  pad/eos/bos/blank to the vocab) and the "Initializing with English" language log
-- [ ] C3: decide precomposed vs NFC-decomposed য়/ড়/ঢ় (U+09DF/09DC/09DD vs base + U+09BC)
-  against the corpus and the pretrained vocab; char_map.json + DECISIONS entry
-- [ ] C3: one pretrained.model_symbols(config) helper used by baseline and the text
-  front-end (charset is read twice today); use paths.configs_dir() in pretrained.py
+- [x] C3 text front-end: how coqui's tokenizer treats "।": it is in the vocab as the eos
+  token (characters.py _create_vocab); mapped to "." anyway (DECISIONS "Character map",
+  `ae735d9`)
+- [ ] C4: the "Initializing with English" language log of the coqui synthesizer (harmless?
+  check that no English text processing is applied to Bangla input)
+- [x] C3: precomposed vs NFC-decomposed য়/ড়/ঢ়: precomposed after NFC via char_map
+  (DECISIONS "Character map", `ae735d9`)
+- [ ] C4 (was C3): one pretrained.model_symbols(config) helper; the charset is read two
+  ways today (baseline._model_charset from the cached config.json,
+  data_audit.load_model_charset from pretrained_facts.json); use paths.configs_dir()
 - [ ] C4: copy the full characters block from the pretrained config.json (is_unique /
   is_sorted fix embedding row order); measure RTF/throughput in the smoke test
 - [ ] `inspect-pretrained --voice <one>` rebuilds pretrained_inspect.md with that voice
   only; use `--voice both` to refresh it (or merge the .md like the facts JSON)
-- [ ] Choose the fine-tune voice by the corpus speaker (C3/C4); baseline quality is equal
+- [ ] C4: choose the voice to fine-tune (female or male); baseline quality was "same", the
+  corpus has many speakers (DECISIONS "Speakers": mixed voices); the audit defaults to
+  female, re-run it with `--voice male` if male is chosen
 - [ ] `!boinga fetch-pretrained` exiting 1 does not stop Run all; once later cells depend on
   C2.1, call pretrained from Python and stop with colab_runtime.fail()
-- [ ] After C3: add held-out Chittagonian corpus lines (verbatim transcripts) to the
-  baseline prompts and re-run the pretrained baseline on them
+- [x] After C3: add held-out Chittagonian corpus lines (verbatim transcripts) to the
+  baseline prompts and re-run the pretrained baseline on them (C3.6 `05e51ce`, `8893a67`)
 
-## C3
-- [ ] C3.x (subchunks not yet defined)
+## C3 — Chittagonian corpus download and audit
+Branch `chunk/C3-data-audit`. Three notebooks, one per run: run 1 records the real
+corpus layout, run 2 is written against it (index, audit, summary, dialect baseline),
+run 3 re-audits on the char-mapped text. Local tests use tiny synthetic data only.
+
+Run 1 (spec `notebooks/specs/c3_data_audit_run1.py`, CPU):
+- [x] C3.1 code: data_download.fetch() + `boinga fetch-data` + cell C3.1: zip to Drive with
+  Range resume, size + sha256 check, one-time unzip on Drive, per-VM copy to the fast disk
+  (`93964ba`); fixes `5fbf2bd` (User-Agent, Mendeley 403), `f06163c` (stop Run all);
+  results: 8,005 files (8,004 wav + 1 xlsx), sha256 ok, 844 MB in 23 s (this commit)
+  Review follow-up: time unzip-to-Drive + copy vs extracting the Drive zip straight to /content
+- [x] C3.2 code: tools/inspect_layout.py + cell C3.2: tree to depth 3 with counts per
+  extension, table heads (csv/tsv/txt/json/xlsx/xls < 5 MB), 3 wav headers, speaker/gender/
+  region/age/split values -> reports/corpus_layout.txt (`c692819`); fix `1b9275f` (no-wav
+  FAIL); results: layout recorded in DECISIONS "Corpus layout" (this commit)
+- [x] C3.H1 hand-off run 1: notebook built and pushed with C3.2 (`c692819`), re-run at
+  `f06163c` after the fixes (no separate commit)
+- [x] C3.V1 verify run 1: 7/7 PASS at `f06163c` (first attempt at `c692819` failed: 403);
+  results `03ae94b` (download) and this commit (reports/corpus_layout.txt + DECISIONS)
+
+Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
+- [x] C3.3 code: corpus.load_index() + `boinga index` + run-2 spec (cells C3.2.fetch, C3.3);
+  wav stem = Excel row (DECISIONS "Corpus row <-> wav mapping"); 8,009 rows, 8,004 with
+  audio (`14d90cb`); results: Colab run 2 index train 6403 / val 801 / test 800 / none 5,
+  8,004 with audio, no speaker field (this commit)
+- [x] C3.4a data_audit.audio_stats() (local): format, duration, peak, clip_ratio, rms_db,
+  lead/trail silence (librosa trim, top_db 40) (this commit)
+- [x] C3.4b data_audit.text_stats() + load_model_charset() (local): lengths, chars not in
+  the voice's characters|punctuations|space, oov_ratio, Latin, digits (this commit)
+- [x] C3.4c code: data_audit.audit() + `boinga audit --voice` (default female: G1 "same")
+  + cell C3.4c: every index row -> Drive reports/audit.csv, Pool(2), resumable
+  (`c9874aa`); results: Colab run 2 audited 8,009 rows in 47 s (168.7 rows/s, Pool(2),
+  T4 VM CPU), charset female-a4543ed63b; Drive reports/audit.csv + audit.parts (this commit)
+- [x] C3.5 code: audit_summary.clean_mask/summarise/sample_clips + `boinga audit-summary`
+  + cells C3.5, C3.5.play, form C3.5-notes -> reports/audit_summary.md (`8631cdb`);
+  results: 9.04 h decodable, 2,881 clean clips / 4.10 h, listening "mostly" matched,
+  "standard Bangla", clean, many speakers (this commit)
+- [x] C3.6 code: `boinga pick-baseline-ctg` (clean test-split clips, 5-12 words, least like
+  the Bangla) -> CTG_1-3 verbatim + _sources in configs/baseline_prompts.json; cells C3.6,
+  C3.6.play, form C3.6-notes (`05e51ce`); fix `b87125e` (prompts-file test); results:
+  CTG_1-3 = clips 386, 29, 625; 12/12 baseline wavs PASS; HANDLES_DIALECT "partly"
+  (this commit)
+- [x] C3.H2 hand-off run 2: notebook built for a T4 runtime (this commit)
+- [x] C3.V2 verify run 2: 14/14 PASS at `f4c7ab2`; results `db85fcf` (index), `c894178`
+  (audit), `639f189` (summary + listening), `8893a67` (dialect baseline)
+- [x] C3.7 Gate G2: first FAIL (`ea56f4a`), re-decided PASS with conditions after the user
+  clarified "dialect words, standard accent" (DECISIONS "Gate G2 — data (re-decided)";
+  this commit)
+
+### C3 follow-ups (conditions of Gate G2, before C4)
+- [x] C3.8a Danda "।" and other out-of-charset characters: configs/char_map.json +
+  DECISIONS "Character map" (also settles the nukta form: precomposed) (this commit)
+- [x] C3.8b text_frontend.prepare/excluded (NFC + char_map); audit stats on the mapped
+  text (ctg_text_model, excluded_char, charset_id includes the map digest); clean_mask:
+  "excluded character" + "unknown after char_map" replace oov_ratio > 0.02; baseline
+  synthesises the mapped text (this commit)
+- [x] C3.8c re-run audit + summary on Colab with the map: clean 7,513 clips / 8.18 h
+  (was 2,881 / 4.10 h); G2 condition 1 met
+  - [x] C3.H3 run-3 notebook (fetch, audit, summary; CPU) built and pushed (`eb3d3e0`)
+  - [x] C3.V3 verify run 3: 8/8 PASS at `eb3d3e0`, audit 8,009 rows in 62 s (this commit)
+- [x] C3.9 Speakers: mixed voices (user decision, measuring declined); fallback = largest
+  SpeechBrain ECAPA cluster if C4 hears an unstable voice (DECISIONS "Speakers"; this commit)
+- [ ] Keep the official test split (incl. clips 386, 29, 625) out of training in C4
+
+### C3 follow-ups (from the whole-chunk review; for C4)
+- [ ] Before C4 builds splits: compute duplicate_text on ctg_text_model (the mapped text)
+  instead of ctg_text_nfc, so identical model inputs cannot land in two splits
+- [ ] audit_summary: reject an audit.csv whose charset_id was made with another char map
+  (compare with text_frontend.map_digest()), not only one missing columns
+- [ ] baseline._model_charset docstring: the check now runs on text_frontend.prepare()
+  output, not "raw text before coqui's cleaner"
+- [ ] Tests: move ROWS/_corpus (test_corpus) and _row (test_audit_summary) into
+  tests/conftest.py or tests/fakes.py; pin test_repo_prompts_file_shape to the filled state
+- [ ] oov_ratio and has_digits are informational now (no rule reads them); drop or label
 
 ## C4
 - [ ] C4.x (subchunks not yet defined)
