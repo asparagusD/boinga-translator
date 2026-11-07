@@ -144,3 +144,17 @@ notebooks at merge (rejected: loses the link between digest and notebook).
 for an old run after a later rebuild is expected; its committed digest stays
 the record of what was verified.
 
+
+## 2026-11-07 — Baseline prompts: standard Bangla now, Chittagonian from the corpus after C3
+**Context:** C2 synthesises a baseline with the pretrained Bangla voices before
+any fine-tuning. The corpus (and so verbatim Chittagonian text) only arrives in
+C3, and dialect-data-rules forbid writing or "standardising" Chittagonian text.
+**Decision:** `configs/baseline_prompts.json` holds three everyday standard-Bangla
+sentences written for this project (STD_1-3, NFC, one question) and three
+placeholders CTG_1-3 = null. `boinga baseline` skips null prompts. The user chose
+this over supplying Chittagonian lines by hand.
+**Alternatives:** User-written Chittagonian lines (unverified against the corpus
+spelling); delaying the baseline until after C3 (delays Gate G1).
+**Consequences:** Gate G1 judges the pretrained voices on standard Bangla only.
+After C3, CTG_1-3 get verbatim held-out corpus transcripts and the baseline is
+re-run (C2 follow-up in PROGRESS.md).

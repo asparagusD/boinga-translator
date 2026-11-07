@@ -93,14 +93,17 @@ C2.H hands it over. Local tests never import torch/TTS (fakes only).
   scales, logs which were set), say() -> duration (local only, no cell);
   out-of-charset check moves to C2.4a. C2.4a/C2.V: confirm on Colab that the synth log
   sets all 3 scales, and whether say() durations include per-sentence padding (affects RTF)
-- [ ] C2.4a baseline.py + `boinga baseline` + configs/baseline_prompts.json:
-  both voices -> Drive eval/baseline/<voice>/<id>.wav, reports/baseline.json
-  (duration, RTF, device, unknown chars, peak/clipping), idempotent.
-  Prompts: standard Bangla only (~8 lines, NFC); no Chittagonian text is authored here.
-  DECISIONS entry with this subchunk
-- [ ] C2.4b cells C2.4 (baseline run) + C2.4.play (players) + form C2.4-listen
+- [x] C2.4 code (one commit; the planned a/b split was merged):
+  configs/baseline_prompts.json (STD_1-3 standard Bangla, NFC; CTG_1-3 null until C3),
+  baseline.py + `boinga baseline --voice female|male|both` -> Drive
+  eval/baseline_smoke/<voice>/<key>.wav, per-wav duration + RMS dBFS, PASS if every wav
+  > 0.3 s and > -50 dBFS, WARN on characters outside the model charset; players()/play_all();
+  cells C2.4, C2.4.play, form C2.4-notes. Not done from the plan: reports/baseline.json and RTF
+  (the WARN/duration lines in the run digest cover G1)
 - [ ] C2.H hand-off: final build + `--check`, push branch, Colab link and form guide
-- [ ] C2.V verify run 1 with colab-verify; commit the run digest + saved reports
+- [ ] C2.V verify run 1 with colab-verify; commit the run digest + saved reports.
+  Check C2.4 WARN lines: NFC stores য়/ড়/ঢ় as base + U+09BC (nukta); if the model charset
+  lacks U+09BC, plan a configs/char_map.json mapping (logged in DECISIONS) before C3
 - [ ] C2.5 Gate G1 verdict in DECISIONS.md (voice choice, GO/NO-GO); pin the release
   zip sha256s in settings.py
 

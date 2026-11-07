@@ -33,6 +33,11 @@
     {
       "kind": "notebook",
       "source": "notebooks/runs/C2_pretrained-baseline_run1.ipynb",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C2_pretrained-baseline_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
     {
@@ -56,9 +61,39 @@
       "target": "tools/nbkit.py"
     },
     {
+      "kind": "config",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "configs/baseline_prompts.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/baseline.py"
     },
     {
       "kind": "import",
@@ -119,6 +154,26 @@
       "kind": "import",
       "source": "src/boinga_translator/synth_basic.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline.py",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline.py",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "test",
@@ -398,6 +453,12 @@
       "purpose": "boinga-translator"
     },
     {
+      "kind": "config",
+      "lines": 8,
+      "path": "configs/baseline_prompts.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 47,
       "path": "docs/DEBUG_LOG.md",
@@ -405,13 +466,13 @@
     },
     {
       "kind": "doc",
-      "lines": 146,
+      "lines": 160,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 150,
+      "lines": 153,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -435,7 +496,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 321,
+      "lines": 417,
       "path": "notebooks/runs/C2_pretrained-baseline_run1.ipynb",
       "purpose": "C2 run 1 — C2 — pretrained model and baseline"
     },
@@ -453,7 +514,7 @@
     },
     {
       "kind": "module",
-      "lines": 19,
+      "lines": 32,
       "path": "notebooks/specs/c2_pretrained_baseline.py",
       "purpose": "Spec: C2 run 1, pretrained Bangla VITS voices: fetch, inspect and baseline audio."
     },
@@ -489,7 +550,13 @@
     },
     {
       "kind": "module",
-      "lines": 66,
+      "lines": 96,
+      "path": "src/boinga_translator/baseline.py",
+      "purpose": "Baseline smoke synthesis: pretrained voices read configs/baseline_prompts.json for listening."
+    },
+    {
+      "kind": "module",
+      "lines": 83,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -534,6 +601,12 @@
       "lines": 68,
       "path": "src/boinga_translator/synth_basic.py",
       "purpose": "Minimal seeded synthesis for any VITS checkpoint: load a coqui Synthesizer, say text to a wav."
+    },
+    {
+      "kind": "test",
+      "lines": 141,
+      "path": "tests/test_baseline.py",
+      "purpose": "Tests for baseline.py and `boinga baseline`: prompts file, PASS/FAIL rules, charset warning, players."
     },
     {
       "kind": "test",

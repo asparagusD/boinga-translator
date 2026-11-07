@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 
-from boinga_translator import __version__, env_report, pretrained
+from boinga_translator import __version__, baseline, env_report, pretrained
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -16,7 +16,22 @@ def build_parser() -> argparse.ArgumentParser:
     fetch.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
     insp = sub.add_parser("inspect-pretrained", help="report config/checkpoint facts per voice")
     insp.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
+    base = sub.add_parser("baseline", help="synthesise the baseline prompts with each voice")
+    base.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
     return parser
+
+
+def _baseline(voice: str) -> int:
+    """Run the baseline per voice; exit 1 if any voice fails or errors."""
+    status = 0
+    for v in pretrained.voices() if voice == "both" else [voice]:
+        try:
+            ok = baseline.run(v)
+        except Exception as exc:  # noqa: BLE001 - coqui/torch errors vary; report each voice
+            print(f"FAIL: baseline {v}: {type(exc).__name__}: {exc}")
+            ok = False
+        status = status or (0 if ok else 1)
+    return status
 
 
 def _inspect_pretrained(voice: str) -> int:
@@ -59,6 +74,8 @@ def main(argv: list[str] | None = None) -> int:
         return _fetch_pretrained(args.voice)
     elif args.command == "inspect-pretrained":
         return _inspect_pretrained(args.voice)
+    elif args.command == "baseline":
+        return _baseline(args.voice)
     return 0
 
 
