@@ -536,7 +536,17 @@ map/notebook and PROGRESS.
   explanation; a and b forbid "Partial model initialization". Tests
   `tests/test_train_report.py` (fake log snippet, fake run folder, fake synth) (this commit).
   With print_step 25 the smoke (stop after 50) and resume (51-59) would log only step 25
-  after warm-up, so C7.4b sets print_step 5 for the smoke run. Results: C7 run 1
+  after warm-up, so C7.4b sets print_step 5 for the smoke run (`1cc1fb5`).
+  - [x] C7.4 results: C7 run 1 (87c0470, NVIDIA RTX PRO 6000 Blackwell 95 GB, not a T4):
+    smoke "STOP at step 50", checkpoint_50 on Drive, peak 3.385 GB; resume "RESUME from
+    step 50" (optimizer, scheduler, scaler restored, "Model restored from step 50"), "STOP
+    at step 60", peak 3.262 GB; no "Partial model initialization"; throughput 0.3406
+    s/step over 10 logged steps (10,570 steps/h), fp16, batch 16, no NaN loss, loss_mel
+    30.9 at step 55; C7.4.d played both clips (no listening note yet). The run trained with
+    Torch seed 54321 (dropped seed override, fixed `08f29d0`); speed is for this GPU, not a
+    T4 (this commit)
+  - [x] C7.4 fix: `boinga clean-run` + cell C7.4.0 so the re-run starts a fresh smoke run
+    (`90c4504`)
 - [x] C7.4b `train_config.RUN_OVERRIDES` (per-run, value + reason) with print_step 5 for run
   `smoke` only (user, chat 2026-11-08): steps 5-45 and 55 timed (~10 samples) instead of 1;
   `reasons(run_name)` fills the DECISIONS table; cell texts updated (this commit)
