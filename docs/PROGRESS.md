@@ -248,8 +248,16 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
 - [x] C4.H hand-off: `notebooks/runs/C4_speaker_run1.ipynb` (T4) rebuilt, unchanged since
   `d856b3b`, pushed; link, form instructions and save name `colab_runs/C4_speaker_run1.ipynb`
   given; duration not measured (embedding estimate 20-40 min) (this commit)
-- [ ] C4.V verify run 1 (colab-verify): every cell PASS and not stale; save
-  reports/speaker_ranking.md, configs/speaker_selection.json, reports/notes/C4.3-notes.json
+- [x] C4.V verify run 1 (colab-verify): 10/10 PASS at `ad690fd`, not stale; results
+  `abc441e` (C4.2a), `1e15f75` (C4.2b). Form: CHOSEN_ID 2 (5 clips, 0.18 min), one
+  consistent voice, male, some noise. The 0.50 threshold merged 7,506 of 7,513 clips into
+  cluster 1, so the user chose (chat) mixed voices = cluster 1, base voice male; the run-1
+  selection (cluster 2) is superseded and was not committed
+- [ ] C4.3b run 2 (CPU, `notebooks/specs/c4_speaker_run2.py`): `boinga save-speaker --id 1
+  --base-voice male` from run 1's Drive speaker_clusters.csv -> configs/speaker_selection.json
+  (this commit builds it); C4.V2 verifies it, then the C4.3 results commit
+- [ ] Follow-up: the threshold rule (best silhouette among largest >= 30 min) picks a
+  near-single cluster on this corpus; cap the largest cluster's share before reusing it
 - [ ] C4.4 Gate G3 — speaker (DECISIONS, supersedes or confirms "Speakers"). Proposed PASS
   rule, to confirm before the run: configs/speaker_selection.json exists (so
   `ONE_CONSISTENT_VOICE` was "yes"); its `minutes_by_official_split` has train >= 60 and

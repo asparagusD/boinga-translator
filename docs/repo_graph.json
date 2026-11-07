@@ -121,6 +121,21 @@
       "target": "src/boinga_translator/speaker_select.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run2.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run2.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run2.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -163,6 +178,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c4_speaker.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c4_speaker_run2.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -244,11 +264,6 @@
       "kind": "config",
       "source": "src/boinga_translator/cli.py",
       "target": "configs/baseline_prompts.json"
-    },
-    {
-      "kind": "config",
-      "source": "src/boinga_translator/cli.py",
-      "target": "configs/speaker_selection.json"
     },
     {
       "kind": "import",
@@ -384,11 +399,6 @@
       "kind": "import",
       "source": "src/boinga_translator/report_io.py",
       "target": "src/boinga_translator/paths.py"
-    },
-    {
-      "kind": "config",
-      "source": "src/boinga_translator/speaker_select.py",
-      "target": "configs/speaker_selection.json"
     },
     {
       "kind": "import",
@@ -766,11 +776,6 @@
       "target": "src/boinga_translator/__init__.py"
     },
     {
-      "kind": "config",
-      "source": "tests/test_speaker_choice.py",
-      "target": "configs/speaker_selection.json"
-    },
-    {
       "kind": "test",
       "source": "tests/test_speaker_choice.py",
       "target": "src/boinga_translator/cli.py"
@@ -1001,12 +1006,6 @@
       "purpose": ""
     },
     {
-      "kind": "config",
-      "lines": 13,
-      "path": "configs/speaker_selection.json",
-      "purpose": ""
-    },
-    {
       "kind": "doc",
       "lines": 106,
       "path": "docs/DEBUG_LOG.md",
@@ -1020,7 +1019,7 @@
     },
     {
       "kind": "doc",
-      "lines": 288,
+      "lines": 296,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1073,6 +1072,12 @@
       "purpose": "C4 run 1 — C4 — training speaker"
     },
     {
+      "kind": "notebook",
+      "lines": 296,
+      "path": "notebooks/runs/C4_speaker_run2.ipynb",
+      "purpose": "C4 run 2 — C4 — save the mixed-voice selection"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -1113,6 +1118,12 @@
       "lines": 53,
       "path": "notebooks/specs/c4_speaker.py",
       "purpose": "Spec: C4 run 1, training speaker: embed, cluster and rank voices, listen, save the choice (T4)."
+    },
+    {
+      "kind": "module",
+      "lines": 26,
+      "path": "notebooks/specs/c4_speaker_run2.py",
+      "purpose": "Spec: C4 run 2, save the mixed-voice selection (cluster 1, base voice male) from run 1 (CPU)."
     },
     {
       "kind": "config",
