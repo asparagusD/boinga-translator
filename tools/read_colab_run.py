@@ -293,7 +293,7 @@ def exit_code(results: list[CellResult], stale: str = "") -> int:
 def main(argv: list[str] | None = None) -> int:
     """Check an executed notebook, write its digest, optionally save its report blocks."""
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("notebook", help="executed notebook, e.g. colab_runs/C1N_env-check_run1.ipynb")
+    ap.add_argument("notebook", help="executed notebook, e.g. colab_runs/C1_pilot_run1.ipynb")
     ap.add_argument("--spec", help="spec file (default: found from the RUN-HEADER)")
     ap.add_argument("--save-reports", action="store_true", help="write BEGIN/END blocks to repo")
     args = ap.parse_args(argv)

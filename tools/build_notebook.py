@@ -135,7 +135,7 @@ def build(spec: Path) -> tuple[str, str]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("specs", nargs="*", help="spec files, e.g. notebooks/specs/env_check.py")
+    ap.add_argument("specs", nargs="*", help="spec files, e.g. notebooks/specs/c1_pilot.py")
     ap.add_argument("--all", action="store_true", help=f"build every spec in {SPECS}/")
     ap.add_argument("--check", action="store_true", help="exit 1 if a notebook is stale")
     args = ap.parse_args(argv)

@@ -5,8 +5,10 @@ from __future__ import annotations
 import ast
 import json
 import re
+from pathlib import Path
 
 import build_notebook
+import pytest
 
 from boinga_translator import paths
 
@@ -15,6 +17,16 @@ C1_NOTEBOOK = paths.REPO / "notebooks" / "runs" / "C1_bootstrap_run1.ipynb"
 
 def test_committed_notebooks_are_in_sync() -> None:
     assert build_notebook.main(["--all", "--check"]) == 0, "run `tools/build_notebook.py --all`"
+
+
+@pytest.mark.parametrize("nb_path", sorted((paths.REPO / "notebooks" / "runs").glob("*.ipynb")),
+                         ids=lambda p: p.name)
+def test_run_notebooks_have_no_outputs_or_tokens(nb_path: Path) -> None:
+    nb = json.loads(nb_path.read_text(encoding="utf-8"))
+    for cell in nb["cells"]:
+        if cell["cell_type"] == "code":
+            assert cell["outputs"] == [] and cell["execution_count"] is None
+    assert not re.search(r"ghp_|gho_|ghs_|github_pat_", json.dumps(nb))
 
 
 def test_c1_bootstrap_notebook_shape() -> None:

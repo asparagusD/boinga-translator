@@ -320,13 +320,13 @@
     },
     {
       "kind": "doc",
-      "lines": 129,
+      "lines": 146,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 112,
+      "lines": 113,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -464,7 +464,7 @@
     },
     {
       "kind": "test",
-      "lines": 31,
+      "lines": 43,
       "path": "tests/test_notebooks.py",
       "purpose": "Tests for the committed run notebooks: in sync with their specs; C1 bootstrap shape, no secrets."
     },

@@ -26,7 +26,8 @@ promptbook for that chunk is handed over.
   two commits: A code + local tests (`cc31783`), B pasted reports/env.json (`9f760cf`);
   fix: drop untracked Colab reports before pulling (`29c7184`)
 - [x] C1.6 Colab notebook notebooks/c1_colab_bootstrap.ipynb generated from the bootstrap
-  cells by tools/build_notebooks.py (sync enforced by tests/test_notebooks.py)
+  cells by tools/build_notebooks.py (sync enforced by tests/test_notebooks.py);
+  superseded by C1.6c (notebooks/runs/C1_bootstrap_run1.ipynb, tools/build_notebook.py)
 
 ### C1 follow-ups (from the whole-chunk review; not blocking)
 - [ ] Bootstrap cell 2: warn loudly when BRANCH == "main" and newer chunk/* branches exist
@@ -56,7 +57,7 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
   identify cells, per-cell status vs the spec (PASS / FAIL / ERROR / NOT RUN), form values,
   token redaction
 - [x] C1.8b read_colab_run CLI: spec auto-found from RUN-HEADER, staleness, digest
-  reports/colab_runs/<chunk>_run<k>.md, stdout table, --save-reports, exit code
+  reports/colab_runs/<chunk>_<slug>_run<k>.md (slug added in ecdc585), stdout table, --save-reports, exit code
 - [x] C1.9 colab-handoff skill update, new colab-verify skill, CLAUDE.md, .gitignore
   (`colab_runs/`), DECISIONS entry; colab-verify must say a STALE run exits 1 (re-run it)
 - [x] C1.10 pilot: env-check spec + notebook, run on Colab, verified with the reader

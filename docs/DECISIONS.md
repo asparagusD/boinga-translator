@@ -127,3 +127,20 @@ output internals that cannot be tested locally); reader-only checking
 **Consequences:** colab-handoff tells spec writers to use `fail()`. Not yet
 seen on Colab: the first failing cell in a real run will confirm that
 `SystemExit` stops "Run all".
+
+## 2026-11-07 — Run notebooks stay tied to their chunk branch
+**Context:** A built notebook's BOOT.2 checks out the branch its spec names
+(e.g. `chunk/C1N-notebook-pipeline`). After the chunk merges, `main` carries
+that notebook, but the code it ran lives on the chunk branch.
+**Decision:** Chunk branches are kept on origin after merging (never deleted),
+so every run notebook can be re-opened and re-run on exactly the code it was
+built for. Run notebooks on `main` are a record; new Colab work gets a new
+spec (or a bumped `run=`) on the new chunk branch. Only bootstrap-style specs
+use `branch="main"`.
+**Alternatives:** Retarget every spec to `main` in a last commit before the
+merge (rejected: rebuilding makes the verified run STALE); delete run
+notebooks at merge (rejected: loses the link between digest and notebook).
+**Consequences:** Don't delete `chunk/*` branches on origin. A STALE result
+for an old run after a later rebuild is expected; its committed digest stays
+the record of what was verified.
+
