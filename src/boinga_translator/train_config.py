@@ -38,7 +38,8 @@ OVERRIDES: dict[str, tuple[Any, str]] = {
     "save_n_checkpoints": (2, "keep the last 2 (+ best): ~1 GB each, Drive budget"),
     "save_best_after": (1000, "no best checkpoint from the noisy first steps"),
     "save_checkpoints": (True, "resume after a Colab disconnect needs them"),
-    "seed": (settings.SEED, "the project seed (settings.SEED) for reproducible runs"),
+    # coqui names the training seed "training_seed"; a "seed" key is silently ignored (C7 run 1)
+    "training_seed": (settings.SEED, "the project seed (settings.SEED) for reproducible runs"),
     "epochs": (1000, "upper bound only; runs stop by a step budget (RUN_BUDGETS, C8)"),
     "restore_path": (None, "the author's absolute path; the runner passes it (C7.3)"),
 }

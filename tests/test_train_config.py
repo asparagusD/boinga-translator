@@ -16,7 +16,7 @@ FACTS = {"dataset": {"formatter": "ljspeech", "meta_files": {
 PRETRAINED = {
     "run_name": "vits_male", "output_path": "/home/ansary/Shabab/",
     "restore_path": "/home/ansary/Shabab/vits/checkpoint_626000.pth",
-    "lr_gen": 0.0002, "lr_disc": 0.0004, "batch_size": 48, "epochs": 10000, "seed": 54321,
+    "lr_gen": 0.0002, "lr_disc": 0.0004, "batch_size": 48, "epochs": 10000, "training_seed": 54321,
     "mixed_precision": False, "test_sentences": [["আমি"]],
     "audio": {"sample_rate": SR, "fft_size": 1024, "hop_length": 256, "num_mels": 80},
     "characters": {"characters_class": "TTS.tts.utils.text.characters.Graphemes",
@@ -74,7 +74,8 @@ def test_build_overrides_and_protected(repo: Path) -> None:
     assert cfg["lr_gen"] == pytest.approx(0.0001) and cfg["lr_disc"] == pytest.approx(0.0002)
     assert cfg["batch_size"] == 16 and cfg["eval_batch_size"] == 8
     assert cfg["mixed_precision"] is True and cfg["epochs"] == 1000
-    assert cfg["seed"] == settings.SEED and cfg["run_name"] == "smoke"
+    assert cfg["training_seed"] == settings.SEED and cfg["run_name"] == "smoke"
+    assert "seed" not in cfg  # not a coqui field: VitsConfig would drop it (C7 run 1)
     assert cfg["max_audio_len"] == 15 * SR and cfg["min_audio_len"] == SR // 2
     assert cfg["output_path"] == str(paths.runs()) and cfg["restore_path"] is None
     (ds,) = cfg["datasets"]
