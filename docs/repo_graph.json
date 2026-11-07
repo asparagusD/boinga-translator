@@ -193,6 +193,11 @@
     {
       "kind": "config",
       "source": "notebooks/specs/c2_pretrained_baseline.py",
+      "target": "configs/baseline_prompts.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c2_pretrained_baseline.py",
       "target": "configs/pretrained_facts.json"
     },
     {
@@ -214,6 +219,11 @@
       "kind": "import",
       "source": "notebooks/specs/c3_data_audit_run2.py",
       "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c3_data_audit_run3.py",
+      "target": "configs/char_map.json"
     },
     {
       "kind": "import",
@@ -1239,7 +1249,7 @@
     },
     {
       "kind": "skill",
-      "lines": 78,
+      "lines": 83,
       "path": ".claude/skills/colab-handoff/SKILL.md",
       "purpose": "\"How to put work on Colab in boinga-translator: write cells into the chunk's notebook spec and hand the whole notebook to the user."
     },
@@ -1287,7 +1297,7 @@
     },
     {
       "kind": "doc",
-      "lines": 48,
+      "lines": 54,
       "path": "CLAUDE.md",
       "purpose": "boinga-translator — rules for Claude Code"
     },
@@ -1341,7 +1351,7 @@
     },
     {
       "kind": "doc",
-      "lines": 475,
+      "lines": 483,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1353,67 +1363,67 @@
     },
     {
       "kind": "notebook",
-      "lines": 266,
+      "lines": 306,
       "path": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "purpose": "C1 run 1 — Colab bootstrap"
     },
     {
       "kind": "notebook",
-      "lines": 373,
+      "lines": 441,
       "path": "notebooks/runs/C1_pilot_run1.ipynb",
       "purpose": "C1 run 1 — Pipeline pilot"
     },
     {
       "kind": "notebook",
-      "lines": 417,
+      "lines": 510,
       "path": "notebooks/runs/C2_pretrained-baseline_run1.ipynb",
       "purpose": "C2 run 1 — C2 — pretrained model and baseline"
     },
     {
       "kind": "notebook",
-      "lines": 320,
+      "lines": 381,
       "path": "notebooks/runs/C3_data-audit_run1.ipynb",
       "purpose": "C3 run 1 — Download and layout"
     },
     {
       "kind": "notebook",
-      "lines": 542,
+      "lines": 671,
       "path": "notebooks/runs/C3_data-audit_run2.ipynb",
       "purpose": "C3 run 2 — Index, audit, summary"
     },
     {
       "kind": "notebook",
-      "lines": 353,
+      "lines": 423,
       "path": "notebooks/runs/C3_data-audit_run3.ipynb",
       "purpose": "C3 run 3 — Char-mapped re-audit"
     },
     {
       "kind": "notebook",
-      "lines": 426,
+      "lines": 516,
       "path": "notebooks/runs/C4_speaker_run1.ipynb",
       "purpose": "C4 run 1 — C4 — training speaker"
     },
     {
       "kind": "notebook",
-      "lines": 296,
+      "lines": 346,
       "path": "notebooks/runs/C4_speaker_run2.ipynb",
       "purpose": "C4 run 2 — C4 — save the mixed-voice selection"
     },
     {
       "kind": "notebook",
-      "lines": 323,
+      "lines": 383,
       "path": "notebooks/runs/C5_text-frontend_run1.ipynb",
       "purpose": "C5 run 1 — C5 run 1 — OOV report"
     },
     {
       "kind": "notebook",
-      "lines": 323,
+      "lines": 384,
       "path": "notebooks/runs/C5_text-frontend_run2.ipynb",
       "purpose": "C5 run 2 — C5 run 2 — tokenizer check"
     },
     {
       "kind": "notebook",
-      "lines": 369,
+      "lines": 449,
       "path": "notebooks/runs/C6_prepare_run1.ipynb",
       "purpose": "C6 run 1 — C6 — prepared dataset"
     },
@@ -1425,61 +1435,61 @@
     },
     {
       "kind": "module",
-      "lines": 37,
+      "lines": 50,
       "path": "notebooks/specs/c1_pilot.py",
       "purpose": "Spec: C1 pilot run proving the notebook pipeline (env report, Drive write, a form)."
     },
     {
       "kind": "module",
-      "lines": 32,
+      "lines": 60,
       "path": "notebooks/specs/c2_pretrained_baseline.py",
       "purpose": "Spec: C2 run 1, pretrained Bangla VITS voices: fetch, inspect and baseline audio."
     },
     {
       "kind": "module",
-      "lines": 26,
+      "lines": 37,
       "path": "notebooks/specs/c3_data_audit_run1.py",
       "purpose": "Spec: C3 run 1, Chittagonian corpus: download, verify and unpack it, then record its layout."
     },
     {
       "kind": "module",
-      "lines": 74,
+      "lines": 118,
       "path": "notebooks/specs/c3_data_audit_run2.py",
       "purpose": "Spec: C3 run 2, Chittagonian corpus: index, audit, summary and dialect baseline (T4)."
     },
     {
       "kind": "module",
-      "lines": 37,
+      "lines": 52,
       "path": "notebooks/specs/c3_data_audit_run3.py",
       "purpose": "Spec: C3 run 3, re-audit the corpus on the char-mapped text and re-summarise (CPU)."
     },
     {
       "kind": "module",
-      "lines": 53,
+      "lines": 78,
       "path": "notebooks/specs/c4_speaker.py",
       "purpose": "Spec: C4 run 1, training speaker: embed, cluster and rank voices, listen, save the choice (T4)."
     },
     {
       "kind": "module",
-      "lines": 26,
+      "lines": 31,
       "path": "notebooks/specs/c4_speaker_run2.py",
       "purpose": "Spec: C4 run 2, save the mixed-voice selection (cluster 1, base voice male) from run 1 (CPU)."
     },
     {
       "kind": "module",
-      "lines": 30,
+      "lines": 40,
       "path": "notebooks/specs/c5_text_frontend_run1.py",
       "purpose": "Spec: C5 run 1, OOV report: selected speaker's model text vs the base voice's charset (CPU)."
     },
     {
       "kind": "module",
-      "lines": 32,
+      "lines": 43,
       "path": "notebooks/specs/c5_text_frontend_run2.py",
       "purpose": "Spec: C5 run 2, coqui tokenizer round trip of the selected speaker's model text (CPU)."
     },
     {
       "kind": "module",
-      "lines": 30,
+      "lines": 50,
       "path": "notebooks/specs/c6_prepare.py",
       "purpose": "Spec: C6 run 1, prepared dataset: resampled clips, splits and coqui manifests (CPU)."
     },
@@ -1629,7 +1639,7 @@
     },
     {
       "kind": "module",
-      "lines": 156,
+      "lines": 157,
       "path": "src/boinga_translator/baseline.py",
       "purpose": "Baseline smoke synthesis: pretrained voices read configs/baseline_prompts.json for listening."
     },
@@ -1659,7 +1669,7 @@
     },
     {
       "kind": "module",
-      "lines": 143,
+      "lines": 150,
       "path": "src/boinga_translator/data_download.py",
       "purpose": "Corpus download: stream the pinned zip to Drive, check size + sha256, unzip once, copy to fast."
     },
@@ -1677,13 +1687,13 @@
     },
     {
       "kind": "module",
-      "lines": 424,
+      "lines": 430,
       "path": "src/boinga_translator/prepare.py",
       "purpose": "Training-data prep: audio transform, leak-free splits, ljspeech manifests, `boinga prepare`."
     },
     {
       "kind": "module",
-      "lines": 256,
+      "lines": 260,
       "path": "src/boinga_translator/pretrained.py",
       "purpose": "Pretrained Bangla VITS voices: cache model.pth + config.json on Drive and report their facts."
     },
@@ -1701,7 +1711,7 @@
     },
     {
       "kind": "module",
-      "lines": 342,
+      "lines": 343,
       "path": "src/boinga_translator/speaker_select.py",
       "purpose": "Speaker selection: embed each clean clip's voice (cached per clip), cluster and rank voices."
     },
@@ -1749,7 +1759,7 @@
     },
     {
       "kind": "test",
-      "lines": 133,
+      "lines": 154,
       "path": "tests/test_build_notebook.py",
       "purpose": "Tests for tools/build_notebook.py: tiny spec -> .ipynb layout, determinism and --check."
     },
@@ -1815,9 +1825,9 @@
     },
     {
       "kind": "test",
-      "lines": 43,
+      "lines": 59,
       "path": "tests/test_notebooks.py",
-      "purpose": "Tests for the committed run notebooks: in sync with their specs; C1 bootstrap shape, no secrets."
+      "purpose": "Tests for the committed run notebooks: in sync, explained cells, C1 bootstrap shape, no secrets."
     },
     {
       "kind": "test",
@@ -1851,7 +1861,7 @@
     },
     {
       "kind": "test",
-      "lines": 313,
+      "lines": 318,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
     },
@@ -1923,7 +1933,7 @@
     },
     {
       "kind": "tool",
-      "lines": 175,
+      "lines": 216,
       "path": "tools/build_notebook.py",
       "purpose": "Build a per-chunk Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/."
     },

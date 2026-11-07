@@ -18,6 +18,12 @@ Repo/project name: boinga-translator. Import package: boinga_translator.
 - Any failure -> follow the `debug-protocol` skill. Log it in docs/DEBUG_LOG.md.
 - Colab work runs as whole notebooks: see colab-handoff and colab-verify
   skills.
+- Every notebook cell is preceded by an `md()` cell explaining what it does,
+  why, and what output to expect.
+- Any cell that may run for more than about a minute shows tqdm progress (the
+  library function it calls uses tqdm, or a library's own progress output).
+  Exception: the bootstrap's pip install (BOOT.3) runs quietly in a subprocess;
+  its explanation says so.
 
 ## Code rules
 - Logic lives in src/boinga_translator/*.py. Notebook cells only call functions.
