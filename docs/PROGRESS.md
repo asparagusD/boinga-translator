@@ -141,7 +141,8 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
   audio (this commit; Colab result with C3.V2)
 - [x] C3.4a data_audit.audio_stats() (local): format, duration, peak, clip_ratio, rms_db,
   lead/trail silence (librosa trim, top_db 40) (this commit)
-- [ ] C3.4b data_audit.text_stats() (local)
+- [x] C3.4b data_audit.text_stats() + load_model_charset() (local): lengths, chars not in
+  the voice's characters|punctuations|space, oov_ratio, Latin, digits (this commit)
 - [ ] C3.4c data_audit.audit() over the corpus + cell
 - [ ] C3.5 data_audit.summarise() + cells + listening form
 - [ ] C3.6 dialect baseline prompts (CTG_1-3, verbatim held-out lines) + baseline re-run + cells

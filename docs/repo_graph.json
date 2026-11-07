@@ -182,6 +182,11 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/data_audit.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/data_download.py",
       "target": "src/boinga_translator/__init__.py"
     },
@@ -628,7 +633,7 @@
     },
     {
       "kind": "doc",
-      "lines": 183,
+      "lines": 184,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -778,9 +783,9 @@
     },
     {
       "kind": "module",
-      "lines": 63,
+      "lines": 104,
       "path": "src/boinga_translator/data_audit.py",
-      "purpose": "Corpus audit: per-clip audio stats (format, level, clipping, edge silence) for exclusion rules."
+      "purpose": "Corpus audit: per-clip audio stats and per-transcript text/charset stats for exclusions."
     },
     {
       "kind": "module",
@@ -856,9 +861,9 @@
     },
     {
       "kind": "test",
-      "lines": 126,
+      "lines": 184,
       "path": "tests/test_data_audit.py",
-      "purpose": "Tests for data_audit.py: audio_stats on synthetic wavs (silence, clipping, stereo, 8 kHz, bad)."
+      "purpose": "Tests for data_audit.py: audio_stats on synthetic wavs, text_stats and the model charset."
     },
     {
       "kind": "test",

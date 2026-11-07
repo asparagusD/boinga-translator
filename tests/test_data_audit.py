@@ -1,4 +1,4 @@
-"""Tests for data_audit.py: audio_stats on synthetic wavs (silence, clipping, stereo, 8 kHz, bad)."""
+"""Tests for data_audit.py: audio_stats on synthetic wavs, text_stats and the model charset."""
 
 from __future__ import annotations
 
@@ -110,6 +110,64 @@ def test_empty_wav(tmp_path: Path) -> None:
     assert s["decodable"] is True
     assert s["duration_s"] == 0.0 and s["peak"] == 0.0
     assert s["lead_silence_s"] == s["trail_silence_s"] == 0.0
+
+
+# --- text_stats / load_model_charset ---------------------------------------------------------
+
+TEXT_KEYS = set(data_audit.TEXT_KEYS)
+FAKE = frozenset("আমিবাজারেযাব ।")  # no ঁ, no digits, no Latin
+
+
+def test_text_stats_reports_char_missing_from_charset() -> None:
+    text = "আঁমি বাজারে যাব।"
+    s = data_audit.text_stats(text, FAKE)
+    assert set(s) == TEXT_KEYS
+    assert s["n_chars"] == len(text) and s["n_words"] == 3 and s["empty"] is False
+    assert s["chars_not_in_model"] == ["ঁ"]
+    assert s["oov_ratio"] == pytest.approx(1 / 14)  # 14 non-whitespace code points
+    assert s["has_latin"] is False and s["has_digits"] is False
+
+
+def test_text_stats_empty_and_whitespace_only() -> None:
+    for text in ("", "  \t\n"):
+        s = data_audit.text_stats(text, FAKE)
+        assert set(s) == TEXT_KEYS and s["n_chars"] == len(text)
+        assert s["empty"] is True and s["n_words"] == 0
+        assert s["chars_not_in_model"] == [] and s["oov_ratio"] == 0.0
+
+
+def test_text_stats_mixed_latin_and_digits() -> None:
+    text = "আমি OK বাজারে ২টা café 3"
+    s = data_audit.text_stats(text, FAKE)
+    assert s["has_latin"] is True and s["has_digits"] is True
+    assert s["chars_not_in_model"] == sorted(set(text.replace(" ", "")) - FAKE)
+    assert {"O", "K", "২", "ট", "é", "3"} <= set(s["chars_not_in_model"])
+    assert " " not in s["chars_not_in_model"]
+    assert data_audit.text_stats("১০", FAKE)["has_digits"] is True  # Bengali digits
+    assert data_audit.text_stats("é", FAKE)["has_latin"] is True
+    assert data_audit.text_stats("Ａ", FAKE)["has_latin"] is True  # fullwidth A
+
+
+def test_text_stats_never_modifies_or_normalises() -> None:
+    decomposed = "য়"  # য + nukta; the charset holds only the precomposed য়
+    s = data_audit.text_stats(decomposed, frozenset("য়"))
+    assert s["chars_not_in_model"] == ["য", "়"]  # measured as given, not NFC'd
+    assert s["n_chars"] == 2
+
+
+def test_load_model_charset_from_facts(tmp_path: Path) -> None:
+    facts = tmp_path / "facts.json"
+    facts.write_text('{"female": {"characters": "অআ‌", "punctuations": ".,", '
+                     '"eos": "।"}}', encoding="utf-8")
+    assert data_audit.load_model_charset("female", facts) == frozenset("অআ‌., ")
+    with pytest.raises(ValueError, match=r"no voice 'male'"):
+        data_audit.load_model_charset("male", facts)
+
+
+def test_load_model_charset_real_facts() -> None:
+    cs = data_audit.load_model_charset("female")
+    assert {"অ", "য়", "়", " ", ","} <= cs
+    assert "।" not in cs  # the eos symbol is not in characters/punctuations
 
 
 @pytest.mark.parametrize("make", [

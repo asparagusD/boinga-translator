@@ -1,12 +1,16 @@
-"""Corpus audit: per-clip audio stats (format, level, clipping, edge silence) for exclusion rules."""
+"""Corpus audit: per-clip audio stats and per-transcript text/charset stats for exclusions."""
 
 from __future__ import annotations
 
+import json
+import unicodedata
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import soundfile as sf
+
+from boinga_translator import paths
 
 CLIP_LEVEL = 0.999  # |sample| at or above this counts as clipped
 # librosa.effects.trim: below peak - 40 dB counts as silence. Its centred 2048-sample frames
@@ -14,6 +18,9 @@ CLIP_LEVEL = 0.999  # |sample| at or above this counts as clipped
 # sharp onsets; a slow fade can come out slightly long.
 TRIM_TOP_DB = 40
 RMS_FLOOR_DB = -120.0  # rms_db of digital silence (log of 0 is undefined)
+FACTS_FILE = "pretrained_facts.json"
+TEXT_KEYS = ("n_chars", "n_words", "empty", "chars_not_in_model", "oov_ratio", "has_latin",
+             "has_digits")
 AUDIO_KEYS = ("decodable", "error", "sample_rate", "channels", "subtype", "duration_s", "peak",
               "clip_ratio", "rms_db", "lead_silence_s", "trail_silence_s")
 
@@ -61,3 +68,37 @@ def audio_stats(wav_path: Path | str) -> dict[str, Any]:
     except Exception as exc:  # noqa: BLE001 - decoded but stats failed: report, keep going
         out["error"] = f"stats failed: {type(exc).__name__}: {exc}"
     return out
+
+
+# --- text ------------------------------------------------------------------------------------
+
+
+def load_model_charset(voice: str, facts_path: Path | None = None) -> frozenset[str]:
+    """Code points the pretrained voice knows: characters | punctuations | {" "}.
+
+    Not included: pad/bos/eos/blank specials (the eos symbol is the danda "।").
+    """
+    facts = json.loads((facts_path or paths.configs_dir() / FACTS_FILE).read_text(
+        encoding="utf-8"))
+    if voice not in facts:
+        raise ValueError(f"no voice {voice!r} in pretrained facts; have {sorted(facts)}")
+    return frozenset(facts[voice]["characters"]) | frozenset(facts[voice]["punctuations"]) | {" "}
+
+
+def _is_digit(c: str) -> bool:
+    return "0" <= c <= "9" or "০" <= c <= "৯"  # ASCII or Bengali digits ০-৯
+
+
+def text_stats(text: str, charset: frozenset[str] | set[str]) -> dict[str, Any]:
+    """Length and out-of-charset stats for one transcript, measured exactly as given."""
+    visible = [c for c in text if not c.isspace()]
+    missing = [c for c in visible if c not in charset]
+    return {
+        "n_chars": len(text),
+        "n_words": len(text.split()),
+        "empty": not visible,
+        "chars_not_in_model": sorted(set(missing)),
+        "oov_ratio": len(missing) / len(visible) if visible else 0.0,
+        "has_latin": any("LATIN" in unicodedata.name(c, "").split() for c in visible),
+        "has_digits": any(_is_digit(c) for c in visible),
+    }
