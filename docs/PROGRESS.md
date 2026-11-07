@@ -323,7 +323,10 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
   `notebooks/runs/C5_text-frontend_run2.ipynb`; tests with a fake tokenizer
   (this commit). No token-length stats or .json (narrower than the C5.0 plan, per the
   C5.4 promptbook)
-- [ ] C5.H2 hand-off run 2
+- [x] C5.H2 hand-off run 2: `notebooks/runs/C5_text-frontend_run2.ipynb` (CPU) rebuilt,
+  unchanged since `49cc675`, pushed; link and save name
+  `colab_runs/C5_text-frontend_run2.ipynb` given; no forms; duration not measured (this
+  commit)
 - [ ] C5.V2 verify run 2
 - [ ] C5.5 Gate G4 — text frontend (criteria to confirm before run 2)
 
