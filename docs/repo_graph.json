@@ -246,6 +246,11 @@
       "target": "configs/baseline_prompts.json"
     },
     {
+      "kind": "config",
+      "source": "src/boinga_translator/cli.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/__init__.py"
@@ -379,6 +384,11 @@
       "kind": "import",
       "source": "src/boinga_translator/report_io.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "configs/speaker_selection.json"
     },
     {
       "kind": "import",
@@ -756,6 +766,11 @@
       "target": "src/boinga_translator/__init__.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_speaker_choice.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
       "kind": "test",
       "source": "tests/test_speaker_choice.py",
       "target": "src/boinga_translator/cli.py"
@@ -986,6 +1001,12 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 13,
+      "path": "configs/speaker_selection.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 106,
       "path": "docs/DEBUG_LOG.md",
@@ -993,13 +1014,13 @@
     },
     {
       "kind": "doc",
-      "lines": 580,
+      "lines": 585,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 283,
+      "lines": 285,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1136,6 +1157,12 @@
       "purpose": "Colab run C3 run 3 — Char-mapped re-audit"
     },
     {
+      "kind": "doc",
+      "lines": 255,
+      "path": "reports/colab_runs/C4_speaker_run1.md",
+      "purpose": "Colab run C4 run 1 — C4 — training speaker"
+    },
+    {
       "kind": "config",
       "lines": 16,
       "path": "reports/env.json",
@@ -1166,10 +1193,22 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 7,
+      "path": "reports/notes/C4.3-notes.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 123,
       "path": "reports/pretrained_inspect.md",
       "purpose": "Pretrained voices"
+    },
+    {
+      "kind": "doc",
+      "lines": 21,
+      "path": "reports/speaker_ranking.md",
+      "purpose": "Speaker clusters"
     },
     {
       "kind": "module",

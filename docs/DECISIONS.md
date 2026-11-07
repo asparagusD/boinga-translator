@@ -536,6 +536,11 @@ the one that trains. The cluster
 step (C4.2b) must read the marker and treat 256-dim (resemblyzer) and 192-dim (ECAPA)
 vectors alike. Model weights stay in the pip package / Drive, never in the repo.
 
+**Verified (C4 run 1, commit ad690fd, T4, Python 3.13.16, torch 2.14.1):** resemblyzer
+imported (no fallback); 7,513 of 7,513 clean clips embedded, 0 failed. webrtcvad's
+`import pkg_resources` only warned ("slated for removal"), so the setuptools<81 pin
+still matters.
+
 ## 2026-11-07 — Speaker clustering: average-linkage cosine, threshold chosen by silhouette
 **Context:** C4.2b groups the clean clips' speaker embeddings (no speaker ids) into voices
 and ranks them, so C4.3 can train on one consistent voice. The right distance threshold

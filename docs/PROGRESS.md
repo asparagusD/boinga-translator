@@ -215,7 +215,9 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
   (extra `speaker-fallback`); `boinga embed-speakers`; `paths.speaker_emb()`; cells `C4.0`
   (fetch-data) and `C4.2a` in `notebooks/specs/c4_speaker.py`; DECISIONS "Speaker encoder";
   tests `tests/test_speaker_select.py` (fake encoder) (this commit)
-  - [ ] C4.2a results: embeddings count from the verified run (C4.V)
+  - [x] C4.2a results: C4 run 1 (ad690fd, T4): 7,513 of 7,513 clean clips embedded with
+    resemblyzer-0.1.4, 0 failed; webrtcvad imported pkg_resources with a deprecation
+    warning only; duration not recorded by the cell (this commit)
 - [x] C4.2b code: `speaker_select.cluster(emb_dir, audit_df)`: sklearn
   AgglomerativeClustering (cosine, average linkage) at thresholds 0.20-0.50 step 0.05 (tree
   built once, cached), per threshold clusters / largest-cluster clean minutes / silhouette;
