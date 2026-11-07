@@ -1195,7 +1195,7 @@
     },
     {
       "kind": "doc",
-      "lines": 358,
+      "lines": 360,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1386,6 +1386,12 @@
       "purpose": "Colab run C5 run 1 — C5 run 1 — OOV report"
     },
     {
+      "kind": "doc",
+      "lines": 135,
+      "path": "reports/colab_runs/C5_text-frontend_run2.md",
+      "purpose": "Colab run C5 run 2 — C5 run 2 — tokenizer check"
+    },
+    {
       "kind": "config",
       "lines": 16,
       "path": "reports/env.json",
@@ -1438,6 +1444,12 @@
       "lines": 21,
       "path": "reports/speaker_ranking.md",
       "purpose": "Speaker clusters"
+    },
+    {
+      "kind": "doc",
+      "lines": 9,
+      "path": "reports/tokenizer_check.md",
+      "purpose": "Tokenizer check"
     },
     {
       "kind": "module",

@@ -327,7 +327,9 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
   unchanged since `49cc675`, pushed; link and save name
   `colab_runs/C5_text-frontend_run2.ipynb` given; no forms; duration not measured (this
   commit)
-- [ ] C5.V2 verify run 2
+- [x] C5.V2 verify run 2: 7/7 PASS at `90b60c3` (notebook built in `49cc675`), not stale;
+  reports/tokenizer_check.md: coqui TTSTokenizer from the male config.json, 7,506 clips,
+  unknown 0 of 297,218 characters (spaces included), 0 round-trip failures (this commit)
 - [ ] C5.5 Gate G4 — text frontend (criteria to confirm before run 2)
 
 ## C6
