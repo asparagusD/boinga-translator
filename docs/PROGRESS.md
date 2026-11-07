@@ -265,6 +265,19 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
   this commit). Rule from the C4.V promptbook: >= 30 min PASS, 10-30 PASS WITH RISK,
   < 10 FAIL -> C5, C6, then Chunk F
 
+### C4 follow-ups (from the whole-chunk review; for C5)
+- [ ] C5 checks `csv_sha256` of configs/speaker_selection.json against the Drive
+  speaker_selection.csv before building training lists (with a test); the CSV holds only
+  clip_id, split_official, duration_s, so join audit.csv for wav paths and transcripts
+- [ ] Take the speaker only from configs/speaker_selection.json: reports/notes/C4.3-notes.json
+  keeps the superseded run-1 pick (CHOSEN_ID "2")
+- [ ] save_selection writes the Drive CSV before the repo JSON: write the JSON first or rely
+  on the sha check above
+- [ ] speaker_select.py tidy-ups: `lines =[` spacing in _render; use SPLITS in the ranking
+  table instead of the literal tuple
+- [ ] reports/env.json now holds run 2's CPU environment; run 1's T4 environment is in
+  DECISIONS "Speaker encoder" and the run-1 digest
+
 ## C5
 - [ ] C5.x (subchunks not yet defined)
 
