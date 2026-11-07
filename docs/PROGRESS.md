@@ -408,8 +408,10 @@ the generated map/notebook and PROGRESS.
     char_map exclusions and transform failures are only printed until
     reports/prepare_summary.md exists. Review suggestions not taken: retry OSError rows,
     delete stale Drive tars automatically, a clean FAIL in pick_prepared without manifests
-- [ ] C6.H hand-off: `notebooks/runs/C6_prepare_run1.ipynb` (CPU) built, pushed, link
-  given; duration not measured
+- [x] C6.H hand-off: `notebooks/runs/C6_prepare_run1.ipynb` (CPU) rebuilt, unchanged
+  since `f3564b5`, `--all --check` clean, pushed; link and save name
+  `colab_runs/C6_prepare_run1.ipynb` given; no forms (listening reported in chat);
+  duration not measured (estimate 10-30 min) (this commit)
 - [ ] C6.V verify (colab-verify): results into PROGRESS/DECISIONS
 
 ## C7
