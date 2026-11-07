@@ -429,3 +429,46 @@ and speaker issues decide how much usable single-voice data exists.
 standard-Bangla accent (what the corpus contains); the proof of concept targets dialect
 vocabulary and spelling, not regional accent. The fallback stays the plan B if the
 speaker condition leaves too little consistent data.
+
+## 2026-11-07 — Character map: danda to ".", typo fixes, silent punctuation, precomposed nukta
+**Context:** Gate G2 condition 1. coqui-tts 0.28.0 source (TTS/tts/utils/text/
+characters.py `_create_vocab`, tokenizer.py `encode`): the vocab is pad, eos, bos,
+blank, the characters and the punctuations, so the eos symbol "।" is a single-character
+token that text can hit; a character outside the vocab is dropped with only a log
+warning, so text and audio would silently disagree. The pretrained config has no text
+cleaner. Corpus counts (rows): danda 6,254; ৰ U+09F0 59; ৱ U+09F1 1; ৷ U+09F7 4; quotes
+' 40, " 46, “ 2; brackets 45/44; en dash 41; slash 19; colon 7; * 1; … 1; any digit 255
+(৭ and ৯ are not in the model). Nukta letters in the raw text: precomposed য় 5,825
+(3,816 rows), ড় 1,043, ঢ় 2; bare nukta 500 (360 rows); NFC decomposes all of them, and
+both forms are in both voices' charsets.
+**Decision:** configs/char_map.json, applied in order to ctg_text_nfc, then whitespace
+collapsed and stripped again (user choices in chat):
+- "।" and its lookalike "৷" -> "." (the user chose the ASCII full stop over keeping the
+  eos token).
+- Typos: ৰ -> র, ৱ -> র (contexts: আগ্ৰহ, গ্ৰাউন্ড, ৱেষ্টুরেন্টে).
+- Silent marks removed: ' " “ ” ( ) …; en dash – -> em dash —.
+- For inference prompts only (not in the corpus): | -> ".", ; -> ",", ZWJ removed (it
+  only shapes a conjunct; the female voice lacks it).
+- Kept on purpose (both voices know them): ‘ ’ (’ marks elision, e.g. দু’রাত, 37 rows)
+  and ZWNJ (11 rows).
+- Nukta: after NFC, য+় -> য় (U+09DF), ড+় -> ড় (U+09DC), ঢ+় -> ঢ় (U+09DD), the form of
+  about 93% of the raw corpus.
+- Rows containing "/", ":", "*" or any digit (ASCII or Bengali) are excluded from
+  training, not rewritten (278 rows). The colon rows mix punctuation (যেঅন:), a typed
+  visarga (দু:খ, বস্তুত:) and a time (২:৩০), so no single mapping fits (review finding;
+  a first draft mapped ":" to a comma, which would have split দু:খ).
+Preview on the real transcripts (scratchpad): 7,133 of 8,004 rows change; after the map
+and the exclusions, 0 rows contain a character outside either voice's charset.
+**Alternatives:** keep "।" as the eos token (no mapping): it is in the vocab, but the user
+chose ".". NFC-decomposed nukta (no mapping): fewer map entries, but differs from 93% of
+the published text. Exclude every row with any listed punctuation (about 230 rows) or
+map "/" to a comma (keeps 19 rows, risks text/audio mismatch where "বা" was spoken).
+Spell digits out: rewrites transcripts, against dialect-data-rules.
+**Consequences:** Text front-end (C3.8b) applies this map for training and inference
+alike; the audit then judges mapped text and replaces the oov_ratio > 0.02 rule with
+"any character still unknown after mapping" plus the exclusion list, and is re-run on
+Colab (C3.8c). The mapped text is not NFC-stable (precomposed nukta): nothing may
+normalise it again after the map, and C3.8b tests that applying it twice changes
+nothing. The model's "." token replaces its "।" token at sentence ends; inference
+prompts get the same map. Whether the precomposed nukta rows of the checkpoint are the
+trained ones can be checked from embedding norms in C4.

@@ -1,0 +1,27 @@
+{
+  "_doc": "Character map for Chittagonian transcripts (DECISIONS 2026-11-07 'Character map'). Applied in order to ctg_text_nfc (Unicode NFC + collapsed whitespace + strip); whitespace is collapsed and stripped again afterwards. Every 'to' string uses only characters both pretrained voices know. Rows containing any exclude_rows_with character are dropped from training, not rewritten.",
+  "map": [
+    {"from": "।", "to": ".", "note": "danda (the model's eos symbol) -> ASCII full stop in the punctuation set; user decision; 6,254 rows"},
+    {"from": "৷", "to": ".", "note": "BENGALI CURRENCY NUMERATOR FOUR, a danda lookalike typed sentence-final (e.g. 'ভালা আছোন৷'); 4 rows"},
+    {"from": "ৰ", "to": "র", "note": "Assamese RA typed for Bengali RA (e.g. 'আগ্ৰহ', 'গ্ৰাউন্ড'); 59 rows"},
+    {"from": "ৱ", "to": "র", "note": "Assamese WA typed for Bengali RA ('ৱেষ্টুরেন্টে', restaurant); 1 row"},
+    {"from": "'", "to": "", "note": "quote mark around titles/names, not spoken; 40 rows"},
+    {"from": "\"", "to": "", "note": "quote mark, not spoken; 46 rows"},
+    {"from": "“", "to": "", "note": "LEFT DOUBLE QUOTATION MARK, not spoken; 2 rows"},
+    {"from": "”", "to": "", "note": "RIGHT DOUBLE QUOTATION MARK, not spoken; not seen in the corpus, mapped for symmetry"},
+    {"from": "(", "to": "", "note": "bracketed aside, e.g. '(চৌধুরী)', '(ইসি)': the words are read, the brackets are not; 45 rows"},
+    {"from": ")", "to": "", "note": "closing bracket, see '('; 44 rows"},
+    {"from": "…", "to": "", "note": "HORIZONTAL ELLIPSIS directly before the danda ('হূনুন…।'); 1 row"},
+    {"from": "–", "to": "—", "note": "EN DASH used as a pause -> EM DASH, which the model knows; 41 rows"},
+    {"from": "|", "to": ".", "note": "ASCII bar, a common way to type the danda; not in the corpus, mapped for inference prompts"},
+    {"from": ";", "to": ",", "note": "semicolon (in neither charset) -> comma pause; not in the corpus, mapped for inference prompts"},
+    {"from": "‍", "to": "", "note": "ZERO WIDTH JOINER only changes how a conjunct is drawn; the female voice lacks it; not in the corpus"},
+    {"from": "য়", "to": "য়", "note": "YA + NUKTA (NFC output) -> precomposed YYA U+09DF, the form of ~93% of the raw corpus (5,825 vs 500 bare nukta); user decision"},
+    {"from": "ড়", "to": "ড়", "note": "DDA + NUKTA -> precomposed RRA U+09DC (1,043 precomposed in the raw corpus)"},
+    {"from": "ঢ়", "to": "ঢ়", "note": "DDHA + NUKTA -> precomposed RHA U+09DD (2 precomposed in the raw corpus)"}
+  ],
+  "exclude_rows_with": {
+    "chars": "/:*0123456789০১২৩৪৫৬৭৮৯",
+    "note": "Slash (19 rows): unclear whether read as a pause or as 'বা'. Colon (7 rows): mixes punctuation ('যেঅন:'), a typed visarga ('দু:খ', 'বস্তুত:') and a time ('২:৩০'). Asterisk (1 row): inside a word ('গু* লিতে'). Digits (255 rows): written as digits, spoken as number words; ৭/৯ are not in the model. Rows are excluded, never rewritten (user decision: map the clear cases, exclude the unclear ones). Kept on purpose (both voices know them): ‘ ’ (’ marks elision, e.g. 'দু’রাত', 37 rows) and ZWNJ (11 rows)."
+  }
+}

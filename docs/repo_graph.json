@@ -421,6 +421,21 @@
       "target": "tools/build_notebook.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_char_map.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_char_map.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_char_map.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "test",
       "source": "tests/test_colab_bootstrap.py",
       "target": "src/boinga_translator/paths.py"
@@ -579,6 +594,11 @@
       "kind": "test",
       "source": "tests/test_read_colab_run.py",
       "target": "tools/read_colab_run.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_repo_graph.py",
+      "target": "configs/char_map.json"
     },
     {
       "kind": "test",
@@ -765,6 +785,12 @@
     },
     {
       "kind": "config",
+      "lines": 27,
+      "path": "configs/char_map.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
       "lines": 34,
       "path": "configs/pretrained_facts.json",
       "purpose": ""
@@ -777,13 +803,13 @@
     },
     {
       "kind": "doc",
-      "lines": 431,
+      "lines": 474,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 204,
+      "lines": 207,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1038,6 +1064,12 @@
       "lines": 133,
       "path": "tests/test_build_notebook.py",
       "purpose": "Tests for tools/build_notebook.py: tiny spec -> .ipynb layout, determinism and --check."
+    },
+    {
+      "kind": "test",
+      "lines": 69,
+      "path": "tests/test_char_map.py",
+      "purpose": "Tests for configs/char_map.json: entry shape, targets inside both voices' charsets, exclusions."
     },
     {
       "kind": "test",
