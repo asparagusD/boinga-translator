@@ -181,6 +181,11 @@
       "target": "tools/nbkit.py"
     },
     {
+      "kind": "config",
+      "source": "notebooks/specs/c4_speaker_run2.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c4_speaker_run2.py",
       "target": "tools/nbkit.py"
@@ -264,6 +269,11 @@
       "kind": "config",
       "source": "src/boinga_translator/cli.py",
       "target": "configs/baseline_prompts.json"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/cli.py",
+      "target": "configs/speaker_selection.json"
     },
     {
       "kind": "import",
@@ -399,6 +409,11 @@
       "kind": "import",
       "source": "src/boinga_translator/report_io.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "configs/speaker_selection.json"
     },
     {
       "kind": "import",
@@ -776,6 +791,11 @@
       "target": "src/boinga_translator/__init__.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_speaker_choice.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
       "kind": "test",
       "source": "tests/test_speaker_choice.py",
       "target": "src/boinga_translator/cli.py"
@@ -1006,6 +1026,12 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 13,
+      "path": "configs/speaker_selection.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 106,
       "path": "docs/DEBUG_LOG.md",
@@ -1013,13 +1039,13 @@
     },
     {
       "kind": "doc",
-      "lines": 585,
+      "lines": 609,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 296,
+      "lines": 299,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1172,6 +1198,12 @@
       "lines": 255,
       "path": "reports/colab_runs/C4_speaker_run1.md",
       "purpose": "Colab run C4 run 1 — C4 — training speaker"
+    },
+    {
+      "kind": "doc",
+      "lines": 124,
+      "path": "reports/colab_runs/C4_speaker_run2.md",
+      "purpose": "Colab run C4 run 2 — C4 — save the mixed-voice selection"
     },
     {
       "kind": "config",

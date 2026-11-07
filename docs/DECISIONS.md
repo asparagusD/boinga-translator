@@ -583,3 +583,27 @@ choosing the base voice by listening comparison (no evidence G1 preferred either
 prep (C5) must keep the official test split out of training (G2 condition 3) and Gate G3
 must judge the train minutes. If the audit charset voice (female) differs from the base
 voice, re-run the audit with `--voice male` before training (C2 follow-up).
+
+## 2026-11-07 — Training speaker: mixed voices (cluster 1), base voice male
+**Context:** C4 run 1 (ad690fd) embedded all 7,513 clean clips (resemblyzer) and the
+C4.2b rule chose threshold 0.50 (best silhouette, 0.196, since every threshold's largest
+cluster had >= 30 min). That merged 7,506 clips into cluster 1; clusters 2 and 3 had 5
+and 2 clips. In form C4.3-notes the user picked cluster 2 (CHOSEN_ID 2, one consistent
+voice, male, "some noise", notes "none"): 0.18 clean minutes, under the 10-minute G3 floor.
+Smaller thresholds split the corpus into 71-1,464 clusters (largest 52-128 min), unheard.
+**Decision:** The user chose in chat (C4.V): train on mixed voices, i.e. cluster 1, with
+the male pretrained voice as the base (kept from the form). C4 run 2 (fcb64e5, CPU) saved
+it with `boinga save-speaker --id 1 --base-voice male`: configs/speaker_selection.json,
+kind "cluster", id 1, 7,506 clips, 490.73 clean min (train 393.72, val 48.25, test 48.76),
+csv_sha256 e170000e...592e of Drive speaker_selection.csv. This confirms DECISIONS
+"Speakers" (A, mixed voices); the 7 clean clips of clusters 2-3 stay out.
+**Alternatives:** keep cluster 2 (11 s of one voice: G3 FAIL, Chunk F); re-cluster with a
+cap on the largest cluster's share and listen again (one more run; not chosen).
+**Consequences:**
+- The fine-tuned voice may drift between speakers; C7-C9 listening checks it, and the
+  re-clustering option stays open if it does (PROGRESS follow-up).
+- The C3 audit checked text against the female charset: C5 re-runs `boinga audit --voice
+  male` before building training lists (C2 follow-up).
+- The selection lists the official val and test clips too; C5 keeps the official test
+  split (incl. clips 386, 29, 625) out of training (G2 condition 3).
+- The run-1 selection (cluster 2) is superseded: run 2 overwrote the Drive copy.

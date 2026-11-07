@@ -242,7 +242,9 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
   --id N --base-voice female|male`; cell `C4.3.play`, form `C4.3-notes` (CHOSEN_ID,
   ONE_CONSISTENT_VOICE, GENDER, AUDIO_QUALITY, NOTES); DECISIONS "Speaker choice"; tests
   `tests/test_speaker_choice.py` (this commit)
-  - [ ] C4.3 results: the chosen cluster and base voice from the verified run (C4.V)
+  - [x] C4.3 results: mixed voices = cluster 1 (7,506 clips, 490.73 clean min; train
+    393.72 / val 48.25 / test 48.76), base voice male; configs/speaker_selection.json from
+    run 2, form notes from run 1; DECISIONS "Training speaker" (this commit)
   - Moved out of C4 (C4.3 promptbook): per-split training manifests, cross-split duplicate
     text on `ctg_text_model`, text_frontend.prepare, resampling (training-data prep, C5)
 - [x] C4.H hand-off: `notebooks/runs/C4_speaker_run1.ipynb` (T4) rebuilt, unchanged since
@@ -253,9 +255,10 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
   consistent voice, male, some noise. The 0.50 threshold merged 7,506 of 7,513 clips into
   cluster 1, so the user chose (chat) mixed voices = cluster 1, base voice male; the run-1
   selection (cluster 2) is superseded and was not committed
-- [ ] C4.3b run 2 (CPU, `notebooks/specs/c4_speaker_run2.py`): `boinga save-speaker --id 1
+- [x] C4.3b run 2 (CPU, `notebooks/specs/c4_speaker_run2.py`): `boinga save-speaker --id 1
   --base-voice male` from run 1's Drive speaker_clusters.csv -> configs/speaker_selection.json
-  (this commit builds it); C4.V2 verifies it, then the C4.3 results commit
+  (built `fcb64e5`)
+- [x] C4.V2 verify run 2: 6/6 PASS at `fcb64e5`, not stale; results in the C4.3 commit
 - [ ] Follow-up: the threshold rule (best silhouette among largest >= 30 min) picks a
   near-single cluster on this corpus; cap the largest cluster's share before reusing it
 - [ ] C4.4 Gate G3 — speaker (DECISIONS, supersedes or confirms "Speakers"). Proposed PASS

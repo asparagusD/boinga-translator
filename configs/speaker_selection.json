@@ -1,0 +1,13 @@
+{
+  "kind": "cluster",
+  "id": 1,
+  "n_clips": 7506,
+  "clean_minutes": 490.73,
+  "minutes_by_official_split": {
+    "train": 393.72,
+    "val": 48.25,
+    "test": 48.76
+  },
+  "csv_sha256": "e170000ef948cfa3051edabdd05b4e6376ee704763ebbf7af27a47964dac592e",
+  "base_voice": "male"
+}
