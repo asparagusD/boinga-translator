@@ -146,7 +146,9 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
 - [x] C3.4c code: data_audit.audit() + `boinga audit --voice` (default female: G1 "same")
   + cell C3.4c: every index row -> Drive reports/audit.csv, Pool(2), resumable
   (this commit; Colab result with C3.V2)
-- [ ] C3.5 data_audit.summarise() + cells + listening form
+- [x] C3.5 code: audit_summary.clean_mask/summarise/sample_clips + `boinga audit-summary`
+  + cells C3.5, C3.5.play, form C3.5-notes -> reports/audit_summary.md (this commit;
+  Colab result with C3.V2)
 - [ ] C3.6 dialect baseline prompts (CTG_1-3, verbatim held-out lines) + baseline re-run + cells
 - [ ] C3.H2 hand-off run 2
 - [ ] C3.V2 verify run 2

@@ -63,6 +63,11 @@
     {
       "kind": "notebook",
       "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
       "target": "src/boinga_translator/cli.py"
     },
     {
@@ -106,6 +111,31 @@
       "target": "tools/nbkit.py"
     },
     {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/audit_summary.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
       "kind": "config",
       "source": "src/boinga_translator/baseline.py",
       "target": "configs/baseline_prompts.json"
@@ -134,6 +164,11 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/audit_summary.py"
     },
     {
       "kind": "import",
@@ -268,6 +303,26 @@
     {
       "kind": "test",
       "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_summary.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_summary.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_summary.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_summary.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -658,7 +713,7 @@
     },
     {
       "kind": "doc",
-      "lines": 186,
+      "lines": 188,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -694,7 +749,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 351,
+      "lines": 450,
       "path": "notebooks/runs/C3_data-audit_run2.ipynb",
       "purpose": "C3 run 2 — Index, audit, summary"
     },
@@ -724,7 +779,7 @@
     },
     {
       "kind": "module",
-      "lines": 35,
+      "lines": 54,
       "path": "notebooks/specs/c3_data_audit_run2.py",
       "purpose": "Spec: C3 run 2, Chittagonian corpus: index, audit and summary (CPU)."
     },
@@ -784,13 +839,19 @@
     },
     {
       "kind": "module",
+      "lines": 122,
+      "path": "src/boinga_translator/audit_summary.py",
+      "purpose": "Audit summary: exclusion rules (clean_mask), reports/audit_summary.md, clean clips to hear."
+    },
+    {
+      "kind": "module",
       "lines": 96,
       "path": "src/boinga_translator/baseline.py",
       "purpose": "Baseline smoke synthesis: pretrained voices read configs/baseline_prompts.json for listening."
     },
     {
       "kind": "module",
-      "lines": 135,
+      "lines": 149,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -808,7 +869,7 @@
     },
     {
       "kind": "module",
-      "lines": 244,
+      "lines": 249,
       "path": "src/boinga_translator/data_audit.py",
       "purpose": "Corpus audit: per-clip audio stats and per-transcript text/charset stats for exclusions."
     },
@@ -859,6 +920,12 @@
       "lines": 142,
       "path": "tests/test_audit_corpus.py",
       "purpose": "Tests for data_audit.audit() and `boinga audit`: per-row stats, duplicates, resume, CLI."
+    },
+    {
+      "kind": "test",
+      "lines": 128,
+      "path": "tests/test_audit_summary.py",
+      "purpose": "Tests for audit_summary.py and `boinga audit-summary`: exclusion rules, report, samples."
     },
     {
       "kind": "test",

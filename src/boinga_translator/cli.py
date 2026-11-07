@@ -6,6 +6,7 @@ import argparse
 
 from boinga_translator import (
     __version__,
+    audit_summary,
     baseline,
     corpus,
     data_audit,
@@ -31,7 +32,18 @@ def build_parser() -> argparse.ArgumentParser:
     aud = sub.add_parser("audit", help="audit every clip to Drive reports/audit.csv (resumable)")
     # Gate G1 recorded no preferred voice (quality "same"), so the default is female.
     aud.add_argument("--voice", choices=pretrained.voices(), default="female")
+    sub.add_parser("audit-summary", help="summarise audit.csv into reports/audit_summary.md")
     return parser
+
+
+def _audit_summary() -> int:
+    """Summarise the Drive audit.csv; FAIL + exit 1 if it is missing or unreadable."""
+    try:
+        audit_summary.summarise()
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: audit-summary: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
 
 
 def _audit(voice: str) -> int:
@@ -128,6 +140,8 @@ def main(argv: list[str] | None = None) -> int:
         return _index()
     elif args.command == "audit":
         return _audit(args.voice)
+    elif args.command == "audit-summary":
+        return _audit_summary()
     return 0
 
 

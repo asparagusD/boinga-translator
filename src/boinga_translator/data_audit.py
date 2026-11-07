@@ -121,7 +121,7 @@ AUDIT_COLS = ("clip_id", "split_official", "wav_path", "ctg_text_nfc", "charset_
               *TEXT_KEYS, "chars_per_second", "duplicate_text")
 _BOOL_COLS = ("decodable", "empty", "has_latin", "has_digits", "duplicate_text")
 _TEXT_COLS = ("clip_id", "split_official", "wav_path", "ctg_text_nfc", "charset_id", "error",
-              "subtype", "chars_not_in_model")  # missing values become "" (no split, no error)
+              "subtype", "chars_not_in_model", "speaker_id")  # missing -> "" (no split/error)
 _BATCH = 200  # rows per part file (a dropped session loses at most one unwritten batch)
 
 
@@ -160,10 +160,15 @@ def _typed(df: pd.DataFrame) -> pd.DataFrame:
         if col in _TEXT_COLS:
             df[col] = df[col].fillna("").astype(str)
         elif col in _BOOL_COLS:
-            df[col] = df[col].map({True: True, False: False, "True": True, "False": False})
+            df[col] = df[col].astype(str).eq("True")  # True / "True" -> True; blank -> False
         else:
             df[col] = pd.to_numeric(df[col], errors="coerce").astype("float64")
     return df
+
+
+def read_audit(csv: Path) -> pd.DataFrame:
+    """An audit CSV (audit.csv or a part) with the same dtypes audit() returns."""
+    return _typed(pd.read_csv(csv, dtype=str, keep_default_na=False, encoding="utf-8"))
 
 
 def _write_part(parts: Path, rows: list[dict[str, Any]]) -> None:
