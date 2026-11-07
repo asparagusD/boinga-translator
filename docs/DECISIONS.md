@@ -478,3 +478,25 @@ text):** clean 7,513 clips, 8.18 h (train 6,010 / 6.56 h, val 748 / 0.81 h, test
 0.81 h), up from 2,881 clips / 4.10 h before the map. Excluded character 279 rows
 (0.62 h); unknown to the model after the map 114 rows, all of them also excluded-character
 rows (৭ ৯ / : *), so no unknown character reaches training. Gate G2 condition 1 is met.
+
+## 2026-11-07 — Speakers: fine-tune the single-speaker model on the mixed voices
+**Context:** Gate G2 condition 2. The corpus has no speaker field and the C3.5 listening
+heard "many" speakers. Options offered (chat): A mixed voices (all clean clips into the
+single-speaker VITS); B the largest consistent speaker cluster from a speaker encoder;
+C a multi-speaker VITS with cluster ids (architecture change from the single-speaker
+checkpoint). Measuring clusters first (C3.9a) was offered and declined.
+**Decision:** A, decided by the user in chat: fine-tune the pretrained single-speaker VITS
+on all clean clips regardless of speaker (7,513 clips, 8.18 h, of which the official
+train split is 6,010 clips / 6.56 h). No speaker filtering or speaker ids.
+**Alternatives:** B (consistent voice, but an unknown and possibly thin subset plus a new
+dependency); C (most work, needs speaker embeddings in a model trained without them).
+Measure-first (one Colab run) was declined.
+**Consequences:**
+- The fine-tuned voice may average speakers: timbre or prosody can drift between
+  utterances. C4's smoke-test listening checks this explicitly.
+- If C4 hears an unstable voice, the fallback is B: embed clips with SpeechBrain ECAPA
+  (speechbrain/spkrec-ecapa-voxceleb, the user's choice of encoder; Apache-2.0, licence
+  and Python 3.13 support to be verified before install) and retrain on the largest
+  cluster. This needs a new DECISIONS entry.
+- Gate G2 condition 2 is met; condition 3 (official test split out of training, incl.
+  clips 386, 29, 625) is a C4 data-split rule.

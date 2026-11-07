@@ -868,13 +868,13 @@
     },
     {
       "kind": "doc",
-      "lines": 480,
+      "lines": 502,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 212,
+      "lines": 213,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },

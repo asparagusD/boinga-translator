@@ -175,7 +175,8 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
   (was 2,881 / 4.10 h); G2 condition 1 met
   - [x] C3.H3 run-3 notebook (fetch, audit, summary; CPU) built and pushed (`eb3d3e0`)
   - [x] C3.V3 verify run 3: 8/8 PASS at `eb3d3e0`, audit 8,009 rows in 62 s (this commit)
-- [ ] Speakers: mixed voices vs a consistent subset (speaker-embedding clustering) + DECISIONS
+- [x] C3.9 Speakers: mixed voices (user decision, measuring declined); fallback = largest
+  SpeechBrain ECAPA cluster if C4 hears an unstable voice (DECISIONS "Speakers"; this commit)
 - [ ] Keep the official test split (incl. clips 386, 29, 625) out of training in C4
 
 ## C4
