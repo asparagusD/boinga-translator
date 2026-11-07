@@ -4,17 +4,17 @@ Base: `/content/drive/MyDrive/boinga-translator/pretrained/male/config.json`, ru
 
 | key | pretrained | fine-tune | reason |
 |---|---|---|---|
-| `batch_size` | 104 | 16 | fits a T4 (16 GB) with fp16 and 15 s clips; smoke test measures |
+| `batch_size` | 104 | 32 | RTX PRO 6000 (95 GB): batch 16 used 3.39 GB; 2x it, lr kept |
 | `datasets` | [{"name": "", "path": "/home/ansary/Shabab/bn_tts/male/mo... | [{"formatter": "ljspeech", "dataset_name": "", "path": "/... | our prepared ljspeech manifests on the fast disk replace the author's paths |
 | `epochs` | 5000 | 1000 | upper bound only; runs stop by a step budget (RUN_BUDGETS, C8) |
-| `eval_batch_size` | 48 | 8 | eval runs beside training memory; half the train batch |
+| `eval_batch_size` | 48 | 16 | half the train batch, as before |
 | `lr_disc` | 0.0002 | 0.0001 | 0.5 x pretrained, like lr_gen, so G and D stay balanced |
 | `lr_gen` | 0.0002 | 0.0001 | 0.5 x pretrained: fine-tuning should not undo the pretrained weights |
-| `max_audio_len` | Infinity | 330750 | 15 s x sample_rate: longer clips risk T4 out-of-memory |
+| `max_audio_len` | Infinity | 330750 | 15 s x sample_rate: kept from C7; a batch pads to its longest clip |
 | `min_audio_len` | 1 | 11025 | 0.5 s x sample_rate, on trimmed clips (C6 follow-up) |
-| `mixed_precision` | false | true | fp16 halves memory, speeds up a T4; NaN -> fp32 (skill) |
-| `num_eval_loader_workers` | 4 | 1 | eval is small; leave the other CPU to training |
-| `num_loader_workers` | 4 | 2 | Colab VMs have 2 vCPUs |
+| `mixed_precision` | false | true | fp16: no NaN in the smoke test, less memory; NaN -> fp32 |
+| `num_eval_loader_workers` | 4 | 4 | eval is small; half the train workers |
+| `num_loader_workers` | 4 | 8 | fixed 8 for the RTX PRO 6000 VM; check env cpu_count |
 | `output_path` | "/home/ansary/Shabab/" | "/content/drive/MyDrive/boinga-translator/runs" | runs on Drive (paths.runs()) survive a Colab disconnect |
 | `print_step` | 50 | 5 | smoke run only: ~10 timed steps in 60 instead of 1 |
 | `restore_path` | "/home/ansary/Shabab/vits_20_october/checkpoint_626000.pth" | null | the author's absolute path; the runner passes it (C7.3) |

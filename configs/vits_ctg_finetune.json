@@ -10,7 +10,7 @@
     "win_length": 1024
   },
   "batch_group_size": 0,
-  "batch_size": 16,
+  "batch_size": 32,
   "characters": {
     "blank": "<BLNK>",
     "bos": "<BOS>",
@@ -52,7 +52,7 @@
   "dur_loss_alpha": 1.0,
   "enable_eos_bos_chars": false,
   "epochs": 1000,
-  "eval_batch_size": 8,
+  "eval_batch_size": 16,
   "eval_split_max_size": null,
   "eval_split_size": 0.01,
   "feat_loss_alpha": 1.0,
@@ -187,8 +187,8 @@
     "use_spectral_norm_disriminator": false
   },
   "model_param_stats": false,
-  "num_eval_loader_workers": 1,
-  "num_loader_workers": 2,
+  "num_eval_loader_workers": 4,
+  "num_loader_workers": 8,
   "num_speakers": 0,
   "optimizer": "AdamW",
   "optimizer_params": {

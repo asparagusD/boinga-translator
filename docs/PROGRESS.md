@@ -612,8 +612,13 @@ estimates, excluding the generated map/notebook and PROGRESS.
   data), C8T.1 (build-config smoke + validate, expects batch_size 32), C8T.2 (loader check),
   C8T.3 (clean smoke), C8T.4 (smoke 50), C8T.5 (resume 60), C8T.6 (throughput, expects
   batch_size 32), each after an md() explanation (this commit)
-- [ ] C8.1c.H hand-off timing notebook; C8.1c.V verify it (colab-verify), commit
-  reports/throughput.json, env.json, config + overrides table from the run
+- [x] C8.1c.H hand-off timing notebook (link, RTX PRO 6000, save name given; `946319e`)
+- [x] C8.1c.V verify (colab-verify): 12/12 PASS at 946319e (built in 946319e), not stale, RTX
+  PRO 6000, cpu_count 48. Batch 32: 0.7262 s/step over 10 steps (4,957.3 steps/h), peak
+  5.642 GB, no NaN (loss_mel 29.8 at step 55); vs batch 16: 0.3418 s/step. Clips/s 44.1 at
+  batch 32 vs 46.8 at batch 16: no throughput gain (GPU-bound; 8 workers did not help). Drive
+  root 4.5 GB free (trash not emptied). Results: throughput, env, config, overrides table
+  (this commit)
 - [ ] C8.1d re-derive `RUN_BUDGETS["run1"]` = budget_steps(new steps/h) from the batch-32
   reports/throughput.json; DECISIONS "Run 1 budget" updated
 - [ ] C8.2a ckpt_sampler (local + cells): new module `ckpt_sampler.py`: `prompts()` (val

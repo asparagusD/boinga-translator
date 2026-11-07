@@ -1622,7 +1622,7 @@
     },
     {
       "kind": "doc",
-      "lines": 673,
+      "lines": 678,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1868,13 +1868,19 @@
     },
     {
       "kind": "doc",
+      "lines": 615,
+      "path": "reports/colab_runs/C8_timing_run1.md",
+      "purpose": "Colab run C8 run 1 — C8 — timing at batch 32 (RTX PRO 6000)"
+    },
+    {
+      "kind": "doc",
       "lines": 29,
       "path": "reports/config_overrides.md",
       "purpose": "Fine-tune config overrides"
     },
     {
       "kind": "config",
-      "lines": 16,
+      "lines": 17,
       "path": "reports/env.json",
       "purpose": ""
     },
