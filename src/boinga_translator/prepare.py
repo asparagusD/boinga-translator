@@ -1,4 +1,4 @@
-"""Training-data prep: model rate, audio transform, leak-free splits, coqui ljspeech manifests."""
+"""Training-data prep: audio transform, leak-free splits, ljspeech manifests, `boinga prepare`."""
 
 # dialect-data-rules: mono, resample to the checkpoint's rate (never change the model's
 # rate), trim only leading/trailing silence keeping >= 100 ms, peak-safe normalisation.
@@ -9,15 +9,26 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import tarfile
 from collections.abc import Callable, Iterable
+from multiprocessing import Pool
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
 import soundfile as sf
+from tqdm import tqdm
 
-from boinga_translator import data_audit, paths, settings, speaker_select, text_frontend
+from boinga_translator import (
+    corpus,
+    data_audit,
+    paths,
+    report_io,
+    settings,
+    speaker_select,
+    text_frontend,
+)
 
 PAD_S = 0.1  # silence kept before the first and after the last non-silent frame
 TRIM_TOP_DB = data_audit.TRIM_TOP_DB  # same silence threshold as the audit (40 dB below peak)
@@ -298,3 +309,115 @@ def parse_check(root: Path | None = None, loader: Loader | None = None,
     print(f"PASS: coqui parsed {len(train)} train / {len(val)} val samples "
           f"(+ {len(test)} test)")
     return {k: len(v) for k, v in parsed.items()}
+
+
+# --- build: `boinga prepare` -----------------------------------------------------------------
+# The fast disk (paths.data_prepared()) is lost with the VM; Drive keeps one tar per splits
+# sha256 (paths.prepared_backup()). A fresh VM restores that tar instead of recomputing.
+
+STATS_CSV = "clip_stats.csv"  # one row per clip of the splits: transform stats or its error
+Job = tuple[str, str, str, int]  # clip_id, source wav, prepared wav, target rate
+
+
+def _transform_job(job: Job) -> dict[str, Any]:
+    """transform_audio for one clip; a bad clip gives an error row, never raises (pool-safe)."""
+    cid, src, dst, sr = job
+    try:
+        return {"clip_id": cid, **transform_audio(src, dst, sr), "error": ""}
+    except Exception as exc:  # noqa: BLE001 - one bad clip (librosa ParameterError too) must not kill the pool
+        return {"clip_id": cid, "error": f"{type(exc).__name__}: {exc}"}
+
+
+def _transform_all(jobs: list[Job], root: Path, workers: int) -> pd.DataFrame:
+    """Stats for every job; a clip with a stats row and its wav (or an error) is skipped."""
+    csv = root / STATS_CSV
+    old = (pd.read_csv(csv, dtype={"clip_id": str, "error": str}, keep_default_na=False)
+           if csv.is_file() else pd.DataFrame(columns=["clip_id", "error"]))
+    kept = [e != "" or manifest_wav(root, c).is_file() for c, e in zip(
+        old["clip_id"], old["error"], strict=True)]
+    done = old[pd.Series(kept, index=old.index, dtype=bool) & old["clip_id"].isin(
+        {j[0] for j in jobs})]
+    todo = [j for j in jobs if j[0] not in set(done["clip_id"])]
+    print(f"transform: {len(todo)} clip(s) to do, {len(done)} already done")
+    if workers > 1 and len(todo) > 1:
+        with Pool(workers) as pool:
+            rows = list(tqdm(pool.imap_unordered(_transform_job, todo, chunksize=16),
+                             total=len(todo)))
+    else:
+        rows = [_transform_job(j) for j in tqdm(todo)]
+    stats = pd.concat([done, pd.DataFrame(rows)], ignore_index=True)
+    order = {j[0]: i for i, j in enumerate(jobs)}
+    stats = stats.sort_values("clip_id", key=lambda s: s.map(order)).reset_index(drop=True)
+    stats["error"] = stats["error"].fillna("")
+    _atomic_write(csv, stats.to_csv(index=False, lineterminator="\n").encode("utf-8"))
+    return stats
+
+
+def _backup_tar(splits_sha: str) -> Path:
+    """The Drive tar of the prepared folder for one splits.csv sha256."""
+    return paths.prepared_backup() / f"prepared-{splits_sha[:16]}.tar"
+
+
+def _report(stats: pd.DataFrame, splits: pd.DataFrame, files: dict[str, Path]) -> None:
+    ok = stats[stats["error"] == ""].merge(splits[["clip_id", "split"]], on="clip_id")
+    for split in SPLIT_NAMES:
+        part = ok[ok["split"] == split]
+        print(f"{split}: {len(part)} clips, {part['out_dur'].astype(float).sum() / 60:.2f} min")
+    print(f"upsampled: {int(ok['upsampled'].astype(str).eq('True').sum())} of {len(ok)} clips; "
+          f"mean trimmed {ok['trimmed_s'].astype(float).mean():.3f} s")
+    bad = stats.loc[stats["error"] != "", "error"]
+    print(f"failed: {len(bad)} clip(s), by reason: "
+          f"{bad.str.split(':').str[0].value_counts().to_dict()}")
+    for split in SPLIT_NAMES:
+        print(f"--- {files[split].name} (first 3 lines)")
+        print("".join(files[split].read_text(encoding="utf-8").splitlines(True)[:3]), end="")
+
+
+def build(workers: int = 2) -> dict[str, int]:
+    """`boinga prepare`: splits, 22.05 kHz wavs, manifests and a Drive tar; PASS line.
+
+    The selection is the C4 speaker (sha-checked) minus char_map-excluded rows. Each
+    clip is transformed once (skipped if done); a fresh VM restores the Drive tar made for
+    the same splits sha256. Clips whose transform fails are counted and left out.
+    Returns {"clips": clips in the manifests, "failed": clips left out}.
+    """
+    index = corpus.load_index()
+    selection, _ = speaker_select.load_selection()
+    text = index.set_index("clip_id")["ctg_text_nfc"]
+    ids = [c for c in selection["clip_id"] if not text_frontend.excluded(str(text.get(c, "")))]
+    print(f"selection: {len(selection)} clips, {len(selection) - len(ids)} excluded by char_map")
+    sr = target_sample_rate()
+    splits = make_splits(index.merge(selection[["clip_id", "duration_s"]], on="clip_id",
+                                     how="left"), ids)
+    summary = save_splits(splits)
+    root, tar = paths.data_prepared(), _backup_tar(summary["csv_sha256"])
+    if tar.is_file() and not (root / STATS_CSV).is_file():
+        with tarfile.open(tar) as t:
+            t.extractall(root, filter="data")
+        print(f"restored {root} from {tar}")
+    wav = index.set_index("clip_id")["wav_path"]
+    jobs = [(c, str(wav[c]), str(manifest_wav(root, c)), sr) for c in splits["clip_id"]]
+    stats = _transform_all(jobs, root, workers)
+    good = set(stats.loc[stats["error"] == "", "clip_id"])
+    files = write_manifests(splits[splits["clip_id"].isin(good)], index, root)
+    if not tar.is_file():
+        tmp = tar.with_name(tar.name + ".tmp")
+        tmp.parent.mkdir(parents=True, exist_ok=True)
+        with tarfile.open(tmp, "w") as t:
+            t.add(root, arcname=".")
+        os.replace(tmp, tar)
+        print(f"backed up {root} to {tar}")
+    _report(stats, splits, files)
+    report_io.emit(paths.REPO / SPLITS_SUMMARY_REL, SPLITS_SUMMARY_REL)
+    print(f"PASS: prepared {len(good)} clips")
+    return {"clips": len(good), "failed": len(stats) - len(good)}
+
+
+def pick_prepared(n: int = 5, seed: int = settings.SEED,
+                  root: Path | None = None) -> tuple[list[str], list[str]]:
+    """n seeded train clips as (prepared wav paths, "<clip_id>: <manifest text>" labels)."""
+    root = Path(root) if root is not None else paths.data_prepared()
+    lines = (root / manifest_names()["train"]).read_text(encoding="utf-8").splitlines()
+    picked = [lines[i] for i in np.random.default_rng(seed).permutation(len(lines))[:n]]
+    cols = [line.split("|") for line in picked]
+    return [str(manifest_wav(root, c[0])) for c in cols], [f"{c[0]}: {c[2]}" for c in cols]

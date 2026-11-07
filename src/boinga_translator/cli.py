@@ -13,6 +13,7 @@ from boinga_translator import (
     data_download,
     env_report,
     paths,
+    prepare,
     pretrained,
     speaker_select,
     text_frontend,
@@ -52,7 +53,20 @@ def build_parser() -> argparse.ArgumentParser:
                                "to the base voice (reports/oov_report.md)")
     sub.add_parser("check-tokenizer", help="round-trip the selected speaker's text through "
                                            "the base voice's coqui tokenizer")
+    prep = sub.add_parser("prepare", help="splits, model-rate wavs, ljspeech manifests and a "
+                                          "Drive backup (resumable, restores on a new VM)")
+    prep.add_argument("--workers", type=int, default=2, help="transform processes (default 2)")
     return parser
+
+
+def _prepare(workers: int) -> int:
+    """Build the prepared dataset; FAIL + exit 1 on error."""
+    try:
+        prepare.build(workers=workers)
+    except (ImportError, RuntimeError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: prepare: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
 
 
 def _check_tokenizer() -> int:
@@ -243,6 +257,8 @@ def main(argv: list[str] | None = None) -> int:
         return _oov()
     elif args.command == "check-tokenizer":
         return _check_tokenizer()
+    elif args.command == "prepare":
+        return _prepare(args.workers)
     return 0
 
 

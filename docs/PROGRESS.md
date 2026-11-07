@@ -387,17 +387,27 @@ the generated map/notebook and PROGRESS.
   formatter keeps it); spec `notebooks/specs/c6_prepare.py` (cell C6.3, CPU) ->
   `notebooks/runs/C6_prepare_run1.ipynb`. DECISIONS "Training manifests". Tests in
   `tests/test_prepare.py` (fake loader) (this commit). Confirmed on Colab in C6.V
-- [ ] C6.4a `prepare.build()` (local, ~100 lines; in prepare.py): selection -> splits -> transform each
-  clip to fast `prepared/wavs/<clip_id>.wav` (skip done, process pool) -> post-trim
-  exclusions (outside 1-15 s) by reason -> manifests -> `reports/prepare_summary.md`
-  (clips/minutes per split, drops by reason, gain/peak ranges), emitted; also emit
-  configs/splits_summary.json (C6.2 writes it into the Colab clone) and count model-text
-  (prepare_text) collisions across splits (DECISIONS "Training splits"). Tests
-  `tests/test_prepare.py`
-- [ ] C6.4b Drive backup/restore + `boinga prepare` + cells (~70 lines): tar of
-  `prepared/` to Drive `paths.prepared_backup()` with a sha256 + inputs digest; a matching
-  backup is restored instead of rebuilding; play cell (5 seeded before/after pairs) and
-  form `C6.4-notes` (AUDIO_OK, TRIM_CUTS_SPEECH, NOTES)
+- [x] C6.4 code (one subchunk per the C6.4 promptbook; replaces the planned C6.4a/b):
+  `prepare.build(workers=2)` + `boinga prepare [--workers N]`: corpus index, C4 selection
+  (sha-checked) minus char_map-excluded rows, target_sample_rate(); make_splits +
+  save_splits; transform_audio of every split clip into `paths.data_prepared()/wavs`
+  (multiprocessing Pool, tqdm; a clip with a `clip_stats.csv` row and its wav, or an
+  error, is skipped); failed clips counted by reason and left out of the manifests;
+  write_manifests; tar of the prepared folder to Drive
+  `paths.prepared_backup()/prepared-<splits sha256[:16]>.tar` (not rewritten if present);
+  a fresh VM (no local clip_stats.csv) restores that tar instead of recomputing; prints
+  clips/minutes per split, upsampled count, mean trimmed s, failures, 3 manifest lines
+  per split; emits configs/splits_summary.json; "PASS: prepared N clips".
+  `prepare.pick_prepared(n)` (seeded train clips + manifest text). Spec cells C6.0
+  (`!boinga fetch-data`), C6.4 (`!boinga prepare`) before C6.3, and C6.4.play after it.
+  DECISIONS "Prepared data backup". Tests `tests/test_prepare_build.py` (fake corpus:
+  end to end, second run skips, lost wav redone, restore, pool, CLI) (this commit)
+  - Not done from the C6 plan (promptbook scope): post-trim 1-15 s exclusions,
+    reports/prepare_summary.md, the listening form, counting model-text collisions
+    across splits (follow-ups). dialect-data-rules wants exclusions written to reports/:
+    char_map exclusions and transform failures are only printed until
+    reports/prepare_summary.md exists. Review suggestions not taken: retry OSError rows,
+    delete stale Drive tars automatically, a clean FAIL in pick_prepared without manifests
 - [ ] C6.H hand-off: `notebooks/runs/C6_prepare_run1.ipynb` (CPU) built, pushed, link
   given; duration not measured
 - [ ] C6.V verify (colab-verify): results into PROGRESS/DECISIONS

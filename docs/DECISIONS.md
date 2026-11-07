@@ -746,3 +746,28 @@ else for "\n", switch to a custom formatter. The "dataset" key sits beside the v
 pretrained_facts.json; `pretrained.write_inspect_reports` merges with `update`, so a
 re-inspect keeps it. The parse check runs only on Colab (coqui is not installed locally);
 its shell cell does not stop "Run all", so it stays last or moves into cli later.
+
+## 2026-11-07 — Prepared data backup: one Drive tar per splits sha256, restored on a new VM
+**Context:** C6.4. The prepared wavs live on the VM's fast disk (paths.data_prepared()),
+which a Colab disconnect loses; thousands of small files are slow to copy to and from
+Drive one by one.
+**Decision:** `boinga prepare` (prepare.build) writes one uncompressed tar of the whole
+prepared folder (wavs, manifests, clip_stats.csv) to Drive as
+`paths.prepared_backup()/prepared-<first 16 hex of splits.csv sha256>.tar`, written to
+`.tmp` then renamed, and never rewritten while it exists. On a VM with no local
+clip_stats.csv it restores that tar (tarfile `filter="data"`) before transforming, so only
+missing clips are redone. Per-clip work is skipped when clip_stats.csv has the clip and its
+wav exists (or the clip failed). Clips whose transform raises are counted by reason and left
+out of the manifests. Defaults: 2 worker processes (Colab CPU runtime has 2 cores).
+**Alternatives:** Copying the folder to Drive file by file (slow, many Drive calls); a
+digest over the transform settings in the tar name (not asked for; see consequences).
+**Consequences:** The tar name depends only on the splits, not on the transform code or
+its constants (pad, top_db, peak, resampler): after changing transform_audio, delete the
+tar (and the local folder) on purpose, or a new VM restores the old audio. The tar holds
+roughly 1.3 GB for ~490 min of 22.05 kHz 16-bit audio (estimate, not measured). Failed
+clips are sticky: their error row is never retried and lands in the tar, so a transient
+I/O error needs clip_stats.csv and the tar deleted by hand. A new splits sha leaves the
+old tar on Drive (15 GB free tier): delete stale `prepared-*.tar` files by hand.
+configs/splits_summary.json is written before the transform, so its counts and minutes
+are the splits (source durations, failed clips included), not the manifests; the printed
+per-split lines after it are the prepared numbers.
