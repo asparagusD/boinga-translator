@@ -29,3 +29,7 @@ git config core.hooksPath .githooks   # once per clone: commit-msg + pre-commit 
 The hooks enforce the commit format, block audio/checkpoint/archive files and
 anything over 2 MB, and require a fresh `docs/REPO_GRAPH.md`, clean `ruff` and
 passing `pytest`.
+
+Colab runs: download each executed notebook into `colab_runs/` (git-ignored, never
+committed); Claude Code verifies it with `python tools/read_colab_run.py
+colab_runs/<file>.ipynb --save-reports`, which writes the digest to `reports/colab_runs/`.

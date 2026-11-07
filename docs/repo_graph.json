@@ -244,13 +244,19 @@
     },
     {
       "kind": "skill",
-      "lines": 68,
+      "lines": 74,
       "path": ".claude/skills/colab-handoff/SKILL.md",
-      "purpose": "How to hand work to Google Colab and take results back."
+      "purpose": "\"How to put work on Colab in boinga-translator: write cells into the chunk's notebook spec and hand the whole notebook to the user."
     },
     {
       "kind": "skill",
-      "lines": 46,
+      "lines": 50,
+      "path": ".claude/skills/colab-verify/SKILL.md",
+      "purpose": "Verify an executed Colab notebook the user put in colab_runs/."
+    },
+    {
+      "kind": "skill",
+      "lines": 47,
       "path": ".claude/skills/debug-protocol/SKILL.md",
       "purpose": "Structured debugging for boinga-translator."
     },
@@ -292,7 +298,7 @@
     },
     {
       "kind": "doc",
-      "lines": 31,
+      "lines": 35,
       "path": "README.md",
       "purpose": "boinga-translator"
     },
@@ -304,7 +310,7 @@
     },
     {
       "kind": "doc",
-      "lines": 90,
+      "lines": 109,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },

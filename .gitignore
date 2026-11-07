@@ -19,6 +19,9 @@ venv/
 
 # Local / run outputs
 local/
+# Executed Colab notebooks stay local; the reader's digest goes to reports/colab_runs/
+colab_runs/*
+!colab_runs/README.md
 outputs/
 wandb/
 

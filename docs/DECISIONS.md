@@ -88,3 +88,22 @@ exit code 2 for STALE. Rejected: one non-zero code keeps scripts and hooks
 simple, and the digest says why.
 **Consequences:** After rebuilding a notebook, re-run it on Colab before
 committing its results. The colab-verify skill (C1.9) must say this.
+
+## 2026-11-07 — Colab work runs as whole generated notebooks
+**Context:** Pasting Colab output cell by cell was slow and error-prone
+(truncated pastes, cells run on the wrong branch, no record of what ran).
+**Decision:** Each chunk run on Colab is one notebook generated from a spec
+(`notebooks/specs/cN_<slug>.py`, `tools/nbkit.py`, `tools/build_notebook.py`)
+with the bootstrap cells and branch baked in. The user runs it with "Run all"
+and downloads the executed copy into `colab_runs/` (git-ignored).
+`tools/read_colab_run.py` checks every cell against the spec's expect/forbid
+patterns, writes a digest to `reports/colab_runs/`, and saves report blocks.
+Human judgement goes in form cells. The `colab-handoff` and `colab-verify`
+skills describe the loop.
+**Alternatives:** Keep pasting cell output (rejected: the reason for C1N);
+commit executed notebooks (rejected: large audio/base64 outputs and the risk
+of leaking secrets).
+**Consequences:** Cells must be idempotent, so "Run all" can always be
+repeated after a fix. Executed notebooks never reach git; only the digest and
+reports do. tools/save_pasted_reports.py stays as a fallback.
+

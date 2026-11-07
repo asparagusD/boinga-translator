@@ -20,7 +20,8 @@ Work through these steps in order. Do not jump to a fix.
 5. **Fix** — the smallest change that fixes the root cause. No unrelated
    refactors. Don't weaken tests to make them pass.
 6. **Prove** — the repro test now passes, the full `pytest -q` passes, and
-   for Colab issues the user re-runs the cell and pastes the output.
+   for Colab issues the user re-runs the whole notebook ("Run all") and the
+   `colab-verify` skill shows the cell PASS.
 7. **Log** — append to docs/DEBUG_LOG.md:
    `## <date> <chunk> <one-line symptom>` then Symptom / Root cause / Fix /
    Test added / Commit.
