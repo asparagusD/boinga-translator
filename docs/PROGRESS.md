@@ -240,8 +240,9 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
   - [ ] C4.3 results: the chosen cluster and base voice from the verified run (C4.V)
   - Moved out of C4 (C4.3 promptbook): per-split training manifests, cross-split duplicate
     text on `ctg_text_model`, text_frontend.prepare, resampling (training-data prep, C5)
-- [ ] C4.H hand-off: build `notebooks/runs/C4_speaker_run1.ipynb` (T4), push, give the Colab
-  link, form fields and save name `colab_runs/C4_speaker_run1.ipynb`; duration not measured
+- [x] C4.H hand-off: `notebooks/runs/C4_speaker_run1.ipynb` (T4) rebuilt, unchanged since
+  `d856b3b`, pushed; link, form instructions and save name `colab_runs/C4_speaker_run1.ipynb`
+  given; duration not measured (embedding estimate 20-40 min) (this commit)
 - [ ] C4.V verify run 1 (colab-verify): every cell PASS and not stale; save
   reports/speaker_ranking.md, configs/speaker_selection.json, reports/notes/C4.3-notes.json
 - [ ] C4.4 Gate G3 — speaker (DECISIONS, supersedes or confirms "Speakers"). Proposed PASS
