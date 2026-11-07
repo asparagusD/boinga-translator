@@ -593,7 +593,8 @@ Branch `chunk/C8-finetune`. One GPU notebook per run: spec `notebooks/specs/c8_f
 -> `notebooks/runs/C8_finetune_run1.ipynb` (RTX PRO 6000, user's pay-as-you-go GPU). Run name
 `run1`; its settings are frozen once it starts (a resume uses the run folder's config), so any
 change means a new run name (`run2`). Plan basis: reports/throughput.json (0.3418 s/step,
-batch 16, fp16, 3.39 GB peak; re-measured at batch 32 in C8.1c) and configs/splits_summary.json (6,415 train clips -> ~401
+batch 16, fp16, 3.39 GB peak; batch 32 timed slower in C8.1c,
+so run1 stays at 16) and configs/splits_summary.json (6,415 train clips -> ~401
 steps/epoch). Coqui keeps only the last 2 checkpoints + best, so earlier steps are kept as
 "milestones" (model + config, no optimizer) for listening and promotion. Line counts are non-test
 estimates, excluding the generated map/notebook and PROGRESS.
@@ -618,9 +619,10 @@ estimates, excluding the generated map/notebook and PROGRESS.
   5.642 GB, no NaN (loss_mel 29.8 at step 55); vs batch 16: 0.3418 s/step. Clips/s 44.1 at
   batch 32 vs 46.8 at batch 16: no throughput gain (GPU-bound; 8 workers did not help). Drive
   root 4.5 GB free (trash not emptied). Results: throughput, env, config, overrides table
-  (this commit)
-- [ ] C8.1d re-derive `RUN_BUDGETS["run1"]` = budget_steps(new steps/h) from the batch-32
-  reports/throughput.json; DECISIONS "Run 1 budget" updated
+  (`0df8c10`)
+- [x] C8.1d batch back to 16 / eval 8 (user, chat, after C8.1c: batch 32 is 6% slower per
+  clip); loader workers stay 8 / 4; `RUN_BUDGETS["run1"]` = 36,500 confirmed (batch-16 rate,
+  ~91 epochs). DECISIONS "RTX PRO 6000 training settings" update (this commit)
 - [ ] C8.2a ckpt_sampler (local + cells): new module `ckpt_sampler.py`: `prompts()` (val
   texts), `sample(run, step=None)` -> wavs under `paths.eval_dir()/<run>/step<N>/` with fixed
   seed/scales, skips done steps, saves a milestone copy (model + config) to Drive;

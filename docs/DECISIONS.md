@@ -985,3 +985,12 @@ before C8.1d.
 The generated overrides table above ("Fine-tune config"), configs/vits_ctg_finetune.json and
 reports/config_overrides.md still show the last built run (smoke, batch 16) until C8.1c's
 build-config rewrites them.
+**Update (C8.1d, same day):** the batch-32 timing run (C8.1c, 12/12 PASS at 946319e) measured
+0.7262 s/step (4,957.3 steps/h, peak 5.64 GB): 32 / 0.7262 = 44.1 clips/s against 16 / 0.3418 =
+46.8 at batch 16. Step time grows faster than the batch, so the GPU is the limit; 8 loader
+workers (48 CPUs) changed nothing visible. User decision (chat): back to batch 16 / eval 8 for
+run1, which is faster per clip and gives twice the updates. Loader workers stay 8 / 4. The
+"Run 1 budget" (36,500 steps from the batch-16 rate) stands. reports/throughput.json now holds
+the batch-32 timing; the batch-16 numbers are in commit 40a1a25.
+The generated overrides table, configs/vits_ctg_finetune.json and reports/config_overrides.md
+show the C8.1c batch-32 build until run1's build-config rewrites them.

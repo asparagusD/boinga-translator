@@ -1616,13 +1616,13 @@
     },
     {
       "kind": "doc",
-      "lines": 987,
+      "lines": 996,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 678,
+      "lines": 680,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2054,7 +2054,7 @@
     },
     {
       "kind": "module",
-      "lines": 216,
+      "lines": 217,
       "path": "src/boinga_translator/train_config.py",
       "purpose": "Fine-tune config: the base voice's pretrained config.json plus logged, reasoned overrides."
     },
