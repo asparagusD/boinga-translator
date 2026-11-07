@@ -187,6 +187,8 @@ speaker (C3/C4) rather than by baseline quality. The sentence-final danda
 baseline WARNed on it for STD_1 and STD_3; how coqui's tokenizer treats it
 is checked when the text front-end is built (C3). Durations may include
 coqui's per-sentence padding, so they are not used as throughput figures.
+**Later (C3.8b):** these wavs and this listening predate the char map; baseline runs now
+synthesise `text_frontend.prepare(text)`, so STD_1/STD_3 end in "." instead of "।".
 
 ## 2026-11-07 — Gate G1 — pretrained model
 **Context:** Before any fine-tuning, Gate G1 checks that the pretrained Bangla
@@ -478,6 +480,8 @@ text):** clean 7,513 clips, 8.18 h (train 6,010 / 6.56 h, val 748 / 0.81 h, test
 0.81 h), up from 2,881 clips / 4.10 h before the map. Excluded character 279 rows
 (0.62 h); unknown to the model after the map 114 rows, all of them also excluded-character
 rows (৭ ৯ / : *), so no unknown character reaches training. Gate G2 condition 1 is met.
+(279 vs the 278 above: the preview counted the 8,004 rows with audio, the audit counts
+all 8,009 index rows; one of the 5 rows without a wav has an excluded character.)
 
 ## 2026-11-07 — Speakers: fine-tune the single-speaker model on the mixed voices
 **Context:** Gate G2 condition 2. The corpus has no speaker field and the C3.5 listening
@@ -486,8 +490,11 @@ single-speaker VITS); B the largest consistent speaker cluster from a speaker en
 C a multi-speaker VITS with cluster ids (architecture change from the single-speaker
 checkpoint). Measuring clusters first (C3.9a) was offered and declined.
 **Decision:** A, decided by the user in chat: fine-tune the pretrained single-speaker VITS
-on all clean clips regardless of speaker (7,513 clips, 8.18 h, of which the official
-train split is 6,010 clips / 6.56 h). No speaker filtering or speaker ids.
+on the clean clips regardless of speaker, with no speaker filtering or speaker ids. The
+training pool is the clean official train split only (6,010 clips, 6.56 h); the clean
+val split (748 clips, 0.81 h) is for validation; the clean test split (755 clips,
+0.81 h, incl. baseline clips 386, 29, 625) is held out (G2 condition 3). The 7,513 clean
+clips / 8.18 h is the total over all three splits, not the training pool.
 **Alternatives:** B (consistent voice, but an unknown and possibly thin subset plus a new
 dependency); C (most work, needs speaker embeddings in a model trained without them).
 Measure-first (one Colab run) was declined.
