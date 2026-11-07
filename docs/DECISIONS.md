@@ -556,3 +556,25 @@ ranking table shows train/val/test minutes, so C4.3 and Gate G3 can apply a trai
 **Consequences:** "Largest cluster minutes" counts val and test clips too; Gate G3 must
 check the train minutes of the chosen cluster. A high silhouette at a high threshold can
 still merge similar voices: listening to the top clusters (C4.3) decides, not the score.
+
+## 2026-11-07 — Speaker choice: saved from the listening form, base voice = speaker gender
+**Context:** C4.3. The clusters (C4.2b) are ranked by minutes, not by how consistent they
+sound; only listening can tell one voice from two similar voices merged. The pretrained
+voice to fine-tune (female or male) was still open (C2 follow-up; G1 quality "same").
+**Decision:** (C4.3 promptbook) Form C4.3-notes, after listening to 10 seeded clips of
+each of the top 3 clusters, saves the choice only when CHOSEN_ID and GENDER are filled
+and ONE_CONSISTENT_VOICE is "yes"; otherwise it prints "NOTES-MISSING choice incomplete"
+and saves nothing, so the cell's expected "PASS: selection saved" is missing and the
+run reader flags it. The base voice is the pretrained voice matching the chosen
+speaker's gender. The selection is the cluster's clean clips over all official splits:
+Drive `speaker_selection.csv` (clip_id, split_official, duration_s) and
+configs/speaker_selection.json with its sha256, so later chunks can check they read the
+same file. `kind` is "cluster" (C4.1, speaker labels, was skipped: the corpus has none).
+`boinga save-speaker --id N --base-voice female|male` does the same from a shell.
+**Alternatives:** "mixed voices" as a form option (DECISIONS "Speakers" A; not offered by
+the promptbook: if no candidate is one voice, Gate G3 (C4.4) decides the fallback);
+choosing the base voice by listening comparison (no evidence G1 preferred either).
+**Consequences:** The selection includes the cluster's val and test clips; the training
+prep (C5) must keep the official test split out of training (G2 condition 3) and Gate G3
+must judge the train minutes. If the audit charset voice (female) differs from the base
+voice, re-run the audit with `--voice male` before training (C2 follow-up).

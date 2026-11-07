@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import tempfile
 from collections.abc import Callable
@@ -11,7 +13,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from boinga_translator import audit_summary, paths, report_io, settings
+from boinga_translator import (
+    audit_summary,
+    colab_runtime,
+    data_audit,
+    paths,
+    pretrained,
+    report_io,
+    settings,
+)
 
 ENCODER_FILE = "encoder.txt"  # which encoder filled the cache: never mix two in one folder
 ERRORS_FILE = "errors.txt"
@@ -19,6 +29,8 @@ MAX_FAIL_RATIO = 0.01
 THRESHOLDS = (0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50)  # cosine distance, average linkage
 MIN_MINUTES = 30.0  # the largest cluster must reach this for its silhouette to count
 RANKING_REL = "reports/speaker_ranking.md"
+SELECTION_REL = "configs/speaker_selection.json"
+SPLITS = ("train", "val", "test")  # official splits (corpus folders)
 TOP_IN_REPORT, IDS_PER_CLUSTER = 20, 5
 RESEMBLYZER = "resemblyzer-0.1.4"
 SB_SOURCE = "speechbrain/spkrec-ecapa-voxceleb"
@@ -239,3 +251,76 @@ def candidates(n: int = 3, labels_csv: Path | None = None) -> list[int]:
     """The n clusters with the most clean minutes: cluster() already ranked them 1..K."""
     df = pd.read_csv(labels_csv or paths.speaker_clusters(), dtype={"clip_id": str})
     return [int(k) for k in sorted(df["cluster"].unique())[:n]]
+
+
+def _members(candidate_id: int, labels_csv: Path | None = None) -> pd.DataFrame:
+    """The clean clips of one ranked cluster (speaker_clusters.csv), in clip order."""
+    df = pd.read_csv(labels_csv or paths.speaker_clusters(), dtype={"clip_id": str})
+    rows = df[df["cluster"] == int(candidate_id)].sort_values("clip_id")
+    if rows.empty:
+        raise ValueError(f"no cluster {candidate_id} in {labels_csv or paths.speaker_clusters()}")
+    return rows[["clip_id", "split_official", "duration_s"]].reset_index(drop=True)
+
+
+def listen_clips(candidate_id: int, n: int = 10, seed: int = settings.SEED,
+                 audit_df: pd.DataFrame | None = None,
+                 labels_csv: Path | None = None) -> tuple[list[str], list[str]]:
+    """Seeded clips of one candidate as (wav paths, labels with the verbatim transcript)."""
+    if audit_df is None:
+        audit_df = data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV)
+    rows = _members(candidate_id, labels_csv)
+    rows = rows.sample(min(n, len(rows)), random_state=seed)
+    audit = audit_df.set_index("clip_id")
+    return ([str(audit.at[c, "wav_path"]) for c in rows["clip_id"]],
+            [f"{r.clip_id} [{r.split_official}] CTG: {audit.at[r.clip_id, 'ctg_text_nfc']}"
+             for r in rows.itertuples()])
+
+
+def play_candidates(n: int = 3, clips: int = 10) -> None:
+    """Players for the top-n candidates, each under a heading with its clean minutes."""
+    audit = data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV)
+    for cid in candidates(n):
+        rows = _members(cid)
+        print(f"=== candidate {cid}: {rows['duration_s'].sum() / 60:.2f} clean min, "
+              f"{len(rows)} clips ===")
+        colab_runtime.play(*listen_clips(cid, n=clips, audit_df=audit))
+
+
+def save_selection(candidate_id: int, base_voice: str) -> dict[str, object]:
+    """Write the candidate's clips to speaker_selection.csv and configs/ JSON; emit it."""
+    if base_voice not in pretrained.voices():
+        raise ValueError(f"base_voice must be one of {pretrained.voices()}, got {base_voice!r}")
+    rows = _members(candidate_id)
+    if other := sorted(set(rows["split_official"]) - set(SPLITS)):
+        raise ValueError(f"cluster {candidate_id} has clips outside {SPLITS}: {other}")
+    data = rows.to_csv(index=False, lineterminator="\n").encode("utf-8")
+    paths.ensure_dirs()  # refuses on Colab before anything lands on an unmounted Drive
+    csv = paths.speaker_selection()
+    csv.write_bytes(data)
+    split_min = rows.groupby("split_official")["duration_s"].sum() / 60
+    sel: dict[str, object] = {
+        "kind": "cluster",  # "label" would need speaker ids: C4.1 skipped, the corpus has none
+        "id": int(candidate_id), "n_clips": len(rows),
+        "clean_minutes": round(float(rows["duration_s"].sum()) / 60, 2),
+        "minutes_by_official_split": {s: round(float(split_min.get(s, 0.0)), 2)
+                                      for s in SPLITS},
+        "csv_sha256": hashlib.sha256(data).hexdigest(), "base_voice": base_voice}
+    text = json.dumps(sel, indent=2, ensure_ascii=False) + "\n"
+    repo_path, _ = report_io.write_report(text, SELECTION_REL)
+    report_io.emit(repo_path, SELECTION_REL)
+    print("PASS: selection saved")
+    return sel
+
+
+def save_from_form(chosen_id: str, one_voice: str, gender: str) -> None:
+    """Form C4.3-notes: save only a complete choice of one consistent voice."""
+    if not (chosen_id.strip() and gender and one_voice == "yes"):
+        print("NOTES-MISSING choice incomplete (need CHOSEN_ID, GENDER and "
+              "ONE_CONSISTENT_VOICE = yes); nothing saved")
+        return
+    try:
+        cid = int(chosen_id.strip())
+    except ValueError:
+        print(f"FAIL: CHOSEN_ID must be a cluster number, got {chosen_id!r}")
+        return
+    save_selection(cid, base_voice=gender)  # the base voice matches the speaker's gender

@@ -227,30 +227,29 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
   clustering"; tests `tests/test_speaker_cluster.py` (synthetic 2- and 3-voice embeddings)
   (this commit). Listening to the top clusters is not in this subchunk (C4.3 play cell)
   - [ ] C4.2b results: chosen threshold and cluster minutes from the verified run (C4.V)
-- [ ] C4.3 Training selection (~120 lines): `speaker_select.select(cluster|
-  "mixed")` -> clean clips of that cluster in the official splits (test held out, incl.
-  clips 386, 29, 625); `duplicate_text` recomputed on `ctg_text_model`, a text present in two
-  splits is dropped from train (C3 follow-up); text via text_frontend.prepare (verbatim
-  transcript, no rewriting) -> Drive `data_prepared/{train,val,test}.csv` (`wav|text`) and
-  `reports/speaker_choice.md` (cluster, clips and hours per split, removed counts);
-  `boinga select-speaker --cluster N|mixed` (default: rank 1). Audio stays 16 kHz here;
-  resampling to 22,050 Hz is training-data prep (C5).
-  Tests `tests/test_speaker_select.py`: cluster filter, test split never in train,
-  cross-split duplicate dropped, verbatim text, "mixed" == all clean, report numbers, CLI.
-  Cells: `C4.3` (`PASS: speaker manifests`, `=== BEGIN reports/speaker_choice.md ===`),
-  `C4.3.play` (10 random train clips of the selection); form `C4.3-notes`:
-  `CLUSTER_1_ONE_VOICE` [(choose), yes, mostly, no], `SELECTION_ONE_VOICE` [(choose), yes,
-  mostly, no], `CHOICE` [(choose), 1, 2, 3, mixed], `VOICE_GENDER` [(choose), female, male]
-  (picks the pretrained voice to fine-tune; settles the C2 voice follow-up), `NOTES`.
-  If `CHOICE` is not 1, run 2 re-runs C4.3 with `--cluster <choice>`.
+- [x] C4.3 code: `speaker_select.listen_clips(id, n=10, seed)` (seeded clips of one
+  ranked cluster, labelled with the verbatim transcript), `play_candidates(3)` (heading with
+  clean minutes per candidate), `save_selection(id, base_voice)` -> Drive
+  `speaker_selection.csv` (`paths.speaker_selection()`) + `configs/speaker_selection.json`
+  {kind "cluster", id, n_clips, clean_minutes, minutes_by_official_split, csv_sha256,
+  base_voice} (emitted), `save_from_form()` (saves only with CHOSEN_ID, GENDER and
+  ONE_CONSISTENT_VOICE = yes, else `NOTES-MISSING choice incomplete`); `boinga save-speaker
+  --id N --base-voice female|male`; cell `C4.3.play`, form `C4.3-notes` (CHOSEN_ID,
+  ONE_CONSISTENT_VOICE, GENDER, AUDIO_QUALITY, NOTES); DECISIONS "Speaker choice"; tests
+  `tests/test_speaker_choice.py` (this commit)
+  - [ ] C4.3 results: the chosen cluster and base voice from the verified run (C4.V)
+  - Moved out of C4 (C4.3 promptbook): per-split training manifests, cross-split duplicate
+    text on `ctg_text_model`, text_frontend.prepare, resampling (training-data prep, C5)
 - [ ] C4.H hand-off: build `notebooks/runs/C4_speaker_run1.ipynb` (T4), push, give the Colab
   link, form fields and save name `colab_runs/C4_speaker_run1.ipynb`; duration not measured
 - [ ] C4.V verify run 1 (colab-verify): every cell PASS and not stale; save
-  reports/speaker_clusters.md, reports/speaker_choice.md, reports/notes/C4.3-notes.json
+  reports/speaker_ranking.md, configs/speaker_selection.json, reports/notes/C4.3-notes.json
 - [ ] C4.4 Gate G3 — speaker (DECISIONS, supersedes or confirms "Speakers"). Proposed PASS
-  rule, to confirm before the run: chosen selection has >= 1.0 h clean train and >= 0.1 h
-  val; `SELECTION_ONE_VOICE` is yes or mostly; no test clip and no text in two splits in
-  train. FAIL -> next cluster, "mixed" (DECISIONS "Speakers" A), or the fallback corpus.
+  rule, to confirm before the run: configs/speaker_selection.json exists (so
+  `ONE_CONSISTENT_VOICE` was "yes"); its `minutes_by_official_split` has train >= 60 and
+  val >= 6; the official test split is kept out of training by the C5 data prep (the
+  selection lists the speaker's test clips on purpose). FAIL -> the next candidate, mixed
+  voices (DECISIONS "Speakers" A), or the fallback corpus, decided in the G3 entry.
 
 ## C5
 - [ ] C5.x (subchunks not yet defined)

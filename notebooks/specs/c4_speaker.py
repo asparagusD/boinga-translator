@@ -1,6 +1,6 @@
-"""Spec: C4 run 1, training speaker: embed every clean clip's speaker, then cluster and pick (T4)."""
+"""Spec: C4 run 1, training speaker: embed, cluster and rank voices, listen, save the choice (T4)."""
 
-from nbkit import Notebook, code
+from nbkit import Notebook, code, form
 
 # Cells call the CLI from Python and stop Run all on a non-zero exit: a failing `!` shell
 # line does not stop the run (C3 run 1, DEBUG_LOG; DECISIONS "Colab cells stop the run").
@@ -32,5 +32,22 @@ NOTEBOOK = Notebook(
                 colab_runtime.fail("cluster-speakers failed (see the FAIL line above)")
         """, expect=[r"PASS: ranked \d+ clusters",
                      r"=== BEGIN reports/speaker_ranking.md ==="]),
+        code("C4.3.play", "Listen: top 3 candidates, 10 clips each", """
+            from boinga_translator import speaker_select
+
+            speaker_select.play_candidates(3)
+        """, expect=[]),
+        # Saves only "yes" + an id + a gender; the base voice follows the speaker's gender.
+        form("C4.3-notes", "Your choice — training speaker", fields={
+            "CHOSEN_ID": "",
+            "ONE_CONSISTENT_VOICE": ["", "yes", "no"],
+            "GENDER": ["", "female", "male"],
+            "AUDIO_QUALITY": ["", "clean", "some noise", "noisy"],
+            "NOTES": "",
+        }, after_src="""
+            from boinga_translator import speaker_select
+
+            speaker_select.save_from_form(CHOSEN_ID, ONE_CONSISTENT_VOICE, GENDER)
+        """, expect=[r"PASS: selection saved"]),
     ],
 )

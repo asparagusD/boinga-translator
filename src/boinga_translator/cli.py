@@ -41,6 +41,11 @@ def build_parser() -> argparse.ArgumentParser:
                    help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
     sub.add_parser("cluster-speakers",
                    help="cluster the embeddings by voice into reports/speaker_ranking.md")
+    save = sub.add_parser("save-speaker",
+                          help="save a cluster as the training speaker (configs/speaker_selection.json)")
+    save.add_argument("--id", type=int, required=True, help="cluster rank from speaker_ranking.md")
+    save.add_argument("--base-voice", choices=pretrained.voices(), required=True,
+                      help="pretrained voice to fine-tune: the speaker's gender")
     return parser
 
 
@@ -78,6 +83,16 @@ def _cluster_speakers() -> int:
             data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV))
     except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
         print(f"FAIL: cluster-speakers: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _save_speaker(cluster_id: int, base_voice: str) -> int:
+    """Save one cluster as the training speaker; FAIL + exit 1 on error."""
+    try:
+        speaker_select.save_selection(cluster_id, base_voice=base_voice)
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: save-speaker: {type(exc).__name__}: {exc}")
         return 1
     return 0
 
@@ -194,6 +209,8 @@ def main(argv: list[str] | None = None) -> int:
         return _embed_speakers()
     elif args.command == "cluster-speakers":
         return _cluster_speakers()
+    elif args.command == "save-speaker":
+        return _save_speaker(args.id, args.base_voice)
     return 0
 
 

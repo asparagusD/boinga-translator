@@ -101,6 +101,11 @@ def speaker_clusters() -> Path:
     return root() / "speaker_clusters.csv"
 
 
+def speaker_selection() -> Path:
+    """Clip ids of the chosen training speaker (speaker_select.save_selection)."""
+    return root() / "speaker_selection.csv"
+
+
 def best_ckpt() -> Path:
     return root() / "best"
 
