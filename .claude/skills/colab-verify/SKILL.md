@@ -10,7 +10,7 @@ description: Verify an executed Colab notebook the user put in colab_runs/. Use 
 - Run `python tools/read_colab_run.py colab_runs/<file> --save-reports`.
   Never open the notebook directly: it can hold large outputs and secrets; the
   reader drops binary output and redacts tokens.
-- Read `reports/colab_runs/<chunk>_run<k>.md` (the digest): header, staleness,
+- Read `reports/colab_runs/<chunk>_<slug>_run<k>.md` (the digest): header, staleness,
   status table, form values, trimmed output per cell.
 
 ## 2. Stop if STALE
@@ -41,7 +41,7 @@ the answer in the results commit's Notes.
 For each subchunk whose cells all PASS, one results commit (type `data`,
 `docs`, `train` or `eval`, per atomic-commit) containing its saved
 `reports/...` and `reports/notes/...` files. The digest
-`reports/colab_runs/<chunk>_run<k>.md` goes into the first results commit of
+`reports/colab_runs/<chunk>_<slug>_run<k>.md` goes into the first results commit of
 the run. "How verified" quotes the PASS / key lines from the digest with their
 cell ids, e.g. `[env] PASS: env recorded`, and the reader command and exit code.
 

@@ -26,8 +26,28 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C1_pilot_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C1_pilot_run1.ipynb",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C1_pilot_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c1_pilot.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -333,10 +353,22 @@
       "purpose": "C1 run 1 — Colab bootstrap"
     },
     {
+      "kind": "notebook",
+      "lines": 366,
+      "path": "notebooks/runs/C1_pilot_run1.ipynb",
+      "purpose": "C1 run 1 — Pipeline pilot"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
       "purpose": "Spec: C1 bootstrap-only notebook on main (mount Drive, clone, install deps, record env)."
+    },
+    {
+      "kind": "module",
+      "lines": 30,
+      "path": "notebooks/specs/c1_pilot.py",
+      "purpose": "Spec: C1 pilot run proving the notebook pipeline (env report, Drive write, a form)."
     },
     {
       "kind": "config",
@@ -394,7 +426,7 @@
     },
     {
       "kind": "test",
-      "lines": 126,
+      "lines": 133,
       "path": "tests/test_build_notebook.py",
       "purpose": "Tests for tools/build_notebook.py: tiny spec -> .ipynb layout, determinism and --check."
     },
@@ -442,7 +474,7 @@
     },
     {
       "kind": "test",
-      "lines": 301,
+      "lines": 313,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
     },
@@ -472,7 +504,7 @@
     },
     {
       "kind": "tool",
-      "lines": 171,
+      "lines": 175,
       "path": "tools/build_notebook.py",
       "purpose": "Build a per-chunk Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/."
     },
@@ -496,7 +528,7 @@
     },
     {
       "kind": "tool",
-      "lines": 317,
+      "lines": 331,
       "path": "tools/read_colab_run.py",
       "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
     },

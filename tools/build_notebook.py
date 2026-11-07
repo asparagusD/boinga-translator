@@ -147,6 +147,10 @@ def main(argv: list[str] | None = None) -> int:
     stale, built = [], set()
     for spec in specs:
         rel, text = build(spec)
+        if rel in built:
+            print(f"error: two specs build {rel}: chunk + slug + run must be unique",
+                  file=sys.stderr)
+            return 1
         built.add(rel)
         target = ROOT / rel
         if args.check:

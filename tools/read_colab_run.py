@@ -183,17 +183,31 @@ def run_header(executed: nbformat.NotebookNode) -> dict[str, str]:
     return found
 
 
-def find_spec(executed: nbformat.NotebookNode) -> Spec:
-    """The spec whose chunk/run match the RUN-HEADER, else the notebook's metadata spec."""
+def find_spec(executed: nbformat.NotebookNode, nb_name: str = "") -> Spec:
+    """Match RUN-HEADER chunk/run; if several specs match, decide by metadata spec, then file name."""
     header = run_header(executed)
+    meta = executed.metadata.get("boinga", {}).get("spec")
     if header.get("chunk") and header.get("run"):
+        found = []
         specs = (build_notebook.ROOT / build_notebook.SPECS).glob("*.py")
         for path in sorted(p for p in specs if not p.name.startswith("_")):
             nb = build_notebook.load_spec(path)
             if nb.chunk == header["chunk"] and str(nb.run) == header["run"]:
-                return load_spec(path)
-        raise ValueError(f"no spec for chunk={header['chunk']} run={header['run']}: use --spec")
-    meta = executed.metadata.get("boinga", {}).get("spec")
+                found.append((path, nb))
+        if len(found) > 1:  # e.g. C1 bootstrap and C1 pilot are both run 1
+            rel = {p: p.relative_to(build_notebook.ROOT).as_posix() for p, _ in found}
+            by_meta = [(p, nb) for p, nb in found if rel[p] == meta]
+            stem = Path(nb_name).stem
+            by_name = [(p, nb) for p, nb in found
+                       if stem and stem.startswith(Path(build_notebook.filename(nb)).stem)]
+            found = by_meta or by_name
+            if len(found) != 1:
+                raise ValueError(f"chunk={header['chunk']} run={header['run']} matches "
+                                 f"{sorted(rel.values())}: use --spec")
+        if not found:
+            raise ValueError(f"no spec for chunk={header['chunk']} run={header['run']}: "
+                             "use --spec")
+        return load_spec(found[0][0])
     if meta:
         return load_spec(build_notebook.ROOT / meta)
     raise ValueError("no RUN-HEADER output and no spec in metadata: use --spec")
@@ -285,7 +299,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     executed = load_executed(Path(args.notebook))
     try:
-        spec = load_spec(Path(args.spec)) if args.spec else find_spec(executed)
+        spec = load_spec(Path(args.spec)) if args.spec else find_spec(executed, Path(args.notebook).name)
     except ValueError as err:
         print(f"error: {err}", file=sys.stderr)
         return 1
@@ -293,7 +307,7 @@ def main(argv: list[str] | None = None) -> int:
     header = run_header(executed)
     stale = staleness(header.get("commit", ""),
                       f"{build_notebook.RUNS}/{build_notebook.filename(spec.notebook)}")
-    out = paths.reports_dir() / "colab_runs" / f"{spec.notebook.chunk}_run{spec.notebook.run}.md"
+    out = paths.reports_dir() / "colab_runs" / f"{Path(build_notebook.filename(spec.notebook)).stem}.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(digest(Path(args.notebook).name, spec, header, stale, results),
                    encoding="utf-8", newline="\n")

@@ -124,3 +124,10 @@ def test_spec_without_notebook_rejected(repo: Path) -> None:
 
 def test_repo_notebooks_are_in_sync() -> None:
     assert build_notebook.main(["--all", "--check"]) == 0
+
+
+def test_two_specs_building_the_same_notebook_rejected(repo: Path) -> None:
+    spec = repo / "notebooks" / "specs" / "demo.py"
+    (repo / "notebooks" / "specs" / "demo_copy.py").write_text(
+        spec.read_text(encoding="utf-8"), encoding="utf-8")
+    assert build_notebook.main(["--all"]) == 1

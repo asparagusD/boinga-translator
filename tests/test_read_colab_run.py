@@ -206,7 +206,7 @@ def test_cli_digest_save_reports_and_exit_code(
     out = capsys.readouterr().out
     assert re.search(r"^\| bad \| Bad cell \| FAIL \|", out, re.MULTILINE)
     assert re.search(r"^\| good \| Good cell \| PASS \|", out, re.MULTILINE)
-    digest = (tmp_path / "reports" / "colab_runs" / "C9_run1.md").read_text(encoding="utf-8")
+    digest = (tmp_path / "reports" / "colab_runs" / "C9_read_run1.md").read_text(encoding="utf-8")
     assert "commit `abc1234`" in digest and "GPU `Tesla_T4`" in digest
     assert "| obs | Listening notes | NOT RUN |" in digest
     assert '- `VOICE` = "male"' in digest and "- `OK` = False" in digest
@@ -299,3 +299,15 @@ def test_cli_exits_1_on_stale_run(cli_run: Path, monkeypatch: pytest.MonkeyPatch
     assert read_colab_run.main([str(cli_run)]) == 1
     monkeypatch.setattr(read_colab_run, "staleness", lambda commit, rel: "OK: fine")
     assert read_colab_run.main([str(cli_run)]) == 0
+
+
+def test_two_specs_with_same_chunk_and_run(cli_run: Path, tmp_path: Path) -> None:
+    specs = tmp_path / "notebooks" / "specs"
+    (specs / "a_boot.py").write_text(SPEC.replace('slug="read"', 'slug="boot"'), encoding="utf-8")
+    nb = read_colab_run.load_executed(cli_run)
+    assert read_colab_run.find_spec(nb).path == "notebooks/specs/read.py"  # metadata decides
+    del nb.metadata["boinga"]
+    with pytest.raises(ValueError, match="matches"):
+        read_colab_run.find_spec(nb)
+    found = read_colab_run.find_spec(nb, "C9_read_run1 (1).ipynb")  # browser-renamed download
+    assert found.path == "notebooks/specs/read.py"
