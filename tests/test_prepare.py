@@ -1,15 +1,17 @@
-"""Tests for prepare.py: target_sample_rate from the configs, transform_audio on synthetic wavs."""
+"""Tests for prepare.py: target rate, transform_audio on synthetic wavs, leak-free splits."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 import soundfile as sf
 
-from boinga_translator import prepare
+from boinga_translator import paths, prepare
 
 TARGET = 22050
 PEAK = 10 ** (prepare.PEAK_DBFS / 20)
@@ -160,3 +162,146 @@ def test_empty_clip_is_refused(tmp_path: Path) -> None:
     src = _write(tmp_path / "e.wav", np.zeros(0, "float32"), 16000)
     with pytest.raises(ValueError, match="empty"):
         prepare.transform_audio(src, tmp_path / "o.wav", TARGET)
+
+
+# --- make_splits / save_splits ---------------------------------------------------------------
+
+
+def _index(n_train: int, n_val: int, n_test: int, dupes: int = 0) -> pd.DataFrame:
+    """Unique texts per clip; `dupes` extra clips repeat train texts (longer, then shorter)."""
+    rows = []
+    for split, n in (("train", n_train), ("val", n_val), ("test", n_test)):
+        for _ in range(n):
+            i = len(rows)
+            rows.append({"clip_id": str(i + 2), "ctg_text_nfc": f"text {i}",
+                         "split_official": split, "duration_s": 2.0 + (i % 7)})
+    for k in range(dupes):  # copy of train row k: +1 s if k is even (kept), -1 s if odd
+        src = rows[k]
+        rows.append({**src, "clip_id": str(len(rows) + 2),
+                     "duration_s": src["duration_s"] + (1.0 if k % 2 == 0 else -1.0)})
+    return pd.DataFrame(rows)
+
+
+def _check_no_leak(index: pd.DataFrame, splits: pd.DataFrame) -> None:
+    text = index.set_index("clip_id")["ctg_text_nfc"]
+    per_text = splits.assign(t=splits["clip_id"].map(text)).groupby("t")["split"].nunique()
+    assert (per_text == 1).all()
+    assert not splits["clip_id"].duplicated().any()
+
+
+def test_make_splits_uses_the_official_test_when_big_enough() -> None:
+    idx = _index(400, 60, 30)
+    sp = prepare.make_splits(idx, idx["clip_id"])
+    assert list(sp.columns) == ["clip_id", "split", "duration_s"]
+    test_ids = set(idx.loc[idx["split_official"] == "test", "clip_id"])
+    assert set(sp.loc[sp["split"] == "test", "clip_id"]) == test_ids
+    assert sp.attrs["test_source"] == "official"
+    assert (sp["split"] == "val").sum() == 23  # 5% of the 460 left after test
+    assert (sp["split"] == "train").sum() == 460 - 23
+    _check_no_leak(idx, sp)
+
+
+def test_make_splits_samples_test_when_official_is_small() -> None:
+    idx = _index(500, 50, 19)
+    sp = prepare.make_splits(idx, idx["clip_id"])
+    assert sp.attrs["test_source"] == "sampled"
+    assert (sp["split"] == "test").sum() == 28  # 5% of 569 unique texts, rounded
+    assert (sp["split"] == "val").sum() == 27  # 5% of the 541 left
+    _check_no_leak(idx, sp)
+
+
+def test_make_splits_minimum_20_per_held_out_split() -> None:
+    idx = _index(100, 0, 0)
+    sp = prepare.make_splits(idx, idx["clip_id"])
+    counts = sp["split"].value_counts()
+    assert (counts["test"], counts["val"], counts["train"]) == (20, 20, 60)
+
+
+def test_make_splits_keeps_selected_clips_only() -> None:
+    idx = _index(200, 0, 30)
+    chosen = idx["clip_id"].iloc[::2]
+    sp = prepare.make_splits(idx, chosen)
+    assert set(sp["clip_id"]) == set(chosen)
+    assert sp.attrs["n_selected"] == len(chosen)
+
+
+def test_make_splits_dedupes_text_keeping_the_longest_clip() -> None:
+    idx = _index(300, 0, 30, dupes=6)
+    sp = prepare.make_splits(idx, idx["clip_id"])
+    assert len(sp) == 330 and sp.attrs["dropped_duplicate_text"] == 6
+    kept = set(sp["clip_id"])
+    for k in range(6):
+        copy = str(330 + k + 2)
+        longer = copy if k % 2 == 0 else str(k + 2)
+        shorter = str(k + 2) if k % 2 == 0 else copy
+        assert longer in kept and shorter not in kept
+    _check_no_leak(idx, sp)
+
+
+def test_make_splits_counts_add_up() -> None:
+    idx = _index(300, 40, 25, dupes=4)
+    sp = prepare.make_splits(idx, idx["clip_id"])
+    assert len(sp) + sp.attrs["dropped_duplicate_text"] == sp.attrs["n_selected"] == len(idx)
+    assert set(sp["split"]) == {"train", "val", "test"}
+
+
+def test_make_splits_is_deterministic_and_seeded() -> None:
+    idx = _index(400, 0, 0)
+    a = prepare.make_splits(idx, idx["clip_id"], seed=7)
+    b = prepare.make_splits(idx.sample(frac=1, random_state=3), idx["clip_id"], seed=7)
+    pd.testing.assert_frame_equal(a, b)
+    c = prepare.make_splits(idx, idx["clip_id"], seed=8)
+    assert set(a.loc[a["split"] == "test", "clip_id"]) != set(c.loc[c["split"] == "test",
+                                                                     "clip_id"])
+    assert a.attrs["seed"] == 7
+
+
+def test_make_splits_refuses_unknown_ids_and_tiny_pools() -> None:
+    idx = _index(100, 0, 0)
+    with pytest.raises(ValueError, match="not in the index"):
+        prepare.make_splits(idx, ["nope"])
+    with pytest.raises(ValueError, match="duration_s"):
+        prepare.make_splits(idx.drop(columns="duration_s"), idx["clip_id"])
+    small = _index(40, 0, 0)
+    with pytest.raises(ValueError, match="no clips left for train"):
+        prepare.make_splits(small, small["clip_id"])
+
+
+def test_save_splits_writes_csv_and_summary(tmp_path: Path) -> None:
+    idx = _index(300, 0, 30)
+    sp = prepare.make_splits(idx, idx["clip_id"])
+    csv, summ = tmp_path / "splits.csv", tmp_path / "splits_summary.json"
+    out = prepare.save_splits(sp, csv, summ)
+    data = json.loads(summ.read_text(encoding="utf-8"))
+    assert out == data
+    assert data["csv_sha256"] == hashlib.sha256(csv.read_bytes()).hexdigest()
+    assert (data["seed"], data["test_source"]) == (sp.attrs["seed"], "official")
+    assert data["counts"] == {"train": 280, "val": 20, "test": 30}  # 5% of 300 < min 20
+    want = sp.groupby("split")["duration_s"].sum() / 60
+    assert data["minutes"] == {k: round(float(want[k]), 2) for k in ("train", "val", "test")}
+    back = pd.read_csv(csv, dtype={"clip_id": str})
+    assert list(back["clip_id"]) == list(sp["clip_id"]) and list(back["split"]) == list(sp["split"])
+
+
+def test_save_splits_default_paths(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BOINGA_ROOT", str(tmp_path))
+    idx = _index(100, 0, 0)
+    prepare.save_splits(prepare.make_splits(idx, idx["clip_id"]), summary_path=tmp_path / "s.json")
+    assert paths.splits_csv() == tmp_path / "splits.csv" and paths.splits_csv().is_file()
+
+
+def test_save_splits_never_changes_a_saved_test_set(tmp_path: Path) -> None:
+    idx = _index(400, 0, 0)
+    csv, summ = tmp_path / "splits.csv", tmp_path / "s.json"
+    prepare.save_splits(prepare.make_splits(idx, idx["clip_id"], seed=1), csv, summ)
+    prepare.save_splits(prepare.make_splits(idx, idx["clip_id"], seed=1), csv, summ)  # same: ok
+    before = csv.read_bytes()
+    with pytest.raises(ValueError, match="test set"):
+        prepare.save_splits(prepare.make_splits(idx, idx["clip_id"], seed=2), csv, summ)
+    assert csv.read_bytes() == before
+
+
+def test_save_splits_needs_make_splits_metadata(tmp_path: Path) -> None:
+    bare = pd.DataFrame({"clip_id": ["1"], "split": ["train"], "duration_s": [1.0]})
+    with pytest.raises(ValueError, match="make_splits"):
+        prepare.save_splits(bare, tmp_path / "a.csv", tmp_path / "b.json")

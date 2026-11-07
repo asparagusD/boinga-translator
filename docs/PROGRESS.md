@@ -369,11 +369,14 @@ the generated map/notebook and PROGRESS.
   gain_db, upsampled; empty/non-finite/silent -> ValueError. Peak, not RMS, normalisation
   per the C6.1 promptbook; module prepare.py (C6.4a's build() joins it). DECISIONS "Audio
   preprocessing". Tests `tests/test_prepare.py` (this commit)
-- [ ] C6.2 `splits.make_splits(df)` + `save_splits(df, path)` (local, ~80 lines): official
-  splits kept; test fixed; a train/val row whose model text is also in test is dropped, a
-  train row whose text is in val is dropped (no text in two splits, on prepare_text output);
-  drops counted by reason; `save_splits` writes Drive `paths.splits_csv()` and refuses to
-  change an existing test set. DECISIONS "Training splits". Tests `tests/test_splits.py`
+- [x] C6.2 `prepare.make_splits(index_df, selection_ids, seed=settings.SEED)` ->
+  (clip_id, split, duration_s): selected clips only, ctg_text_nfc duplicates dropped
+  (longest kept, counted), official test if >= 20 clips else a seeded 5% (min 20) sample,
+  val = seeded 5% (min 20) of the rest, train = the rest, asserts no transcript in two
+  splits; `save_splits()` -> Drive `paths.splits_csv()` + configs/splits_summary.json
+  (counts, minutes, csv_sha256, seed, test_source, dropped_duplicate_text), refuses to
+  change a saved test set. In prepare.py (not splits.py), per the C6.2 promptbook.
+  DECISIONS "Training splits". Tests in `tests/test_prepare.py` (this commit)
 - [ ] C6.3 `manifests.write_manifests(splits_df, out_dir)` (~70 lines): coqui `ljspeech`
   format, `metadata_{train,val,test}.csv`, `id|text|text`, no header, refuses `|` or
   newlines in text; `check_manifests()` parses them with coqui `load_tts_samples`
@@ -383,7 +386,9 @@ the generated map/notebook and PROGRESS.
 - [ ] C6.4a `prepare.build()` (local, ~100 lines; in prepare.py): selection -> splits -> transform each
   clip to fast `prepared/wavs/<clip_id>.wav` (skip done, process pool) -> post-trim
   exclusions (outside 1-15 s) by reason -> manifests -> `reports/prepare_summary.md`
-  (clips/minutes per split, drops by reason, gain/peak ranges), emitted. Tests
+  (clips/minutes per split, drops by reason, gain/peak ranges), emitted; also emit
+  configs/splits_summary.json (C6.2 writes it into the Colab clone) and count model-text
+  (prepare_text) collisions across splits (DECISIONS "Training splits"). Tests
   `tests/test_prepare.py`
 - [ ] C6.4b Drive backup/restore + `boinga prepare` + cells (~70 lines): tar of
   `prepared/` to Drive `paths.prepared_backup()` with a sha256 + inputs digest; a matching

@@ -692,3 +692,27 @@ layout"). Peak normalisation leaves loudness varying with each clip's crest fact
 the mixed voices; if listening (C6.4 form) finds big level jumps, revisit with RMS/LUFS.
 trim's centred frames can keep up to about half a frame (~46 ms at 22,050 Hz) of extra
 silence on each side; the 100 ms pad is a minimum.
+
+## 2026-11-07 — Training splits: dedupe by transcript, official test, seeded 5% val
+**Context:** C6.2. dialect-data-rules: no transcript in more than one split; the test split
+is fixed once and never trained on (Gate G2 condition 3, incl. baseline clips 386, 29,
+625). The C4 selection (7,506 clips) spans all three official splits.
+**Decision:** `prepare.make_splits(index_df, selection_ids, seed=settings.SEED)` keeps the
+selected clips, drops clips whose ctg_text_nfc repeats (keeping the longest; ties: lowest
+clip id) and counts them; test = the official test clips when >= 20 remain, else a seeded
+5% sample (min 20) of the unique texts; val = a seeded 5% (min 20) of what is left after
+test, official val clips included; train = the rest. It asserts no transcript is in two
+splits. `save_splits()` writes Drive `splits.csv` (`paths.splits_csv()`; clip_id, split,
+duration_s, LF line ends) and `configs/splits_summary.json` (counts, minutes, csv_sha256,
+seed, test_source, dropped_duplicate_text), and refuses to overwrite a splits.csv that
+fixes a different test set.
+**Alternatives:** Keeping the official val split as val (48 min, ~10%) was not chosen: the
+C6.2 promptbook asks for a 5% seeded val, which leaves more audio for training. Dedupe on
+the model text (prepare_text) instead of ctg_text_nfc was not chosen (promptbook); see
+consequences.
+**Consequences:** Duplicates are matched on ctg_text_nfc, so two different transcripts
+that char_map turns into the same model text could still land in two splits; the audit's
+duplicate_text exclusion already removed every ctg_text_nfc duplicate from the clean set,
+so this is the only residual leak path (follow-up: count it in the C6.4 summary). Changing
+the seed or the selection later needs a deliberate delete of splits.csv, and a new test
+set makes earlier evaluations incomparable.

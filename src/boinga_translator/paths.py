@@ -106,6 +106,11 @@ def speaker_selection() -> Path:
     return root() / "speaker_selection.csv"
 
 
+def splits_csv() -> Path:
+    """Train/val/test split per clip (prepare.save_splits); its test set is fixed once."""
+    return root() / "splits.csv"
+
+
 def best_ckpt() -> Path:
     return root() / "best"
 

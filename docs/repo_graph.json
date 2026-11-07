@@ -453,6 +453,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
       "target": "src/boinga_translator/speaker_select.py"
     },
     {
@@ -803,6 +808,11 @@
     {
       "kind": "test",
       "source": "tests/test_paths.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -1214,13 +1224,13 @@
     },
     {
       "kind": "doc",
-      "lines": 694,
+      "lines": 718,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 418,
+      "lines": 423,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1532,15 +1542,15 @@
     },
     {
       "kind": "module",
-      "lines": 148,
+      "lines": 153,
       "path": "src/boinga_translator/paths.py",
       "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
     },
     {
       "kind": "module",
-      "lines": 75,
+      "lines": 181,
       "path": "src/boinga_translator/prepare.py",
-      "purpose": "Training-data prep: the model's sample rate and the per-clip audio transform (mono, rate, trim, peak)."
+      "purpose": "Training-data prep: model sample rate, per-clip audio transform, leak-free train/val/test split."
     },
     {
       "kind": "module",
@@ -1688,9 +1698,9 @@
     },
     {
       "kind": "test",
-      "lines": 162,
+      "lines": 307,
       "path": "tests/test_prepare.py",
-      "purpose": "Tests for prepare.py: target_sample_rate from the configs, transform_audio on synthetic wavs."
+      "purpose": "Tests for prepare.py: target rate, transform_audio on synthetic wavs, leak-free splits."
     },
     {
       "kind": "test",
