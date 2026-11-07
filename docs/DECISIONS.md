@@ -215,8 +215,12 @@ VITS trained on IITM Bangla):
   normalisation, as the data rules want.
 - The EOS symbol `।` is not in characters/punctuations; tokenizer handling
   to be checked in C3 (the baseline was intelligible either way).
-- Both charsets hold precomposed য়/ড়/ঢ় and the separate nukta U+09BC, so
-  NFC text is covered.
+- Both charsets hold precomposed য়/ড়/ঢ় (U+09DF/09DC/09DD) and the separate
+  nukta U+09BC. These three letters are Unicode composition exclusions, so NFC
+  always decomposes them (e.g. য় -> U+09AF U+09BC); NFC text never contains the
+  precomposed symbols. Which form the model learned is unverified, so
+  precomposed vs decomposed is a C3 decision (char_map + DECISIONS entry).
+  The C2 baseline prompts fed the decomposed form and were still intelligible.
 - The two vocabularies differ: male adds U+200D (ZWJ), one extra embedding
   row (192 params). Each voice must keep its own character set.
 - Checkpoints are about 1 GB each because they keep optimizer and grad-scaler
@@ -228,4 +232,8 @@ by fit to the corpus speaker in C3/C4.
 **Alternatives:** G1: FAIL -> Chunk F (MMS) was not needed.
 **Consequences:** C3 can build the data pipeline at 22050 Hz with grapheme
 input against the chosen voice's charset; any characters outside it go to
-configs/char_map.json with a DECISIONS entry.
+configs/char_map.json with a DECISIONS entry. The fine-tune config must copy
+the full `characters` block from the pretrained config.json (including flags
+such as `is_unique`/`is_sorted` that fix the vocabulary order and so the
+embedding rows), not rebuild it from configs/pretrained_facts.json.
+(Nukta wording corrected at the C2 merge review.)

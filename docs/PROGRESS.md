@@ -91,7 +91,8 @@ C2.H hands it over. Local tests never import torch/TTS (fakes only).
   Not done from the plan: reports/baseline.json and RTF
 - [x] C2.H hand-off: notebook already built and pushed in `68ab521` (no new commit)
 - [x] C2.V run 1 verified: 10/10 PASS, not stale; results commits `6b4aa11`, `633a1f5`,
-  `abce7f8`. Nukta (U+09BC) is in both charsets: no char_map needed for it
+  `abce7f8`. Nukta (U+09BC) is in both charsets, but NFC decomposes য়/ড়/ঢ়, so the token
+  form the model learned is unverified (C3 follow-up)
 - [x] C2.5 Gate G1: PASS (DECISIONS "Gate G1 — pretrained model"; this commit)
 
 ### C2 follow-ups
@@ -99,7 +100,16 @@ C2.H hands it over. Local tests never import torch/TTS (fakes only).
   author's (/home/ansary/Shabab/...); the fine-tune config must override them (C4)
 - [ ] Record and pin sha256 of the cached model.pth/config.json (moved from C2.5)
 - [ ] C3 text front-end: check how coqui's tokenizer treats "।" (the EOS token, not in
-  characters/punctuations) and the "Initializing with English" language log
+  characters/punctuations; the baseline WARN is probably spurious because coqui adds
+  pad/eos/bos/blank to the vocab) and the "Initializing with English" language log
+- [ ] C3: decide precomposed vs NFC-decomposed য়/ড়/ঢ় (U+09DF/09DC/09DD vs base + U+09BC)
+  against the corpus and the pretrained vocab; char_map.json + DECISIONS entry
+- [ ] C3: one pretrained.model_symbols(config) helper used by baseline and the text
+  front-end (charset is read twice today); use paths.configs_dir() in pretrained.py
+- [ ] C4: copy the full characters block from the pretrained config.json (is_unique /
+  is_sorted fix embedding row order); measure RTF/throughput in the smoke test
+- [ ] `inspect-pretrained --voice <one>` rebuilds pretrained_inspect.md with that voice
+  only; use `--voice both` to refresh it (or merge the .md like the facts JSON)
 - [ ] Choose the fine-tune voice by the corpus speaker (C3/C4); baseline quality is equal
 - [ ] `!boinga fetch-pretrained` exiting 1 does not stop Run all; once later cells depend on
   C2.1, call pretrained from Python and stop with colab_runtime.fail()

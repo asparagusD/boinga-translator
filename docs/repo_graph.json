@@ -487,13 +487,13 @@
     },
     {
       "kind": "doc",
-      "lines": 231,
+      "lines": 239,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 143,
+      "lines": 153,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
