@@ -1,8 +1,9 @@
-"""Tests for the committed run notebooks: in sync with their specs; C1 bootstrap shape, no secrets."""
+"""Tests for the committed run notebooks: in sync, explained cells, C1 bootstrap shape, no secrets."""
 
 from __future__ import annotations
 
 import ast
+import itertools
 import json
 import re
 from pathlib import Path
@@ -29,15 +30,30 @@ def test_run_notebooks_have_no_outputs_or_tokens(nb_path: Path) -> None:
     assert not re.search(r"ghp_|gho_|ghs_|github_pat_", json.dumps(nb))
 
 
+@pytest.mark.parametrize("nb_path", sorted((paths.REPO / "notebooks" / "runs").glob("*.ipynb")),
+                         ids=lambda p: p.name)
+def test_every_cell_has_an_explanation(nb_path: Path) -> None:
+    """CLAUDE.md: every code/form cell comes right after a markdown cell explaining it."""
+    cells = json.loads(nb_path.read_text(encoding="utf-8"))["cells"]
+    for prev, cell in itertools.pairwise(cells):
+        if cell["cell_type"] == "code":
+            cid = cell["metadata"].get("boinga", {}).get("id")
+            assert prev["cell_type"] == "markdown", f"{cid} has no explanation before it"
+            assert "".join(prev["source"]).strip(), f"{cid}: empty explanation"
+
+
 def test_c1_bootstrap_notebook_shape() -> None:
     nb = json.loads(C1_NOTEBOOK.read_text(encoding="utf-8"))
     ids = [c["metadata"].get("boinga", {}).get("id") for c in nb["cells"]]
-    assert ids == [None, "BOOT.1", "BOOT.2", "BOOT.3", "BOOT.4", "HDR"]
+    assert ids == [None, None, "BOOT.1", None, "BOOT.2", None, "BOOT.3", None, "BOOT.4",
+                   None, "HDR"]
     assert nb["nbformat"] == 4 and nb["metadata"]["colab"]["gpuType"] == "T4"
     assert nb["metadata"]["accelerator"] == "GPU"
     assert nb["metadata"]["boinga"]["branch"] == "main"
     for cell in nb["cells"][1:]:
+        if cell["cell_type"] == "markdown":
+            continue
         ast.parse("".join(cell["source"]))
         assert cell["outputs"] == [] and cell["execution_count"] is None
-    assert 'BRANCH = "main"' in "".join(nb["cells"][2]["source"])
+    assert 'BRANCH = "main"' in "".join(nb["cells"][4]["source"])
     assert not re.search(r"ghp_|github_pat_", json.dumps(nb))

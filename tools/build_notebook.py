@@ -3,7 +3,9 @@
 # Usage: python tools/build_notebook.py notebooks/specs/<spec>.py [--check]
 #        python tools/build_notebook.py --all [--check]
 # Layout: title, bootstrap cells BOOT.1-4 (BRANCH baked in), run header HDR, spec cells,
-# then "Your observations" with the spec's forms. Output is deterministic: no outputs,
+# then "Your observations" with the spec's forms. Every code/form cell comes right after a
+# markdown cell explaining it (CLAUDE.md): the builder writes them for BOOT/HDR, a spec writes
+# its own with md() (a form keeps the md() right before it). Output is deterministic: no outputs,
 # no execution counts, LF line endings. all_cells() is what the reader checks against.
 
 from __future__ import annotations
@@ -44,6 +46,33 @@ def load_spec(spec: Path) -> nbkit.Notebook:
 
 def filename(nb: nbkit.Notebook) -> str:
     return f"{nb.chunk}_{nb.slug}_run{nb.run}.ipynb"
+
+
+ABOUT: dict[str, str] = {
+    "BOOT.1": ("**Mount Google Drive.** Drive keeps the data, checkpoints and reports across "
+               "VM resets; Colab asks you to allow access. Expect `PASS: Drive mounted`."),
+    "BOOT.2": ("**Get the code.** Clones (or updates) the private repo with the `GH_TOKEN` "
+               "secret and switches to this run's branch. Expect the latest commit and "
+               "`PASS: ... on <branch>`; a missing secret prints how to add it."),
+    "BOOT.3": ("**Install dependencies.** `pip install -e .[train]` (coqui-tts 0.28.0 and the "
+               "pinned extras). Takes a few minutes and prints nothing until pip finishes (it "
+               "runs quietly in a subprocess: the one cell without a progress bar). Expect the "
+               "torch / coqui-tts / numpy versions and `PASS: dependencies installed`."),
+    "BOOT.4": ("**Project folders.** Imports the freshly pulled package and creates every "
+               "project folder on Drive and the fast disk. Expect `PASS: <n> project folders "
+               "ready`."),
+    "HDR": ("**Run header.** Records the environment (GPU, versions, commit) as "
+            "`reports/env.json` and prints the `RUN-HEADER` line that ties this run to its "
+            "commit. `WARN: no GPU` is expected on a CPU run."),
+}
+
+
+def _explained(cells: list[nbkit.Cell], spec_rel: str) -> None:
+    """Refuse a code/form cell that does not come right after a markdown explanation."""
+    for prev, cell in zip([None, *cells], cells, strict=False):
+        if cell.kind != "markdown" and (prev is None or prev.kind != "markdown"):
+            raise ValueError(f"{spec_rel}: cell {cell.id!r} needs an md() explanation right "
+                             "before it (what it does, why, what output to expect)")
 
 
 def bootstrap_cells(branch: str) -> list[nbkit.Cell]:
@@ -89,11 +118,23 @@ def all_cells(nb: nbkit.Notebook, spec_rel: str) -> list[nbkit.Cell]:
     header = nbkit.Cell("code", "# [boinga HDR] Run header\nfrom boinga_translator.colab_runtime"
                         f" import run_header; run_header({nb.chunk!r}, {nb.run})", "HDR",
                         "Run header", (), nbkit.ALWAYS_FORBID)
-    cells = [_title_cell(nb, spec_rel), *bootstrap_cells(nb.branch), header,
-             *(c for c in nb.cells if c.kind != "form")]
-    if nb.forms:
+    setup = [c for boot in [*bootstrap_cells(nb.branch), header]
+             for c in (nbkit.md(ABOUT[str(boot.id)]), boot)]
+    body: list[nbkit.Cell] = []
+    observations: list[nbkit.Cell] = []
+    for prev, cell in zip([None, *nb.cells], nb.cells, strict=False):
+        if cell.kind != "form":
+            body.append(cell)
+            continue
+        if prev is not None and prev.kind == "markdown" and body and body[-1] is prev:
+            observations.append(body.pop())  # a form keeps the explanation written before it
+        observations.append(cell)
+    _explained(body, spec_rel)
+    _explained(observations, spec_rel)
+    cells = [_title_cell(nb, spec_rel), *setup, *body]
+    if observations:
         cells += [nbkit.md('## Your observations\n\nFill these in after "Run all", then run'
-                           " each form cell again."), *nb.forms]
+                           " each form cell again."), *observations]
     return cells
 
 
