@@ -665,3 +665,30 @@ must not re-normalise it (it is not NFC-stable). Any later char_map change chang
 map_digest, makes audit.csv stale and needs this check (C5 run 2) again. Inference text
 outside the corpus (typed prompts) can still hold characters the voice lacks: coqui drops
 them with only a warning, so the demo should check prompts with count_unknown().
+
+## 2026-11-07 — Audio preprocessing: mono, soxr_hq to the model rate, 100 ms pad, -1 dBFS peak
+**Context:** C6.1. The corpus is 16 kHz mono PCM_16 (audit_summary.md); the base voice
+(male) was trained at 22,050 Hz (pretrained_facts.json), and the model's sample rate and
+STFT/mel settings must not change (vits-finetune). dialect-data-rules asks for mono,
+resampling to the checkpoint's rate, edge-only silence trimming that keeps >= 100 ms, and
+peak-safe normalisation.
+**Decision:** `prepare.transform_audio()`: average the channels to mono; resample with
+librosa `res_type="soxr_hq"` only when the rate differs; trim leading/trailing silence
+with librosa.effects.trim at top_db 40 (the audit's threshold, data_audit.TRIM_TOP_DB) and
+keep 100 ms on each side, clamped at the clip edges; scale so the peak is -1 dBFS; write
+16-bit PCM atomically (`.tmp` then rename). The target rate comes from
+`prepare.target_sample_rate()` (base voice in configs/speaker_selection.json ->
+pretrained_facts.json), never a constant. Empty, non-finite or all-zero clips raise
+ValueError (counted as exclusions by C6.4). Stats per clip: in/out rate and duration,
+trimmed seconds, gain_db, upsampled.
+**Alternatives:** Loudness (RMS/LUFS) normalisation was in the C6 plan draft; the C6.1
+promptbook chose peak normalisation (simpler, no new dependency, cannot clip). Other
+resamplers (kaiser_best, scipy) were not needed: soxr ships with librosa >= 0.10. Trimming
+before resampling was not chosen: trimming at the output rate makes the 100 ms pad exact
+in output samples.
+**Consequences:** Every training clip is upsampled 16 -> 22.05 kHz, so it has no content
+above 8 kHz; the model will learn to generate band-limited audio (DECISIONS "Corpus
+layout"). Peak normalisation leaves loudness varying with each clip's crest factor across
+the mixed voices; if listening (C6.4 form) finds big level jumps, revisit with RMS/LUFS.
+trim's centred frames can keep up to about half a frame (~46 ms at 22,050 Hz) of extra
+silence on each side; the 100 ms pad is a minimum.

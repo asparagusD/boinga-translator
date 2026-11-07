@@ -437,6 +437,26 @@
     },
     {
       "kind": "config",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "config",
       "source": "src/boinga_translator/pretrained.py",
       "target": "configs/pretrained_facts.json"
     },
@@ -784,6 +804,11 @@
       "kind": "test",
       "source": "tests/test_paths.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_prepare.py",
+      "target": "src/boinga_translator/prepare.py"
     },
     {
       "kind": "test",
@@ -1189,13 +1214,13 @@
     },
     {
       "kind": "doc",
-      "lines": 667,
+      "lines": 694,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 381,
+      "lines": 418,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1513,6 +1538,12 @@
     },
     {
       "kind": "module",
+      "lines": 75,
+      "path": "src/boinga_translator/prepare.py",
+      "purpose": "Training-data prep: the model's sample rate and the per-clip audio transform (mono, rate, trim, peak)."
+    },
+    {
+      "kind": "module",
       "lines": 256,
       "path": "src/boinga_translator/pretrained.py",
       "purpose": "Pretrained Bangla VITS voices: cache model.pth + config.json on Drive and report their facts."
@@ -1654,6 +1685,12 @@
       "lines": 102,
       "path": "tests/test_paths.py",
       "purpose": "Tests for paths.py: env overrides, Colab/local defaults, run_dir and ensure_dirs."
+    },
+    {
+      "kind": "test",
+      "lines": 162,
+      "path": "tests/test_prepare.py",
+      "purpose": "Tests for prepare.py: target_sample_rate from the configs, transform_audio on synthetic wavs."
     },
     {
       "kind": "test",

@@ -353,8 +353,45 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
 - [ ] Optional skip-if-no-TTS (or Colab) test of round_trip on the real TTSTokenizer, so a
   change in coqui's blank/bos/eos order is caught without a full run
 
-## C6
-- [ ] C6.x (subchunks not yet defined)
+## C6 — Preprocess audio and write training manifests
+Branch `chunk/C6-prepare`. One CPU notebook: spec `notebooks/specs/c6_prepare.py` ->
+`notebooks/runs/C6_prepare_run1.ipynb`. Input = the C4 selection (7,506 clips,
+configs/speaker_selection.json, sha-checked), char_map-excluded rows dropped, text =
+`text_frontend.prepare_text` (C5 follow-up: one name for C6 and inference). Target rate from
+configs/pretrained_facts.json (male 22,050 Hz), never hard-coded. Local tests use synthetic
+wavs/text; coqui is faked locally and only parse-checked on Colab. Line counts exclude tests,
+the generated map/notebook and PROGRESS.
+- [x] C6.1 `prepare.target_sample_rate()` (base voice in configs/speaker_selection.json
+  -> sample_rate in configs/pretrained_facts.json) and `prepare.transform_audio(in_wav,
+  out_wav, target_sr)`: mono mix, librosa resample soxr_hq when the rate differs, trim
+  edge silence (top_db 40) keeping a 100 ms pad each side (clamped), peak to -1 dBFS,
+  16-bit PCM written atomically; returns in_sr, out_sr, in_dur, out_dur, trimmed_s,
+  gain_db, upsampled; empty/non-finite/silent -> ValueError. Peak, not RMS, normalisation
+  per the C6.1 promptbook; module prepare.py (C6.4a's build() joins it). DECISIONS "Audio
+  preprocessing". Tests `tests/test_prepare.py` (this commit)
+- [ ] C6.2 `splits.make_splits(df)` + `save_splits(df, path)` (local, ~80 lines): official
+  splits kept; test fixed; a train/val row whose model text is also in test is dropped, a
+  train row whose text is in val is dropped (no text in two splits, on prepare_text output);
+  drops counted by reason; `save_splits` writes Drive `paths.splits_csv()` and refuses to
+  change an existing test set. DECISIONS "Training splits". Tests `tests/test_splits.py`
+- [ ] C6.3 `manifests.write_manifests(splits_df, out_dir)` (~70 lines): coqui `ljspeech`
+  format, `metadata_{train,val,test}.csv`, `id|text|text`, no header, refuses `|` or
+  newlines in text; `check_manifests()` parses them with coqui `load_tts_samples`
+  (lazy import), checks every wav exists at the target rate and the parsed text equals
+  ours; `boinga check-manifests`; parse-check cell in the spec. Tests
+  `tests/test_manifests.py` (fake loader)
+- [ ] C6.4a `prepare.build()` (local, ~100 lines; in prepare.py): selection -> splits -> transform each
+  clip to fast `prepared/wavs/<clip_id>.wav` (skip done, process pool) -> post-trim
+  exclusions (outside 1-15 s) by reason -> manifests -> `reports/prepare_summary.md`
+  (clips/minutes per split, drops by reason, gain/peak ranges), emitted. Tests
+  `tests/test_prepare.py`
+- [ ] C6.4b Drive backup/restore + `boinga prepare` + cells (~70 lines): tar of
+  `prepared/` to Drive `paths.prepared_backup()` with a sha256 + inputs digest; a matching
+  backup is restored instead of rebuilding; play cell (5 seeded before/after pairs) and
+  form `C6.4-notes` (AUDIO_OK, TRIM_CUTS_SPEECH, NOTES)
+- [ ] C6.H hand-off: `notebooks/runs/C6_prepare_run1.ipynb` (CPU) built, pushed, link
+  given; duration not measured
+- [ ] C6.V verify (colab-verify): results into PROGRESS/DECISIONS
 
 ## C7
 - [ ] C7.x (subchunks not yet defined)
