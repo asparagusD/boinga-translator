@@ -868,13 +868,13 @@
     },
     {
       "kind": "doc",
-      "lines": 474,
+      "lines": 480,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 211,
+      "lines": 212,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -964,7 +964,7 @@
     },
     {
       "kind": "doc",
-      "lines": 65,
+      "lines": 49,
       "path": "reports/audit_summary.md",
       "purpose": "Corpus audit summary"
     },
@@ -991,6 +991,12 @@
       "lines": 386,
       "path": "reports/colab_runs/C3_data-audit_run2.md",
       "purpose": "Colab run C3 run 2 — Index, audit, summary"
+    },
+    {
+      "kind": "doc",
+      "lines": 184,
+      "path": "reports/colab_runs/C3_data-audit_run3.md",
+      "purpose": "Colab run C3 run 3 — Char-mapped re-audit"
     },
     {
       "kind": "config",

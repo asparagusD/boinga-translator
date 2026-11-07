@@ -171,9 +171,10 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
   text (ctg_text_model, excluded_char, charset_id includes the map digest); clean_mask:
   "excluded character" + "unknown after char_map" replace oov_ratio > 0.02; baseline
   synthesises the mapped text (this commit)
-- [ ] C3.8c re-run audit + summary on Colab with the map; record clean hours (G2 cond. 1)
-  - [x] C3.H3 run-3 notebook (fetch, audit, summary; CPU) built and pushed (this commit)
-  - [ ] C3.V3 verify run 3; commit reports/audit_summary.md and the clean hours
+- [x] C3.8c re-run audit + summary on Colab with the map: clean 7,513 clips / 8.18 h
+  (was 2,881 / 4.10 h); G2 condition 1 met
+  - [x] C3.H3 run-3 notebook (fetch, audit, summary; CPU) built and pushed (`eb3d3e0`)
+  - [x] C3.V3 verify run 3: 8/8 PASS at `eb3d3e0`, audit 8,009 rows in 62 s (this commit)
 - [ ] Speakers: mixed voices vs a consistent subset (speaker-embedding clustering) + DECISIONS
 - [ ] Keep the official test split (incl. clips 386, 29, 625) out of training in C4
 

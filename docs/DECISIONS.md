@@ -472,3 +472,9 @@ normalise it again after the map, and C3.8b tests that applying it twice changes
 nothing. The model's "." token replaces its "।" token at sentence ends; inference
 prompts get the same map. Whether the precomposed nukta rows of the checkpoint are the
 trained ones can be checked from embedding norms in C4.
+
+**Verified (C3 run 3, commit eb3d3e0, `boinga audit` + `audit-summary` on the mapped
+text):** clean 7,513 clips, 8.18 h (train 6,010 / 6.56 h, val 748 / 0.81 h, test 755 /
+0.81 h), up from 2,881 clips / 4.10 h before the map. Excluded character 279 rows
+(0.62 h); unknown to the model after the map 114 rows, all of them also excluded-character
+rows (৭ ৯ / : *), so no unknown character reaches training. Gate G2 condition 1 is met.
