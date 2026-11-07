@@ -263,3 +263,49 @@ def test_failed_attempt_kept_and_logs_flushed(fake: dict[str, Any]) -> None:
     train_runner.run("smoke", max_steps=3)  # no checkpoint was left, so a rerun is allowed
     first, second = _record()["sessions"]
     assert first["error"].startswith("RuntimeError") and second["steps_done"] == 3
+
+
+def test_clean_run(fake: dict[str, Any], capsys: pytest.CaptureFixture[str]) -> None:
+    assert train_runner.clean_run("smoke") is False  # nothing there yet
+    assert "PASS: nothing to clean for run smoke" in capsys.readouterr().out
+    _folder("smoke-a", "checkpoint_50.pth", "config.json")
+    (paths.run_dir("smoke") / train_runner.RUN_RECORD).write_text("{}", encoding="utf-8")
+    assert train_runner.clean_run("smoke") is True
+    assert not paths.run_dir("smoke").exists()
+    assert "PASS: cleaned run smoke" in capsys.readouterr().out
+
+
+def test_clean_run_refuses_a_long_run(fake: dict[str, Any]) -> None:
+    _folder("full-a", f"checkpoint_{train_runner.CLEAN_MAX_STEP + 1}.pth")
+    with pytest.raises(RuntimeError, match="not a smoke run"):
+        train_runner.clean_run("smoke")
+    assert paths.run_dir("smoke").exists()
+
+
+def test_clean_run_guard_uses_the_run_record(fake: dict[str, Any]) -> None:
+    _folder("smoke-a", "best_model_1500.pth", "checkpoint_1000.pth")  # boundary step allowed
+    record = {"run": "smoke", "sessions": [{"steps_done": 1499}]}  # but trained past it
+    (paths.run_dir("smoke") / train_runner.RUN_RECORD).write_text(json.dumps(record), "utf-8")
+    with pytest.raises(RuntimeError, match="step 1499"):
+        train_runner.clean_run("smoke")
+
+
+def test_clean_run_only_smoke_names(fake: dict[str, Any]) -> None:
+    for name in ("full", "../x"):
+        with pytest.raises(ValueError):
+            train_runner.clean_run(name)
+
+
+def test_clean_run_left_behind(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch) -> None:
+    _folder("smoke-a", "checkpoint_50.pth")
+    monkeypatch.setattr(train_runner.shutil, "rmtree", lambda path: None)
+    with pytest.raises(RuntimeError, match="still exists"):
+        train_runner.clean_run("smoke")
+
+
+def test_cli_clean_run(fake: dict[str, Any], capsys: pytest.CaptureFixture[str]) -> None:
+    _folder("smoke-a", "checkpoint_50.pth")
+    assert cli.main(["clean-run", "--run", "smoke"]) == 0
+    _folder("smoke-b", "checkpoint_5000.pth")
+    assert cli.main(["clean-run", "--run", "smoke"]) == 1
+    assert "FAIL: clean-run" in capsys.readouterr().out

@@ -72,6 +72,9 @@ def build_parser() -> argparse.ArgumentParser:
     thr = sub.add_parser("throughput", help="step time, losses and memory of a run into "
                                             "reports/throughput.json")
     thr.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    cln = sub.add_parser("clean-run", help="delete a smoke run's folder on Drive for a fresh "
+                                           "start (refuses runs past step 1000)")
+    cln.add_argument("--run", required=True, help="run name (one folder under runs/)")
     return parser
 
 
@@ -124,6 +127,16 @@ def _throughput(run_name: str) -> int:
     except (OSError, ValueError, KeyError) as exc:  # JSONDecodeError is a ValueError
         print(f"FAIL: throughput {type(exc).__name__}: {exc}")
         return 1
+
+
+def _clean_run(run_name: str) -> int:
+    """Delete a smoke run folder; FAIL + exit 1 if refused or on an error."""
+    try:
+        train_runner.clean_run(run_name)
+    except (RuntimeError, ValueError, OSError) as exc:
+        print(f"FAIL: clean-run {type(exc).__name__}: {exc}")
+        return 1
+    return 0
 
 
 def _check_tokenizer() -> int:
@@ -324,6 +337,8 @@ def main(argv: list[str] | None = None) -> int:
         return _train(args.run, args.max_steps)
     elif args.command == "throughput":
         return _throughput(args.run)
+    elif args.command == "clean-run":
+        return _clean_run(args.run)
     return 0
 
 

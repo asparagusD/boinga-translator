@@ -45,6 +45,21 @@ NOTEBOOK = Notebook(
         code("C7.2", "One-batch loader check", "!boinga check-loader",
              expect=[r"PASS: loader ok"]),
         md("""
+            **Fresh smoke run.** Deletes the Drive folder of run `smoke` so the smoke test
+            starts from the pretrained checkpoint with the current config (run 1 trained with
+            a dropped seed override). It only deletes runs named `smoke...` that never got
+            past step 1000, and stops "Run all" if anything goes wrong. Deleted files stay in
+            the Drive trash (roughly 2 GB, two checkpoints; the PASS line prints the exact
+            size) until you empty it. Expect `PASS: cleaned run smoke` or `PASS: nothing to
+            clean`.
+        """),
+        code("C7.4.0", "Fresh smoke run", """
+            from boinga_translator import cli, colab_runtime
+
+            if cli.main(["clean-run", "--run", "smoke"]) != 0:
+                colab_runtime.fail("clean-run failed (see the FAIL line above)")
+        """, expect=[r"PASS: (cleaned run smoke|nothing to clean for run smoke)"]),
+        md("""
             **Smoke test: 50 steps (not timed yet; model load plus 50 steps).** Starts run
             `smoke` from the pretrained male checkpoint (fp16, batch 16) and stops after 50
             steps with a saved checkpoint on Drive. coqui prints a step log every 5 steps (smoke

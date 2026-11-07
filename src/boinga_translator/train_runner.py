@@ -1,4 +1,4 @@
-"""Training runner: coqui VITS loader check, new and resumed fine-tune runs (throughput: C7.4)."""
+"""Training runner: coqui VITS loader check, new and resumed fine-tune runs, smoke-run cleanup."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import inspect
 import json
 import os
 import re
+import shutil
 import time
 import types
 from collections.abc import Callable, Mapping
@@ -282,3 +283,37 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
         if trainer is not None:
             trainer.dashboard_logger.finish()  # flush logs on success and on error
     return session
+
+
+CLEAN_MAX_STEP = 1000  # clean_run refuses runs past this: those are real training, not smoke
+
+
+def _steps_seen(run_name: str) -> int:
+    """Highest step known for a run: numbered checkpoints and boinga_run.json sessions."""
+    latest = latest_run_folder(run_name)
+    steps = [latest[1]] if latest else []
+    record = paths.run_dir(run_name) / RUN_RECORD
+    if record.is_file():
+        sessions = json.loads(record.read_text(encoding="utf-8")).get("sessions", [])
+        steps += [s["steps_done"] for s in sessions if isinstance(s.get("steps_done"), int)]
+    return max(steps, default=0)
+
+
+def clean_run(run_name: str) -> bool:
+    """Delete a smoke run's folder for a fresh start; only names "smoke*", at most step 1000."""
+    if not run_name.startswith("smoke"):
+        raise ValueError(f"clean-run only deletes smoke runs (name 'smoke...'), not {run_name!r}")
+    run_dir = paths.run_dir(run_name)
+    if not run_dir.exists():
+        print(f"PASS: nothing to clean for run {run_name} ({run_dir} absent)")
+        return False
+    if (steps := _steps_seen(run_name)) > CLEAN_MAX_STEP:
+        raise RuntimeError(f"{run_dir} reached step {steps} (> {CLEAN_MAX_STEP}): not a smoke "
+                           "run; delete it by hand if you really mean to")
+    size = sum(f.stat().st_size for f in run_dir.rglob("*") if f.is_file())
+    shutil.rmtree(run_dir)
+    if run_dir.exists():  # Drive FUSE can leave files behind without raising
+        raise RuntimeError(f"{run_dir} still exists after deleting it: delete it by hand")
+    print(f"PASS: cleaned run {run_name}: removed {run_dir} ({size / 1e9:.2f} GB; Drive keeps "
+          "deleted files in its trash until emptied)")
+    return True

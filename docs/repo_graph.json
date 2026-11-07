@@ -183,6 +183,11 @@
     {
       "kind": "notebook",
       "source": "notebooks/runs/C7_train-runner_run1.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C7_train-runner_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
     {
@@ -1670,7 +1675,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 586,
+      "lines": 629,
       "path": "notebooks/runs/C7_train-runner_run1.ipynb",
       "purpose": "C7 run 1 — C7 — training runner and smoke test"
     },
@@ -1742,7 +1747,7 @@
     },
     {
       "kind": "module",
-      "lines": 95,
+      "lines": 110,
       "path": "notebooks/specs/c7_train_runner.py",
       "purpose": "Spec: C7 run 1, training runner: prepared data, fine-tune config, loader, smoke and resume (T4)."
     },
@@ -1916,7 +1921,7 @@
     },
     {
       "kind": "module",
-      "lines": 331,
+      "lines": 346,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2018,9 +2023,9 @@
     },
     {
       "kind": "module",
-      "lines": 284,
+      "lines": 319,
       "path": "src/boinga_translator/train_runner.py",
-      "purpose": "Training runner: coqui VITS loader check, new and resumed fine-tune runs (throughput: C7.4)."
+      "purpose": "Training runner: coqui VITS loader check, new and resumed fine-tune runs, smoke-run cleanup."
     },
     {
       "kind": "test",
@@ -2234,7 +2239,7 @@
     },
     {
       "kind": "test",
-      "lines": 265,
+      "lines": 311,
       "path": "tests/test_train_run.py",
       "purpose": "Tests for train_runner.run() and `boinga train`: TrainerArgs, step stop, boinga_run.json (fakes)."
     },
