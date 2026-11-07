@@ -158,3 +158,15 @@ spelling); delaying the baseline until after C3 (delays Gate G1).
 **Consequences:** Gate G1 judges the pretrained voices on standard Bangla only.
 After C3, CTG_1-3 get verbatim held-out corpus transcripts and the baseline is
 re-run (C2 follow-up in PROGRESS.md).
+
+## 2026-11-07 — Pretrained download: both Bangla VITS voices cached on Drive
+**Context:** C2.1 fetches `tts_models/bn/custom/vits-{female,male}` once and
+caches them under `pretrained/<voice>/` on Drive (C2 run 1, commit `68ab521`).
+**Decision:** Keep the coqui ModelManager download as the source: it succeeded
+for both voices (no WARN, so the pinned release-zip fallback was not used).
+Sizes from the C2.1 cell: female `model.pth` 997.77 MB + `config.json` 0.01 MB;
+male `model.pth` 997.77 MB + `config.json` 0.01 MB (about 2 GB of Drive).
+**Alternatives:** Downloading the release zips directly (kept as the fallback).
+**Consequences:** The checkpoints are large because they carry optimizer and
+grad-scaler state (C2.2). The cached files' sha256 were not recorded in this
+run; pinning them stays a C2 follow-up.

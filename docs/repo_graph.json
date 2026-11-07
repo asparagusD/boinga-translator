@@ -56,6 +56,11 @@
       "target": "tools/nbkit.py"
     },
     {
+      "kind": "config",
+      "source": "notebooks/specs/c2_pretrained_baseline.py",
+      "target": "configs/pretrained_facts.json"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c2_pretrained_baseline.py",
       "target": "tools/nbkit.py"
@@ -129,6 +134,11 @@
       "kind": "import",
       "source": "src/boinga_translator/env_report.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/pretrained.py",
+      "target": "configs/pretrained_facts.json"
     },
     {
       "kind": "import",
@@ -254,6 +264,11 @@
       "kind": "test",
       "source": "tests/test_pretrained.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_pretrained_inspect.py",
+      "target": "configs/pretrained_facts.json"
     },
     {
       "kind": "test",
@@ -459,6 +474,12 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 34,
+      "path": "configs/pretrained_facts.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 47,
       "path": "docs/DEBUG_LOG.md",
@@ -466,7 +487,7 @@
     },
     {
       "kind": "doc",
-      "lines": 160,
+      "lines": 172,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
@@ -531,6 +552,12 @@
       "purpose": "Colab run C1 run 1 — Pipeline pilot"
     },
     {
+      "kind": "doc",
+      "lines": 325,
+      "path": "reports/colab_runs/C2_pretrained-baseline_run1.md",
+      "purpose": "Colab run C2 run 1 — C2 — pretrained model and baseline"
+    },
+    {
       "kind": "config",
       "lines": 16,
       "path": "reports/env.json",
@@ -541,6 +568,18 @@
       "lines": 4,
       "path": "reports/notes/C1.10-notes.json",
       "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 6,
+      "path": "reports/notes/C2.4-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "doc",
+      "lines": 123,
+      "path": "reports/pretrained_inspect.md",
+      "purpose": "Pretrained voices"
     },
     {
       "kind": "module",
