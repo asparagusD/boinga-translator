@@ -288,3 +288,25 @@ transcript/translation columns and the 6,403/801/800 splits were known before.
   Gate G2.
 - The first rows read like translated encyclopedic prose about Chittagonian, so the
   text is read speech of written sentences.
+
+## 2026-11-07 — Corpus row <-> wav mapping: wav stem = Excel row number
+**Context:** The corpus has no clip-id column (DECISIONS "Corpus layout"); C3.3 needs
+the link between Dataset/Chittagonian_translated.xlsx rows and Dataset/Speech wavs.
+**Decision:** wav `<n>.wav` belongs to Excel row n of the first sheet (header = row 1);
+`corpus.load_index` keys on it (`clip_id` = n). Evidence (probe of the pinned zip over
+HTTP Range: file listing, the xlsx and 40 random wavs, nothing committed):
+- wav stems run 2..8010, all unique across the three split folders; the xlsx has
+  8,009 data rows = Excel rows 2..8010.
+- Exactly 5 stems are absent: 1934, 3289, 3352, 4062, 4223 (8,009 - 5 = 8,004 wavs).
+- Duration vs `Chittagonian Dialect` length over 40 random wavs, Pearson r:
+  stem = row -2: 0.13, -1: 0.17, **+0: 0.87**, +1: -0.02, +2: 0.33.
+- The 5 rows without audio are all long sentences (221-256 characters).
+- Local `boinga index` on the real xlsx + empty placeholder files at the real wav paths: train 6403, val 801,
+  test 800, (none) 5; `PASS: index has 8009 rows (8004 with audio)`.
+**Alternatives:** 0-based data-row index (r = 0.17), sequential order (no gaps
+explained); pairing by transcript length alone (not unique).
+**Consequences:** The index has 8,009 rows; the 5 without audio have no split and
+`wav_exists` False and are excluded from training. `load_index` raises if a wav has no
+row, a stem appears in two splits, a wav name is not a number, a split folder is
+missing, or a row with a wav has no dialect text. The C3.5 listening check is the
+final confirmation (clip audio vs its transcript).

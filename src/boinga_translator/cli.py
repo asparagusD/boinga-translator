@@ -4,7 +4,14 @@ from __future__ import annotations
 
 import argparse
 
-from boinga_translator import __version__, baseline, data_download, env_report, pretrained
+from boinga_translator import (
+    __version__,
+    baseline,
+    corpus,
+    data_download,
+    env_report,
+    pretrained,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -19,7 +26,20 @@ def build_parser() -> argparse.ArgumentParser:
     base = sub.add_parser("baseline", help="synthesise the baseline prompts with each voice")
     base.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
     sub.add_parser("fetch-data", help="download, verify and unpack the corpus (resumable)")
+    sub.add_parser("index", help="index the corpus: wav, dialect text, translation, split")
     return parser
+
+
+def _index() -> int:
+    """Build the corpus index and print its summary; FAIL + exit 1 if the layout is off."""
+    try:
+        df = corpus.load_index()
+    except (FileNotFoundError, ValueError, OSError) as exc:
+        print(f"FAIL: index: {exc}")
+        return 1
+    print("\n".join(corpus.describe(df)))
+    print(f"PASS: index has {len(df)} rows ({int(df['wav_exists'].sum())} with audio)")
+    return 0
 
 
 def _fetch_data() -> int:
@@ -89,6 +109,8 @@ def main(argv: list[str] | None = None) -> int:
         return _baseline(args.voice)
     elif args.command == "fetch-data":
         return _fetch_data()
+    elif args.command == "index":
+        return _index()
     return 0
 
 

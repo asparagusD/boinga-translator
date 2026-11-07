@@ -136,7 +136,9 @@ Run 1 (spec `notebooks/specs/c3_data_audit_run1.py`, CPU):
   results `03ae94b` (download) and this commit (reports/corpus_layout.txt + DECISIONS)
 
 Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
-- [ ] C3.3 corpus.load_index() for the recorded layout + cell
+- [x] C3.3 code: corpus.load_index() + `boinga index` + run-2 spec (cells C3.2.fetch, C3.3);
+  wav stem = Excel row (DECISIONS "Corpus row <-> wav mapping"); 8,009 rows, 8,004 with
+  audio (this commit; Colab result with C3.V2)
 - [ ] C3.4a data_audit.audio_stats() (local)
 - [ ] C3.4b data_audit.text_stats() (local)
 - [ ] C3.4c data_audit.audit() over the corpus + cell

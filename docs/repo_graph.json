@@ -61,6 +61,21 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -83,6 +98,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c3_data_audit_run1.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c3_data_audit_run2.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -123,6 +143,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/data_download.py"
     },
     {
@@ -149,6 +174,11 @@
       "kind": "import",
       "source": "src/boinga_translator/colab_runtime.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/corpus.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "import",
@@ -248,6 +278,21 @@
     {
       "kind": "test",
       "source": "tests/test_colab_runtime.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_corpus.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_corpus.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_corpus.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -572,13 +617,13 @@
     },
     {
       "kind": "doc",
-      "lines": 290,
+      "lines": 312,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 180,
+      "lines": 182,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -613,6 +658,12 @@
       "purpose": "C3 run 1 — Download and layout"
     },
     {
+      "kind": "notebook",
+      "lines": 322,
+      "path": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "purpose": "C3 run 2 — Index, audit, summary"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -635,6 +686,12 @@
       "lines": 26,
       "path": "notebooks/specs/c3_data_audit_run1.py",
       "purpose": "Spec: C3 run 1, Chittagonian corpus: download, verify and unpack it, then record its layout."
+    },
+    {
+      "kind": "module",
+      "lines": 29,
+      "path": "notebooks/specs/c3_data_audit_run2.py",
+      "purpose": "Spec: C3 run 2, Chittagonian corpus: index, audit and summary (CPU)."
     },
     {
       "kind": "config",
@@ -698,7 +755,7 @@
     },
     {
       "kind": "module",
-      "lines": 96,
+      "lines": 118,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -707,6 +764,12 @@
       "lines": 116,
       "path": "src/boinga_translator/colab_runtime.py",
       "purpose": "Helpers called inside generated Colab cells: run header, cell markers, notes, file checks."
+    },
+    {
+      "kind": "module",
+      "lines": 118,
+      "path": "src/boinga_translator/corpus.py",
+      "purpose": "Corpus index: one row per spreadsheet line with its wav, dialect text, translation and split."
     },
     {
       "kind": "module",
@@ -773,6 +836,12 @@
       "lines": 150,
       "path": "tests/test_colab_runtime.py",
       "purpose": "Tests for colab_runtime.py: run header, cell marker, notes, expect_files and play fallbacks."
+    },
+    {
+      "kind": "test",
+      "lines": 160,
+      "path": "tests/test_corpus.py",
+      "purpose": "Tests for corpus.py and `boinga index`: row<->wav mapping, splits, verbatim text, errors."
     },
     {
       "kind": "test",
