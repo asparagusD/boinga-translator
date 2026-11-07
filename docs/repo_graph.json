@@ -759,7 +759,7 @@
     },
     {
       "kind": "config",
-      "lines": 8,
+      "lines": 13,
       "path": "configs/baseline_prompts.json",
       "purpose": ""
     },
@@ -777,13 +777,13 @@
     },
     {
       "kind": "doc",
-      "lines": 355,
+      "lines": 370,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 193,
+      "lines": 195,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -911,6 +911,12 @@
       "kind": "config",
       "lines": 7,
       "path": "reports/notes/C3.5-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 4,
+      "path": "reports/notes/C3.6-notes.json",
       "purpose": ""
     },
     {

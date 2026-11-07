@@ -332,6 +332,7 @@ input, but the prompt rule asks for the transcript as published).
 test split out of training (dialect-data-rules: the test split is never trained on).
 Re-running the pick after the audit changes may choose other lines; `_sources` shows
 which ones a baseline used.
+
 ## 2026-11-07 — Audit listening: clean audio, many speakers, speech heard as standard Bangla
 **Context:** C3 run 2 (f4c7ab2) form C3.5-notes, after listening to 20 seeded random clean
 clips (C3.5.play) labelled with their Chittagonian transcript and Standard Bangla
@@ -353,3 +354,17 @@ NOTES "none". Audit numbers: 8,004 decodable clips, 9.04 h (16 kHz mono PCM_16);
   speaker from this corpus's metadata.
 - The oov rule mostly measures the danda; a char_map decision on "।" changes clean hours
   substantially (up to ~4,700 more clips).
+
+## 2026-11-07 — Baseline on dialect text: pretrained voices read Chittagonian "partly"
+**Context:** C3 run 2 (f4c7ab2) cell C3.6 picked CTG_1-3 from clean test-split clips
+(DECISIONS "Dialect baseline prompts") and both pretrained voices read all 6 prompts on
+the T4; form C3.6-notes recorded the judgement after C3.6.play.
+**Decision:** Record the result: picks CTG_1 clip 386 "অ্যাক্কানা হুইত পাইজ্জম না, ছার? ",
+CTG_2 clip 29 (a 10-word line about Roman script), CTG_3 clip 625 "আগর ডইল্লা দেইন ন ফার";
+all 12 wavs passed (2.30-6.56 s, -24.6 to -18.1 dBFS); HANDLES_DIALECT "partly",
+NOTES "none". Both voices warned that "।" (STD_1, STD_3, CTG_2) is outside
+characters/punctuations, as expected for the eos symbol.
+**Alternatives:** none (an observation record).
+**Consequences:** The pretrained Bangla voices give a usable but imperfect starting point
+for dialect text; fine-tuning has something to improve. Clips 386, 29 and 625 are
+evaluation prompts and must stay out of training (official test split).

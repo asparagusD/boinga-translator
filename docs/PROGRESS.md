@@ -154,7 +154,9 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
   "standard Bangla", clean, many speakers (this commit)
 - [x] C3.6 code: `boinga pick-baseline-ctg` (clean test-split clips, 5-12 words, least like
   the Bangla) -> CTG_1-3 verbatim + _sources in configs/baseline_prompts.json; cells C3.6,
-  C3.6.play, form C3.6-notes (this commit; Colab result with C3.V2)
+  C3.6.play, form C3.6-notes (`05e51ce`); fix `b87125e` (prompts-file test); results:
+  CTG_1-3 = clips 386, 29, 625; 12/12 baseline wavs PASS; HANDLES_DIALECT "partly"
+  (this commit)
 - [x] C3.H2 hand-off run 2: notebook built for a T4 runtime (this commit)
 - [ ] C3.V2 verify run 2
 - [ ] C3.7 Gate G2: data fit for fine-tuning (DECISIONS entry)
