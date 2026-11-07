@@ -146,7 +146,8 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
   the voice's characters|punctuations|space, oov_ratio, Latin, digits (this commit)
 - [x] C3.4c code: data_audit.audit() + `boinga audit --voice` (default female: G1 "same")
   + cell C3.4c: every index row -> Drive reports/audit.csv, Pool(2), resumable
-  (this commit; Colab result with C3.V2)
+  (`c9874aa`); results: Colab run 2 audited 8,009 rows in 47 s (168.7 rows/s, Pool(2),
+  T4 VM CPU), charset female-a4543ed63b; Drive reports/audit.csv + audit.parts (this commit)
 - [x] C3.5 code: audit_summary.clean_mask/summarise/sample_clips + `boinga audit-summary`
   + cells C3.5, C3.5.play, form C3.5-notes -> reports/audit_summary.md (this commit;
   Colab result with C3.V2)
