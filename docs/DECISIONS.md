@@ -237,3 +237,23 @@ the full `characters` block from the pretrained config.json (including flags
 such as `is_unique`/`is_sorted` that fix the vocabulary order and so the
 embedding rows), not rebuild it from configs/pretrained_facts.json.
 (Nukta wording corrected at the C2 merge review.)
+
+## 2026-11-07 — Dataset download: pinned Mendeley zip, verified, unpacked once on Drive
+**Context:** C3.1 must put the pinned corpus (Mendeley n9xttk45df v1, CC BY 4.0) on
+Colab reproducibly. Run 1's first attempt failed: data.mendeley.com (Cloudflare)
+answers 403 to urllib's default `Python-urllib/3.x` User-Agent (DEBUG_LOG 2026-11-07).
+**Decision:** `boinga fetch-data` (data_download.fetch) streams the pinned URL with
+`User-Agent: boinga-translator/<version> (research dataset download)` (no personal
+data) via Mendeley's 302 to S3, resuming a `.part` file with HTTP Range; checks size
+843,601,272 B and the pinned sha256; unzips once to Drive data/unzipped; copies to
+/content/boinga-fast/data per VM. Markers hold the pinned sha256; a redone step redoes
+the later ones. Verified on Colab (C3 run 1, commit f06163c, CPU): download 844 MB in
+23 s (35.2 MB/s), `DONE verify`, `PASS: dataset ready at /content/boinga-fast/data,
+8005 files` = 8,004 .wav + 1 .xlsx (matches the 8,004 clips on the dataset page).
+**Alternatives:** Download with a browser and upload to Drive (manual, not
+reproducible); extract the Drive zip straight to /content each session (skips the
+Drive tree; not measured, revisit if the per-VM copy is slow).
+**Consequences:** Drive holds the zip and the unpacked tree (~1.7 GB of the 11.1 GB
+free before the run). Per-step timings for unzip/copy were not captured (the cell
+prints no durations); add them if the copy becomes a bottleneck. If a Colab IP is ever
+refused, the IP, not the agent, is the next suspect.

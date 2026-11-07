@@ -123,12 +123,14 @@ corpus layout, run 2 is written against it. Local tests use tiny synthetic data 
 Run 1 (spec `notebooks/specs/c3_data_audit_run1.py`, CPU):
 - [x] C3.1 code: data_download.fetch() + `boinga fetch-data` + cell C3.1: zip to Drive with
   Range resume, size + sha256 check, one-time unzip on Drive, per-VM copy to the fast disk
-  (this commit; Colab result and timing come with C3.V1)
+  (`93964ba`); fixes `5fbf2bd` (User-Agent, Mendeley 403), `f06163c` (stop Run all);
+  results: 8,005 files (8,004 wav + 1 xlsx), sha256 ok, 844 MB in 23 s (this commit)
   Review follow-up: time unzip-to-Drive + copy vs extracting the Drive zip straight to /content
 - [x] C3.2 code: tools/inspect_layout.py + cell C3.2: tree to depth 3 with counts per
   extension, table heads (csv/tsv/txt/json/xlsx/xls < 5 MB), 3 wav headers, speaker/gender/
   region/age/split values -> reports/corpus_layout.txt (this commit; result with C3.V1)
-- [ ] C3.H1 hand-off run 1
+- [x] C3.H1 hand-off run 1: notebook built and pushed with C3.2 (`c692819`), re-run at
+  `f06163c` after the fixes (no separate commit)
 - [ ] C3.V1 verify run 1 (records the real layout in reports/data_layout.md)
 
 Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):

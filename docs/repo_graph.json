@@ -572,13 +572,13 @@
     },
     {
       "kind": "doc",
-      "lines": 239,
+      "lines": 259,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 176,
+      "lines": 178,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -653,6 +653,12 @@
       "lines": 325,
       "path": "reports/colab_runs/C2_pretrained-baseline_run1.md",
       "purpose": "Colab run C2 run 1 — C2 — pretrained model and baseline"
+    },
+    {
+      "kind": "doc",
+      "lines": 153,
+      "path": "reports/colab_runs/C3_data-audit_run1.md",
+      "purpose": "Colab run C3 run 1 — Download and layout"
     },
     {
       "kind": "config",
