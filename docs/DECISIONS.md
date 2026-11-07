@@ -878,3 +878,32 @@ command (one idempotent command is what "Run all" needs).
 **Consequences:** A config change after a run started does not reach that run: a new run name
 is needed. A truncated last checkpoint (Drive write cut off) would still be chosen; coqui
 fails loading it, and the fix is to delete that file (not handled automatically yet).
+
+## 2026-11-08 — Gate G5 — ready to train
+**Context:** End of C7. Rule (C7.V promptbook): G5 PASS needs all four of (1) Gate G1 PASS,
+(2) configs/splits_summary.json present, (3) reports/throughput.json with any_nan_loss false,
+(4) a "RESUME from step" line seen in the resume test; otherwise "G5: FAIL — debug at most 2
+more hours, then Chunk F". Evidence: C7 run 1 (87c0470; digest
+reports/colab_runs/C7_train-runner_run1.md, 11/12 cells PASS).
+**Findings:**
+1. G1: PASS (DECISIONS "Gate G1 — pretrained model").
+2. configs/splits_summary.json present (train 6,415 / val 338 / test 753, sha256
+   fd93f4827c6d2b41..., restored on the VM from the Drive tar: "transform: 0 clip(s) to do").
+3. reports/throughput.json: any_nan_loss false; fp16, batch 16, 0.3406 s/step over 10
+   logged steps (10,570 steps/h), peak GPU memory 3.385 GB.
+4. C7.4.b: "RESUME from step 50 in .../runs/smoke/smoke-November-07-2026_08+20PM-87c0470",
+   coqui restored model, optimizer, scheduler and scaler, then "STOP at step 60".
+Also: the loader check passed (token ids 0..86 of vocab 87, no NaN/inf), the restore printed
+no "Partial model initialization", and the step-60 checkpoint synthesised (C7.4.d).
+**Decision:** G5: PASS. The runner, config, data and resume path are ready for the full
+fine-tune (C8), with two conditions:
+- C7.1 failed in run 1: coqui dropped the `seed` override (its field is `training_seed`), so
+  the smoke run used seed 54321. Fixed in 08f29d0; the C7 notebook re-run (clean smoke run,
+  90c4504) must show "PASS: coqui accepts config" before C8 starts.
+- The run got an NVIDIA RTX PRO 6000 Blackwell (95 GB), not a T4: 0.34 s/step and 3.4 GB do
+  not describe a T4. Peak memory fits a T4's 15 GB with a wide margin, but T4 speed is
+  unmeasured; C8 must time its first steps on the GPU it actually gets before promising hours.
+**Alternatives:** G5 FAIL was not indicated (all four criteria met); Chunk F not needed.
+**Consequences:** C8 can plan the full run with `boinga train --run <name>` (auto-resume,
+step budget via RUN_BUDGETS). Drive had 8.2 GB free with ~1 GB per checkpoint: keep
+save_n_checkpoints 2, clean the smoke run (C7.4.0 does) and empty the Drive trash.

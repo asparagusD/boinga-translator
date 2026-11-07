@@ -439,13 +439,14 @@ the generated map/notebook and PROGRESS.
   cut-offs or level problems
 
 ### C6 follow-ups (from the whole-chunk review; for C7)
-- [ ] C7 notebook runs `boinga fetch-data` and `boinga prepare` first (wavs and manifests
+- [x] C7 notebook runs `boinga fetch-data` and `boinga prepare` first (wavs and manifests
   live on the VM's fast disk); check it prints "restored ..." and "0 clip(s) to do"
+  (C7 run 1, cell C7.pre: restored from prepared-fd93f4827c6d2b41.tar, 0 clip(s) to do)
 - [ ] Restore depends on byte-identical splits.csv: a different pandas/numpy on the GPU VM
   could change its bytes (e.g. float format of duration_s), miss the tar, recompute and
   write a second ~1.2 GB tar; warn when another prepared-*.tar exists but none matches
-- [ ] C7 config: set min/max audio length on trimmed durations (no post-trim 1-15 s
-  exclusion in C6; trimming can push a clip under the minimum)
+- [x] C7 config: set min/max audio length on trimmed durations (no post-trim 1-15 s
+  exclusion in C6; trimming can push a clip under the minimum) (C7.1: 0.5 / 15 s)
 - [ ] env_report: record pandas, librosa and soxr versions (Colab's pandas was unknown
   when the C6.4 KeyError hit)
 - [ ] reports/prepare_summary.md with exclusions by reason (dialect-data-rules; C6 run 1
@@ -487,7 +488,7 @@ map/notebook and PROGRESS.
   (coqui `VitsConfig().load_json`, "PASS: coqui accepts config"). Spec
   `notebooks/specs/c7_train_runner.py` (slug `train-runner`: nbkit slugs allow no "_"),
   cells C7.pre (fetch-data + prepare) and C7.1. Tests `tests/test_train_config.py` (this
-  commit). Results: C7 run 1
+  commit). Results: C7.1 failed in run 1 (seed dropped, fixed `08f29d0`); pending C7.V2
 - [x] C7.2 code: `train_runner.check_loader(config_path=None)` + `boinga check-loader`:
   coqui VitsConfig from configs/vits_ctg_finetune.json, `Vits(config)` (0.28 has no
   Vits.init_from_config), `load_tts_samples(config, eval_split=True)` (0.28 takes the config,
@@ -555,12 +556,16 @@ map/notebook and PROGRESS.
   `colab_runs/C7_train-runner_run1.ipynb` given; no forms; duration not measured (data
   restore + roughly 10-40 min of training, estimate). Kaggle is not a drop-in fallback: the
   bootstrap needs google.colab (Drive mount, GH_TOKEN secret) (this commit)
-- [ ] C7.V verify (colab-verify): every cell PASS, not stale; reports/throughput.json and
-  configs/vits_ctg_finetune.json committed as results
-- [ ] C7.5 Gate G5 — training runner: PASS if 50 smoke steps + resumed steps finish with
-  finite losses, resume continues from the saved step (no second restore), peak memory fits
-  the T4 with margin and sec/step is measured; record hours for the C8 run from throughput.
-  FAIL -> debug-protocol (batch/fp32/length limits), Chunk F only by its trigger rules
+- [x] C7.V verify run 1 (colab-verify): 11/12 PASS at 87c0470 (notebook built in `b0ec918`),
+  not stale; saved as colab_runs/C7_train_runner_run1.ipynb. C7.1 FAIL ("coqui loaded the
+  config but not these overrides: ['seed']") -> fix `08f29d0` (training_seed) + clean smoke
+  run `90c4504`; results `b2d1884` (C7.2 + digest), `ffdfe0e` (C7.4). GPU: RTX PRO 6000, not T4
+- [ ] C7.V2 re-run C7 (fresh smoke run): C7.1 must print "PASS: coqui accepts config"; then
+  commit C7.1 results (configs/vits_ctg_finetune.json, DECISIONS overrides table from
+  reports/config_overrides.md via train_config.replace_decisions_table) and the new throughput
+- [x] C7.5 Gate G5 — ready to train: PASS (G1 PASS, splits_summary present, no NaN loss,
+  RESUME seen), conditions: C7.V2 C7.1 PASS before C8; time C8 on its real GPU (DECISIONS
+  "Gate G5 — ready to train"; this commit)
 
 ## C8
 - [ ] C8.x (subchunks not yet defined)
