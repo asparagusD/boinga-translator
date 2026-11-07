@@ -55,3 +55,16 @@ raised `ValueError: slug must be lowercase letters, digits and -, got 'data_audi
 style); the notebook is notebooks/runs/C3_data-audit_run1.ipynb.
 **Test added:** none (nbkit already validates it; tests/test_nbkit.py covers the rule).
 **Commit:** data(download): fetch corpus zip with resume, sha256 check and one-time unzip
+
+## 2026-11-07 C3.1 Colab: fetch-data fails with HTTP Error 403: Forbidden
+**Symptom:** C3 run 1 (commit c692819, Colab CPU, python 3.13.18), cell C3.1
+`!boinga fetch-data` printed `FAIL: fetch-data: HTTP Error 403: Forbidden`.
+**Root cause:** the request carried urllib's default `User-Agent: Python-urllib/3.x`,
+which Mendeley's Cloudflare front rejects. Local probe of the pinned URL with a 100-byte
+range: `Python-urllib/3.13` -> 403 (no redirect); `curl/8.5.0` and a
+`boinga-translator/...` agent -> 302 to S3, then `206 Partial Content`,
+`Content-Range: bytes 0-99/843601272` (Range works; size matches the pin).
+**Fix:** send `User-Agent: boinga-translator/<version> (research dataset download)`
+(data_download.USER_AGENT) on every request.
+**Test added:** tests/test_data_download.py::test_requests_send_project_user_agent
+**Commit:** fix(download): send a project User-Agent; Mendeley 403s Python-urllib

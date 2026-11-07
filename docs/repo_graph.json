@@ -148,6 +148,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/data_download.py",
+      "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/data_download.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -556,7 +561,7 @@
     },
     {
       "kind": "doc",
-      "lines": 57,
+      "lines": 70,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
@@ -694,7 +699,7 @@
     },
     {
       "kind": "module",
-      "lines": 141,
+      "lines": 143,
       "path": "src/boinga_translator/data_download.py",
       "purpose": "Corpus download: stream the pinned zip to Drive, check size + sha256, unzip once, copy to fast."
     },
@@ -760,7 +765,7 @@
     },
     {
       "kind": "test",
-      "lines": 215,
+      "lines": 227,
       "path": "tests/test_data_download.py",
       "purpose": "Tests for data_download.py and `boinga fetch-data`: resume, sha256 check, one-time unzip, copy."
     },

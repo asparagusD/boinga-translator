@@ -36,8 +36,10 @@ class FakeServer:
     def __init__(self, data: bytes, honour_range: bool = True) -> None:
         self.data, self.honour_range = data, honour_range
         self.ranges: list[str | None] = []
+        self.agents: list[str | None] = []
 
     def __call__(self, req: urllib.request.Request) -> _Resp:
+        self.agents.append(req.get_header("User-agent"))  # urllib stores it capitalised
         rng = req.get_header("Range")
         self.ranges.append(rng)
         if rng and self.honour_range:
@@ -74,6 +76,16 @@ def test_first_call_downloads_verifies_unzips_and_copies(
     assert (paths.data_unzipped() / "Dataset/audio/utt_001.wav").is_file()
     assert (paths.data_raw() / "Dataset.zip.sha256_ok").is_file()
     assert server.ranges == [None]
+
+
+def test_requests_send_project_user_agent(server: FakeServer) -> None:
+    """Mendeley's Cloudflare answers 403 to urllib's default Python-urllib agent (C3.V1)."""
+    part = paths.data_raw() / "Dataset.zip.part"
+    part.parent.mkdir(parents=True)
+    part.write_bytes(server.data[:10])
+    data_download.fetch()
+    assert server.agents == [data_download.USER_AGENT]
+    assert data_download.USER_AGENT.startswith("boinga-translator/")
 
 
 def test_second_call_skips_all(server: FakeServer, capsys: pytest.CaptureFixture[str]) -> None:

@@ -16,9 +16,11 @@ from typing import IO
 
 from tqdm import tqdm
 
-from boinga_translator import paths, settings
+from boinga_translator import __version__, paths, settings
 from boinga_translator.pretrained import safe_extract
 
+# Mendeley's Cloudflare front answers 403 to urllib's default "Python-urllib/3.x" agent.
+USER_AGENT = f"boinga-translator/{__version__} (research dataset download)"
 ZIP_NAME = "Dataset.zip"
 SHA_MARKER = ZIP_NAME + ".sha256_ok"
 UNZIP_MARKER = ".unzipped_ok"
@@ -55,7 +57,7 @@ def _download(dest: Path) -> None:
         print(f"WARN: {part.name} is larger than expected ({have} > {total}); restarting")
         have = 0
     if have < total:
-        headers = {"Range": f"bytes={have}-"} if have else {}
+        headers = {"User-Agent": USER_AGENT, **({"Range": f"bytes={have}-"} if have else {})}
         try:
             resp = _open(urllib.request.Request(settings.DATASET_ZIP_URL, headers=headers))
         except urllib.error.HTTPError as exc:
