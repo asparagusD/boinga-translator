@@ -48,6 +48,11 @@
     {
       "kind": "notebook",
       "source": "notebooks/runs/C3_data-audit_run1.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
     {
@@ -561,7 +566,7 @@
     },
     {
       "kind": "doc",
-      "lines": 81,
+      "lines": 93,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
@@ -603,7 +608,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 317,
+      "lines": 320,
       "path": "notebooks/runs/C3_data-audit_run1.ipynb",
       "purpose": "C3 run 1 — Download and layout"
     },
@@ -627,7 +632,7 @@
     },
     {
       "kind": "module",
-      "lines": 20,
+      "lines": 26,
       "path": "notebooks/specs/c3_data_audit_run1.py",
       "purpose": "Spec: C3 run 1, Chittagonian corpus: download, verify and unpack it, then record its layout."
     },

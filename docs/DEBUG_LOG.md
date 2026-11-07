@@ -79,3 +79,15 @@ empty or audio-less tree is not a corpus, but nothing treated it as an error.
 when the tree holds no .wav files.
 **Test added:** tests/test_inspect_layout.py::test_main_fails_on_empty_or_wavless_tree
 **Commit:** fix(data): fail the layout inspector on a tree without wav files
+
+## 2026-11-07 C3.1 Colab: Run all continued past the failed download cell
+**Symptom:** C3 run 1 (c692819): cell C3.1 `!boinga fetch-data` printed
+`FAIL: fetch-data: HTTP Error 403: Forbidden` then `CELL-OK C3.1`, and Run all went on
+to C3.2.
+**Root cause:** a `!` shell command exiting 1 does not raise in Colab (known C2
+follow-up), so nothing stopped the run.
+**Fix:** cell C3.1 calls `cli.main(["fetch-data"])` from Python and calls
+`colab_runtime.fail()` (SystemExit 1, stops Run all) on a non-zero exit; notebook rebuilt.
+**Test added:** none new: tests/test_notebooks.py keeps the notebook in sync with the
+spec; tests/test_colab_runtime.py covers fail(); the re-run shows the cell's behaviour.
+**Commit:** fix(notebook): stop Run all when the C3.1 download fails

@@ -10,8 +10,14 @@ NOTEBOOK = Notebook(
     branch="chunk/C3-data-audit",
     gpu=False,
     cells=[
-        code("C3.1", "Download and unpack corpus", "!boinga fetch-data",
-             expect=[r"PASS: dataset ready at .+, \d+ files"]),
+        # Called from Python, not `!boinga fetch-data`: a failing shell line does not stop
+        # Run all, and C3.2 would then inspect an empty folder (C3 run 1, DEBUG_LOG).
+        code("C3.1", "Download and unpack corpus", """
+            from boinga_translator import cli, colab_runtime
+
+            if cli.main(["fetch-data"]) != 0:
+                colab_runtime.fail("fetch-data failed (see the FAIL line above)")
+        """, expect=[r"PASS: dataset ready at .+, \d+ files"]),
         code("C3.2", "Inspect corpus layout",
              "!python tools/inspect_layout.py \"$(python -c 'from boinga_translator import paths;"
              " print(paths.data_fast())')\"",
