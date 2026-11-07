@@ -132,6 +132,16 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_read_colab_run.py",
+      "target": "tools/build_notebook.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_read_colab_run.py",
+      "target": "tools/read_colab_run.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_repo_graph.py",
       "target": "tools/repo_graph.py"
     },
@@ -168,6 +178,16 @@
     {
       "kind": "import",
       "source": "tools/build_notebook.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/read_colab_run.py",
+      "target": "tools/build_notebook.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/read_colab_run.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -280,7 +300,7 @@
     },
     {
       "kind": "doc",
-      "lines": 109,
+      "lines": 110,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -406,6 +426,12 @@
     },
     {
       "kind": "test",
+      "lines": 179,
+      "path": "tests/test_read_colab_run.py",
+      "purpose": "Tests for tools/read_colab_run.py core: statuses, form values, binary stripping, trimming."
+    },
+    {
+      "kind": "test",
       "lines": 93,
       "path": "tests/test_repo_graph.py",
       "purpose": "Tests for tools/repo_graph.py: node kinds, edge types, stability and --check on a fake repo."
@@ -451,6 +477,12 @@
       "lines": 173,
       "path": "tools/nbkit.py",
       "purpose": "Notebook spec API (stdlib only): md / code / form cells and the Notebook a spec defines."
+    },
+    {
+      "kind": "tool",
+      "lines": 152,
+      "path": "tools/read_colab_run.py",
+      "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
     },
     {
       "kind": "tool",

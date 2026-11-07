@@ -52,10 +52,11 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
   report), cell_ok (CELL-OK line), record_notes, expect_files, play
   Merge gate: C1N must not merge to main without C1.7 (every built notebook's HDR cell
   calls run_header; BOOT.2 checks out the spec's branch, main for the C1 bootstrap)
-- [ ] C1.8a tools/read_colab_run.py: executed .ipynb -> per-cell digest (status, outputs,
-  errors), form values, secret scan
-- [ ] C1.8b read_colab_run: expectation check against the spec, report blocks saved via
-  report_io, exit code
+- [x] C1.8a tools/read_colab_run.py core: load executed .ipynb, drop binary outputs, trim text,
+  identify cells, per-cell status vs the spec (PASS / FAIL / ERROR / NOT RUN), form values,
+  token redaction
+- [ ] C1.8b read_colab_run CLI: spec auto-found from RUN-HEADER, staleness, digest
+  reports/colab_runs/<chunk>_run<k>.md, stdout table, --save-reports, exit code
 - [ ] C1.9 colab-handoff skill update, new colab-verify skill, CLAUDE.md, .gitignore
   (`colab_runs/`), DECISIONS entry
 - [ ] C1.10 pilot: env-check spec + notebook, run on Colab, verified with the reader
