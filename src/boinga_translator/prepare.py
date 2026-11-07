@@ -394,7 +394,8 @@ def build(workers: int = 2) -> dict[str, int]:
     root, tar = paths.data_prepared(), _backup_tar(summary["csv_sha256"])
     if tar.is_file() and not (root / STATS_CSV).is_file():
         with tarfile.open(tar) as t:
-            t.extractall(root, filter="data")
+            members = tqdm(t.getmembers(), desc="restore", unit="file", mininterval=5)
+            t.extractall(root, members=members, filter="data")
         print(f"restored {root} from {tar}")
     wav = index.set_index("clip_id")["wav_path"]
     jobs = [(c, str(wav[c]), str(manifest_wav(root, c)), sr) for c in splits["clip_id"]]
@@ -404,8 +405,13 @@ def build(workers: int = 2) -> dict[str, int]:
     if not tar.is_file():
         tmp = tar.with_name(tar.name + ".tmp")
         tmp.parent.mkdir(parents=True, exist_ok=True)
-        with tarfile.open(tmp, "w") as t:
-            t.add(root, arcname=".")
+        with tarfile.open(tmp, "w") as t, tqdm(desc="backup", unit="file",
+                                              mininterval=5) as bar:
+            def tick(info: tarfile.TarInfo) -> tarfile.TarInfo:
+                bar.update()  # a progress tick only: every member is kept unchanged
+                return info
+
+            t.add(root, arcname=".", filter=tick)
         os.replace(tmp, tar)
         print(f"backed up {root} to {tar}")
     _report(stats, splits, files)

@@ -18,7 +18,9 @@ NOTEBOOK = Notebook(
     chunk="C9", run=2, slug="demo", title="Demo run", branch="chunk/C9-demo",
     cells=[
         md("## Step one"),
+        md("Explains the form."),
         form("obs", "Listening notes", {"VOICE": ["female", "male"], "OK": True}),
+        md("Says hello."),
         code("hello", "Say hello", "print('PASS: hello')", expect=["^PASS: hello$"]),
     ],
     gpu={gpu},
@@ -51,8 +53,11 @@ def _src(cell: dict) -> str:
 def test_layout_ids_and_markers(repo: Path) -> None:
     nb = _built(repo)
     ids = [c["metadata"].get("boinga", {}).get("id") for c in nb["cells"]]
-    assert ids == [None, "BOOT.1", "BOOT.2", "BOOT.3", "BOOT.4", "HDR", None, "hello",
-                   None, "obs"]
+    assert ids == [None, None, "BOOT.1", None, "BOOT.2", None, "BOOT.3", None, "BOOT.4",
+                   None, "HDR", None, None, "hello", None, None, "obs"]
+    for prev, cell in zip(nb["cells"], nb["cells"][1:], strict=False):
+        if cell["cell_type"] == "code":
+            assert prev["cell_type"] == "markdown"  # every cell has its explanation
     title = _src(nb["cells"][0])
     assert title.startswith("# C9 run 2 — Demo run") and "chunk/C9-demo" in title
     assert "colab_runs/C9_demo_run2.ipynb" in title
@@ -62,14 +67,16 @@ def test_layout_ids_and_markers(repo: Path) -> None:
             assert _src(cell).split("\n")[0].startswith(f"# [boinga {cid}] ")
             ast.parse(re.sub(r"^\s*[!%].*$", "pass", _src(cell), flags=re.MULTILINE))
             assert cell["outputs"] == [] and cell["execution_count"] is None
-    assert _src(nb["cells"][7]).endswith("cell_ok('hello')")
-    assert "run_header('C9', 2)" in _src(nb["cells"][5])
-    assert _src(nb["cells"][8]).startswith("## Your observations")
+    assert _src(nb["cells"][13]).endswith("cell_ok('hello')")
+    assert "run_header('C9', 2)" in _src(nb["cells"][10])
+    assert [_src(c) for c in nb["cells"][11:13]] == ["## Step one", "Says hello."]
+    assert _src(nb["cells"][14]).startswith("## Your observations")
+    assert _src(nb["cells"][15]) == "Explains the form."  # moved with its form
     nbformat.validate(nbformat.reads(json.dumps(nb), as_version=4))
 
 
 def test_branch_baked_into_bootstrap(repo: Path) -> None:
-    boot2 = _src(_built(repo)["cells"][2])
+    boot2 = _src(_built(repo)["cells"][4])
     assert 'BRANCH = "chunk/C9-demo"' in boot2
     assert 'BRANCH = "main"' not in boot2
 
@@ -131,3 +138,17 @@ def test_two_specs_building_the_same_notebook_rejected(repo: Path) -> None:
     (repo / "notebooks" / "specs" / "demo_copy.py").write_text(
         spec.read_text(encoding="utf-8"), encoding="utf-8")
     assert build_notebook.main(["--all"]) == 1
+
+
+@pytest.mark.parametrize("cells", [
+    'code("x", "X", "print(1)")',
+    'md("About x."), code("x", "X", "print(1)"), code("y", "Y", "print(2)")',
+    'md("About x."), code("x", "X", "print(1)"), form("f", "F", {"A": ""})',
+])
+def test_cell_without_explanation_rejected(repo: Path, cells: str) -> None:
+    spec = repo / "notebooks" / "specs" / "demo.py"
+    body = SPEC[SPEC.index("        md("):SPEC.index("    ],")]
+    spec.write_text(SPEC.replace(body, f"        {cells},\n").replace("{gpu}", "True"),
+                    encoding="utf-8")
+    with pytest.raises(ValueError, match=r"needs an md\(\) explanation"):
+        build_notebook.main(["notebooks/specs/demo.py"])

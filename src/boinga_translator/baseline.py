@@ -11,6 +11,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import soundfile as sf
+from tqdm import tqdm
 
 from boinga_translator import (
     audit_summary,
@@ -120,7 +121,7 @@ def run(voice: str, synth: Any = None, prompts: Mapping[str, str] | None = None,
     prompts = load_prompts() if prompts is None else prompts
     charset = _model_charset(voice) if charset is None else charset
     bad = []
-    for key, raw_text in prompts.items():
+    for key, raw_text in tqdm(prompts.items(), desc=f"baseline {voice}", unit="prompt"):
         text = text_frontend.prepare(raw_text)  # same text front-end as training (char_map)
         if charset is not None and (unknown := sorted(set(text) - charset)):
             listed = ", ".join(f"{c} (U+{ord(c):04X})" for c in unknown)

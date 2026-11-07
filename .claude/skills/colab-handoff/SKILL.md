@@ -24,6 +24,11 @@ using `tools/nbkit.py`:
 - `form(id, title, fields, after_src="", expect=[...])`
 
 Each `code()` cell:
+- is **preceded by an `md()` cell** that says what the cell does, why, and what
+  output to expect (form cells too);
+- shows **tqdm progress** when it may run longer than about a minute: the
+  library function it calls uses tqdm (or the library's own progress output,
+  e.g. coqui's step logs), so a slow cell is never silent;
 - makes **one call** into `boinga_translator` (logic lives in src/);
 - is **idempotent**: skips work already done (files present, hashes match) and
   resumes training from Drive, so "Run all" can always be repeated;

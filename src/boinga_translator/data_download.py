@@ -116,7 +116,14 @@ def _unzip(zip_path: Path, out: Path) -> None:
 def _copy(src: Path, dest: Path) -> None:
     if dest.exists():
         shutil.rmtree(dest)
-    shutil.copytree(src, dest, ignore=shutil.ignore_patterns(UNZIP_MARKER))
+    total = sum(1 for p in src.rglob("*") if p.is_file() and p.name != UNZIP_MARKER)
+    with tqdm(total=total, desc="copy to fast disk", unit="file", mininterval=5) as bar:
+        def copy(s: str, d: str) -> object:
+            bar.update()
+            return shutil.copy2(s, d)  # copytree's default copy_function
+
+        shutil.copytree(src, dest, ignore=shutil.ignore_patterns(UNZIP_MARKER),
+                        copy_function=copy)
     _mark(dest / COPY_MARKER)
 
 

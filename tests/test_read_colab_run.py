@@ -13,15 +13,20 @@ import read_colab_run
 from nbformat.v4 import new_output
 
 SPEC = '''"""Reader test spec."""
-from nbkit import Notebook, code, form
+from nbkit import Notebook, code, form, md
 
 NOTEBOOK = Notebook(
     chunk="C9", run=1, slug="read", title="Reader test", branch="chunk/C9-read",
     cells=[
+        md("About it."),
         code("good", "Good cell", "print('PASS: good')", expect=["^PASS: good$"]),
+        md("About it."),
         code("bad", "Bad cell", "print('PASS: bad')", expect=["^PASS: bad$"]),
+        md("About it."),
         code("boom", "Boom cell", "1/0"),
+        md("About it."),
         code("later", "Never ran", "pass"),
+        md("About it."),
         form("obs", "Listening notes", {"VOICE": ["female", "male"], "OK": True, "WHY": "x"}),
     ],
 )

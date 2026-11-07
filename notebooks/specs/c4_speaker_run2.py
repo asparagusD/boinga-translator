@@ -1,6 +1,6 @@
 """Spec: C4 run 2, save the mixed-voice selection (cluster 1, base voice male) from run 1 (CPU)."""
 
-from nbkit import Notebook, code
+from nbkit import Notebook, code, md
 
 # User decision after run 1 (C4.V): train on mixed voices = cluster 1 of
 # reports/speaker_ranking.md (7,506 clips), base voice male. Reads Drive speaker_clusters.csv
@@ -14,6 +14,11 @@ NOTEBOOK = Notebook(
     branch="chunk/C4-speaker",
     gpu=False,
     cells=[
+        md("""
+            **Save the mixed-voice selection.** Saves cluster 1 (all voices, chosen after run 1)
+            with base voice male, from run 1's clusters on Drive. Expect `PASS: selection saved`
+            and the `configs/speaker_selection.json` block with id 1 and base voice male.
+        """),
         code("C4.3b", "Save cluster 1 (mixed voices) with base voice male", """
             from boinga_translator import cli, colab_runtime
 
