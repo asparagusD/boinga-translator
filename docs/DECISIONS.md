@@ -144,3 +144,96 @@ notebooks at merge (rejected: loses the link between digest and notebook).
 for an old run after a later rebuild is expected; its committed digest stays
 the record of what was verified.
 
+
+## 2026-11-07 — Baseline prompts: standard Bangla now, Chittagonian from the corpus after C3
+**Context:** C2 synthesises a baseline with the pretrained Bangla voices before
+any fine-tuning. The corpus (and so verbatim Chittagonian text) only arrives in
+C3, and dialect-data-rules forbid writing or "standardising" Chittagonian text.
+**Decision:** `configs/baseline_prompts.json` holds three everyday standard-Bangla
+sentences written for this project (STD_1-3, NFC, one question) and three
+placeholders CTG_1-3 = null. `boinga baseline` skips null prompts. The user chose
+this over supplying Chittagonian lines by hand.
+**Alternatives:** User-written Chittagonian lines (unverified against the corpus
+spelling); delaying the baseline until after C3 (delays Gate G1).
+**Consequences:** Gate G1 judges the pretrained voices on standard Bangla only.
+After C3, CTG_1-3 get verbatim held-out corpus transcripts and the baseline is
+re-run (C2 follow-up in PROGRESS.md).
+
+## 2026-11-07 — Pretrained download: both Bangla VITS voices cached on Drive
+**Context:** C2.1 fetches `tts_models/bn/custom/vits-{female,male}` once and
+caches them under `pretrained/<voice>/` on Drive (C2 run 1, commit `68ab521`).
+**Decision:** Keep the coqui ModelManager download as the source: it succeeded
+for both voices (no WARN, so the pinned release-zip fallback was not used).
+Sizes from the C2.1 cell: female `model.pth` 997.77 MB + `config.json` 0.01 MB;
+male `model.pth` 997.77 MB + `config.json` 0.01 MB (about 2 GB of Drive).
+**Alternatives:** Downloading the release zips directly (kept as the fallback).
+**Consequences:** The checkpoints are large because they carry optimizer and
+grad-scaler state (C2.2). The cached files' sha256 were not recorded in this
+run; pinning them stays a C2 follow-up.
+
+## 2026-11-07 — Baseline smoke listening: both pretrained voices intelligible
+**Context:** C2.4 synthesised STD_1-3 (standard Bangla) with both pretrained
+voices at the pinned seed and inference scales on a T4 (C2 run 1, `68ab521`).
+Every wav passed the smoke rule (> 0.3 s, > -50 dBFS): female 4.15 / 4.41 /
+4.04 s at -22.9 / -20.9 / -19.8 dBFS; male 5.13 / 4.48 / 5.46 s at
+-20.2 / -18.1 / -19.4 dBFS.
+**Decision:** Record the user's listening form (reports/notes/C2.4-notes.json):
+female intelligible "yes", male intelligible "yes", artefacts "none",
+preferred voice quality "same". Neither voice is ruled out by quality.
+**Alternatives:** none; this is a measurement.
+**Consequences:** The fine-tune voice can be chosen by fit to the corpus
+speaker (C3/C4) rather than by baseline quality. The sentence-final danda
+"।" is the config's EOS token and not in characters/punctuations, so the
+baseline WARNed on it for STD_1 and STD_3; how coqui's tokenizer treats it
+is checked when the text front-end is built (C3). Durations may include
+coqui's per-sentence padding, so they are not used as throughput figures.
+
+## 2026-11-07 — Gate G1 — pretrained model
+**Context:** Before any fine-tuning, Gate G1 checks that the pretrained Bangla
+VITS checkpoints are usable for a Chittagonian fine-tune. Evidence: C2 run 1
+(`68ab521`, 10/10 cells PASS), configs/pretrained_facts.json,
+reports/pretrained_inspect.md, reports/notes/C2.4-notes.json.
+**Findings:**
+- Sample rate: female 22050 Hz, male 22050 Hz (fft 1024, hop 256, win 1024,
+  80 mels, fmin 0, fmax null). Our data must be resampled to 22050 Hz.
+- Text input: graphemes (`TTS.tts.utils.text.characters.Graphemes`),
+  `use_phonemes` false, `text_cleaner` null (no cleaner at all), `add_blank`
+  true, `enable_eos_bos_chars` false; pad `<PAD>`, blank `<BLNK>`, bos `<BOS>`,
+  eos `।`. Single speaker (`num_speakers` 0, no speaker embedding).
+- Discriminator: present in both checkpoints (111 `disc.` keys, 46,747,132
+  params of 83.05 M total). A normal warm-up applies; this does not make
+  Chunk F likelier.
+- Standard Bangla intelligible (user's form): female "yes", male "yes",
+  artefacts "none", voice quality "same".
+**Surprises vs the expectation** (a character-based single-speaker Apache-2.0
+VITS trained on IITM Bangla):
+- Matches: character (grapheme) input, single speaker, VITS. The licence comes
+  from the coqui registry entry; the training corpus cannot be confirmed from
+  the config (dataset paths are `bn_tts/{female,male}/mono` on the author's
+  machine, no corpus name).
+- No text cleaner: the model sees raw text, so our NFC is the only
+  normalisation, as the data rules want.
+- The EOS symbol `।` is not in characters/punctuations; tokenizer handling
+  to be checked in C3 (the baseline was intelligible either way).
+- Both charsets hold precomposed য়/ড়/ঢ় (U+09DF/09DC/09DD) and the separate
+  nukta U+09BC. These three letters are Unicode composition exclusions, so NFC
+  always decomposes them (e.g. য় -> U+09AF U+09BC); NFC text never contains the
+  precomposed symbols. Which form the model learned is unverified, so
+  precomposed vs decomposed is a C3 decision (char_map + DECISIONS entry).
+  The C2 baseline prompts fed the decomposed form and were still intelligible.
+- The two vocabularies differ: male adds U+200D (ZWJ), one extra embedding
+  row (192 params). Each voice must keep its own character set.
+- Checkpoints are about 1 GB each because they keep optimizer and grad-scaler
+  state; long training histories (female step 811000, male step 910000).
+- Configs carry the author's absolute paths (`output_path`, dataset paths,
+  `restore_path`); our fine-tune config must override them.
+**Decision:** G1: PASS. Both voices are usable; the fine-tune voice is chosen
+by fit to the corpus speaker in C3/C4.
+**Alternatives:** G1: FAIL -> Chunk F (MMS) was not needed.
+**Consequences:** C3 can build the data pipeline at 22050 Hz with grapheme
+input against the chosen voice's charset; any characters outside it go to
+configs/char_map.json with a DECISIONS entry. The fine-tune config must copy
+the full `characters` block from the pretrained config.json (including flags
+such as `is_unique`/`is_sorted` that fix the vocabulary order and so the
+embedding rows), not rebuild it from configs/pretrained_facts.json.
+(Nukta wording corrected at the C2 merge review.)

@@ -1,0 +1,34 @@
+{
+  "female": {
+    "add_blank": true,
+    "blank": "<BLNK>",
+    "bos": "<BOS>",
+    "characters": "ইগং়’ুঃন১ঝূও‘ঊোছপফৈ৮ষযৎঢঈকঠিজ০৬ীটডএঅঋধচে২৩ণউয়ঢ়খলভৗসহ্ড়দথবঔাঞশরৌম—ঐআৃঘঙ‌ঁ৪৫ত",
+    "characters_class": "TTS.tts.utils.text.characters.Graphemes",
+    "eos": "।",
+    "has_discriminator": true,
+    "n_disc_params": 46747132,
+    "n_params": 83050540,
+    "pad": "<PAD>",
+    "punctuations": ".?-!|, ",
+    "sample_rate": 22050,
+    "text_cleaner": null,
+    "use_phonemes": false
+  },
+  "male": {
+    "add_blank": true,
+    "blank": "<BLNK>",
+    "bos": "<BOS>",
+    "characters": "তট৫ভিঐঋখঊড়ইজমএেঘঙসীঢ়হঞ‘ঈকণ৬ঁৗশঢঠ‌১্২৮দৃঔগও—ছউংবৈঝাযফ‍চরষঅৌৎথড়৪ধ০ুূ৩আঃপয়’নলো",
+    "characters_class": "TTS.tts.utils.text.characters.Graphemes",
+    "eos": "।",
+    "has_discriminator": true,
+    "n_disc_params": 46747132,
+    "n_params": 83050732,
+    "pad": "<PAD>",
+    "punctuations": "-!,|.? ",
+    "sample_rate": 22050,
+    "text_cleaner": null,
+    "use_phonemes": false
+  }
+}

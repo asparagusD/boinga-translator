@@ -31,6 +31,21 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C2_pretrained-baseline_run1.ipynb",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C2_pretrained-baseline_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C2_pretrained-baseline_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -41,6 +56,41 @@
       "target": "tools/nbkit.py"
     },
     {
+      "kind": "config",
+      "source": "notebooks/specs/c2_pretrained_baseline.py",
+      "target": "configs/pretrained_facts.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c2_pretrained_baseline.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "configs/baseline_prompts.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/__init__.py"
@@ -48,7 +98,17 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/pretrained.py"
     },
     {
       "kind": "import",
@@ -74,10 +134,55 @@
       "kind": "import",
       "source": "src/boinga_translator/env_report.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/pretrained.py",
+      "target": "configs/pretrained_facts.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/pretrained.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/pretrained.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/pretrained.py",
+      "target": "src/boinga_translator/settings.py"
     },
     {
       "kind": "import",
       "source": "src/boinga_translator/report_io.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/synth_basic.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline.py",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline.py",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -142,6 +247,46 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_pretrained.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_pretrained.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_pretrained.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_pretrained.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_pretrained_inspect.py",
+      "target": "configs/pretrained_facts.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_pretrained_inspect.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_pretrained_inspect.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_pretrained_inspect.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_read_colab_run.py",
       "target": "tools/build_notebook.py"
     },
@@ -184,6 +329,16 @@
       "kind": "test",
       "source": "tests/test_smoke_import.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth_basic.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth_basic.py",
+      "target": "src/boinga_translator/synth_basic.py"
     },
     {
       "kind": "import",
@@ -313,6 +468,18 @@
       "purpose": "boinga-translator"
     },
     {
+      "kind": "config",
+      "lines": 8,
+      "path": "configs/baseline_prompts.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 34,
+      "path": "configs/pretrained_facts.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 47,
       "path": "docs/DEBUG_LOG.md",
@@ -320,13 +487,13 @@
     },
     {
       "kind": "doc",
-      "lines": 146,
+      "lines": 239,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 113,
+      "lines": 153,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -349,6 +516,12 @@
       "purpose": "C1 run 1 — Pipeline pilot"
     },
     {
+      "kind": "notebook",
+      "lines": 417,
+      "path": "notebooks/runs/C2_pretrained-baseline_run1.ipynb",
+      "purpose": "C2 run 1 — C2 — pretrained model and baseline"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -359,6 +532,12 @@
       "lines": 37,
       "path": "notebooks/specs/c1_pilot.py",
       "purpose": "Spec: C1 pilot run proving the notebook pipeline (env report, Drive write, a form)."
+    },
+    {
+      "kind": "module",
+      "lines": 32,
+      "path": "notebooks/specs/c2_pretrained_baseline.py",
+      "purpose": "Spec: C2 run 1, pretrained Bangla VITS voices: fetch, inspect and baseline audio."
     },
     {
       "kind": "config",
@@ -373,6 +552,12 @@
       "purpose": "Colab run C1 run 1 — Pipeline pilot"
     },
     {
+      "kind": "doc",
+      "lines": 325,
+      "path": "reports/colab_runs/C2_pretrained-baseline_run1.md",
+      "purpose": "Colab run C2 run 1 — C2 — pretrained model and baseline"
+    },
+    {
       "kind": "config",
       "lines": 16,
       "path": "reports/env.json",
@@ -385,6 +570,18 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 6,
+      "path": "reports/notes/C2.4-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "doc",
+      "lines": 123,
+      "path": "reports/pretrained_inspect.md",
+      "purpose": "Pretrained voices"
+    },
+    {
       "kind": "module",
       "lines": 3,
       "path": "src/boinga_translator/__init__.py",
@@ -392,7 +589,13 @@
     },
     {
       "kind": "module",
-      "lines": 28,
+      "lines": 96,
+      "path": "src/boinga_translator/baseline.py",
+      "purpose": "Baseline smoke synthesis: pretrained voices read configs/baseline_prompts.json for listening."
+    },
+    {
+      "kind": "module",
+      "lines": 83,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -416,6 +619,12 @@
     },
     {
       "kind": "module",
+      "lines": 256,
+      "path": "src/boinga_translator/pretrained.py",
+      "purpose": "Pretrained Bangla VITS voices: cache model.pth + config.json on Drive and report their facts."
+    },
+    {
+      "kind": "module",
       "lines": 124,
       "path": "src/boinga_translator/report_io.py",
       "purpose": "Move Colab reports into the repo: print files between BEGIN/END markers, parse pasted output."
@@ -425,6 +634,18 @@
       "lines": 43,
       "path": "src/boinga_translator/settings.py",
       "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
+    },
+    {
+      "kind": "module",
+      "lines": 68,
+      "path": "src/boinga_translator/synth_basic.py",
+      "purpose": "Minimal seeded synthesis for any VITS checkpoint: load a coqui Synthesizer, say text to a wav."
+    },
+    {
+      "kind": "test",
+      "lines": 141,
+      "path": "tests/test_baseline.py",
+      "purpose": "Tests for baseline.py and `boinga baseline`: prompts file, PASS/FAIL rules, charset warning, players."
     },
     {
       "kind": "test",
@@ -476,6 +697,18 @@
     },
     {
       "kind": "test",
+      "lines": 183,
+      "path": "tests/test_pretrained.py",
+      "purpose": "Tests for pretrained.py and `boinga fetch-pretrained`: cache hit, download, fallback, bad input."
+    },
+    {
+      "kind": "test",
+      "lines": 165,
+      "path": "tests/test_pretrained_inspect.py",
+      "purpose": "Tests for pretrained.inspect(): config facts, checkpoint facts, charset table, reports, CLI."
+    },
+    {
+      "kind": "test",
       "lines": 313,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
@@ -503,6 +736,12 @@
       "lines": 7,
       "path": "tests/test_smoke_import.py",
       "purpose": "Smoke test: the package imports and exposes a version."
+    },
+    {
+      "kind": "test",
+      "lines": 109,
+      "path": "tests/test_synth_basic.py",
+      "purpose": "Tests for synth_basic.py: seeding, loader with a fake coqui Synthesizer, say() output and duration."
     },
     {
       "kind": "tool",

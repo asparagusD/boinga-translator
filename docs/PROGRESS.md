@@ -72,9 +72,49 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
 - [x] Stop-on-FAIL: cell_ok only prints CELL-OK and expect_files only returns False, so a
   FAIL line does not stop Run all; decide raise-in-cell vs reader-only (C1.8 / C1.9)
 
-## C2
-- [ ] C2.x (subchunks not yet defined; draft plan parked in `git stash` on
-  chunk/C2-pretrained-baseline)
+## C2 — Pretrained Bangla VITS inspection and baseline audio
+Branch `chunk/C2-pretrained-baseline`. One notebook for the chunk:
+spec `notebooks/specs/c2_pretrained_baseline.py` ->
+`notebooks/runs/C2_pretrained-baseline_run1.ipynb`
+(T4). Every subchunk that adds cells rebuilds the notebook (pre-commit `--check`); only
+C2.H hands it over. Local tests never import torch/TTS (fakes only).
+- [x] C2.1 pretrained.fetch(voice) + `boinga fetch-pretrained --voice female|male|both`:
+  coqui ModelManager, fallback to the pinned release zip (safe unzip); model.pth + config.json
+  cached in paths.pretrained()/<voice>/ (`7cc2d92`); results: both voices 997.77 MB, via
+  ModelManager (`6b4aa11`)
+- [x] C2.2 pretrained.inspect(voice) + `boinga inspect-pretrained --voice both` (`668da92`);
+  results: configs/pretrained_facts.json, reports/pretrained_inspect.md, charsets (`633a1f5`)
+- [x] C2.3 synth_basic.py: set_seed(), load_synth(), say() (`cf2728e`); Colab run confirmed
+  all 3 inference scales are set
+- [x] C2.4 baseline.py + `boinga baseline`, configs/baseline_prompts.json, cells C2.4,
+  C2.4.play, form C2.4-notes (`68ab521`); results: both voices intelligible (`abce7f8`).
+  Not done from the plan: reports/baseline.json and RTF
+- [x] C2.H hand-off: notebook already built and pushed in `68ab521` (no new commit)
+- [x] C2.V run 1 verified: 10/10 PASS, not stale; results commits `6b4aa11`, `633a1f5`,
+  `abce7f8`. Nukta (U+09BC) is in both charsets, but NFC decomposes য়/ড়/ঢ়, so the token
+  form the model learned is unverified (C3 follow-up)
+- [x] C2.5 Gate G1: PASS (DECISIONS "Gate G1 — pretrained model"; this commit)
+
+### C2 follow-ups
+- [x] coqui temp-path rewrite: none seen; the 4 absolute config paths are the model
+  author's (/home/ansary/Shabab/...); the fine-tune config must override them (C4)
+- [ ] Record and pin sha256 of the cached model.pth/config.json (moved from C2.5)
+- [ ] C3 text front-end: check how coqui's tokenizer treats "।" (the EOS token, not in
+  characters/punctuations; the baseline WARN is probably spurious because coqui adds
+  pad/eos/bos/blank to the vocab) and the "Initializing with English" language log
+- [ ] C3: decide precomposed vs NFC-decomposed য়/ড়/ঢ় (U+09DF/09DC/09DD vs base + U+09BC)
+  against the corpus and the pretrained vocab; char_map.json + DECISIONS entry
+- [ ] C3: one pretrained.model_symbols(config) helper used by baseline and the text
+  front-end (charset is read twice today); use paths.configs_dir() in pretrained.py
+- [ ] C4: copy the full characters block from the pretrained config.json (is_unique /
+  is_sorted fix embedding row order); measure RTF/throughput in the smoke test
+- [ ] `inspect-pretrained --voice <one>` rebuilds pretrained_inspect.md with that voice
+  only; use `--voice both` to refresh it (or merge the .md like the facts JSON)
+- [ ] Choose the fine-tune voice by the corpus speaker (C3/C4); baseline quality is equal
+- [ ] `!boinga fetch-pretrained` exiting 1 does not stop Run all; once later cells depend on
+  C2.1, call pretrained from Python and stop with colab_runtime.fail()
+- [ ] After C3: add held-out Chittagonian corpus lines (verbatim transcripts) to the
+  baseline prompts and re-run the pretrained baseline on them
 
 ## C3
 - [ ] C3.x (subchunks not yet defined)
