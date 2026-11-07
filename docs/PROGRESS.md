@@ -160,9 +160,15 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
 - [x] C3.H2 hand-off run 2: notebook built for a T4 runtime (this commit)
 - [x] C3.V2 verify run 2: 14/14 PASS at `f4c7ab2`; results `db85fcf` (index), `c894178`
   (audit), `639f189` (summary + listening), `8893a67` (dialect baseline)
-- [x] C3.7 Gate G2: FAIL: audio heard as standard Bangla (DECISIONS "Gate G2 — data";
-  this commit). Next: evaluate the fallback "Bangla Regional Dialects Speech Dataset"
-  (Mendeley 777wsgjgtm v1, Chittagong subset) with the C3 pipeline
+- [x] C3.7 Gate G2: first FAIL (`ea56f4a`), re-decided PASS with conditions after the user
+  clarified "dialect words, standard accent" (DECISIONS "Gate G2 — data (re-decided)";
+  this commit)
+
+### C3 follow-ups (conditions of Gate G2, before C4)
+- [ ] Danda "।" and other out-of-charset characters: configs/char_map.json + DECISIONS
+  (also settles precomposed vs NFC-decomposed য়/ড়/ঢ়, see C2 follow-ups)
+- [ ] Speakers: mixed voices vs a consistent subset (speaker-embedding clustering) + DECISIONS
+- [ ] Keep the official test split (incl. clips 386, 29, 625) out of training in C4
 
 ## C4
 - [ ] C4.x (subchunks not yet defined)

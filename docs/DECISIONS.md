@@ -402,3 +402,30 @@ so it gets the same C3 download, layout, audit and listening checks before it is
 - If the user revises the C3.5 judgement (e.g. dialect words read with a standard
   accent count as Chittagonian), G2 can be re-decided in a new entry; the open
   danda char_map and the many-speakers issue then remain to be solved before C4.
+
+## 2026-11-07 — Gate G2 — data (re-decided): conditional PASS
+**Context:** The user re-decided G2 after the FAIL entry above. Asked what the C3.5
+answer "no, standard Bangla" meant, the user clarified in chat: the 20 clips contain
+the dialect words of the Chittagonian transcripts, read with a standard-Bangla
+pronunciation/intonation ("dialect words, standard accent"); the audio does not follow
+the Standard Bangla column. This matches TRANSCRIPTS_MATCH_AUDIO "mostly" and the
+row <-> wav mapping (r = 0.87). Condition (1) still holds (undecodable 0.06%).
+**Decision:** G2: PASS with conditions; this supersedes "Gate G2 — data" (FAIL). The
+corpus stays. Conditions to meet before C4 (training) starts:
+1. Danda: decide how "।" (U+0964, the model's eos symbol, in 6,254 rows) is handled, in
+   configs/char_map.json with a DECISIONS entry; 4,711 clips are excluded for it alone,
+   so clean hours (4.10 h now) depend on it. The other out-of-charset characters
+   (ৰ U+09F0, ৷ U+09F7, digits 7/9, quotes, brackets) are decided in the same entry.
+2. Speakers: many speakers and no speaker ids. Decide between training the
+   single-speaker model on mixed voices and selecting a consistent subset (e.g. by
+   clustering speaker embeddings), with a DECISIONS entry.
+3. Test split: the official test split (incl. baseline clips 386, 29, 625) stays out of
+   training.
+**Alternatives:** Keep FAIL and evaluate the fallback "Bangla Regional Dialects Speech
+Dataset" (777wsgjgtm v1): not chosen, the dialect is in the words of this corpus and the
+fallback's transcripts may be standard Bangla. Unconditional PASS: not chosen, the danda
+and speaker issues decide how much usable single-voice data exists.
+**Consequences:** The fine-tuned voice will say Chittagonian words with a largely
+standard-Bangla accent (what the corpus contains); the proof of concept targets dialect
+vocabulary and spelling, not regional accent. The fallback stays the plan B if the
+speaker condition leaves too little consistent data.
