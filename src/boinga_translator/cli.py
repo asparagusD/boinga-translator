@@ -19,6 +19,7 @@ from boinga_translator import (
     text_frontend,
     text_oov,
     train_config,
+    train_report,
     train_runner,
 )
 
@@ -68,6 +69,9 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--run", required=True, help="run name (one folder under runs/)")
     train.add_argument("--max-steps", type=int, default=None,
                        help="stop at N total optimiser steps and save a checkpoint")
+    thr = sub.add_parser("throughput", help="step time, losses and memory of a run into "
+                                            "reports/throughput.json")
+    thr.add_argument("--run", required=True, help="run name (one folder under runs/)")
     return parser
 
 
@@ -111,6 +115,15 @@ def _train(run_name: str, max_steps: int | None) -> int:
         print(f"PASS: run {run_name} at step {session['steps_done']} "
               f"(peak GPU memory {session['peak_gpu_memory_gb']} GB)")
     return 0
+
+
+def _throughput(run_name: str) -> int:
+    """Throughput report of a run; FAIL + exit 1 on a NaN loss or any error."""
+    try:
+        return 0 if train_report.throughput(run_name) else 1
+    except (OSError, ValueError, KeyError) as exc:  # JSONDecodeError is a ValueError
+        print(f"FAIL: throughput {type(exc).__name__}: {exc}")
+        return 1
 
 
 def _check_tokenizer() -> int:
@@ -309,6 +322,8 @@ def main(argv: list[str] | None = None) -> int:
         return _check_loader()
     elif args.command == "train":
         return _train(args.run, args.max_steps)
+    elif args.command == "throughput":
+        return _throughput(args.run)
     return 0
 
 

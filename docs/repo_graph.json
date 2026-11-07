@@ -191,6 +191,11 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C7_train-runner_run1.ipynb",
+      "target": "src/boinga_translator/train_report.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -429,6 +434,11 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/train_config.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/train_report.py"
     },
     {
       "kind": "import",
@@ -699,6 +709,36 @@
       "kind": "import",
       "source": "src/boinga_translator/train_config.py",
       "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_report.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_report.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_report.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_report.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_report.py",
+      "target": "src/boinga_translator/train_config.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_report.py",
+      "target": "src/boinga_translator/train_runner.py"
     },
     {
       "kind": "import",
@@ -1272,6 +1312,31 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_train_report.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_report.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_report.py",
+      "target": "src/boinga_translator/train_config.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_report.py",
+      "target": "src/boinga_translator/train_report.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_report.py",
+      "target": "src/boinga_translator/train_runner.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_train_run.py",
       "target": "src/boinga_translator/cli.py"
     },
@@ -1501,7 +1566,7 @@
     },
     {
       "kind": "doc",
-      "lines": 556,
+      "lines": 561,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1579,7 +1644,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 426,
+      "lines": 585,
       "path": "notebooks/runs/C7_train-runner_run1.ipynb",
       "purpose": "C7 run 1 — C7 — training runner and smoke test"
     },
@@ -1651,7 +1716,7 @@
     },
     {
       "kind": "module",
-      "lines": 48,
+      "lines": 94,
       "path": "notebooks/specs/c7_train_runner.py",
       "purpose": "Spec: C7 run 1, training runner: prepared data, fine-tune config, loader, smoke and resume (T4)."
     },
@@ -1807,7 +1872,7 @@
     },
     {
       "kind": "module",
-      "lines": 316,
+      "lines": 331,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1900,6 +1965,12 @@
       "lines": 178,
       "path": "src/boinga_translator/train_config.py",
       "purpose": "Fine-tune config: the base voice's pretrained config.json plus logged, reasoned overrides."
+    },
+    {
+      "kind": "module",
+      "lines": 138,
+      "path": "src/boinga_translator/train_report.py",
+      "purpose": "Training reports: step time, losses and memory from a run's coqui log; listen to a checkpoint."
     },
     {
       "kind": "module",
@@ -2110,6 +2181,12 @@
       "lines": 213,
       "path": "tests/test_train_config.py",
       "purpose": "Tests for train_config.py and `boinga build-config`: overrides, protected keys, outputs."
+    },
+    {
+      "kind": "test",
+      "lines": 145,
+      "path": "tests/test_train_report.py",
+      "purpose": "Tests for train_report.py and `boinga throughput`: log parsing, throughput.json, listening."
     },
     {
       "kind": "test",

@@ -516,15 +516,20 @@ map/notebook and PROGRESS.
   step N" and no training. DECISIONS "Training resume". Tests in `tests/test_train_run.py`
   (fake folders: new vs resume, highest step, empty folders, already done) (this commit).
   Not handled: a truncated last checkpoint (C7.3 plan idea) is still chosen
-- [ ] C7.4 throughput + `boinga train --run NAME [--max-steps N]`: a step-end callback
-  records step time and `torch.cuda.max_memory_allocated`, NaN/inf in any loss -> stop + FAIL
-  (fp16 -> fp32 is then a logged config change, not automatic); `throughput_report()` ->
-  `reports/throughput.json` (gpu, batch, fp16, steps, median sec/step after 5 warm-up steps,
-  peak GB, eval sec, hours per 10k steps), emitted. Cells: C7.0 fetch-data, C7.0p prepare
-  (expects "restored" + "0 clip(s) to do", C6 follow-up), C7.0m fetch-pretrained male,
-  C7.4.smoke (run "smoke", 50 steps), C7.4.resume (same run, to step 60: log shows
-  continue_path, first step > 50), C7.4.report, C7.4.play (test sentences of the smoke
-  checkpoint: noise expected, checks the synth path only). ~100 lines
+- [x] C7.4 code: new module `train_report.py`: `parse_log()` reads coqui's
+  `trainer_0_log.txt` train-step blocks (ANSI stripped, eval blocks and tensor values
+  skipped), `summarise()` (mean step_time without step 0, steps/hour, coqui's running
+  average, last losses, any NaN/inf loss), `throughput(run_name)` -> reports/throughput.json
+  {run, folder, steps_done, gpu, batch_size, mixed_precision, sec_per_step_mean,
+  n_step_samples, steps_per_hour, peak_mem_gb, any_nan_loss, last_losses, ...} (emitted),
+  "PASS: throughput recorded" or "FAIL: NaN loss"; `listen_smoke(run_name)` (first test
+  sentence by the pretrained base voice and the latest checkpoint, synth_basic, to
+  `paths.eval_dir()/<run>`); `boinga throughput --run NAME`. Cells C7.4.a (smoke 50 steps),
+  C7.4.b (resume to 60), C7.4.c (throughput), C7.4.d (listen), each after an md()
+  explanation; a and b forbid "Partial model initialization". Tests
+  `tests/test_train_report.py` (fake log snippet, fake run folder, fake synth) (this commit).
+  With print_step 25 the smoke (stop after 50) and resume (51-59) log only step 25 after
+  warm-up: n_step_samples 1 plus coqui's running average. Results: C7 run 1
 - [ ] C7.H hand-off: notebook (T4) built, `--all --check` clean, pushed; link, save name
   `colab_runs/C7_train-runner_run1.ipynb`; duration not measured (smoke ~15-30 min estimate)
 - [ ] C7.V verify (colab-verify): every cell PASS, not stale; reports/throughput.json and
