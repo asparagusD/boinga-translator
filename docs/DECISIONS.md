@@ -507,3 +507,118 @@ Measure-first (one Colab run) was declined.
   cluster. This needs a new DECISIONS entry.
 - Gate G2 condition 2 is met; condition 3 (official test split out of training, incl.
   clips 386, 29, 625) is a C4 data-split rule.
+
+## 2026-11-07 — Speaker encoder: resemblyzer 0.1.4, SpeechBrain ECAPA as fallback
+**Context:** C4.2a needs one speaker embedding per clean clip to find a consistent training
+speaker (the corpus has no speaker ids). The C4.2a promptbook names resemblyzer first and
+speechbrain/spkrec-ecapa-voxceleb as the fallback. Checked from the PyPI files: Resemblyzer
+0.1.4 (2023-10-12) is Apache-2.0 (classifier and LICENSE file), ships its weights
+(pretrained.pt, 256-dim d-vectors), loads them with torch.load (a plain state dict) and
+resamples with keyword arguments (librosa >= 0.10 safe). Its dependency webrtcvad 2.0.10 is
+an sdist (built with gcc on Colab) whose module does `import pkg_resources`, which newer
+setuptools may no longer provide. speechbrain 1.1.2 is Apache-2.0 and needs torch >= 2.7.1.
+**Decision:** resemblyzer==0.1.4 and setuptools<81 in the [train] extra (installed by BOOT.3).
+`speaker_select.load_encoder()` uses resemblyzer (VoiceEncoder on cuda + preprocess_wav);
+on ImportError it falls back to SpeechBrain ECAPA, pinned as speechbrain==1.1.2 in a
+separate `speaker-fallback` extra, so the training install never pulls it in. Embeddings
+are cached per clip on Drive (`speaker_emb/<clip_id>.npy`) with an `encoder.txt` marker; a
+cache from one encoder is never extended with the other, and .npy files without a marker
+are refused. The loop stops as soon as more than 1% of clean clips have failed (e.g. CUDA
+errors), not after the whole pass.
+**Alternatives:** ECAPA only (the earlier plan; better speaker-verification accuracy, but a
+model download and a torch/torchaudio constraint); pin speechbrain in [train] too (could
+upgrade torch under coqui-tts); webrtcvad-wheels (resemblyzer still requires the
+`webrtcvad` distribution).
+**Consequences:** If the C4 run prints "WARN: resemblyzer unavailable", the fallback needs
+`pip install -e '.[speaker-fallback]'` first, otherwise the cell FAILs fast; speechbrain
+may upgrade torch/torchaudio on that VM, so the fallback runs in its own runtime, never in
+the one that trains. The cluster
+step (C4.2b) must read the marker and treat 256-dim (resemblyzer) and 192-dim (ECAPA)
+vectors alike. Model weights stay in the pip package / Drive, never in the repo.
+
+**Verified (C4 run 1, commit ad690fd, T4, Python 3.13.16, torch 2.14.1):** resemblyzer
+imported (no fallback); 7,513 of 7,513 clean clips embedded, 0 failed. webrtcvad's
+`import pkg_resources` only warned ("slated for removal"), so the setuptools<81 pin
+still matters.
+
+## 2026-11-07 — Speaker clustering: average-linkage cosine, threshold chosen by silhouette
+**Context:** C4.2b groups the clean clips' speaker embeddings (no speaker ids) into voices
+and ranks them, so C4.3 can train on one consistent voice. The right distance threshold
+for this corpus and encoder is unknown before the run.
+**Decision:** (C4.2b promptbook) scikit-learn AgglomerativeClustering, metric "cosine",
+linkage "average", on L2-normalised embeddings, at thresholds 0.20, 0.25, ..., 0.50. Per
+threshold: cluster count, clean minutes of the largest cluster, silhouette (cosine; NaN
+when every clip is alone or all are in one cluster). Chosen: the best silhouette among
+thresholds whose largest cluster has >= 30 clean minutes; if none does, the threshold
+whose largest cluster has the most minutes; ties go to the lower threshold. Clusters are
+ranked 1..K by clean minutes over all three splits (ties: first clip id); labels go to
+Drive `speaker_clusters.csv`, the table and the top 20 clusters (minutes per split, 5
+seeded clip ids each) to reports/speaker_ranking.md. The tree is built once per run
+(sklearn `memory` cache); 7,500 random 256-dim vectors took 9 s locally.
+**Alternatives:** one fixed threshold (the earlier plan; no evidence for a value); HDBSCAN
+or k-means (the promptbook fixes agglomerative); ranking by train minutes only (the
+ranking table shows train/val/test minutes, so C4.3 and Gate G3 can apply a train rule).
+**Consequences:** "Largest cluster minutes" counts val and test clips too; Gate G3 must
+check the train minutes of the chosen cluster. A high silhouette at a high threshold can
+still merge similar voices: listening to the top clusters (C4.3) decides, not the score.
+
+## 2026-11-07 — Speaker choice: saved from the listening form, base voice = speaker gender
+**Context:** C4.3. The clusters (C4.2b) are ranked by minutes, not by how consistent they
+sound; only listening can tell one voice from two similar voices merged. The pretrained
+voice to fine-tune (female or male) was still open (C2 follow-up; G1 quality "same").
+**Decision:** (C4.3 promptbook) Form C4.3-notes, after listening to 10 seeded clips of
+each of the top 3 clusters, saves the choice only when CHOSEN_ID and GENDER are filled
+and ONE_CONSISTENT_VOICE is "yes"; otherwise it prints "NOTES-MISSING choice incomplete"
+and saves nothing, so the cell's expected "PASS: selection saved" is missing and the
+run reader flags it. The base voice is the pretrained voice matching the chosen
+speaker's gender. The selection is the cluster's clean clips over all official splits:
+Drive `speaker_selection.csv` (clip_id, split_official, duration_s) and
+configs/speaker_selection.json with its sha256, so later chunks can check they read the
+same file. `kind` is "cluster" (C4.1, speaker labels, was skipped: the corpus has none).
+`boinga save-speaker --id N --base-voice female|male` does the same from a shell.
+**Alternatives:** "mixed voices" as a form option (DECISIONS "Speakers" A; not offered by
+the promptbook: if no candidate is one voice, Gate G3 (C4.4) decides the fallback);
+choosing the base voice by listening comparison (no evidence G1 preferred either).
+**Consequences:** The selection includes the cluster's val and test clips; the training
+prep (C5) must keep the official test split out of training (G2 condition 3) and Gate G3
+must judge the train minutes. If the audit charset voice (female) differs from the base
+voice, re-run the audit with `--voice male` before training (C2 follow-up).
+
+## 2026-11-07 — Training speaker: mixed voices (cluster 1), base voice male
+**Context:** C4 run 1 (ad690fd) embedded all 7,513 clean clips (resemblyzer) and the
+C4.2b rule chose threshold 0.50 (best silhouette, 0.196, since every threshold's largest
+cluster had >= 30 min). That merged 7,506 clips into cluster 1; clusters 2 and 3 had 5
+and 2 clips. In form C4.3-notes the user picked cluster 2 (CHOSEN_ID 2, one consistent
+voice, male, "some noise", notes "none"): 0.18 clean minutes, under the 10-minute G3 floor.
+Smaller thresholds split the corpus into 71-1,464 clusters (largest 52-128 min), unheard.
+**Decision:** The user chose in chat (C4.V): train on mixed voices, i.e. cluster 1, with
+the male pretrained voice as the base (kept from the form). C4 run 2 (fcb64e5, CPU) saved
+it with `boinga save-speaker --id 1 --base-voice male`: configs/speaker_selection.json,
+kind "cluster", id 1, 7,506 clips, 490.73 clean min (train 393.72, val 48.25, test 48.76),
+csv_sha256 e170000e...592e of Drive speaker_selection.csv. This confirms DECISIONS
+"Speakers" (A, mixed voices); the 7 clean clips of clusters 2-3 stay out.
+**Alternatives:** keep cluster 2 (11 s of one voice: G3 FAIL, Chunk F); re-cluster with a
+cap on the largest cluster's share and listen again (one more run; not chosen).
+**Consequences:**
+- The fine-tuned voice may drift between speakers; C7-C9 listening checks it, and the
+  re-clustering option stays open if it does (PROGRESS follow-up).
+- The C3 audit checked text against the female charset: C5 re-runs `boinga audit --voice
+  male` before building training lists (C2 follow-up).
+- The selection lists the official val and test clips too; C5 keeps the official test
+  split (incl. clips 386, 29, 625) out of training (G2 condition 3).
+- The run-1 selection (cluster 2) is superseded: run 2 overwrote the Drive copy.
+
+## 2026-11-07 — Gate G3 — speaker data
+**Context:** End of C4. Rule (C4.V promptbook), on the clean minutes of
+configs/speaker_selection.json: >= 30 -> PASS; 10-30 -> PASS WITH RISK; < 10 -> FAIL,
+do C5 and C6, then Chunk F instead of C7-C9 (MMS fine-tuning is reported to work with
+80-150 clips). Selection (DECISIONS "Training speaker", d386d13): cluster 1, mixed voices,
+7,506 clips, 490.73 clean min (train 393.72, val 48.25, test 48.76), base voice male.
+**Decision:** G3: PASS (490.73 >= 30). The VITS fine-tune path (C5 onwards) continues.
+**Alternatives:** the form's single-voice pick (cluster 2, 0.18 min) would have been
+G3: FAIL; the user chose mixed voices instead (DECISIONS "Training speaker").
+**Consequences:** The PASS is on minutes, not on voice consistency: the selection is many
+speakers (DECISIONS "Speakers" A). Training minutes come from the train split only
+(393.72 min); the official test split stays out of training (C5). The C4 plan's own
+G3 draft (train >= 60, val >= 6 min) is also met. If C7-C9 hear an unstable voice, the
+fallback is re-clustering with a cap on the largest cluster's share (PROGRESS follow-up).

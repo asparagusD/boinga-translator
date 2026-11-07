@@ -91,6 +91,21 @@ def run_dir(name: str) -> Path:
     return runs() / name
 
 
+def speaker_emb() -> Path:
+    """Per-clip speaker embeddings (<clip_id>.npy) on Drive, made by speaker_select.embed."""
+    return root() / "speaker_emb"
+
+
+def speaker_clusters() -> Path:
+    """Cluster label per clip (speaker_select.cluster), ranked 1..K by clean minutes."""
+    return root() / "speaker_clusters.csv"
+
+
+def speaker_selection() -> Path:
+    """Clip ids of the chosen training speaker (speaker_select.save_selection)."""
+    return root() / "speaker_selection.csv"
+
+
 def best_ckpt() -> Path:
     return root() / "best"
 

@@ -101,6 +101,41 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run1.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run1.ipynb",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run2.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run2.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C4_speaker_run2.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -138,6 +173,21 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c3_data_audit_run3.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c4_speaker.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c4_speaker_run2.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c4_speaker_run2.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -221,6 +271,11 @@
       "target": "configs/baseline_prompts.json"
     },
     {
+      "kind": "config",
+      "source": "src/boinga_translator/cli.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/__init__.py"
@@ -264,6 +319,11 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/speaker_select.py"
     },
     {
       "kind": "import",
@@ -349,6 +409,46 @@
       "kind": "import",
       "source": "src/boinga_translator/report_io.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/settings.py"
     },
     {
       "kind": "import",
@@ -691,6 +791,71 @@
       "target": "src/boinga_translator/__init__.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_speaker_choice.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_choice.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_choice.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_choice.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_choice.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_cluster.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_cluster.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_cluster.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_cluster.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_select.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_select.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_select.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_select.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
       "kind": "test",
       "source": "tests/test_synth_basic.py",
       "target": "src/boinga_translator/settings.py"
@@ -861,6 +1026,12 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 13,
+      "path": "configs/speaker_selection.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 106,
       "path": "docs/DEBUG_LOG.md",
@@ -868,13 +1039,13 @@
     },
     {
       "kind": "doc",
-      "lines": 509,
+      "lines": 624,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 230,
+      "lines": 309,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -921,6 +1092,18 @@
       "purpose": "C3 run 3 — Char-mapped re-audit"
     },
     {
+      "kind": "notebook",
+      "lines": 426,
+      "path": "notebooks/runs/C4_speaker_run1.ipynb",
+      "purpose": "C4 run 1 — C4 — training speaker"
+    },
+    {
+      "kind": "notebook",
+      "lines": 296,
+      "path": "notebooks/runs/C4_speaker_run2.ipynb",
+      "purpose": "C4 run 2 — C4 — save the mixed-voice selection"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -957,8 +1140,20 @@
       "purpose": "Spec: C3 run 3, re-audit the corpus on the char-mapped text and re-summarise (CPU)."
     },
     {
+      "kind": "module",
+      "lines": 53,
+      "path": "notebooks/specs/c4_speaker.py",
+      "purpose": "Spec: C4 run 1, training speaker: embed, cluster and rank voices, listen, save the choice (T4)."
+    },
+    {
+      "kind": "module",
+      "lines": 26,
+      "path": "notebooks/specs/c4_speaker_run2.py",
+      "purpose": "Spec: C4 run 2, save the mixed-voice selection (cluster 1, base voice male) from run 1 (CPU)."
+    },
+    {
       "kind": "config",
-      "lines": 41,
+      "lines": 45,
       "path": "pyproject.toml",
       "purpose": ""
     },
@@ -999,6 +1194,18 @@
       "purpose": "Colab run C3 run 3 — Char-mapped re-audit"
     },
     {
+      "kind": "doc",
+      "lines": 255,
+      "path": "reports/colab_runs/C4_speaker_run1.md",
+      "purpose": "Colab run C4 run 1 — C4 — training speaker"
+    },
+    {
+      "kind": "doc",
+      "lines": 124,
+      "path": "reports/colab_runs/C4_speaker_run2.md",
+      "purpose": "Colab run C4 run 2 — C4 — save the mixed-voice selection"
+    },
+    {
       "kind": "config",
       "lines": 16,
       "path": "reports/env.json",
@@ -1029,10 +1236,22 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 7,
+      "path": "reports/notes/C4.3-notes.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 123,
       "path": "reports/pretrained_inspect.md",
       "purpose": "Pretrained voices"
+    },
+    {
+      "kind": "doc",
+      "lines": 21,
+      "path": "reports/speaker_ranking.md",
+      "purpose": "Speaker clusters"
     },
     {
       "kind": "module",
@@ -1054,7 +1273,7 @@
     },
     {
       "kind": "module",
-      "lines": 170,
+      "lines": 218,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1090,7 +1309,7 @@
     },
     {
       "kind": "module",
-      "lines": 133,
+      "lines": 148,
       "path": "src/boinga_translator/paths.py",
       "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
     },
@@ -1111,6 +1330,12 @@
       "lines": 43,
       "path": "src/boinga_translator/settings.py",
       "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
+    },
+    {
+      "kind": "module",
+      "lines": 326,
+      "path": "src/boinga_translator/speaker_select.py",
+      "purpose": "Speaker selection: embed each clean clip's voice (cached per clip), cluster and rank voices."
     },
     {
       "kind": "module",
@@ -1267,6 +1492,24 @@
       "lines": 7,
       "path": "tests/test_smoke_import.py",
       "purpose": "Smoke test: the package imports and exposes a version."
+    },
+    {
+      "kind": "test",
+      "lines": 124,
+      "path": "tests/test_speaker_choice.py",
+      "purpose": "Tests for speaker_select listening and the saved choice: listen_clips, save_selection, form."
+    },
+    {
+      "kind": "test",
+      "lines": 126,
+      "path": "tests/test_speaker_cluster.py",
+      "purpose": "Tests for speaker_select.cluster()/candidates() and `boinga cluster-speakers` on fake voices."
+    },
+    {
+      "kind": "test",
+      "lines": 139,
+      "path": "tests/test_speaker_select.py",
+      "purpose": "Tests for speaker_select.embed() and `boinga embed-speakers`: clean clips only, per-clip cache."
     },
     {
       "kind": "test",

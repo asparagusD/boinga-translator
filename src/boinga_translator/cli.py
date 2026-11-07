@@ -14,6 +14,7 @@ from boinga_translator import (
     env_report,
     paths,
     pretrained,
+    speaker_select,
 )
 
 
@@ -36,6 +37,15 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("audit-summary", help="summarise audit.csv into reports/audit_summary.md")
     sub.add_parser("pick-baseline-ctg",
                    help="put 3 held-out dialect lines into configs/baseline_prompts.json")
+    sub.add_parser("embed-speakers",
+                   help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
+    sub.add_parser("cluster-speakers",
+                   help="cluster the embeddings by voice into reports/speaker_ranking.md")
+    save = sub.add_parser("save-speaker",
+                          help="save a cluster as the training speaker (configs/speaker_selection.json)")
+    save.add_argument("--id", type=int, required=True, help="cluster rank from speaker_ranking.md")
+    save.add_argument("--base-voice", choices=pretrained.voices(), required=True,
+                      help="pretrained voice to fine-tune: the speaker's gender")
     return parser
 
 
@@ -52,6 +62,38 @@ def _pick_baseline_ctg() -> int:
         print(f"FAIL: pick-baseline-ctg: {type(exc).__name__}: {exc}")
         return 1
     print(f"PASS: picked {len(picks)} dialect prompts")
+    return 0
+
+
+def _embed_speakers() -> int:
+    """One speaker embedding per clean clip of the Drive audit.csv; FAIL + exit 1 on error."""
+    try:
+        speaker_select.embed(data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV))
+    except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
+        print(f"FAIL: embed-speakers: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _cluster_speakers() -> int:
+    """Cluster the Drive speaker embeddings and rank the clusters; FAIL + exit 1 on error."""
+    try:
+        speaker_select.cluster(
+            paths.speaker_emb(),
+            data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV))
+    except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
+        print(f"FAIL: cluster-speakers: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _save_speaker(cluster_id: int, base_voice: str) -> int:
+    """Save one cluster as the training speaker; FAIL + exit 1 on error."""
+    try:
+        speaker_select.save_selection(cluster_id, base_voice=base_voice)
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: save-speaker: {type(exc).__name__}: {exc}")
+        return 1
     return 0
 
 
@@ -163,6 +205,12 @@ def main(argv: list[str] | None = None) -> int:
         return _audit_summary()
     elif args.command == "pick-baseline-ctg":
         return _pick_baseline_ctg()
+    elif args.command == "embed-speakers":
+        return _embed_speakers()
+    elif args.command == "cluster-speakers":
+        return _cluster_speakers()
+    elif args.command == "save-speaker":
+        return _save_speaker(args.id, args.base_voice)
     return 0
 
 

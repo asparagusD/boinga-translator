@@ -196,8 +196,87 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
   tests/conftest.py or tests/fakes.py; pin test_repo_prompts_file_shape to the filled state
 - [ ] oov_ratio and has_digits are informational now (no rule reads them); drop or label
 
-## C4
-- [ ] C4.x (subchunks not yet defined)
+## C4 — Choose one consistent training speaker
+Branch `chunk/C4-speaker`. One notebook for the chunk: spec `notebooks/specs/c4_speaker.py`
+-> `notebooks/runs/C4_speaker_run1.ipynb` (T4). Every subchunk that adds cells rebuilds
+the notebook (pre-commit `--check`); only C4.H hands it over. Local tests use fake
+encoders and synthetic embeddings, never speechbrain or the corpus.
+Path: no speaker ids (reports/audit_summary.md "no speaker field"; DECISIONS "Corpus
+layout") -> C4.2a, C4.2b, C4.3. This chunk revisits DECISIONS "Speakers" (A, mixed voices):
+the form keeps "mixed" selectable, and C4.4 records the outcome as a new entry.
+Line counts are non-test estimates, excluding the generated map/notebook and PROGRESS.
+- [ ] C4.1 skipped: the corpus has no speaker ids, so there is no speaker to pick from
+  metadata (DECISIONS "Corpus layout"; audit_summary.md "Speakers")
+- [x] C4.2a code: `speaker_select.embed(audit_df, cache_dir=paths.speaker_emb())`: one
+  embedding per clean clip (clean_mask, all three splits) cached on Drive as
+  `speaker_emb/<clip_id>.npy`, cached clips skipped, `encoder.txt` marker refuses mixing two
+  encoders, >1% failed clips -> FAIL; resemblyzer 0.1.4 (VoiceEncoder + preprocess_wav,
+  pinned in [train] with setuptools<81), SpeechBrain ECAPA fallback if it cannot import
+  (extra `speaker-fallback`); `boinga embed-speakers`; `paths.speaker_emb()`; cells `C4.0`
+  (fetch-data) and `C4.2a` in `notebooks/specs/c4_speaker.py`; DECISIONS "Speaker encoder";
+  tests `tests/test_speaker_select.py` (fake encoder) (this commit)
+  - [x] C4.2a results: C4 run 1 (ad690fd, T4): 7,513 of 7,513 clean clips embedded with
+    resemblyzer-0.1.4, 0 failed; webrtcvad imported pkg_resources with a deprecation
+    warning only; duration not recorded by the cell (this commit)
+- [x] C4.2b code: `speaker_select.cluster(emb_dir, audit_df)`: sklearn
+  AgglomerativeClustering (cosine, average linkage) at thresholds 0.20-0.50 step 0.05 (tree
+  built once, cached), per threshold clusters / largest-cluster clean minutes / silhouette;
+  chosen = best silhouette among thresholds whose largest cluster has >= 30 clean min, else
+  most minutes; clusters ranked 1..K by clean minutes; labels -> Drive
+  `speaker_clusters.csv` (`paths.speaker_clusters()`); `reports/speaker_ranking.md`
+  (threshold table, top 20 clusters with train/val/test minutes and 5 seeded clip ids,
+  emitted); `candidates(n=3)`; `boinga cluster-speakers`; cell `C4.2b`; DECISIONS "Speaker
+  clustering"; tests `tests/test_speaker_cluster.py` (synthetic 2- and 3-voice embeddings)
+  (this commit). Listening to the top clusters is not in this subchunk (C4.3 play cell)
+  - [x] C4.2b results: C4 run 1: the rule chose threshold 0.50 (silhouette 0.196), 3
+    clusters: #1 7,506 clips / 490.73 min (all speakers merged), #2 5 clips / 0.18 min, #3 2
+    clips / 0.11 min; threshold 0.30 had 187 clusters, largest 72.08 min (silhouette 0.125)
+    (this commit). The rule is degenerate on this corpus: see C4.4
+- [x] C4.3 code: `speaker_select.listen_clips(id, n=10, seed)` (seeded clips of one
+  ranked cluster, labelled with the verbatim transcript), `play_candidates(3)` (heading with
+  clean minutes per candidate), `save_selection(id, base_voice)` -> Drive
+  `speaker_selection.csv` (`paths.speaker_selection()`) + `configs/speaker_selection.json`
+  {kind "cluster", id, n_clips, clean_minutes, minutes_by_official_split, csv_sha256,
+  base_voice} (emitted), `save_from_form()` (saves only with CHOSEN_ID, GENDER and
+  ONE_CONSISTENT_VOICE = yes, else `NOTES-MISSING choice incomplete`); `boinga save-speaker
+  --id N --base-voice female|male`; cell `C4.3.play`, form `C4.3-notes` (CHOSEN_ID,
+  ONE_CONSISTENT_VOICE, GENDER, AUDIO_QUALITY, NOTES); DECISIONS "Speaker choice"; tests
+  `tests/test_speaker_choice.py` (this commit)
+  - [x] C4.3 results: mixed voices = cluster 1 (7,506 clips, 490.73 clean min; train
+    393.72 / val 48.25 / test 48.76), base voice male; configs/speaker_selection.json from
+    run 2, form notes from run 1; DECISIONS "Training speaker" (this commit)
+  - Moved out of C4 (C4.3 promptbook): per-split training manifests, cross-split duplicate
+    text on `ctg_text_model`, text_frontend.prepare, resampling (training-data prep, C5)
+- [x] C4.H hand-off: `notebooks/runs/C4_speaker_run1.ipynb` (T4) rebuilt, unchanged since
+  `d856b3b`, pushed; link, form instructions and save name `colab_runs/C4_speaker_run1.ipynb`
+  given; duration not measured (embedding estimate 20-40 min) (this commit)
+- [x] C4.V verify run 1 (colab-verify): 10/10 PASS at `ad690fd`, not stale; results
+  `abc441e` (C4.2a), `1e15f75` (C4.2b). Form: CHOSEN_ID 2 (5 clips, 0.18 min), one
+  consistent voice, male, some noise. The 0.50 threshold merged 7,506 of 7,513 clips into
+  cluster 1, so the user chose (chat) mixed voices = cluster 1, base voice male; the run-1
+  selection (cluster 2) is superseded and was not committed
+- [x] C4.3b run 2 (CPU, `notebooks/specs/c4_speaker_run2.py`): `boinga save-speaker --id 1
+  --base-voice male` from run 1's Drive speaker_clusters.csv -> configs/speaker_selection.json
+  (built `fcb64e5`)
+- [x] C4.V2 verify run 2: 6/6 PASS at `fcb64e5`, not stale; results in the C4.3 commit
+- [ ] Follow-up: the threshold rule (best silhouette among largest >= 30 min) picks a
+  near-single cluster on this corpus; cap the largest cluster's share before reusing it
+- [x] C4.4 Gate G3: PASS (490.73 clean min >= 30; DECISIONS "Gate G3 — speaker data";
+  this commit). Rule from the C4.V promptbook: >= 30 min PASS, 10-30 PASS WITH RISK,
+  < 10 FAIL -> C5, C6, then Chunk F
+
+### C4 follow-ups (from the whole-chunk review; for C5)
+- [ ] C5 checks `csv_sha256` of configs/speaker_selection.json against the Drive
+  speaker_selection.csv before building training lists (with a test); the CSV holds only
+  clip_id, split_official, duration_s, so join audit.csv for wav paths and transcripts
+- [ ] Take the speaker only from configs/speaker_selection.json: reports/notes/C4.3-notes.json
+  keeps the superseded run-1 pick (CHOSEN_ID "2")
+- [ ] save_selection writes the Drive CSV before the repo JSON: write the JSON first or rely
+  on the sha check above
+- [ ] speaker_select.py tidy-ups: `lines =[` spacing in _render; use SPLITS in the ranking
+  table instead of the literal tuple
+- [ ] reports/env.json now holds run 2's CPU environment; run 1's T4 environment is in
+  DECISIONS "Speaker encoder" and the run-1 digest
 
 ## C5
 - [ ] C5.x (subchunks not yet defined)
