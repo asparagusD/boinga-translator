@@ -124,7 +124,8 @@ def make_splits(index_df: pd.DataFrame, selection_ids: Iterable[str],
     df = index_df.assign(clip_id=index_df["clip_id"].astype(str)).set_index("clip_id")
     if unknown := sorted(set(wanted) - set(df.index)):
         raise ValueError(f"{len(unknown)} selected clip(s) not in the index: {unknown[:5]}")
-    df = df.loc[wanted].reset_index()
+    # pandas < 3 names the result's index after `wanted` (unnamed), not "clip_id"
+    df = df.loc[wanted].rename_axis("clip_id").reset_index()
     order = df["clip_id"].str.zfill(12)
     df = (df.assign(_o=order).sort_values(["duration_s", "_o"], ascending=[False, True])
           .drop_duplicates("ctg_text_nfc").sort_values("_o"))

@@ -1308,7 +1308,7 @@
     },
     {
       "kind": "doc",
-      "lines": 106,
+      "lines": 122,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
@@ -1650,7 +1650,7 @@
     },
     {
       "kind": "module",
-      "lines": 423,
+      "lines": 424,
       "path": "src/boinga_translator/prepare.py",
       "purpose": "Training-data prep: audio transform, leak-free splits, ljspeech manifests, `boinga prepare`."
     },
