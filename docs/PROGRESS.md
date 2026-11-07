@@ -570,12 +570,12 @@ map/notebook and PROGRESS.
   not stale; saved as colab_runs/C7_train_runner_run1.ipynb. C7.1 FAIL ("coqui loaded the
   config but not these overrides: ['seed']") -> fix `08f29d0` (training_seed) + clean smoke
   run `90c4504`; results `b2d1884` (C7.2 + digest), `ffdfe0e` (C7.4). GPU: RTX PRO 6000, not T4
-- [ ] C7.V2 re-run C7 (fresh smoke run): C7.1 must print "PASS: coqui accepts config"; then
-  commit C7.1 results (configs/vits_ctg_finetune.json, DECISIONS overrides table from
-  reports/config_overrides.md via train_config.replace_decisions_table) and the new throughput
+- [x] C7.V2 re-run C7 (fresh smoke run): 13/13 PASS at f681627 (notebook built in `90c4504`),
+  not stale, RTX PRO 6000; C7.1 "PASS: coqui accepts config"; results `705b617` (C7.1:
+  config, overrides table, digest), `40a1a25` (C7.4: throughput)
 - [x] C7.5 Gate G5 — ready to train: PASS (G1 PASS, splits_summary present, no NaN loss,
-  RESUME seen), conditions: C7.V2 C7.1 PASS before C8; time C8 on its real GPU (DECISIONS
-  "Gate G5 — ready to train"; this commit)
+  RESUME seen); run 1 verdict `f681627`, conditions met in the re-run (DECISIONS "Gate G5 —
+  ready to train"; this commit)
 
 ## C8
 - [ ] C8.x (subchunks not yet defined)

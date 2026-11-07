@@ -931,3 +931,13 @@ fine-tune (C8), with two conditions:
 **Consequences:** C8 can plan the full run with `boinga train --run <name>` (auto-resume,
 step budget via RUN_BUDGETS). Drive had 8.2 GB free with ~1 GB per checkpoint: keep
 save_n_checkpoints 2, clean the smoke run (C7.4.0 does) and empty the Drive trash.
+**Re-run (C7.V2, same day):** C7 notebook re-run at f681627 on the user's NVIDIA RTX PRO
+6000 Blackwell (95 GB), 13/13 cells PASS, not stale. The four criteria hold again:
+(1) G1 PASS; (2) configs/splits_summary.json present, unchanged; (3) reports/throughput.json
+any_nan_loss false (0.3418 s/step over 10 steps, 10,533 steps/h, peak 3.39 GB); (4)
+"RESUME from step 50 in .../runs/smoke/smoke-November-07-2026_08+46PM-f681627". Both
+conditions are met: C7.1 printed "PASS: coqui accepts config" (training_seed 1234, the log
+shows "Torch seed: 1234"), and the GPU question is settled: the user trains on the RTX PRO
+6000, so the measured speed is the basis for C8 (a T4 is no longer planned).
+**G5: PASS** (final). C8 can plan from 10,533 steps/h at batch 16 fp16; with 3.39 of 95 GB
+used, C8 may raise batch_size (a logged override) and re-measure.

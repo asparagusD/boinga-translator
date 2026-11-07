@@ -1591,7 +1591,7 @@
     },
     {
       "kind": "doc",
-      "lines": 933,
+      "lines": 943,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
