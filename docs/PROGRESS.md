@@ -278,8 +278,30 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
 - [ ] reports/env.json now holds run 2's CPU environment; run 1's T4 environment is in
   DECISIONS "Speaker encoder" and the run-1 digest
 
-## C5
-- [ ] C5.x (subchunks not yet defined)
+## C5 — Text frontend for Chittagonian text
+Branch `chunk/C5-text-frontend`. Builds on C3.8 (text_frontend.prepare/excluded,
+configs/char_map.json, already approved). Two CPU notebooks: run 1 = OOV report on the C4
+selection against the base voice (male), run 2 = coqui tokenizer check. Local tests use
+synthetic text, fake charsets and a fake tokenizer (coqui is not installed locally).
+- [ ] C5.1 `text_frontend.normalise()` (local): move NFC + collapse + strip from
+  `corpus.normalise_text` into text_frontend (single home; corpus and baseline call it),
+  behaviour unchanged, so audit charset_id/map digest stay valid
+- [ ] C5.2 `text_frontend.oov_report()` + `boinga oov` + cell C5.2 (spec
+  `notebooks/specs/c5_text_frontend_run1.py`, CPU): selected clips only (configs/
+  speaker_selection.json, csv_sha256 checked against the Drive CSV), base-voice charset,
+  per character before/after char_map: count, rows, splits, examples ->
+  reports/oov_report.md + .json
+- [ ] C5.H1 hand-off run 1
+- [ ] C5.V1 verify run 1
+- [ ] C5.3 `apply_char_map()` extracted from prepare() + configs/char_map.json entries for
+  any unknown character run 1 finds (user approval; DECISIONS) (local)
+- [ ] C5.4 `text_frontend.check_tokenizer()` + `boinga check-tokenizer` + cells (spec
+  `notebooks/specs/c5_text_frontend_run2.py`, CPU): coqui TTSTokenizer from the base
+  voice's config on every kept selected row: unknown characters, round trip, token lengths
+  -> reports/tokenizer_check.md + .json
+- [ ] C5.H2 hand-off run 2
+- [ ] C5.V2 verify run 2
+- [ ] C5.5 Gate G4 — text frontend (criteria to confirm before run 2)
 
 ## C6
 - [ ] C6.x (subchunks not yet defined)
