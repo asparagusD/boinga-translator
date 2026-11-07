@@ -795,5 +795,6 @@ speaker (cluster 1, base voice male).
 official test clips (incl. baseline clips 386, 29, 625) stay out of training. The
 transform took 1 min 42 s for 7,506 clips (73.5 clips/s, 2 processes); the whole run's
 duration was not recorded. Drive had 9.4 GB free before the ~1.2 GB tar (estimate from
-the prepared minutes). The listening check (5 clips, C6.4.play) has no form; its result
-is reported in chat, not here.
+the prepared minutes). Listening check (C6.4.play, seeded train clips 1217, 131,
+1131, 2582, 2124; no form): the user reported in chat "All sounded fine", so the 100 ms
+trim pad and -1 dBFS peak normalisation stay as they are.

@@ -427,7 +427,8 @@ the generated map/notebook and PROGRESS.
 - [x] C6.V verify (colab-verify): run 1 attempt 1 (1a9b636) FAIL in C6.4 (pandas 2
   KeyError, fixed `93d9796`); attempt 2: 9/9 PASS at `93d9796` (notebook built in
   `f3564b5`), not stale; results `00fd048` (C6.4) and this commit (C6.3). Listening:
-  5 clips played, the user's verdict on cut-offs is still to come in chat
+  5 clips played (1217, 131, 1131, 2582, 2124); user (chat): "All sounded fine", no
+  cut-offs or level problems
 
 ## C7
 - [ ] C7.x (subchunks not yet defined)
