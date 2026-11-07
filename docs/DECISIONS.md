@@ -368,3 +368,37 @@ characters/punctuations, as expected for the eos symbol.
 **Consequences:** The pretrained Bangla voices give a usable but imperfect starting point
 for dialect text; fine-tuning has something to improve. Clips 386, 29 and 625 are
 evaluation prompts and must stay out of training (official test split).
+
+## 2026-11-07 — Gate G2 — data
+**Context:** Gate G2 decides whether "A Synchronized Chittagonian Speech Corpus"
+(n9xttk45df v1) is fit for the Chittagonian fine-tune. Rule (C3.V2 promptbook): PASS if
+(1) undecodable < 1% and (2) transcripts are paired with the audio and Chittagonian,
+judged from the C3.5 listening form. Evidence: reports/audit_summary.md,
+reports/notes/C3.5-notes.json, DECISIONS "Audit listening".
+- Undecodable: 5 of 8,009 rows (0.06%); all 8,004 wavs decode, the 5 rows have no wav.
+  Holds.
+- Paired: TRANSCRIPTS_MATCH_AUDIO "mostly"; row <-> wav mapping r = 0.87 (DECISIONS
+  "Corpus row <-> wav mapping"). Holds.
+- Chittagonian: SOUNDS_CHITTAGONIAN "no, standard Bangla". Does not hold.
+- Total clean: 2,881 clips, 4.10 h (of 9.04 h decodable).
+- Speaker ids: none (no speaker field; SPEAKERS_HEARD "many").
+- Excluded: 5,128 of 8,009 rows (64.0%). Top 3 reasons: oov 5,015 (4,711 only because of
+  the danda "।", the model's eos symbol), speech rate 167, too long 29.
+**Decision:** G2: FAIL (condition 2: the audio was heard as standard Bangla, not
+Chittagonian). Recommended fallback: "Bangla Regional Dialects Speech Dataset" (Mendeley
+777wsgjgtm v1, Chittagong subset, CC BY 4.0); its transcripts may be standard Bangla,
+so it gets the same C3 download, layout, audit and listening checks before it is used.
+**Alternatives:**
+- G2: PASS, reading "standard Bangla" as speakers' accent while they read dialect text
+  (transcripts "mostly" match): would keep this corpus. Not chosen: the rule is decided
+  by the form, and the dialect is the project's point.
+- Fine-tune anyway on the 4.10 h (or ~8 h after a danda char_map): a voice that reads
+  dialect spelling with standard pronunciation would not be a Chittagonian voice.
+**Consequences:**
+- C4 does not start on this corpus. Next: evaluate the fallback dataset with the C3
+  pipeline (download, layout, index, audit, listening) and decide G2 again.
+- Reusable regardless: data_download, the layout inspector, the audit and summary
+  (clean_mask), the dialect baseline picker; corpus.load_index is specific to this layout.
+- If the user revises the C3.5 judgement (e.g. dialect words read with a standard
+  accent count as Chittagonian), G2 can be re-decided in a new entry; the open
+  danda char_map and the many-speakers issue then remain to be solved before C4.

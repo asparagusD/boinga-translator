@@ -777,13 +777,13 @@
     },
     {
       "kind": "doc",
-      "lines": 370,
+      "lines": 404,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 195,
+      "lines": 198,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },

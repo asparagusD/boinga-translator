@@ -158,8 +158,11 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
   CTG_1-3 = clips 386, 29, 625; 12/12 baseline wavs PASS; HANDLES_DIALECT "partly"
   (this commit)
 - [x] C3.H2 hand-off run 2: notebook built for a T4 runtime (this commit)
-- [ ] C3.V2 verify run 2
-- [ ] C3.7 Gate G2: data fit for fine-tuning (DECISIONS entry)
+- [x] C3.V2 verify run 2: 14/14 PASS at `f4c7ab2`; results `db85fcf` (index), `c894178`
+  (audit), `639f189` (summary + listening), `8893a67` (dialect baseline)
+- [x] C3.7 Gate G2: FAIL: audio heard as standard Bangla (DECISIONS "Gate G2 — data";
+  this commit). Next: evaluate the fallback "Bangla Regional Dialects Speech Dataset"
+  (Mendeley 777wsgjgtm v1, Chittagong subset) with the C3 pipeline
 
 ## C4
 - [ ] C4.x (subchunks not yet defined)
