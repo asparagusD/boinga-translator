@@ -430,6 +430,26 @@ the generated map/notebook and PROGRESS.
   5 clips played (1217, 131, 1131, 2582, 2124); user (chat): "All sounded fine", no
   cut-offs or level problems
 
+### C6 follow-ups (from the whole-chunk review; for C7)
+- [ ] C7 notebook runs `boinga fetch-data` and `boinga prepare` first (wavs and manifests
+  live on the VM's fast disk); check it prints "restored ..." and "0 clip(s) to do"
+- [ ] Restore depends on byte-identical splits.csv: a different pandas/numpy on the GPU VM
+  could change its bytes (e.g. float format of duration_s), miss the tar, recompute and
+  write a second ~1.2 GB tar; warn when another prepared-*.tar exists but none matches
+- [ ] C7 config: set min/max audio length on trimmed durations (no post-trim 1-15 s
+  exclusion in C6; trimming can push a clip under the minimum)
+- [ ] env_report: record pandas, librosa and soxr versions (Colab's pandas was unknown
+  when the C6.4 KeyError hit)
+- [ ] reports/prepare_summary.md with exclusions by reason (dialect-data-rules; C6 run 1
+  had 0, counts only in the run digest); count model-text collisions across splits; a
+  clean FAIL in pick_prepared when manifests are missing
+- [ ] cli `_prepare`: also catch `tarfile.TarError` (corrupt Drive tar on restore)
+- [ ] Doc wording: prepare.py header comment covers only the audio transform; DECISIONS
+  "Training splits" / PROGRESS C6.2 say "asserts" (code raises RuntimeError); DECISIONS
+  "Training manifests" says the C6.3 cell stays last (C6.4.play follows it); DECISIONS
+  "Audio preprocessing" mentions a C6.4 form (listening came by chat); tar size estimates
+  1.3 vs 1.2 GB (measure it on Drive)
+
 ## C7
 - [ ] C7.x (subchunks not yet defined)
 
