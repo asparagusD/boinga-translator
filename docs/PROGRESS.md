@@ -62,6 +62,14 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
   (`colab_runs/`), DECISIONS entry; colab-verify must say a STALE run exits 1 (re-run it)
 - [x] C1.10 pilot: env-check spec + notebook, run on Colab, verified with the reader
   (A = spec + notebook, B = reports from the verified run)
+- [x] C1.11a notebook rules in CLAUDE.md and the colab-handoff skill: an md() explanation
+  before every cell; tqdm for cells that may run over a minute (BOOT.3 pip is the exception)
+- [x] C1.11b every built notebook explains every cell: the builder writes the BOOT.1-4/HDR
+  explanations, keeps a form's md() with it and refuses an unexplained cell; md() added to
+  all C1-C6 specs (text only), notebooks rebuilt. The C1-C6 run notebooks changed, so an
+  old executed copy in colab_runs/ now reads STALE: expected, not a regression
+- [x] C1.11c tqdm progress for the slow steps without one (no logic change): corpus unzip and
+  fast-disk copy, speaker embedding, baseline synthesis, prepared tar restore and backup
 
 ### C1N follow-ups (before the C1N merge)
 - [x] reports/env.json is emitted twice per run (BOOT.4 and HDR's run_header);

@@ -13,6 +13,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 from boinga_translator import (
     audit_summary,
@@ -124,7 +125,7 @@ def embed(audit_df: pd.DataFrame, cache_dir: Path | None = None,
         encoder = encoder or load_encoder()
         _claim(cache_dir, encoder.name)
         print(f"embedding {len(todo)} of {len(clean)} clean clips with {encoder.name}")
-        for i, r in enumerate(todo, 1):
+        for i, r in enumerate(tqdm(todo, desc="embed", unit="clip", mininterval=10), 1):
             try:
                 vec = np.asarray(encoder.embed(str(r.wav_path)), dtype=np.float32).ravel()
                 if vec.size == 0 or not np.isfinite(vec).all():

@@ -14,6 +14,8 @@ from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from tqdm import tqdm
+
 from boinga_translator import paths, report_io, settings
 
 # A downloader gets (voice, empty scratch dir) and returns a folder holding the model files.
@@ -58,7 +60,9 @@ def safe_extract(zip_path: Path, out_dir: Path) -> None:
         for name in zf.namelist():
             if not (root / name).resolve().is_relative_to(root):
                 raise RuntimeError(f"unsafe path in zip {zip_path.name}: {name!r}")
-        zf.extractall(root)
+        for info in tqdm(zf.infolist(), desc=f"unzip {zip_path.name}", unit="file",
+                         mininterval=5):
+            zf.extract(info, root)  # = extractall, with a progress bar
 
 
 def _download_release(voice: str, workdir: Path) -> Path:
