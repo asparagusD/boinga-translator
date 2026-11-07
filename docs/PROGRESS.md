@@ -72,9 +72,34 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
 - [x] Stop-on-FAIL: cell_ok only prints CELL-OK and expect_files only returns False, so a
   FAIL line does not stop Run all; decide raise-in-cell vs reader-only (C1.8 / C1.9)
 
-## C2
-- [ ] C2.x (subchunks not yet defined; draft plan parked in `git stash` on
-  chunk/C2-pretrained-baseline)
+## C2 — Pretrained Bangla VITS inspection and baseline audio
+Branch `chunk/C2-pretrained-baseline`. One notebook for the chunk:
+spec `notebooks/specs/c2_pretrained_baseline.py` -> `notebooks/runs/C2_baseline_run1.ipynb`
+(T4). Every subchunk that adds cells rebuilds the notebook (pre-commit `--check`); only
+C2.H hands it over. Local tests never import torch/TTS (fakes only).
+- [ ] C2.1 pretrained.fetch(voice) / fetch_all(): download the pinned release zip to
+  paths.pretrained()/zips/, record bytes + sha256, safe-unzip to paths.pretrained()/<voice>/,
+  idempotent; cell C2.1 -> reports/pretrained_manifest.json
+- [ ] C2.2 pretrained.config_facts() (pure JSON) + ckpt_facts(shapes) + inspect_all():
+  sample rate, STFT/mel, charset, cleaner, phonemes, add_blank, speakers, params per
+  submodule, `disc.` keys, text-embedding rows vs vocab; cell C2.2 ->
+  reports/pretrained_facts.json + reports/pretrained_inspect.md
+- [ ] C2.3 synth_basic.py: load_voice(), seeded synth() with the pinned inference scales,
+  unknown_chars() (local only, no cell)
+- [ ] C2.4a baseline.py + `boinga baseline` + configs/baseline_prompts.json:
+  both voices -> Drive eval/baseline/<voice>/<id>.wav, reports/baseline.json
+  (duration, RTF, device, unknown chars, peak/clipping), idempotent.
+  Prompts: standard Bangla only (~8 lines, NFC); no Chittagonian text is authored here.
+  DECISIONS entry with this subchunk
+- [ ] C2.4b cells C2.4 (baseline run) + C2.4.play (players) + form C2.4-listen
+- [ ] C2.H hand-off: final build + `--check`, push branch, Colab link and form guide
+- [ ] C2.V verify run 1 with colab-verify; commit the run digest + saved reports
+- [ ] C2.5 Gate G1 verdict in DECISIONS.md (voice choice, GO/NO-GO); pin the release
+  zip sha256s in settings.py
+
+### C2 follow-ups
+- [ ] After C3: add held-out Chittagonian corpus lines (verbatim transcripts) to the
+  baseline prompts and re-run the pretrained baseline on them
 
 ## C3
 - [ ] C3.x (subchunks not yet defined)
