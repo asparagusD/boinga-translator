@@ -777,13 +777,13 @@
     },
     {
       "kind": "doc",
-      "lines": 330,
+      "lines": 334,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 190,
+      "lines": 191,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -876,6 +876,12 @@
       "lines": 153,
       "path": "reports/colab_runs/C3_data-audit_run1.md",
       "purpose": "Colab run C3 run 1 — Download and layout"
+    },
+    {
+      "kind": "doc",
+      "lines": 386,
+      "path": "reports/colab_runs/C3_data-audit_run2.md",
+      "purpose": "Colab run C3 run 2 — Index, audit, summary"
     },
     {
       "kind": "config",

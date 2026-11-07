@@ -289,6 +289,10 @@ transcript/translation columns and the 6,403/801/800 splits were known before.
 - The first rows read like translated encyclopedic prose about Chittagonian, so the
   text is read speech of written sentences.
 
+**Verified (C3 run 2, commit f4c7ab2, `boinga index`):** 8,009 index rows: train 6,403,
+val 801, test 800, no split 5 (the rows without a wav); 8,004 with audio; speaker ids:
+none ("no speaker field").
+
 ## 2026-11-07 — Corpus row <-> wav mapping: wav stem = Excel row number
 **Context:** The corpus has no clip-id column (DECISIONS "Corpus layout"); C3.3 needs
 the link between Dataset/Chittagonian_translated.xlsx rows and Dataset/Speech wavs.

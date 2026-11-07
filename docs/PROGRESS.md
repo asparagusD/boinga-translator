@@ -138,7 +138,8 @@ Run 1 (spec `notebooks/specs/c3_data_audit_run1.py`, CPU):
 Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
 - [x] C3.3 code: corpus.load_index() + `boinga index` + run-2 spec (cells C3.2.fetch, C3.3);
   wav stem = Excel row (DECISIONS "Corpus row <-> wav mapping"); 8,009 rows, 8,004 with
-  audio (this commit; Colab result with C3.V2)
+  audio (`14d90cb`); results: Colab run 2 index train 6403 / val 801 / test 800 / none 5,
+  8,004 with audio, no speaker field (this commit)
 - [x] C3.4a data_audit.audio_stats() (local): format, duration, peak, clip_ratio, rms_db,
   lead/trail silence (librosa trim, top_db 40) (this commit)
 - [x] C3.4b data_audit.text_stats() + load_model_charset() (local): lengths, chars not in
