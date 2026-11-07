@@ -533,8 +533,11 @@ map/notebook and PROGRESS.
 - [x] C7.4b `train_config.RUN_OVERRIDES` (per-run, value + reason) with print_step 5 for run
   `smoke` only (user, chat 2026-11-08): steps 5-45 and 55 timed (~10 samples) instead of 1;
   `reasons(run_name)` fills the DECISIONS table; cell texts updated (this commit)
-- [ ] C7.H hand-off: notebook (T4) built, `--all --check` clean, pushed; link, save name
-  `colab_runs/C7_train-runner_run1.ipynb`; duration not measured (smoke ~15-30 min estimate)
+- [x] C7.H hand-off: `notebooks/runs/C7_train-runner_run1.ipynb` (T4, GPU required) rebuilt,
+  unchanged since `b0ec918`, `--all --check` clean, pushed; link and save name
+  `colab_runs/C7_train-runner_run1.ipynb` given; no forms; duration not measured (data
+  restore + roughly 10-40 min of training, estimate). Kaggle is not a drop-in fallback: the
+  bootstrap needs google.colab (Drive mount, GH_TOKEN secret) (this commit)
 - [ ] C7.V verify (colab-verify): every cell PASS, not stale; reports/throughput.json and
   configs/vits_ctg_finetune.json committed as results
 - [ ] C7.5 Gate G5 — training runner: PASS if 50 smoke steps + resumed steps finish with
