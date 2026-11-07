@@ -386,6 +386,36 @@
       "target": "src/boinga_translator/text_frontend.py"
     },
     {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/train_config.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/train_runner.py"
+    },
+    {
       "kind": "config",
       "source": "src/boinga_translator/cli.py",
       "target": "configs/baseline_prompts.json"
@@ -414,6 +444,11 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/ckpt_sampler.py"
     },
     {
       "kind": "import",
@@ -924,6 +959,31 @@
       "kind": "test",
       "source": "tests/test_char_map.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/train_config.py"
     },
     {
       "kind": "test",
@@ -1622,7 +1682,7 @@
     },
     {
       "kind": "doc",
-      "lines": 680,
+      "lines": 687,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1964,7 +2024,13 @@
     },
     {
       "kind": "module",
-      "lines": 347,
+      "lines": 176,
+      "path": "src/boinga_translator/ckpt_sampler.py",
+      "purpose": "Checkpoint sampler: val prompts per training checkpoint, candidates ranked by eval loss."
+    },
+    {
+      "kind": "module",
+      "lines": 366,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2105,6 +2171,12 @@
       "lines": 69,
       "path": "tests/test_char_map.py",
       "purpose": "Tests for configs/char_map.json: entry shape, targets inside both voices' charsets, exclusions."
+    },
+    {
+      "kind": "test",
+      "lines": 139,
+      "path": "tests/test_ckpt_sampler.py",
+      "purpose": "Tests for ckpt_sampler.py and `boinga sample` / `boinga candidates` (fake folders, log, synth)."
     },
     {
       "kind": "test",

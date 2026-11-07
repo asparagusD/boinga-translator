@@ -623,13 +623,20 @@ estimates, excluding the generated map/notebook and PROGRESS.
 - [x] C8.1d batch back to 16 / eval 8 (user, chat, after C8.1c: batch 32 is 6% slower per
   clip); loader workers stay 8 / 4; `RUN_BUDGETS["run1"]` = 36,500 confirmed (batch-16 rate,
   ~91 epochs). DECISIONS "RTX PRO 6000 training settings" update (this commit)
-- [ ] C8.2a ckpt_sampler (local + cells): new module `ckpt_sampler.py`: `prompts()` (val
-  texts), `sample(run, step=None)` -> wavs under `paths.eval_dir()/<run>/step<N>/` with fixed
-  seed/scales, skips done steps, saves a milestone copy (model + config) to Drive;
-  `boinga sample --run NAME`. ~80 lines
-- [ ] C8.2b candidates table: eval-block parsing in `train_report.parse_log`, `candidates(run)`
-  -> reports/candidates_<run>.md (step, val losses near the step, wavs), emitted;
-  `boinga candidates --run NAME`. ~60 lines
+- [x] C8.2 ckpt_sampler (local): new module `ckpt_sampler.py`: `checkpoints(run)` (step ->
+  checkpoint_<N>, else best_model_<N>; best_model.pth not sampled twice), `sample(run)` (the 5
+  test_sentences of configs/vits_ctg_finetune.json, synth_basic seeded, to
+  `paths.eval_dir()/<run>/step_<N>/<i>.wav` + done.json; pretrained base voice once into
+  step_0_pretrained/; "step N: mean X s", "PASS: sampled K checkpoints"), `parse_eval(log)`
+  (eval blocks -> last logged train step, avg loss_mel, loss_total = avg_loss_0 + avg_loss_1,
+  coqui's best-model sum), `candidates(run)` -> reports/candidates_<run>.md sorted by loss_mel
+  (emitted, "PASS: candidates listed"), `players(run, steps=None)` ((wav, label) pairs:
+  pretrained + 4 best + last); `boinga sample` / `boinga candidates --run NAME`. Tests
+  `tests/test_ckpt_sampler.py` (fake folders, log, synth) (this commit). Eval-block format
+  ("--> EVAL PERFORMANCE", "| > avg_loss_mel:") not yet seen in a real log (C8.3 checks it).
+  Milestone copies (C8 plan) not in this subchunk: C8.2c
+- [ ] C8.2c milestone copies: keep a model + config copy per sampled milestone on Drive (coqui
+  keeps only the last 2 checkpoints + best), so any sampled step can be promoted
 - [ ] C8.3 run-1 notebook: `train_runner.train_milestones(run)` (one `boinga train` subprocess
   per milestone, then sample; idempotent); spec cells: restore data, clean smoke + Drive space
   check, build-config + validate, loader check, train + sample, throughput, candidates, play,
