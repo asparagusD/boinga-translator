@@ -246,6 +246,11 @@
       "target": "tools/nbkit.py"
     },
     {
+      "kind": "config",
+      "source": "notebooks/specs/c6_prepare.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c6_prepare.py",
       "target": "tools/nbkit.py"
@@ -469,6 +474,11 @@
       "kind": "config",
       "source": "src/boinga_translator/prepare.py",
       "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/prepare.py",
+      "target": "configs/splits_summary.json"
     },
     {
       "kind": "import",
@@ -874,6 +884,11 @@
       "kind": "test",
       "source": "tests/test_prepare.py",
       "target": "tools/check_manifest_parse.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_prepare_build.py",
+      "target": "configs/splits_summary.json"
     },
     {
       "kind": "test",
@@ -1307,6 +1322,12 @@
       "purpose": ""
     },
     {
+      "kind": "config",
+      "lines": 16,
+      "path": "configs/splits_summary.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 122,
       "path": "docs/DEBUG_LOG.md",
@@ -1314,13 +1335,13 @@
     },
     {
       "kind": "doc",
-      "lines": 773,
+      "lines": 799,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 439,
+      "lines": 447,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1527,6 +1548,12 @@
       "lines": 135,
       "path": "reports/colab_runs/C5_text-frontend_run2.md",
       "purpose": "Colab run C5 run 2 — C5 run 2 — tokenizer check"
+    },
+    {
+      "kind": "doc",
+      "lines": 189,
+      "path": "reports/colab_runs/C6_prepare_run1.md",
+      "purpose": "Colab run C6 run 1 — C6 — prepared dataset"
     },
     {
       "kind": "config",

@@ -408,6 +408,14 @@ the generated map/notebook and PROGRESS.
     char_map exclusions and transform failures are only printed until
     reports/prepare_summary.md exists. Review suggestions not taken: retry OSError rows,
     delete stale Drive tars automatically, a clean FAIL in pick_prepared without manifests
+  - [x] C6.4 fix: run 1 attempt 1 (1a9b636) failed in C6.4 with KeyError 'clip_id'
+    (pandas 2 on Colab); `93d9796` fix(prepare), DEBUG_LOG entry
+  - [x] C6.4 results: C6 run 1 (93d9796, CPU): 7,506 clips prepared at 22,050 Hz, 0
+    failed, 0 char_map-excluded, 0 duplicates; train 6,415 / val 338 / test 753 clips
+    (official test), prepared minutes 386.64 / 20.48 / 44.81 (source 419.62 / 22.35 /
+    48.76); all upsampled, mean trim 0.310 s; transform 1:42; Drive tar
+    prepared-fd93f4827c6d2b41.tar; configs/splits_summary.json; DECISIONS "Prepared
+    dataset" (this commit)
 - [x] C6.H hand-off: `notebooks/runs/C6_prepare_run1.ipynb` (CPU) rebuilt, unchanged
   since `f3564b5`, `--all --check` clean, pushed; link and save name
   `colab_runs/C6_prepare_run1.ipynb` given; no forms (listening reported in chat);

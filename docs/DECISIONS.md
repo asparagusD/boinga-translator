@@ -771,3 +771,29 @@ old tar on Drive (15 GB free tier): delete stale `prepared-*.tar` files by hand.
 configs/splits_summary.json is written before the transform, so its counts and minutes
 are the splits (source durations, failed clips included), not the manifests; the printed
 per-split lines after it are the prepared numbers.
+
+## 2026-11-07 — Prepared dataset: 7,506 clips at 22,050 Hz, official test, 5% val
+**Context:** C6 run 1 (93d9796, Colab CPU, coqui-tts 0.28.0, Python 3.13; digest
+reports/colab_runs/C6_prepare_run1.md, 9/9 PASS) ran `boinga prepare` on the C4 training
+speaker (cluster 1, base voice male).
+**Decision:** The training data for C7 is the prepared folder of this run:
+- Selection 7,506 clips, 0 excluded by char_map, 0 duplicate transcripts dropped, 0
+  transform failures; all 7,506 written as mono 16-bit wavs at **22,050 Hz** (the male
+  voice's rate, pretrained_facts.json), every clip upsampled from 16 kHz; mean edge
+  silence trimmed 0.310 s per clip.
+- Splits (configs/splits_summary.json, seed 1234, test_source official, splits.csv
+  sha256 fd93f4827c6d2b41...): train 6,415 / val 338 / test 753 clips; source minutes
+  419.62 / 22.35 / 48.76 (490.73 total, as in Gate G3); prepared (trimmed) minutes
+  **386.64 / 20.48 / 44.81** (451.93 total).
+- Manifests `metadata_{train,val,test}.csv` (ljspeech); coqui's load_tts_samples parsed
+  6,415 train / 338 val (+ 753 test) samples, every audio file present, text equal
+  apart from the formatter's trailing "\n" (DECISIONS "Training manifests").
+- Backup on Drive: `data/prepared/prepared-fd93f4827c6d2b41.tar`; a new VM restores it.
+**Alternatives:** None new; the choices are in "Audio preprocessing", "Training splits",
+"Training manifests" and "Prepared data backup".
+**Consequences:** C7 trains on 386.64 prepared minutes and validates on 20.48; the 753
+official test clips (incl. baseline clips 386, 29, 625) stay out of training. The
+transform took 1 min 42 s for 7,506 clips (73.5 clips/s, 2 processes); the whole run's
+duration was not recorded. Drive had 9.4 GB free before the ~1.2 GB tar (estimate from
+the prepared minutes). The listening check (5 clips, C6.4.play) has no form; its result
+is reported in chat, not here.
