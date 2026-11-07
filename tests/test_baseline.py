@@ -38,8 +38,15 @@ def _tmp_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_repo_prompts_file_shape() -> None:
     raw = json.loads((paths.configs_dir() / "baseline_prompts.json").read_text(encoding="utf-8"))
-    assert list(raw) == ["STD_1", "STD_2", "STD_3", "CTG_1", "CTG_2", "CTG_3"]
-    assert all(raw[k] is None for k in ("CTG_1", "CTG_2", "CTG_3"))
+    ctg = ("CTG_1", "CTG_2", "CTG_3")
+    if "_sources" in raw:  # filled by `boinga pick-baseline-ctg` (C3.6)
+        assert list(raw) == ["STD_1", "STD_2", "STD_3", *ctg, "_sources"]
+        assert all(isinstance(raw[k], str) and raw[k].strip() for k in ctg)
+        assert sorted(raw["_sources"]) == list(ctg)
+        assert all(v.isdigit() for v in raw["_sources"].values())  # clip ids = Excel rows
+    else:  # before C3.6: dialect prompts not chosen yet
+        assert list(raw) == ["STD_1", "STD_2", "STD_3", *ctg]
+        assert all(raw[k] is None for k in ctg)
     std = [raw[k] for k in ("STD_1", "STD_2", "STD_3")]
     assert all(unicodedata.is_normalized("NFC", s) for s in std)
     assert all(6 <= len(s.split()) <= 12 for s in std)

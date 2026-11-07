@@ -771,7 +771,7 @@
     },
     {
       "kind": "doc",
-      "lines": 93,
+      "lines": 106,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
@@ -999,7 +999,7 @@
     },
     {
       "kind": "test",
-      "lines": 141,
+      "lines": 148,
       "path": "tests/test_baseline.py",
       "purpose": "Tests for baseline.py and `boinga baseline`: prompts file, PASS/FAIL rules, charset warning, players."
     },

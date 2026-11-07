@@ -91,3 +91,16 @@ follow-up), so nothing stopped the run.
 **Test added:** none new: tests/test_notebooks.py keeps the notebook in sync with the
 spec; tests/test_colab_runtime.py covers fail(); the re-run shows the cell's behaviour.
 **Commit:** fix(notebook): stop Run all when the C3.1 download fails
+
+## 2026-11-07 C3.6 pre-commit: test_repo_prompts_file_shape fails on the C3 run 2 prompts
+**Symptom:** Committing the C3 run 2 results, the pre-commit pytest failed:
+`tests/test_baseline.py::test_repo_prompts_file_shape` - `Left contains one more item:
+'_sources'` (local, working tree holding configs/baseline_prompts.json from run 2).
+**Root cause:** The C2 test pinned the file to exactly STD_1-3 + CTG_1-3 with CTG null;
+C3.6 (05e51ce) added `_sources` and fills CTG_1-3, but did not update this test (the
+committed file still had nulls, so it passed until the run-2 file arrived).
+**Fix:** The test accepts both states: CTG null without `_sources`, or CTG filled with
+`_sources` {CTG_k: digit clip id}; STD checks unchanged.
+**Test added:** the updated tests/test_baseline.py::test_repo_prompts_file_shape passes on
+the committed file and on the run-2 file.
+**Commit:** fix(baseline): accept filled dialect prompts in the prompts-file shape test
