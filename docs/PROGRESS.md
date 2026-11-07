@@ -216,15 +216,17 @@ Line counts are non-test estimates, excluding the generated map/notebook and PRO
   (fetch-data) and `C4.2a` in `notebooks/specs/c4_speaker.py`; DECISIONS "Speaker encoder";
   tests `tests/test_speaker_select.py` (fake encoder) (this commit)
   - [ ] C4.2a results: embeddings count from the verified run (C4.V)
-- [ ] C4.2b Cluster and rank (~120 lines): new `speaker_cluster.py`: L2-normalise,
-  agglomerative clustering (cosine, average linkage, fixed distance threshold), clusters
-  ranked by clean train hours, per-cluster hours by split, mean within-cluster cosine,
-  `sample_clips(cluster, n)`; -> Drive `speakers/clusters.csv` and
-  `reports/speaker_clusters.md` (top 10 table, emitted); `boinga cluster-speakers`.
-  Tests `tests/test_speaker_cluster.py`: 3 separated synthetic blobs -> 3 clusters with the
-  right sizes, ranking by hours, deterministic labels, report table, CLI.
-  Cells: `C4.2b` (`PASS: \d+ clusters`, `=== BEGIN reports/speaker_clusters.md ===`),
-  `C4.2b.play` (5 clips from each of the top 3 clusters)
+- [x] C4.2b code: `speaker_select.cluster(emb_dir, audit_df)`: sklearn
+  AgglomerativeClustering (cosine, average linkage) at thresholds 0.20-0.50 step 0.05 (tree
+  built once, cached), per threshold clusters / largest-cluster clean minutes / silhouette;
+  chosen = best silhouette among thresholds whose largest cluster has >= 30 clean min, else
+  most minutes; clusters ranked 1..K by clean minutes; labels -> Drive
+  `speaker_clusters.csv` (`paths.speaker_clusters()`); `reports/speaker_ranking.md`
+  (threshold table, top 20 clusters with train/val/test minutes and 5 seeded clip ids,
+  emitted); `candidates(n=3)`; `boinga cluster-speakers`; cell `C4.2b`; DECISIONS "Speaker
+  clustering"; tests `tests/test_speaker_cluster.py` (synthetic 2- and 3-voice embeddings)
+  (this commit). Listening to the top clusters is not in this subchunk (C4.3 play cell)
+  - [ ] C4.2b results: chosen threshold and cluster minutes from the verified run (C4.V)
 - [ ] C4.3 Training selection (~120 lines): `speaker_select.select(cluster|
   "mixed")` -> clean clips of that cluster in the official splits (test held out, incl.
   clips 386, 29, 625); `duplicate_text` recomputed on `ctg_text_model`, a text present in two

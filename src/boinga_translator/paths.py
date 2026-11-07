@@ -96,6 +96,11 @@ def speaker_emb() -> Path:
     return root() / "speaker_emb"
 
 
+def speaker_clusters() -> Path:
+    """Cluster label per clip (speaker_select.cluster), ranked 1..K by clean minutes."""
+    return root() / "speaker_clusters.csv"
+
+
 def best_ckpt() -> Path:
     return root() / "best"
 

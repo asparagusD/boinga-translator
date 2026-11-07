@@ -39,6 +39,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="put 3 held-out dialect lines into configs/baseline_prompts.json")
     sub.add_parser("embed-speakers",
                    help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
+    sub.add_parser("cluster-speakers",
+                   help="cluster the embeddings by voice into reports/speaker_ranking.md")
     return parser
 
 
@@ -64,6 +66,18 @@ def _embed_speakers() -> int:
         speaker_select.embed(data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV))
     except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
         print(f"FAIL: embed-speakers: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _cluster_speakers() -> int:
+    """Cluster the Drive speaker embeddings and rank the clusters; FAIL + exit 1 on error."""
+    try:
+        speaker_select.cluster(
+            paths.speaker_emb(),
+            data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV))
+    except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
+        print(f"FAIL: cluster-speakers: {type(exc).__name__}: {exc}")
         return 1
     return 0
 
@@ -178,6 +192,8 @@ def main(argv: list[str] | None = None) -> int:
         return _pick_baseline_ctg()
     elif args.command == "embed-speakers":
         return _embed_speakers()
+    elif args.command == "cluster-speakers":
+        return _cluster_speakers()
     return 0
 
 

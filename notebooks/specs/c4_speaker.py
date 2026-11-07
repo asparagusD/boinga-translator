@@ -25,5 +25,12 @@ NOTEBOOK = Notebook(
             if cli.main(["embed-speakers"]) != 0:
                 colab_runtime.fail("embed-speakers failed (see the FAIL line above)")
         """, expect=[r"PASS: \d+ embeddings"], gpu=True, timeout_min=60),
+        code("C4.2b", "Cluster voices", """
+            from boinga_translator import cli, colab_runtime
+
+            if cli.main(["cluster-speakers"]) != 0:
+                colab_runtime.fail("cluster-speakers failed (see the FAIL line above)")
+        """, expect=[r"PASS: ranked \d+ clusters",
+                     r"=== BEGIN reports/speaker_ranking.md ==="]),
     ],
 )

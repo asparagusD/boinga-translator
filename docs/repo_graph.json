@@ -387,6 +387,16 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/speaker_select.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/synth_basic.py",
       "target": "src/boinga_translator/settings.py"
     },
@@ -727,6 +737,26 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_speaker_cluster.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_cluster.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_cluster.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_speaker_cluster.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_speaker_select.py",
       "target": "src/boinga_translator/cli.py"
     },
@@ -923,13 +953,13 @@
     },
     {
       "kind": "doc",
-      "lines": 537,
+      "lines": 558,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 281,
+      "lines": 283,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -977,7 +1007,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 324,
+      "lines": 354,
       "path": "notebooks/runs/C4_speaker_run1.ipynb",
       "purpose": "C4 run 1 — C4 — training speaker"
     },
@@ -1019,13 +1049,13 @@
     },
     {
       "kind": "module",
-      "lines": 29,
+      "lines": 36,
       "path": "notebooks/specs/c4_speaker.py",
       "purpose": "Spec: C4 run 1, training speaker: embed every clean clip's speaker, then cluster and pick (T4)."
     },
     {
       "kind": "config",
-      "lines": 44,
+      "lines": 45,
       "path": "pyproject.toml",
       "purpose": ""
     },
@@ -1121,7 +1151,7 @@
     },
     {
       "kind": "module",
-      "lines": 185,
+      "lines": 201,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1157,7 +1187,7 @@
     },
     {
       "kind": "module",
-      "lines": 138,
+      "lines": 143,
       "path": "src/boinga_translator/paths.py",
       "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
     },
@@ -1181,9 +1211,9 @@
     },
     {
       "kind": "module",
-      "lines": 131,
+      "lines": 241,
       "path": "src/boinga_translator/speaker_select.py",
-      "purpose": "Speaker selection: one speaker embedding per clean clip (resemblyzer, cached per clip)."
+      "purpose": "Speaker selection: embed each clean clip's voice (cached per clip), cluster and rank voices."
     },
     {
       "kind": "module",
@@ -1340,6 +1370,12 @@
       "lines": 7,
       "path": "tests/test_smoke_import.py",
       "purpose": "Smoke test: the package imports and exposes a version."
+    },
+    {
+      "kind": "test",
+      "lines": 126,
+      "path": "tests/test_speaker_cluster.py",
+      "purpose": "Tests for speaker_select.cluster()/candidates() and `boinga cluster-speakers` on fake voices."
     },
     {
       "kind": "test",

@@ -535,3 +535,24 @@ may upgrade torch/torchaudio on that VM, so the fallback runs in its own runtime
 the one that trains. The cluster
 step (C4.2b) must read the marker and treat 256-dim (resemblyzer) and 192-dim (ECAPA)
 vectors alike. Model weights stay in the pip package / Drive, never in the repo.
+
+## 2026-11-07 — Speaker clustering: average-linkage cosine, threshold chosen by silhouette
+**Context:** C4.2b groups the clean clips' speaker embeddings (no speaker ids) into voices
+and ranks them, so C4.3 can train on one consistent voice. The right distance threshold
+for this corpus and encoder is unknown before the run.
+**Decision:** (C4.2b promptbook) scikit-learn AgglomerativeClustering, metric "cosine",
+linkage "average", on L2-normalised embeddings, at thresholds 0.20, 0.25, ..., 0.50. Per
+threshold: cluster count, clean minutes of the largest cluster, silhouette (cosine; NaN
+when every clip is alone or all are in one cluster). Chosen: the best silhouette among
+thresholds whose largest cluster has >= 30 clean minutes; if none does, the threshold
+whose largest cluster has the most minutes; ties go to the lower threshold. Clusters are
+ranked 1..K by clean minutes over all three splits (ties: first clip id); labels go to
+Drive `speaker_clusters.csv`, the table and the top 20 clusters (minutes per split, 5
+seeded clip ids each) to reports/speaker_ranking.md. The tree is built once per run
+(sklearn `memory` cache); 7,500 random 256-dim vectors took 9 s locally.
+**Alternatives:** one fixed threshold (the earlier plan; no evidence for a value); HDBSCAN
+or k-means (the promptbook fixes agglomerative); ranking by train minutes only (the
+ranking table shows train/val/test minutes, so C4.3 and Gate G3 can apply a train rule).
+**Consequences:** "Largest cluster minutes" counts val and test clips too; Gate G3 must
+check the train minutes of the chosen cluster. A high silhouette at a high threshold can
+still merge similar voices: listening to the top clusters (C4.3) decides, not the score.

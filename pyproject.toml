@@ -14,6 +14,7 @@ dependencies = [
     "numpy",
     "pandas",
     "tqdm",
+    "scikit-learn",  # speaker clustering (C4.2b); librosa already requires it
 ]
 
 [project.optional-dependencies]

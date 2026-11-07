@@ -1,8 +1,9 @@
-"""Speaker selection: one speaker embedding per clean clip (resemblyzer, cached per clip)."""
+"""Speaker selection: embed each clean clip's voice (cached per clip), cluster and rank voices."""
 
 from __future__ import annotations
 
 import os
+import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,11 +11,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from boinga_translator import audit_summary, paths
+from boinga_translator import audit_summary, paths, report_io, settings
 
 ENCODER_FILE = "encoder.txt"  # which encoder filled the cache: never mix two in one folder
 ERRORS_FILE = "errors.txt"
 MAX_FAIL_RATIO = 0.01
+THRESHOLDS = (0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50)  # cosine distance, average linkage
+MIN_MINUTES = 30.0  # the largest cluster must reach this for its silhouette to count
+RANKING_REL = "reports/speaker_ranking.md"
+TOP_IN_REPORT, IDS_PER_CLUSTER = 20, 5
 RESEMBLYZER = "resemblyzer-0.1.4"
 SB_SOURCE = "speechbrain/spkrec-ecapa-voxceleb"
 SB_RATE = 16_000  # the ECAPA model's rate; the corpus is 16 kHz mono (audit_summary.md)
@@ -129,3 +134,108 @@ def embed(audit_df: pd.DataFrame, cache_dir: Path | None = None,
     name = marker.read_text(encoding="utf-8").strip() if marker.exists() else "no encoder"
     print(f"PASS: {len(done)} embeddings ({name}, {len(failed)} failed)")
     return done.reset_index(drop=True)
+
+
+def _load(emb_dir: Path, audit_df: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarray]:
+    """Clean clips that have an embedding, in clip order, and their L2-normalised vectors."""
+    clean = audit_df[audit_summary.clean_mask(audit_df)]
+    have = {p.stem for p in emb_dir.glob("*.npy")}
+    meta = clean[clean["clip_id"].astype(str).isin(have)].sort_values("clip_id")
+    meta = meta[["clip_id", "split_official", "duration_s"]].reset_index(drop=True)
+    if len(meta) < 3:
+        raise ValueError(f"{len(meta)} clean clips with an embedding in {emb_dir}: clustering "
+                         "needs at least 3 (run `boinga embed-speakers` first)")
+    x = np.stack([np.load(emb_dir / f"{c}.npy").ravel() for c in meta["clip_id"]])
+    norm = np.linalg.norm(x, axis=1, keepdims=True)
+    if bad := list(meta["clip_id"][~(np.isfinite(norm[:, 0]) & (norm[:, 0] > 0))]):
+        raise ValueError(f"zero or non-finite embeddings for clips {bad[:5]}: delete their "
+                         f".npy in {emb_dir} and re-run `boinga embed-speakers`")
+    return meta, x / norm
+
+
+def _rank(meta: pd.DataFrame, raw: np.ndarray) -> np.ndarray:
+    """Relabel clusters 1..K by clean minutes (desc), ties by their first clip id."""
+    df = meta.assign(raw=raw)
+    order = (df.groupby("raw").agg(sec=("duration_s", "sum"), first=("clip_id", "min"))
+             .sort_values(["sec", "first"], ascending=[False, True]))
+    return df["raw"].map({r: i for i, r in enumerate(order.index, 1)}).to_numpy()
+
+
+def _sweep(x: np.ndarray, meta: pd.DataFrame) -> tuple[pd.DataFrame, dict[float, np.ndarray]]:
+    """Cluster at every threshold (the tree is built once, cached); one stats row each."""
+    from sklearn.cluster import AgglomerativeClustering
+    from sklearn.metrics import silhouette_score
+
+    rows, labels = [], {}
+    with tempfile.TemporaryDirectory() as cache:
+        for t in THRESHOLDS:
+            raw = AgglomerativeClustering(n_clusters=None, distance_threshold=t,
+                                          metric="cosine", linkage="average",
+                                          memory=cache).fit_predict(x)
+            labels[t] = _rank(meta, raw)
+            k = int(raw.max()) + 1
+            sil = silhouette_score(x, raw, metric="cosine") if 2 <= k < len(x) else np.nan
+            top = meta["duration_s"][labels[t] == 1].sum() / 60
+            rows.append({"threshold": t, "clusters": k, "largest_min": top, "silhouette": sil})
+    return pd.DataFrame(rows), labels
+
+
+def _choose(table: pd.DataFrame, min_minutes: float) -> float:
+    """Best silhouette where the largest cluster has >= min_minutes, else most minutes."""
+    ok = table[(table["largest_min"] >= min_minutes) & table["silhouette"].notna()]
+    if len(ok):  # idxmax keeps the first (lowest threshold) on ties
+        return float(ok.loc[ok["silhouette"].idxmax(), "threshold"])
+    return float(table.loc[table["largest_min"].idxmax(), "threshold"])
+
+
+def _render(table: pd.DataFrame, labels: pd.DataFrame, chosen: float, encoder: str,
+            min_minutes: float) -> str:
+    """reports/speaker_ranking.md: threshold table, then the top clusters by clean minutes."""
+    lines =["# Speaker clusters", "",
+             (f"Encoder: {encoder}. Clean clips with an embedding: {len(labels)}. "
+              f"Agglomerative clustering, cosine distance, average linkage. Chosen threshold "
+              f"{chosen:.2f}: best silhouette among thresholds whose largest cluster has "
+              f">= {min_minutes:g} clean minutes, else the one with the most."), "",
+             "| threshold | clusters | largest cluster min | silhouette | chosen |",
+             "|---|---|---|---|---|"]
+    lines += [f"| {r.threshold:.2f} | {r.clusters} | {r.largest_min:.2f} | {r.silhouette:.3f} "
+              f"| {'yes' if r.threshold == chosen else ''} |" for r in table.itertuples()]
+    lines += ["", f"## Clusters ranked by clean minutes (top {TOP_IN_REPORT})", "",
+              "| rank | clips | clean min | train min | val min | test min | clip ids |",
+              "|---|---|---|---|---|---|---|"]
+    for k, g in list(labels.groupby("cluster"))[:TOP_IN_REPORT]:
+        split = g.groupby("split_official")["duration_s"].sum() / 60
+        ids = g["clip_id"].sample(min(IDS_PER_CLUSTER, len(g)), random_state=settings.SEED)
+        lines.append(f"| {k} | {len(g)} | {g['duration_s'].sum() / 60:.2f} | "
+                     + " | ".join(f"{split.get(s, 0.0):.2f}" for s in ("train", "val", "test"))
+                     + f" | {', '.join(sorted(ids))} |")
+    rest = labels[labels["cluster"] > TOP_IN_REPORT]
+    if len(rest):
+        lines.append(f"\n{rest['cluster'].nunique()} more clusters: {len(rest)} clips, "
+                     f"{rest['duration_s'].sum() / 60:.2f} min.")
+    return "\n".join(lines) + "\n"
+
+
+def cluster(emb_dir: Path, audit_df: pd.DataFrame,
+            min_minutes: float = MIN_MINUTES) -> pd.DataFrame:
+    """Cluster voices over THRESHOLDS, keep the chosen one, save labels, write the ranking."""
+    meta, x = _load(emb_dir, audit_df)
+    table, all_labels = _sweep(x, meta)
+    chosen = _choose(table, min_minutes)
+    labels = meta.assign(cluster=all_labels[chosen], threshold=chosen)
+    labels = labels.sort_values(["cluster", "clip_id"]).reset_index(drop=True)
+    paths.speaker_clusters().parent.mkdir(parents=True, exist_ok=True)
+    labels.to_csv(paths.speaker_clusters(), index=False)
+    marker = emb_dir / ENCODER_FILE
+    encoder = marker.read_text(encoding="utf-8").strip() if marker.exists() else "unknown"
+    repo_path, _ = report_io.write_report(
+        _render(table, labels, chosen, encoder, min_minutes), RANKING_REL)
+    report_io.emit(repo_path, RANKING_REL)
+    print(f"PASS: ranked {labels['cluster'].nunique()} clusters (threshold {chosen:.2f})")
+    return labels
+
+
+def candidates(n: int = 3, labels_csv: Path | None = None) -> list[int]:
+    """The n clusters with the most clean minutes: cluster() already ranked them 1..K."""
+    df = pd.read_csv(labels_csv or paths.speaker_clusters(), dtype={"clip_id": str})
+    return [int(k) for k in sorted(df["cluster"].unique())[:n]]
