@@ -78,39 +78,29 @@ spec `notebooks/specs/c2_pretrained_baseline.py` ->
 `notebooks/runs/C2_pretrained-baseline_run1.ipynb`
 (T4). Every subchunk that adds cells rebuilds the notebook (pre-commit `--check`); only
 C2.H hands it over. Local tests never import torch/TTS (fakes only).
-- [x] C2.1 code: pretrained.fetch(voice) + `boinga fetch-pretrained --voice female|male|both`:
+- [x] C2.1 pretrained.fetch(voice) + `boinga fetch-pretrained --voice female|male|both`:
   coqui ModelManager, fallback to the pinned release zip (safe unzip); model.pth + config.json
-  cached in paths.pretrained()/<voice>/, skipped when present; cell C2.1 (runs in C2.H)
-  (commit hash in the C2.V entry)
-  Moved to C2.5: record bytes + sha256 of the cached files and pin them
-- [x] C2.2 code: pretrained.inspect(voice) + `boinga inspect-pretrained --voice both`:
-  config_facts() (audio, characters block, text front-end, speakers, absolute config paths),
-  checkpoint_facts() (top-level keys, params, `disc.` keys/params, step), charset table;
-  cell C2.2 -> configs/pretrained_facts.json, reports/pretrained_inspect.md,
-  reports/pretrained_charset_<voice>.txt (each emitted once)
-  Not covered (check in C2.5 from the report): text-embedding rows vs vocab size
-- [x] C2.3 synth_basic.py: set_seed(), load_synth() (coqui Synthesizer + pinned inference
-  scales, logs which were set), say() -> duration (local only, no cell);
-  out-of-charset check moves to C2.4a. C2.4a/C2.V: confirm on Colab that the synth log
-  sets all 3 scales, and whether say() durations include per-sentence padding (affects RTF)
-- [x] C2.4 code (one commit; the planned a/b split was merged):
-  configs/baseline_prompts.json (STD_1-3 standard Bangla, NFC; CTG_1-3 null until C3),
-  baseline.py + `boinga baseline --voice female|male|both` -> Drive
-  eval/baseline_smoke/<voice>/<key>.wav, per-wav duration + RMS dBFS, PASS if every wav
-  > 0.3 s and > -50 dBFS, WARN on characters outside the model charset; players()/play_all();
-  cells C2.4, C2.4.play, form C2.4-notes. Not done from the plan: reports/baseline.json and RTF
-  (the WARN/duration lines in the run digest cover G1)
-- [ ] C2.H hand-off: final build + `--check`, push branch, Colab link and form guide
-- [ ] C2.V verify run 1 with colab-verify; commit the run digest + saved reports.
-  Check C2.4 WARN lines: NFC stores য়/ড়/ঢ় as base + U+09BC (nukta); if the model charset
-  lacks U+09BC, plan a configs/char_map.json mapping (logged in DECISIONS) before C3
-- [ ] C2.5 Gate G1 verdict in DECISIONS.md (voice choice, GO/NO-GO); pin the release
-  zip sha256s in settings.py
+  cached in paths.pretrained()/<voice>/ (`7cc2d92`); results: both voices 997.77 MB, via
+  ModelManager (`6b4aa11`)
+- [x] C2.2 pretrained.inspect(voice) + `boinga inspect-pretrained --voice both` (`668da92`);
+  results: configs/pretrained_facts.json, reports/pretrained_inspect.md, charsets (`633a1f5`)
+- [x] C2.3 synth_basic.py: set_seed(), load_synth(), say() (`cf2728e`); Colab run confirmed
+  all 3 inference scales are set
+- [x] C2.4 baseline.py + `boinga baseline`, configs/baseline_prompts.json, cells C2.4,
+  C2.4.play, form C2.4-notes (`68ab521`); results: both voices intelligible (`abce7f8`).
+  Not done from the plan: reports/baseline.json and RTF
+- [x] C2.H hand-off: notebook already built and pushed in `68ab521` (no new commit)
+- [x] C2.V run 1 verified: 10/10 PASS, not stale; results commits `6b4aa11`, `633a1f5`,
+  `abce7f8`. Nukta (U+09BC) is in both charsets: no char_map needed for it
+- [x] C2.5 Gate G1: PASS (DECISIONS "Gate G1 — pretrained model"; this commit)
 
 ### C2 follow-ups
-- [ ] coqui's download_model may rewrite config.json paths (speakers/d_vector/stats) to
-  its temp folder. C2.2 now prints a WARN line per absolute config path; act on it in C2.V
-  (re-fetch from the release zip if any path matters)
+- [x] coqui temp-path rewrite: none seen; the 4 absolute config paths are the model
+  author's (/home/ansary/Shabab/...); the fine-tune config must override them (C4)
+- [ ] Record and pin sha256 of the cached model.pth/config.json (moved from C2.5)
+- [ ] C3 text front-end: check how coqui's tokenizer treats "।" (the EOS token, not in
+  characters/punctuations) and the "Initializing with English" language log
+- [ ] Choose the fine-tune voice by the corpus speaker (C3/C4); baseline quality is equal
 - [ ] `!boinga fetch-pretrained` exiting 1 does not stop Run all; once later cells depend on
   C2.1, call pretrained from Python and stop with colab_runtime.fail()
 - [ ] After C3: add held-out Chittagonian corpus lines (verbatim transcripts) to the

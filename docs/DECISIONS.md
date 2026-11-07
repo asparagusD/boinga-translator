@@ -187,3 +187,45 @@ speaker (C3/C4) rather than by baseline quality. The sentence-final danda
 baseline WARNed on it for STD_1 and STD_3; how coqui's tokenizer treats it
 is checked when the text front-end is built (C3). Durations may include
 coqui's per-sentence padding, so they are not used as throughput figures.
+
+## 2026-11-07 — Gate G1 — pretrained model
+**Context:** Before any fine-tuning, Gate G1 checks that the pretrained Bangla
+VITS checkpoints are usable for a Chittagonian fine-tune. Evidence: C2 run 1
+(`68ab521`, 10/10 cells PASS), configs/pretrained_facts.json,
+reports/pretrained_inspect.md, reports/notes/C2.4-notes.json.
+**Findings:**
+- Sample rate: female 22050 Hz, male 22050 Hz (fft 1024, hop 256, win 1024,
+  80 mels, fmin 0, fmax null). Our data must be resampled to 22050 Hz.
+- Text input: graphemes (`TTS.tts.utils.text.characters.Graphemes`),
+  `use_phonemes` false, `text_cleaner` null (no cleaner at all), `add_blank`
+  true, `enable_eos_bos_chars` false; pad `<PAD>`, blank `<BLNK>`, bos `<BOS>`,
+  eos `।`. Single speaker (`num_speakers` 0, no speaker embedding).
+- Discriminator: present in both checkpoints (111 `disc.` keys, 46,747,132
+  params of 83.05 M total). A normal warm-up applies; this does not make
+  Chunk F likelier.
+- Standard Bangla intelligible (user's form): female "yes", male "yes",
+  artefacts "none", voice quality "same".
+**Surprises vs the expectation** (a character-based single-speaker Apache-2.0
+VITS trained on IITM Bangla):
+- Matches: character (grapheme) input, single speaker, VITS. The licence comes
+  from the coqui registry entry; the training corpus cannot be confirmed from
+  the config (dataset paths are `bn_tts/{female,male}/mono` on the author's
+  machine, no corpus name).
+- No text cleaner: the model sees raw text, so our NFC is the only
+  normalisation, as the data rules want.
+- The EOS symbol `।` is not in characters/punctuations; tokenizer handling
+  to be checked in C3 (the baseline was intelligible either way).
+- Both charsets hold precomposed য়/ড়/ঢ় and the separate nukta U+09BC, so
+  NFC text is covered.
+- The two vocabularies differ: male adds U+200D (ZWJ), one extra embedding
+  row (192 params). Each voice must keep its own character set.
+- Checkpoints are about 1 GB each because they keep optimizer and grad-scaler
+  state; long training histories (female step 811000, male step 910000).
+- Configs carry the author's absolute paths (`output_path`, dataset paths,
+  `restore_path`); our fine-tune config must override them.
+**Decision:** G1: PASS. Both voices are usable; the fine-tune voice is chosen
+by fit to the corpus speaker in C3/C4.
+**Alternatives:** G1: FAIL -> Chunk F (MMS) was not needed.
+**Consequences:** C3 can build the data pipeline at 22050 Hz with grapheme
+input against the chosen voice's charset; any characters outside it go to
+configs/char_map.json with a DECISIONS entry.
