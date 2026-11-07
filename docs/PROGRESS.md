@@ -299,7 +299,10 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
   data_audit imports text_frontend (this commit). Narrower than the C5.0 plan, per the
   C5.2 promptbook: after-map text only, no per-split counts, no .json (add later if Gate G4
   needs them)
-- [ ] C5.H1 hand-off run 1
+- [x] C5.H1 hand-off run 1: `notebooks/runs/C5_text-frontend_run1.ipynb` (CPU) rebuilt,
+  unchanged since `86064cb`, pushed; link and save name
+  `colab_runs/C5_text-frontend_run1.ipynb` given; no forms; duration not measured (this
+  commit)
 - [ ] C5.V1 verify run 1
 - [ ] C5.3 `apply_char_map()` extracted from prepare() + configs/char_map.json entries for
   any unknown character run 1 finds (user approval; DECISIONS) (local)
