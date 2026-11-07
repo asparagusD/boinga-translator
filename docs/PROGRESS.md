@@ -149,7 +149,9 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
 - [x] C3.5 code: audit_summary.clean_mask/summarise/sample_clips + `boinga audit-summary`
   + cells C3.5, C3.5.play, form C3.5-notes -> reports/audit_summary.md (this commit;
   Colab result with C3.V2)
-- [ ] C3.6 dialect baseline prompts (CTG_1-3, verbatim held-out lines) + baseline re-run + cells
+- [x] C3.6 code: `boinga pick-baseline-ctg` (clean test-split clips, 5-12 words, least like
+  the Bangla) -> CTG_1-3 verbatim + _sources in configs/baseline_prompts.json; cells C3.6,
+  C3.6.play, form C3.6-notes (this commit; Colab result with C3.V2)
 - [ ] C3.H2 hand-off run 2
 - [ ] C3.V2 verify run 2
 - [ ] C3.7 Gate G2: data fit for fine-tuning (DECISIONS entry)

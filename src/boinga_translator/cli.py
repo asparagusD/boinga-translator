@@ -12,6 +12,7 @@ from boinga_translator import (
     data_audit,
     data_download,
     env_report,
+    paths,
     pretrained,
 )
 
@@ -33,7 +34,25 @@ def build_parser() -> argparse.ArgumentParser:
     # Gate G1 recorded no preferred voice (quality "same"), so the default is female.
     aud.add_argument("--voice", choices=pretrained.voices(), default="female")
     sub.add_parser("audit-summary", help="summarise audit.csv into reports/audit_summary.md")
+    sub.add_parser("pick-baseline-ctg",
+                   help="put 3 held-out dialect lines into configs/baseline_prompts.json")
     return parser
+
+
+def _pick_baseline_ctg() -> int:
+    """Pick CTG_1..3 from clean test clips and write them; FAIL + exit 1 on error."""
+    try:
+        picks = baseline.pick_ctg_prompts(
+            data_audit.read_audit(paths.drive_reports() / data_audit.AUDIT_CSV),
+            corpus.load_index())
+        for key, (clip_id, text) in picks.items():
+            print(f"{key} clip {clip_id}: {text}")
+        baseline.write_ctg_prompts(picks)
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: pick-baseline-ctg: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: picked {len(picks)} dialect prompts")
+    return 0
 
 
 def _audit_summary() -> int:
@@ -142,6 +161,8 @@ def main(argv: list[str] | None = None) -> int:
         return _audit(args.voice)
     elif args.command == "audit-summary":
         return _audit_summary()
+    elif args.command == "pick-baseline-ctg":
+        return _pick_baseline_ctg()
     return 0
 
 

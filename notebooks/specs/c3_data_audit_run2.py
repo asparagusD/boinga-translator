@@ -50,5 +50,26 @@ NOTEBOOK = Notebook(
             "SPEAKERS_HEARD": ["", "one", "a few (2-5)", "many"],
             "NOTES": "",
         }),
+        # Gate G1 recorded no preferred voice (quality "same"), so both voices read the lines.
+        # CPU synthesis: this run is gpu=False; a few prompts per voice take seconds each.
+        code("C3.6", "Pick dialect prompts and synthesise them", """
+            from boinga_translator import cli, colab_runtime
+
+            if cli.main(["pick-baseline-ctg"]) != 0:
+                colab_runtime.fail("pick-baseline-ctg failed (see the FAIL line above)")
+            if cli.main(["baseline", "--voice", "both"]) != 0:
+                colab_runtime.fail("baseline failed (see the FAIL line above)")
+        """, expect=[r"PASS: picked 3 dialect prompts", r"PASS: baseline female",
+                     r"PASS: baseline male", r"=== BEGIN configs/baseline_prompts.json ==="],
+             timeout_min=30),
+        code("C3.6.play", "Listen: pretrained voices on dialect text", """
+            from boinga_translator import baseline
+
+            baseline.play_all(prompts=baseline.load_prompts(prefix="CTG_"))
+        """, expect=[r"AUDIO female CTG_1", r"AUDIO male CTG_1"]),
+        form("C3.6-notes", "Your observations — baseline on dialect text", fields={
+            "HANDLES_DIALECT": ["", "well", "partly", "badly"],
+            "NOTES": "",
+        }),
     ],
 )

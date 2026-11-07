@@ -68,6 +68,11 @@
     {
       "kind": "notebook",
       "source": "notebooks/runs/C3_data-audit_run2.ipynb",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run2.ipynb",
       "target": "src/boinga_translator/cli.py"
     },
     {
@@ -104,6 +109,11 @@
       "kind": "import",
       "source": "notebooks/specs/c3_data_audit_run1.py",
       "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c3_data_audit_run2.py",
+      "target": "configs/baseline_prompts.json"
     },
     {
       "kind": "import",
@@ -143,7 +153,17 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
       "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/corpus.py"
     },
     {
       "kind": "import",
@@ -158,7 +178,22 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
       "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/cli.py",
+      "target": "configs/baseline_prompts.json"
     },
     {
       "kind": "import",
@@ -194,6 +229,11 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "import",
@@ -343,6 +383,36 @@
     {
       "kind": "test",
       "source": "tests/test_baseline.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "configs/baseline_prompts.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_baseline_ctg.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -707,13 +777,13 @@
     },
     {
       "kind": "doc",
-      "lines": 312,
+      "lines": 330,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 188,
+      "lines": 190,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -749,7 +819,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 450,
+      "lines": 540,
       "path": "notebooks/runs/C3_data-audit_run2.ipynb",
       "purpose": "C3 run 2 — Index, audit, summary"
     },
@@ -779,7 +849,7 @@
     },
     {
       "kind": "module",
-      "lines": 54,
+      "lines": 75,
       "path": "notebooks/specs/c3_data_audit_run2.py",
       "purpose": "Spec: C3 run 2, Chittagonian corpus: index, audit and summary (CPU)."
     },
@@ -845,13 +915,13 @@
     },
     {
       "kind": "module",
-      "lines": 96,
+      "lines": 155,
       "path": "src/boinga_translator/baseline.py",
       "purpose": "Baseline smoke synthesis: pretrained voices read configs/baseline_prompts.json for listening."
     },
     {
       "kind": "module",
-      "lines": 149,
+      "lines": 170,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -932,6 +1002,12 @@
       "lines": 141,
       "path": "tests/test_baseline.py",
       "purpose": "Tests for baseline.py and `boinga baseline`: prompts file, PASS/FAIL rules, charset warning, players."
+    },
+    {
+      "kind": "test",
+      "lines": 116,
+      "path": "tests/test_baseline_ctg.py",
+      "purpose": "Tests for baseline.pick_ctg_prompts/write_ctg_prompts and `boinga pick-baseline-ctg`."
     },
     {
       "kind": "test",

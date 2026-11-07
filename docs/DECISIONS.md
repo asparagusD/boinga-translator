@@ -310,3 +310,21 @@ explained); pairing by transcript length alone (not unique).
 row, a stem appears in two splits, a wav name is not a number, a split folder is
 missing, or a row with a wav has no dialect text. The C3.5 listening check is the
 final confirmation (clip audio vs its transcript).
+
+## 2026-11-07 — Dialect baseline prompts: 3 held-out test-split lines, least like Bangla
+**Context:** DECISIONS "Baseline prompts" planned verbatim held-out Chittagonian lines
+for CTG_1-3 once the corpus was in (C3.6).
+**Decision:** `boinga pick-baseline-ctg` takes clips that pass `audit_summary.clean_mask`
+and have `split_official == "test"`, prefers 5-12 words, and ranks by
+`difflib` similarity of `ctg_text_nfc` to the normalised `Standard Bangla` text, lowest
+first (ties: seeded shuffle, `settings.SEED`). CTG_1-3 hold the raw `ctg_text` verbatim
+(not NFC; outer/inner spaces kept); `_sources` in configs/baseline_prompts.json records
+their clip ids. Local preview on the real text (no audit): 478 test clips with 5-12
+words, similarity median 0.77; the lowest were 0.19, 0.31, 0.35.
+**Alternatives:** random test lines (often near-standard Bangla, a weak dialect probe);
+user-written lines (unverified against the corpus); NFC text (closer to the training
+input, but the prompt rule asks for the transcript as published).
+**Consequences:** The `_sources` clips are evaluation prompts: C4 must keep the official
+test split out of training (dialect-data-rules: the test split is never trained on).
+Re-running the pick after the audit changes may choose other lines; `_sources` shows
+which ones a baseline used.
