@@ -202,6 +202,21 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C8_finetune_run1.ipynb",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_finetune_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_finetune_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C8_timing_run1.ipynb",
       "target": "src/boinga_translator/cli.py"
     },
@@ -308,6 +323,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c7_train_runner.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c8_finetune_run1.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -1682,7 +1702,7 @@
     },
     {
       "kind": "doc",
-      "lines": 687,
+      "lines": 692,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1766,6 +1786,12 @@
     },
     {
       "kind": "notebook",
+      "lines": 644,
+      "path": "notebooks/runs/C8_finetune_run1.ipynb",
+      "purpose": "C8 run 1 — C8 run 1 — fine-tune"
+    },
+    {
+      "kind": "notebook",
       "lines": 577,
       "path": "notebooks/runs/C8_timing_run1.ipynb",
       "purpose": "C8 run 1 — C8 — timing at batch 32 (RTX PRO 6000)"
@@ -1841,6 +1867,12 @@
       "lines": 110,
       "path": "notebooks/specs/c7_train_runner.py",
       "purpose": "Spec: C7 run 1, training runner: prepared data, fine-tune config, loader, smoke and resume (T4)."
+    },
+    {
+      "kind": "module",
+      "lines": 110,
+      "path": "notebooks/specs/c8_finetune_run1.py",
+      "purpose": "Spec: C8 run 1, full fine-tune of run1 to its step budget, then sample, rank and listen."
     },
     {
       "kind": "module",

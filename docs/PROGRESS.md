@@ -637,10 +637,15 @@ estimates, excluding the generated map/notebook and PROGRESS.
   Milestone copies (C8 plan) not in this subchunk: C8.2c
 - [ ] C8.2c milestone copies: keep a model + config copy per sampled milestone on Drive (coqui
   keeps only the last 2 checkpoints + best), so any sampled step can be promoted
-- [ ] C8.3 run-1 notebook: `train_runner.train_milestones(run)` (one `boinga train` subprocess
-  per milestone, then sample; idempotent); spec cells: restore data, clean smoke + Drive space
-  check, build-config + validate, loader check, train + sample, throughput, candidates, play,
-  listening form (BEST_STEP + verdict), promote on verdict. ~50 lines + spec
+- [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
+  (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on
+  `paths.run_dir('run1')`, optional), C8.train (`boinga train --run run1`, RUN_BUDGETS 36,500,
+  timeout 360 min, forbids "Partial model initialization"), C8.thr (throughput of run1),
+  C8.sample, C8.cand, C8.play
+  (`ckpt_sampler.players`), form C8-notes (BEST_STEP, VERDICT, CLEARER_THAN_PRETRAINED,
+  MORE_CHITTAGONIAN_THAN_PRETRAINED, ARTEFACTS, NOTES), an md() before each cell (this commit).
+  One `boinga train` to the budget (no milestone segments): C8.sample sees only the last 2
+  checkpoints + best; earlier steps need C8.2c
 - [ ] C8.H hand-off run 1 (link, GPU, measured-basis duration, form fields, save name)
 - [ ] C8.V verify run 1 (colab-verify): record losses, candidates, BEST_STEP and verdict;
   decide promote vs second run (DECISIONS "Run 1 verdict")
