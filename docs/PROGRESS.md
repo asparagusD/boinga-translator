@@ -387,6 +387,10 @@ the generated map/notebook and PROGRESS.
   formatter keeps it); spec `notebooks/specs/c6_prepare.py` (cell C6.3, CPU) ->
   `notebooks/runs/C6_prepare_run1.ipynb`. DECISIONS "Training manifests". Tests in
   `tests/test_prepare.py` (fake loader) (this commit). Confirmed on Colab in C6.V
+  - [x] C6.3 results: C6 run 1 (93d9796): coqui-tts 0.28.0 load_tts_samples parsed
+    6,415 train / 338 val (+ 753 test) samples, every audio file present, text equal to
+    the manifests; first sample text ends with "\n" as the source read predicted
+    (this commit)
 - [x] C6.4 code (one subchunk per the C6.4 promptbook; replaces the planned C6.4a/b):
   `prepare.build(workers=2)` + `boinga prepare [--workers N]`: corpus index, C4 selection
   (sha-checked) minus char_map-excluded rows, target_sample_rate(); make_splits +
@@ -420,7 +424,10 @@ the generated map/notebook and PROGRESS.
   since `f3564b5`, `--all --check` clean, pushed; link and save name
   `colab_runs/C6_prepare_run1.ipynb` given; no forms (listening reported in chat);
   duration not measured (estimate 10-30 min) (this commit)
-- [ ] C6.V verify (colab-verify): results into PROGRESS/DECISIONS
+- [x] C6.V verify (colab-verify): run 1 attempt 1 (1a9b636) FAIL in C6.4 (pandas 2
+  KeyError, fixed `93d9796`); attempt 2: 9/9 PASS at `93d9796` (notebook built in
+  `f3564b5`), not stale; results `00fd048` (C6.4) and this commit (C6.3). Listening:
+  5 clips played, the user's verdict on cut-offs is still to come in chat
 
 ## C7
 - [ ] C7.x (subchunks not yet defined)
