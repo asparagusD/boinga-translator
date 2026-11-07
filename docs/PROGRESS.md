@@ -139,7 +139,8 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
 - [x] C3.3 code: corpus.load_index() + `boinga index` + run-2 spec (cells C3.2.fetch, C3.3);
   wav stem = Excel row (DECISIONS "Corpus row <-> wav mapping"); 8,009 rows, 8,004 with
   audio (this commit; Colab result with C3.V2)
-- [ ] C3.4a data_audit.audio_stats() (local)
+- [x] C3.4a data_audit.audio_stats() (local): format, duration, peak, clip_ratio, rms_db,
+  lead/trail silence (librosa trim, top_db 40) (this commit)
 - [ ] C3.4b data_audit.text_stats() (local)
 - [ ] C3.4c data_audit.audit() over the corpus + cell
 - [ ] C3.5 data_audit.summarise() + cells + listening form

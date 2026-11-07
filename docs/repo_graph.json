@@ -297,6 +297,11 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_data_audit.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_data_download.py",
       "target": "src/boinga_translator/cli.py"
     },
@@ -623,7 +628,7 @@
     },
     {
       "kind": "doc",
-      "lines": 182,
+      "lines": 183,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -773,6 +778,12 @@
     },
     {
       "kind": "module",
+      "lines": 63,
+      "path": "src/boinga_translator/data_audit.py",
+      "purpose": "Corpus audit: per-clip audio stats (format, level, clipping, edge silence) for exclusion rules."
+    },
+    {
+      "kind": "module",
       "lines": 143,
       "path": "src/boinga_translator/data_download.py",
       "purpose": "Corpus download: stream the pinned zip to Drive, check size + sha256, unzip once, copy to fast."
@@ -842,6 +853,12 @@
       "lines": 160,
       "path": "tests/test_corpus.py",
       "purpose": "Tests for corpus.py and `boinga index`: row<->wav mapping, splits, verbatim text, errors."
+    },
+    {
+      "kind": "test",
+      "lines": 126,
+      "path": "tests/test_data_audit.py",
+      "purpose": "Tests for data_audit.py: audio_stats on synthetic wavs (silence, clipping, stereo, 8 kHz, bad)."
     },
     {
       "kind": "test",
