@@ -116,8 +116,28 @@ C2.H hands it over. Local tests never import torch/TTS (fakes only).
 - [ ] After C3: add held-out Chittagonian corpus lines (verbatim transcripts) to the
   baseline prompts and re-run the pretrained baseline on them
 
-## C3
-- [ ] C3.x (subchunks not yet defined)
+## C3 — Chittagonian corpus download and audit
+Branch `chunk/C3-data-audit`. Two notebooks, one per run: run 1 records the real
+corpus layout, run 2 is written against it. Local tests use tiny synthetic data only.
+
+Run 1 (spec `notebooks/specs/c3_data_audit_run1.py`, CPU):
+- [ ] C3.1 data_download.fetch() + `boinga fetch-data` + cell: zip to Drive with Range resume,
+  size + sha256 check, one-time unzip on Drive, per-VM copy to the fast disk
+- [ ] C3.2 tools/inspect_layout.py + cell: tree, file types, table heads, audio headers
+  -> reports/data_layout.md
+- [ ] C3.H1 hand-off run 1
+- [ ] C3.V1 verify run 1 (records the real layout in reports/data_layout.md)
+
+Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
+- [ ] C3.3 corpus.load_index() for the recorded layout + cell
+- [ ] C3.4a data_audit.audio_stats() (local)
+- [ ] C3.4b data_audit.text_stats() (local)
+- [ ] C3.4c data_audit.audit() over the corpus + cell
+- [ ] C3.5 data_audit.summarise() + cells + listening form
+- [ ] C3.6 dialect baseline prompts (CTG_1-3, verbatim held-out lines) + baseline re-run + cells
+- [ ] C3.H2 hand-off run 2
+- [ ] C3.V2 verify run 2
+- [ ] C3.7 Gate G2: data fit for fine-tuning (DECISIONS entry)
 
 ## C4
 - [ ] C4.x (subchunks not yet defined)
