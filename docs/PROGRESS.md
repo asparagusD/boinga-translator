@@ -496,8 +496,15 @@ map/notebook and PROGRESS.
   format_batch + format_batch_on_device (spec/mel); `judge_batch()`: per tensor shape/dtype,
   token ids vs the text-embedding rows, token lengths, clip seconds, NaN/inf counts; "PASS:
   loader ok" or "FAIL: loader <reason>". Cell C7.2. Tests `tests/test_train_runner.py`
-  (numpy batches, torch ones via importorskip, fake coqui modules) (this commit). Results:
-  C7 run 1
+  (numpy batches, torch ones via importorskip, fake coqui modules) (`4c24b7a`).
+  - [x] C7.2 results: C7 run 1 (87c0470, NVIDIA RTX PRO 6000, not a T4): signature
+    `get_data_loader(config, *, is_eval, samples, verbose)` as expected; 6,415 train / 338
+    eval samples; batch 16 x 29 tokens, ids 0..86 of vocab 87; 0.78-0.97 s clips; spec
+    (16, 513, 83), mel (16, 80, 83), no NaN/inf; first batch 3.74 s; "PASS: loader ok".
+    coqui warns "Character '
+' not found in the vocabulary. Discarding it." (the
+    ljspeech formatter keeps the line's trailing "
+", C6.3): harmless (this commit)
 - [x] C7.3a code: `train_runner.run(run_name, max_steps=None)` + `boinga train --run NAME
   [--max-steps N]`: train_config.build, VitsConfig, `Vits(config)`, load_tts_samples, coqui
   Trainer with `TrainerArgs(restore_path=base_dir()/model.pth)`, `parse_command_line_args=

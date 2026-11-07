@@ -286,11 +286,6 @@
       "target": "tools/nbkit.py"
     },
     {
-      "kind": "config",
-      "source": "notebooks/specs/c7_train_runner.py",
-      "target": "configs/vits_ctg_finetune.json"
-    },
-    {
       "kind": "import",
       "source": "notebooks/specs/c7_train_runner.py",
       "target": "tools/nbkit.py"
@@ -374,11 +369,6 @@
       "kind": "config",
       "source": "src/boinga_translator/cli.py",
       "target": "configs/speaker_selection.json"
-    },
-    {
-      "kind": "config",
-      "source": "src/boinga_translator/cli.py",
-      "target": "configs/vits_ctg_finetune.json"
     },
     {
       "kind": "import",
@@ -694,11 +684,6 @@
       "kind": "import",
       "source": "src/boinga_translator/text_oov.py",
       "target": "src/boinga_translator/text_frontend.py"
-    },
-    {
-      "kind": "config",
-      "source": "src/boinga_translator/train_config.py",
-      "target": "configs/vits_ctg_finetune.json"
     },
     {
       "kind": "import",
@@ -1441,11 +1426,6 @@
       "target": "src/boinga_translator/report_io.py"
     },
     {
-      "kind": "config",
-      "source": "tools/validate_config.py",
-      "target": "configs/vits_ctg_finetune.json"
-    },
-    {
       "kind": "import",
       "source": "tools/validate_config.py",
       "target": "src/boinga_translator/paths.py"
@@ -1578,12 +1558,6 @@
       "purpose": ""
     },
     {
-      "kind": "config",
-      "lines": 265,
-      "path": "configs/vits_ctg_finetune.json",
-      "purpose": ""
-    },
-    {
       "kind": "doc",
       "lines": 137,
       "path": "docs/DEBUG_LOG.md",
@@ -1597,7 +1571,7 @@
     },
     {
       "kind": "doc",
-      "lines": 567,
+      "lines": 574,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1828,12 +1802,6 @@
       "lines": 582,
       "path": "reports/colab_runs/C7_train-runner_run1.md",
       "purpose": "Colab run C7 run 1 — C7 — training runner and smoke test"
-    },
-    {
-      "kind": "doc",
-      "lines": 29,
-      "path": "reports/config_overrides.md",
-      "purpose": "Fine-tune config overrides"
     },
     {
       "kind": "config",
