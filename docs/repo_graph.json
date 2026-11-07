@@ -233,11 +233,6 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/baseline.py",
-      "target": "src/boinga_translator/corpus.py"
-    },
-    {
-      "kind": "import",
-      "source": "src/boinga_translator/baseline.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -344,6 +339,11 @@
       "kind": "import",
       "source": "src/boinga_translator/corpus.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/corpus.py",
+      "target": "src/boinga_translator/text_frontend.py"
     },
     {
       "kind": "import",
@@ -459,11 +459,6 @@
       "kind": "config",
       "source": "src/boinga_translator/text_frontend.py",
       "target": "configs/char_map.json"
-    },
-    {
-      "kind": "import",
-      "source": "src/boinga_translator/text_frontend.py",
-      "target": "src/boinga_translator/corpus.py"
     },
     {
       "kind": "import",
@@ -866,6 +861,11 @@
       "target": "src/boinga_translator/synth_basic.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_text_frontend.py",
+      "target": "configs/char_map.json"
+    },
+    {
       "kind": "test",
       "source": "tests/test_text_frontend.py",
       "target": "src/boinga_translator/data_audit.py"
@@ -1045,7 +1045,7 @@
     },
     {
       "kind": "doc",
-      "lines": 331,
+      "lines": 332,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1267,7 +1267,7 @@
     },
     {
       "kind": "module",
-      "lines": 157,
+      "lines": 156,
       "path": "src/boinga_translator/baseline.py",
       "purpose": "Baseline smoke synthesis: pretrained voices read configs/baseline_prompts.json for listening."
     },
@@ -1285,7 +1285,7 @@
     },
     {
       "kind": "module",
-      "lines": 118,
+      "lines": 111,
       "path": "src/boinga_translator/corpus.py",
       "purpose": "Corpus index: one row per spreadsheet line with its wav, dialect text, translation and split."
     },
@@ -1345,9 +1345,9 @@
     },
     {
       "kind": "module",
-      "lines": 69,
+      "lines": 83,
       "path": "src/boinga_translator/text_frontend.py",
-      "purpose": "Text front-end: NFC + configs/char_map.json for every text the model sees (train and infer)."
+      "purpose": "Text front-end: NFC-only normalise() plus configs/char_map.json for every text the model sees."
     },
     {
       "kind": "test",
@@ -1399,7 +1399,7 @@
     },
     {
       "kind": "test",
-      "lines": 162,
+      "lines": 157,
       "path": "tests/test_corpus.py",
       "purpose": "Tests for corpus.py and `boinga index`: row<->wav mapping, splits, verbatim text, errors."
     },
@@ -1519,9 +1519,9 @@
     },
     {
       "kind": "test",
-      "lines": 64,
+      "lines": 118,
       "path": "tests/test_text_frontend.py",
-      "purpose": "Tests for text_frontend.py: char_map application, row exclusion and idempotence."
+      "purpose": "Tests for text_frontend.py: NFC-only normalise(), char_map application, row exclusion."
     },
     {
       "kind": "tool",

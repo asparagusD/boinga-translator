@@ -15,7 +15,6 @@ import soundfile as sf
 from boinga_translator import (
     audit_summary,
     colab_runtime,
-    corpus,
     paths,
     pretrained,
     report_io,
@@ -44,7 +43,7 @@ CTG_WORDS = (5, 12)  # preferred word count of a dialect prompt
 
 def bangla_similarity(ctg_nfc: str, bn_text: str) -> float:
     """difflib ratio of the dialect line to its Standard Bangla translation (low = dialectal)."""
-    return difflib.SequenceMatcher(None, ctg_nfc, corpus.normalise_text(bn_text)).ratio()
+    return difflib.SequenceMatcher(None, ctg_nfc, text_frontend.normalise(bn_text)).ratio()
 
 
 def pick_ctg_prompts(audit_df: pd.DataFrame, index_df: pd.DataFrame,

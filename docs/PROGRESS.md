@@ -283,9 +283,10 @@ Branch `chunk/C5-text-frontend`. Builds on C3.8 (text_frontend.prepare/excluded,
 configs/char_map.json, already approved). Two CPU notebooks: run 1 = OOV report on the C4
 selection against the base voice (male), run 2 = coqui tokenizer check. Local tests use
 synthetic text, fake charsets and a fake tokenizer (coqui is not installed locally).
-- [ ] C5.1 `text_frontend.normalise()` (local): move NFC + collapse + strip from
+- [x] C5.1 `text_frontend.normalise()` (local): NFC + collapse + strip moved from
   `corpus.normalise_text` into text_frontend (single home; corpus and baseline call it),
-  behaviour unchanged, so audit charset_id/map digest stay valid
+  behaviour unchanged, so audit charset_id/map digest stay valid; tests pin what Python's
+  NFC does (U+09DC -> U+09A1 U+09BC; U+09A1 U+09BC unchanged) (this commit)
 - [ ] C5.2 `text_frontend.oov_report()` + `boinga oov` + cell C5.2 (spec
   `notebooks/specs/c5_text_frontend_run1.py`, CPU): selected clips only (configs/
   speaker_selection.json, csv_sha256 checked against the Drive CSV), base-voice charset,
