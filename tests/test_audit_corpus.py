@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from boinga_translator import cli, corpus, data_audit, paths
+from boinga_translator import audit_summary, cli, corpus, data_audit, paths, text_frontend
 from test_corpus import ROWS, _corpus  # tiny fake corpus in the real layout
 
 VOICE = "female"
@@ -86,22 +86,57 @@ def test_rows_whose_text_or_wav_changed_are_redone(
     assert df["clip_id"].is_unique and len(df) == len(changed)
 
 
-def test_other_voice_redoes_rows_with_its_own_charset(
+def test_other_voice_or_char_map_redoes_rows(
         index: pd.DataFrame, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Female lacks ZWJ (U+200D), male has it: female stats must not be reused for male."""
-    zwj = index.copy()
-    zwj.loc[zwj["clip_id"] == "2", "ctg_text_nfc"] = "র‍্য"
+    """Stats depend on the voice's charset and on the char map: either change -> redo."""
     out = tmp_path / "audit.csv"
-    female = data_audit.audit(zwj, "female", out, processes=1).set_index("clip_id")
-    assert "‍" in female.loc["2", "chars_not_in_model"]
+    female = data_audit.audit(index, "female", out, processes=1)
     seen = _spy(monkeypatch)
-    male = data_audit.audit(zwj, "male", out, processes=1).set_index("clip_id")
+    male = data_audit.audit(index, "male", out, processes=1)
     assert sorted(seen) == ["2", "3", "4", "5", "6"]
-    assert "‍" not in male.loc["2", "chars_not_in_model"]
     assert male["charset_id"].str.startswith("male-").all()
+    assert set(male["charset_id"]) != set(female["charset_id"])
     seen.clear()
-    data_audit.audit(zwj, "male", out, processes=1)
-    assert seen == []  # same voice again: nothing redone
+    data_audit.audit(index, "male", out, processes=1)
+    assert seen == []  # same voice and map again: nothing redone
+    other = text_frontend.CharMap((("ক", "খ"),), frozenset("#"))
+    monkeypatch.setattr(text_frontend, "default_char_map", lambda: other)
+    data_audit.audit(index, "male", out, processes=1)
+    assert sorted(seen) == ["2", "3", "4", "5", "6"]  # new map: every row redone
+
+
+def test_parts_from_an_older_audit_are_redone_not_crashed_on(
+        index: pd.DataFrame, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Run-2 parts on Drive lack ctg_text_model/excluded_char and use the old charset_id."""
+    parts = tmp_path / "audit.parts"
+    parts.mkdir()
+    old_cols = [c for c in data_audit._PART_COLS if c not in ("ctg_text_model", "excluded_char")]
+    old = pd.DataFrame([{**dict.fromkeys(old_cols, ""), "clip_id": cid, "charset_id": "female-abc",
+                         "ctg_text_nfc": text, "wav_path": wav, "decodable": "True"}
+                        for cid, text, wav in zip(index["clip_id"], index["ctg_text_nfc"],
+                                                  index["wav_path"].fillna(""), strict=True)])
+    old.to_csv(parts / "part-00000.csv", index=False)
+    seen = _spy(monkeypatch)
+    df = data_audit.audit(index, VOICE, tmp_path / "audit.csv", processes=1)
+    assert sorted(seen) == ["2", "3", "4", "5", "6"]  # all stale: redone, no KeyError
+    assert (df["ctg_text_model"] != "").sum() == 5
+
+
+def test_summary_of_a_pre_char_map_audit_says_rerun(index: pd.DataFrame, tmp_path: Path) -> None:
+    df = data_audit.audit(index, VOICE, tmp_path / "audit.csv", processes=1)
+    with pytest.raises(ValueError, match="re-run `boinga audit`"):
+        audit_summary.exclusion_reasons(df.drop(columns=["excluded_char"]))
+
+
+def test_stats_are_on_the_mapped_text(index: pd.DataFrame, tmp_path: Path) -> None:
+    rows = index.copy()
+    rows.loc[rows["clip_id"] == "2", "ctg_text_nfc"] = "দু’রাত (আর) গেলাম।"
+    rows.loc[rows["clip_id"] == "3", "ctg_text_nfc"] = "২০১৯ সালর কথা।"
+    df = data_audit.audit(rows, "female", tmp_path / "audit.csv", processes=1)
+    by = df.set_index("clip_id")
+    assert by.loc["2", "ctg_text_model"] == "দু’রাত আর গেলাম."
+    assert by.loc["2", "chars_not_in_model"] == "" and not by.loc["2", "excluded_char"]
+    assert by.loc["3", "excluded_char"] and by.loc["3", "has_digits"]
 
 
 def test_audit_fails_when_a_result_is_missing(

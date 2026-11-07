@@ -16,7 +16,7 @@ import pandas as pd
 import soundfile as sf
 from tqdm import tqdm
 
-from boinga_translator import paths
+from boinga_translator import paths, text_frontend
 
 CLIP_LEVEL = 0.999  # |sample| at or above this counts as clipped
 # librosa.effects.trim: below peak - 40 dB counts as silence. Its centred 2048-sample frames
@@ -116,12 +116,17 @@ def text_stats(text: str, charset: frozenset[str] | set[str]) -> dict[str, Any]:
 
 AUDIT_CSV = "audit.csv"
 _KEY_COLS = ("clip_id", "wav_path", "ctg_text_nfc", "charset_id")  # stale if any changed
-_PART_COLS = (*_KEY_COLS, *AUDIO_KEYS, *TEXT_KEYS, "chars_per_second")
-AUDIT_COLS = ("clip_id", "split_official", "wav_path", "ctg_text_nfc", "charset_id", *AUDIO_KEYS,
-              *TEXT_KEYS, "chars_per_second", "duplicate_text")
-_BOOL_COLS = ("decodable", "empty", "has_latin", "has_digits", "duplicate_text")
-_TEXT_COLS = ("clip_id", "split_official", "wav_path", "ctg_text_nfc", "charset_id", "error",
-              "subtype", "chars_not_in_model", "speaker_id")  # missing -> "" (no split/error)
+# Text stats are measured on ctg_text_model = text_frontend.prepare(ctg_text_nfc), the text
+# the model reads (DECISIONS "Character map"); excluded_char marks rows dropped by the map.
+_PART_COLS = (*_KEY_COLS, "ctg_text_model", *AUDIO_KEYS, *TEXT_KEYS, "chars_per_second",
+              "excluded_char")
+AUDIT_COLS = ("clip_id", "split_official", "wav_path", "ctg_text_nfc", "ctg_text_model",
+              "charset_id", *AUDIO_KEYS, *TEXT_KEYS, "chars_per_second", "excluded_char",
+              "duplicate_text")
+_BOOL_COLS = ("decodable", "empty", "has_latin", "has_digits", "excluded_char", "duplicate_text")
+_TEXT_COLS = ("clip_id", "split_official", "wav_path", "ctg_text_nfc", "ctg_text_model",
+              "charset_id", "error", "subtype", "chars_not_in_model",
+              "speaker_id")  # missing -> "" (no split/error)
 _BATCH = 200  # rows per part file (a dropped session loses at most one unwritten batch)
 
 
@@ -134,23 +139,29 @@ def chars_per_second(text: str, duration: float | None, lead: float | None,
     return sum(not c.isspace() for c in text) / speech if speech > 0 else None
 
 
-def charset_id(voice: str, charset: frozenset[str]) -> str:
-    """Voice name + short hash of its charset: text stats are only valid for this charset."""
+def charset_id(voice: str, charset: frozenset[str],
+               cmap: text_frontend.CharMap | None = None) -> str:
+    """Voice + short hash of its charset and the char map: stats are valid only for both."""
     digest = hashlib.sha256("".join(sorted(charset)).encode("utf-8")).hexdigest()[:10]
-    return f"{voice}-{digest}"
+    return f"{voice}-{digest}-{text_frontend.map_digest(cmap)}"
 
 
-def _audit_one(job: tuple[str, str, str, frozenset[str], str]) -> dict[str, Any]:
+AuditJob = tuple[str, str, str, frozenset[str], str, text_frontend.CharMap]
+
+
+def _audit_one(job: AuditJob) -> dict[str, Any]:
     """Pool worker: audio + text stats for one index row (module level so it pickles)."""
-    clip_id, wav_path, text, charset, cs_id = job
+    clip_id, wav_path, text, charset, cs_id, cmap = job
     audio = audio_stats(wav_path) if wav_path else {**dict.fromkeys(AUDIO_KEYS),
                                                    "decodable": False, "error": "no wav file"}
-    stats = text_stats(text, charset)
+    model_text = text_frontend.prepare(text, cmap)
+    stats = text_stats(model_text, charset)
     stats["chars_not_in_model"] = "".join(stats["chars_not_in_model"])
-    cps = chars_per_second(text, audio["duration_s"], audio["lead_silence_s"],
+    cps = chars_per_second(model_text, audio["duration_s"], audio["lead_silence_s"],
                            audio["trail_silence_s"])
     return {"clip_id": clip_id, "wav_path": wav_path, "ctg_text_nfc": text, "charset_id": cs_id,
-            **audio, **stats, "chars_per_second": cps}
+            "ctg_text_model": model_text, **audio, **stats, "chars_per_second": cps,
+            "excluded_char": text_frontend.excluded(text, cmap)}
 
 
 def _typed(df: pd.DataFrame) -> pd.DataFrame:
@@ -158,7 +169,7 @@ def _typed(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     for col in df.columns:
         if col in _TEXT_COLS:
-            df[col] = df[col].fillna("").astype(str)
+            df[col] = df[col].astype("string").fillna("").astype(str)  # all-NaN cols too
         elif col in _BOOL_COLS:
             df[col] = df[col].astype(str).eq("True")  # True / "True" -> True; blank -> False
         else:
@@ -189,7 +200,10 @@ def _read_parts(parts: Path) -> pd.DataFrame:
             raise ValueError(f"unreadable audit part {p} ({exc}); delete it and re-run") from exc
     if not frames:
         return pd.DataFrame(columns=list(_PART_COLS))
-    return _typed(pd.concat(frames, ignore_index=True)).drop_duplicates("clip_id", keep="last")
+    # reindex: parts from an older audit lack newer columns; their old charset_id makes them
+    # stale anyway, so missing columns only need to exist (as blanks) to be filtered out
+    both = pd.concat(frames, ignore_index=True).reindex(columns=list(_PART_COLS))
+    return _typed(both).drop_duplicates("clip_id", keep="last")
 
 
 def audit(index_df: pd.DataFrame, voice: str, out_csv: Path | None = None,
@@ -199,13 +213,14 @@ def audit(index_df: pd.DataFrame, voice: str, out_csv: Path | None = None,
     parts = out_csv.with_name(out_csv.stem + ".parts")
     parts.mkdir(parents=True, exist_ok=True)
     charset = load_model_charset(voice)
-    cs_id = charset_id(voice, charset)
+    cmap = text_frontend.default_char_map()
+    cs_id = charset_id(voice, charset, cmap)
     meta = index_df.assign(wav_path=index_df["wav_path"].fillna(""),
                            duplicate_text=index_df["ctg_text_nfc"].duplicated(keep=False))
     meta = meta.set_index("clip_id")
     done_ids = set(_current(_read_parts(parts), meta, cs_id)["clip_id"])
     print(f"skipped {len(done_ids)} rows already in {parts} ({cs_id})")
-    jobs = [(cid, meta.at[cid, "wav_path"], meta.at[cid, "ctg_text_nfc"], charset, cs_id)
+    jobs = [(cid, meta.at[cid, "wav_path"], meta.at[cid, "ctg_text_nfc"], charset, cs_id, cmap)
             for cid in meta.index if cid not in done_ids]
     batch: list[dict[str, Any]] = []
     with Pool(processes) if processes > 1 and jobs else contextlib.nullcontext() as pool:

@@ -10,14 +10,15 @@ import pytest
 
 from boinga_translator import audit_summary, cli, data_audit, paths
 
-REASONS = ["undecodable", "too_short", "too_long", "clipped", "quiet", "empty_text", "oov",
-           "speech_rate", "duplicate_text"]
+REASONS = ["undecodable", "too_short", "too_long", "clipped", "quiet", "empty_text",
+           "excluded_char", "oov", "speech_rate", "duplicate_text"]
 
 
 def _row(cid: str, **kw: Any) -> dict[str, Any]:
     base: dict[str, Any] = {c: "" for c in data_audit.AUDIT_COLS}
     base.update(clip_id=cid, split_official="train", wav_path=f"/w/{cid}.wav",
-                ctg_text_nfc=f"লেখা {cid}", charset_id="female-abc", decodable=True,
+                ctg_text_nfc=f"লেখা {cid}", ctg_text_model=f"লেখা {cid}",
+                charset_id="female-abc-def", decodable=True, excluded_char=False,
                 sample_rate=16000, channels=1, subtype="PCM_16", duration_s=3.0, peak=0.9,
                 clip_ratio=0.0, rms_db=-20.0, lead_silence_s=0.1, trail_silence_s=0.1,
                 n_chars=20, n_words=4, empty=False, oov_ratio=0.0, has_latin=False,
@@ -34,8 +35,9 @@ def _rows() -> list[dict[str, Any]]:
                  chars_per_second=""),
             _row("short", duration_s=0.5), _row("long", duration_s=16.0),
             _row("clip", clip_ratio=0.01), _row("quiet", rms_db=-50.0),
-            _row("empty", empty=True), _row("oov", oov_ratio=0.05, chars_not_in_model="।"),
-            _row("oov2", oov_ratio=0.05, chars_not_in_model="।ৰ"),
+            _row("empty", empty=True), _row("oov", oov_ratio=0.05, chars_not_in_model="ৰ"),
+            _row("oov2", oov_ratio=0.01, chars_not_in_model="ৰ;"),  # any unknown char counts
+            _row("excl", excluded_char=True, has_digits=True),
             _row("slow", chars_per_second=1.0), _row("fast", chars_per_second=40.0),
             _row("dup1", duplicate_text=True), _row("dup2", duplicate_text=True)]
 
@@ -60,6 +62,7 @@ def test_exclusion_reasons_and_clean_mask(audit_csv: Path) -> None:
     assert flagged["too_short"] == ["short"] and flagged["too_long"] == ["long"]
     assert flagged["clipped"] == ["clip"] and flagged["quiet"] == ["quiet"]
     assert flagged["empty_text"] == ["empty"] and flagged["oov"] == ["oov", "oov2"]
+    assert flagged["excluded_char"] == ["excl"]
     assert flagged["duplicate_text"] == ["dup1", "dup2"]
     assert flagged["speech_rate"] == ["fast", "slow", "undec"]  # outside 1st-99th pct or NaN
     clean = audit_summary.clean_mask(df)
@@ -75,12 +78,12 @@ def test_summarise_writes_and_emits_report(audit_csv: Path,
     assert (paths.REPO / "reports" / "audit_summary.md").read_text(encoding="utf-8") == text
     assert "| train |" in text and "| val |" in text and "| (none) |" in text
     assert "| 16000 | 1 | PCM_16 |" in text
-    assert "| oov (oov_ratio > 0.02) | 2 |" in text
-    danda_part = text.split("oov only because of the danda")[1].split("Clean:")[0]
-    assert danda_part.strip().splitlines()[-1] == "| 1 |"  # "oov" yes, "oov2" (ৰ too) no
+    assert "| unknown to the model after char_map | 2 |" in text
+    assert "| excluded character (char_map: / : * digits) | 1 |" in text
+    assert "danda" not in text  # the char_map handles it; no special case any more
     assert "Clean: 8 clips" in text
     assert "no speaker field" in text
-    assert "| । | U+0964 | DEVANAGARI DANDA | 2 |" in text
+    assert "| ৰ | U+09F0 | BENGALI LETTER RA WITH MIDDLE DIAGONAL | 2 |" in text
 
 
 def test_speaker_table_sorted_by_clean_minutes(audit_csv: Path) -> None:

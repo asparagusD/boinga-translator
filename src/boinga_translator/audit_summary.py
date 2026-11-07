@@ -12,9 +12,8 @@ import pandas as pd
 from boinga_translator import corpus, data_audit, paths, report_io, settings
 
 SUMMARY_REL = "reports/audit_summary.md"
-DANDA = "।"
 MIN_S, MAX_S = 1.0, 15.0
-MAX_CLIP_RATIO, MIN_RMS_DB, MAX_OOV = 0.001, -45.0, 0.02
+MAX_CLIP_RATIO, MIN_RMS_DB = 0.001, -45.0
 CPS_PCT = (1, 99)
 # reason -> (label in the report, predicate on the audit frame). A clip can have several.
 RULES: dict[str, tuple[str, Callable[[pd.DataFrame], pd.Series]]] = {
@@ -25,7 +24,9 @@ RULES: dict[str, tuple[str, Callable[[pd.DataFrame], pd.Series]]] = {
                 lambda d: d["clip_ratio"] > MAX_CLIP_RATIO),
     "quiet": (f"quiet (rms_db < {MIN_RMS_DB:g})", lambda d: d["rms_db"] < MIN_RMS_DB),
     "empty_text": ("empty text", lambda d: d["empty"]),
-    "oov": (f"oov (oov_ratio > {MAX_OOV:g})", lambda d: d["oov_ratio"] > MAX_OOV),
+    # DECISIONS "Character map": judged on the mapped text; any unknown char would be dropped.
+    "excluded_char": ("excluded character (char_map: / : * digits)", lambda d: d["excluded_char"]),
+    "oov": ("unknown to the model after char_map", lambda d: d["chars_not_in_model"] != ""),
     "speech_rate": ("speech rate (chars/s outside 1st-99th percentile, or no speech)",
                     lambda d: _cps_outlier(d)),
     "duplicate_text": ("duplicate text", lambda d: d["duplicate_text"]),
@@ -40,6 +41,10 @@ def _cps_outlier(df: pd.DataFrame) -> pd.Series:
 
 def exclusion_reasons(df: pd.DataFrame) -> pd.DataFrame:
     """One bool column per exclusion reason (RULES order)."""
+    missing = [c for c in ("excluded_char", "ctg_text_model") if c not in df]
+    if missing:
+        raise ValueError(f"audit table lacks {missing} (made before the char map): "
+                         "re-run `boinga audit`")
     return pd.DataFrame({name: rule(df).fillna(False).astype(bool)
                          for name, (_, rule) in RULES.items()}, index=df.index)
 
@@ -82,10 +87,8 @@ def render(df: pd.DataFrame) -> str:
     lines += ["", "## Exclusions (a clip can have several reasons)", ""]
     lines += _table(["reason", "clips", "hours"], [
         [RULES[r][0], int(reasons[r].sum()), _hours(dur[reasons[r]])] for r in RULES])
-    danda_only = reasons["oov"] & (df["chars_not_in_model"] == DANDA)
-    lines += ["", f"oov only because of the danda {DANDA} (the model's eos symbol):", "",
-              *_table(["clips"], [[int(danda_only.sum())]]),
-              "", f"Clean: {int(clean.sum())} clips, {_hours(dur[clean])} h.", "", "## Speakers", ""]
+    lines += ["", f"Clean: {int(clean.sum())} clips, {_hours(dur[clean])} h.", "",
+              "## Speakers", ""]
     # audit.csv has no speaker_id today (the corpus has none); kept for a corpus that does.
     if "speaker_id" in df and (df["speaker_id"] != "").any():
         mins = (dur[clean].groupby(df["speaker_id"][clean]).sum() / 60).sort_values(
@@ -94,7 +97,7 @@ def render(df: pd.DataFrame) -> str:
     else:
         lines.append("no speaker field in the corpus (DECISIONS \"Corpus layout\")")
     counts = Counter(c for chars in df["chars_not_in_model"] for c in chars)
-    lines += ["", "## Characters not in the model (top 20, rows containing)", ""]
+    lines += ["", "## Characters not in the model after char_map (top 20, rows containing)", ""]
     lines += _table(["char", "code", "name", "rows"], [
         [c, f"U+{ord(c):04X}", unicodedata.name(c, "?"), n] for c, n in counts.most_common(20)])
     return "\n".join(lines) + "\n"

@@ -191,6 +191,11 @@
       "target": "src/boinga_translator/synth_basic.py"
     },
     {
+      "kind": "import",
+      "source": "src/boinga_translator/baseline.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
       "kind": "config",
       "source": "src/boinga_translator/cli.py",
       "target": "configs/baseline_prompts.json"
@@ -267,6 +272,11 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/data_audit.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/data_download.py",
       "target": "src/boinga_translator/__init__.py"
     },
@@ -326,6 +336,26 @@
       "target": "src/boinga_translator/settings.py"
     },
     {
+      "kind": "config",
+      "source": "src/boinga_translator/text_frontend.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_frontend.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/text_frontend.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
       "kind": "test",
       "source": "tests/test_audit_corpus.py",
       "target": "src/boinga_translator/cli.py"
@@ -344,6 +374,11 @@
       "kind": "test",
       "source": "tests/test_audit_corpus.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_audit_corpus.py",
+      "target": "src/boinga_translator/text_frontend.py"
     },
     {
       "kind": "test",
@@ -646,6 +681,16 @@
       "target": "src/boinga_translator/synth_basic.py"
     },
     {
+      "kind": "test",
+      "source": "tests/test_text_frontend.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_frontend.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
       "kind": "import",
       "source": "tools/build_notebook.py",
       "target": "tools/nbkit.py"
@@ -809,7 +854,7 @@
     },
     {
       "kind": "doc",
-      "lines": 207,
+      "lines": 209,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -959,13 +1004,13 @@
     },
     {
       "kind": "module",
-      "lines": 122,
+      "lines": 125,
       "path": "src/boinga_translator/audit_summary.py",
       "purpose": "Audit summary: exclusion rules (clean_mask), reports/audit_summary.md, clean clips to hear."
     },
     {
       "kind": "module",
-      "lines": 155,
+      "lines": 157,
       "path": "src/boinga_translator/baseline.py",
       "purpose": "Baseline smoke synthesis: pretrained voices read configs/baseline_prompts.json for listening."
     },
@@ -989,7 +1034,7 @@
     },
     {
       "kind": "module",
-      "lines": 249,
+      "lines": 264,
       "path": "src/boinga_translator/data_audit.py",
       "purpose": "Corpus audit: per-clip audio stats and per-transcript text/charset stats for exclusions."
     },
@@ -1036,20 +1081,26 @@
       "purpose": "Minimal seeded synthesis for any VITS checkpoint: load a coqui Synthesizer, say text to a wav."
     },
     {
+      "kind": "module",
+      "lines": 69,
+      "path": "src/boinga_translator/text_frontend.py",
+      "purpose": "Text front-end: NFC + configs/char_map.json for every text the model sees (train and infer)."
+    },
+    {
       "kind": "test",
-      "lines": 142,
+      "lines": 177,
       "path": "tests/test_audit_corpus.py",
       "purpose": "Tests for data_audit.audit() and `boinga audit`: per-row stats, duplicates, resume, CLI."
     },
     {
       "kind": "test",
-      "lines": 128,
+      "lines": 131,
       "path": "tests/test_audit_summary.py",
       "purpose": "Tests for audit_summary.py and `boinga audit-summary`: exclusion rules, report, samples."
     },
     {
       "kind": "test",
-      "lines": 148,
+      "lines": 162,
       "path": "tests/test_baseline.py",
       "purpose": "Tests for baseline.py and `boinga baseline`: prompts file, PASS/FAIL rules, charset warning, players."
     },
@@ -1184,6 +1235,12 @@
       "lines": 109,
       "path": "tests/test_synth_basic.py",
       "purpose": "Tests for synth_basic.py: seeding, loader with a fake coqui Synthesizer, say() output and duration."
+    },
+    {
+      "kind": "test",
+      "lines": 64,
+      "path": "tests/test_text_frontend.py",
+      "purpose": "Tests for text_frontend.py: char_map application, row exclusion and idempotence."
     },
     {
       "kind": "tool",

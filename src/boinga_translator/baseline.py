@@ -21,6 +21,7 @@ from boinga_translator import (
     report_io,
     settings,
     synth_basic,
+    text_frontend,
 )
 
 PROMPTS_FILE = "baseline_prompts.json"
@@ -120,7 +121,8 @@ def run(voice: str, synth: Any = None, prompts: Mapping[str, str] | None = None,
     prompts = load_prompts() if prompts is None else prompts
     charset = _model_charset(voice) if charset is None else charset
     bad = []
-    for key, text in prompts.items():
+    for key, raw_text in prompts.items():
+        text = text_frontend.prepare(raw_text)  # same text front-end as training (char_map)
         if charset is not None and (unknown := sorted(set(text) - charset)):
             listed = ", ".join(f"{c} (U+{ord(c):04X})" for c in unknown)
             print(f"WARN: {voice} {key}: not in model charset: {listed}")

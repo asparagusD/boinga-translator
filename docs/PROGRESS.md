@@ -167,8 +167,10 @@ Run 2 (spec `notebooks/specs/c3_data_audit_run2.py`):
 ### C3 follow-ups (conditions of Gate G2, before C4)
 - [x] C3.8a Danda "।" and other out-of-charset characters: configs/char_map.json +
   DECISIONS "Character map" (also settles the nukta form: precomposed) (this commit)
-- [ ] C3.8b text front-end: apply char_map (training + inference); audit/clean_mask on
-  mapped text, "unknown after mapping" + exclude_rows_with rules replace oov_ratio > 0.02
+- [x] C3.8b text_frontend.prepare/excluded (NFC + char_map); audit stats on the mapped
+  text (ctg_text_model, excluded_char, charset_id includes the map digest); clean_mask:
+  "excluded character" + "unknown after char_map" replace oov_ratio > 0.02; baseline
+  synthesises the mapped text (this commit)
 - [ ] C3.8c re-run audit + summary on Colab with the map; record clean hours (G2 cond. 1)
 - [ ] Speakers: mixed voices vs a consistent subset (speaker-embedding clustering) + DECISIONS
 - [ ] Keep the official test split (incl. clips 386, 29, 625) out of training in C4
