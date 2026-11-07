@@ -303,7 +303,10 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
   unchanged since `86064cb`, pushed; link and save name
   `colab_runs/C5_text-frontend_run1.ipynb` given; no forms; duration not measured (this
   commit)
-- [ ] C5.V1 verify run 1
+- [x] C5.V1 verify run 1: 7/7 PASS at `9683e31` (notebook built in `86064cb`), not stale;
+  reports/oov_report.md: 7,506 selected clips, 0 excluded, OOV 0 of 251,223 characters
+  (0.00%), 0 clips with an OOV character vs the male charset, char map 151ac177e2 (this
+  commit)
 - [ ] C5.3 `apply_char_map()` extracted from prepare() + configs/char_map.json entries for
   any unknown character run 1 finds (user approval; DECISIONS) (local)
 - [ ] C5.4 `text_frontend.check_tokenizer()` + `boinga check-tokenizer` + cells (spec

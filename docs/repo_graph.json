@@ -1130,7 +1130,7 @@
     },
     {
       "kind": "doc",
-      "lines": 342,
+      "lines": 345,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1303,6 +1303,12 @@
       "purpose": "Colab run C4 run 2 — C4 — save the mixed-voice selection"
     },
     {
+      "kind": "doc",
+      "lines": 132,
+      "path": "reports/colab_runs/C5_text-frontend_run1.md",
+      "purpose": "Colab run C5 run 1 — C5 run 1 — OOV report"
+    },
+    {
       "kind": "config",
       "lines": 16,
       "path": "reports/env.json",
@@ -1337,6 +1343,12 @@
       "lines": 7,
       "path": "reports/notes/C4.3-notes.json",
       "purpose": ""
+    },
+    {
+      "kind": "doc",
+      "lines": 9,
+      "path": "reports/oov_report.md",
+      "purpose": "OOV report"
     },
     {
       "kind": "doc",
