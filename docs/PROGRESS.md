@@ -439,13 +439,14 @@ the generated map/notebook and PROGRESS.
   cut-offs or level problems
 
 ### C6 follow-ups (from the whole-chunk review; for C7)
-- [ ] C7 notebook runs `boinga fetch-data` and `boinga prepare` first (wavs and manifests
+- [x] C7 notebook runs `boinga fetch-data` and `boinga prepare` first (wavs and manifests
   live on the VM's fast disk); check it prints "restored ..." and "0 clip(s) to do"
+  (C7 run 1, cell C7.pre: restored from prepared-fd93f4827c6d2b41.tar, 0 clip(s) to do)
 - [ ] Restore depends on byte-identical splits.csv: a different pandas/numpy on the GPU VM
   could change its bytes (e.g. float format of duration_s), miss the tar, recompute and
   write a second ~1.2 GB tar; warn when another prepared-*.tar exists but none matches
-- [ ] C7 config: set min/max audio length on trimmed durations (no post-trim 1-15 s
-  exclusion in C6; trimming can push a clip under the minimum)
+- [x] C7 config: set min/max audio length on trimmed durations (no post-trim 1-15 s
+  exclusion in C6; trimming can push a clip under the minimum) (C7.1: 0.5 / 15 s)
 - [ ] env_report: record pandas, librosa and soxr versions (Colab's pandas was unknown
   when the C6.4 KeyError hit)
 - [ ] reports/prepare_summary.md with exclusions by reason (dialect-data-rules; C6 run 1
@@ -458,8 +459,123 @@ the generated map/notebook and PROGRESS.
   "Audio preprocessing" mentions a C6.4 form (listening came by chat); tar size estimates
   1.3 vs 1.2 GB (measure it on Drive)
 
-## C7
-- [ ] C7.x (subchunks not yet defined)
+## C7 — Training runner, smoke test and resume
+Branch `chunk/C7-train-runner`. One T4 notebook for the chunk: spec
+`notebooks/specs/c7_train_runner.py` -> `notebooks/runs/C7_train-runner_run1.ipynb`. Every
+subchunk that adds cells rebuilds it (pre-commit `--check`); only C7.H hands it over. Two new
+modules: `train_config.py` (config from the pretrained config.json + a documented overrides
+dict) and `train_runner.py` (loader check, coqui Trainer setup, resume, throughput). Local tests
+never import torch/TTS/trainer: fake config dicts, fake loaders, fake Trainer factories, tmp run
+folders. Training cells are Python calls that stop with `colab_runtime.fail()` (a failing `!`
+line does not stop Run all). Every cell gets an `md()` explanation before it, and slow work
+(loader check, smoke/resume training, eval synthesis) shows tqdm progress (CLAUDE.md). Base
+voice = male (configs/speaker_selection.json), rate 22,050
+from configs/pretrained_facts.json. Line counts are non-test estimates, excluding the generated
+map/notebook and PROGRESS.
+- [ ] C7.0 skipped: Gate G4 PASS (0 of 297,218 characters unknown) chose no embedding change
+  (DECISIONS "Gate G4 — text frontend")
+- [x] C7.1 code: `train_config.build(run_name)` + `boinga build-config --run NAME`: base
+  voice config.json from `base_dir()` (`paths.pretrained()/<voice>_extended` if present, else
+  `<voice>`; voice from configs/speaker_selection.json), `OVERRIDES` as value + reason (batch
+  16 / eval 8, loader workers 2/1, fp16, run_eval, test_delay_epochs 0, print_step 25,
+  save_step 500, keep 2, best after 1000, seed, epochs 1000, restore_path null) plus computed
+  ones (lr_gen/lr_disc 0.5 x pretrained, min/max audio 0.5/15 s x sample_rate, first 5 val
+  manifest texts as test sentences, ljspeech dataset at `paths.data_prepared()` language bn,
+  output `paths.runs()`, run_name); refuses a change to audio, characters, use_phonemes,
+  text_cleaner, add_blank, model_args or a foreign absolute path; writes
+  configs/vits_ctg_finetune.json + reports/config_overrides.md (emitted) and replaces the
+  table in DECISIONS "Fine-tune config"; `RUN_BUDGETS = {}` (C8). `tools/validate_config.py`
+  (coqui `VitsConfig().load_json`, "PASS: coqui accepts config"). Spec
+  `notebooks/specs/c7_train_runner.py` (slug `train-runner`: nbkit slugs allow no "_"),
+  cells C7.pre (fetch-data + prepare) and C7.1. Tests `tests/test_train_config.py` (this
+  commit). Results: C7.1 failed in run 1 (seed dropped, fixed `08f29d0`)
+  - [x] C7.1 results: C7 re-run (f681627, RTX PRO 6000): "PASS: config written ... 23
+    overrides", "sample_rate 22050, batch_size 16, lr_gen 0.0001, lr_disc 0.0001,
+    mixed_precision True", "PASS: coqui accepts config"; training_seed 1234 (pretrained
+    54321), the smoke log shows "Torch seed: 1234"; configs/vits_ctg_finetune.json and the
+    DECISIONS overrides table (built for run smoke: print_step 5) (this commit)
+- [x] C7.2 code: `train_runner.check_loader(config_path=None)` + `boinga check-loader`:
+  coqui VitsConfig from configs/vits_ctg_finetune.json, `Vits(config)` (0.28 has no
+  Vits.init_from_config), `load_tts_samples(config, eval_split=True)` (0.28 takes the config,
+  not config.datasets), prints `inspect.signature(model.get_data_loader)` and passes only the
+  keyword arguments it names (0.28: is_eval, samples, verbose), one train batch through
+  format_batch + format_batch_on_device (spec/mel); `judge_batch()`: per tensor shape/dtype,
+  token ids vs the text-embedding rows, token lengths, clip seconds, NaN/inf counts; "PASS:
+  loader ok" or "FAIL: loader <reason>". Cell C7.2. Tests `tests/test_train_runner.py`
+  (numpy batches, torch ones via importorskip, fake coqui modules) (`4c24b7a`).
+  - [x] C7.2 results: C7 run 1 (87c0470, NVIDIA RTX PRO 6000, not a T4): signature
+    `get_data_loader(config, *, is_eval, samples, verbose)` as expected; 6,415 train / 338
+    eval samples; batch 16 x 29 tokens, ids 0..86 of vocab 87; 0.78-0.97 s clips; spec
+    (16, 513, 83), mel (16, 80, 83), no NaN/inf; first batch 3.74 s; "PASS: loader ok".
+    coqui warns "Character '
+' not found in the vocabulary. Discarding it." (the
+    ljspeech formatter keeps the line's trailing "
+", C6.3): harmless (this commit)
+- [x] C7.3a code: `train_runner.run(run_name, max_steps=None)` + `boinga train --run NAME
+  [--max-steps N]`: train_config.build, VitsConfig, `Vits(config)`, load_tts_samples, coqui
+  Trainer with `TrainerArgs(restore_path=base_dir()/model.pth)`, `parse_command_line_args=
+  False`, output `paths.run_dir(run_name)`; `trainer._fit()` (fit() os._exits on interrupt);
+  max_steps via an `on_train_step_end` callback raising StopTraining, then a forced
+  save_checkpoint and "STOP at step N"; `boinga_run.json` per session (git, env, config,
+  restore, max_steps, start/end, steps, peak GPU memory, error; sessions appended); an
+  interrupt saves a checkpoint first; refuses a run folder with checkpoints (replaced by
+  resume in C7.3b). DECISIONS "Training run". Tests `tests/test_train_run.py` (fake Trainer, no
+  torch) (this commit). No notebook cell yet (C7.4 adds smoke/resume). Results: C7 run 1
+- [x] C7.3b code: `train_runner.latest_run_folder(run_name)` -> (folder, step) of the
+  highest-step `checkpoint_<step>.pth` under `paths.run_dir(run_name)` (not mtime; empty
+  folders and best_model_* ignored); run() resumes with `TrainerArgs(continue_path=folder)`,
+  never restore_path, from the folder's own config.json, printing "RESUME from step N in
+  <folder>"; max_steps counts total steps; already at max_steps -> "PASS: run NAME already at
+  step N" and no training. DECISIONS "Training resume". Tests in `tests/test_train_run.py`
+  (fake folders: new vs resume, highest step, empty folders, already done) (this commit).
+  Not handled: a truncated last checkpoint (C7.3 plan idea) is still chosen
+- [x] C7.4 code: new module `train_report.py`: `parse_log()` reads coqui's
+  `trainer_0_log.txt` train-step blocks (ANSI stripped, eval blocks and tensor values
+  skipped), `summarise()` (mean step_time without step 0, steps/hour, coqui's running
+  average, last losses, any NaN/inf loss), `throughput(run_name)` -> reports/throughput.json
+  {run, folder, steps_done, gpu, batch_size, mixed_precision, sec_per_step_mean,
+  n_step_samples, steps_per_hour, peak_mem_gb, any_nan_loss, last_losses, ...} (emitted),
+  "PASS: throughput recorded" or "FAIL: NaN loss"; `listen_smoke(run_name)` (first test
+  sentence by the pretrained base voice and the latest checkpoint, synth_basic, to
+  `paths.eval_dir()/<run>`); `boinga throughput --run NAME`. Cells C7.4.a (smoke 50 steps),
+  C7.4.b (resume to 60), C7.4.c (throughput), C7.4.d (listen), each after an md()
+  explanation; a and b forbid "Partial model initialization". Tests
+  `tests/test_train_report.py` (fake log snippet, fake run folder, fake synth) (this commit).
+  With print_step 25 the smoke (stop after 50) and resume (51-59) would log only step 25
+  after warm-up, so C7.4b sets print_step 5 for the smoke run (`1cc1fb5`).
+  - [x] C7.4 results: C7 run 1 (87c0470, NVIDIA RTX PRO 6000 Blackwell 95 GB, not a T4):
+    smoke "STOP at step 50", checkpoint_50 on Drive, peak 3.385 GB; resume "RESUME from
+    step 50" (optimizer, scheduler, scaler restored, "Model restored from step 50"), "STOP
+    at step 60", peak 3.262 GB; no "Partial model initialization"; throughput 0.3406
+    s/step over 10 logged steps (10,570 steps/h), fp16, batch 16, no NaN loss, loss_mel
+    30.9 at step 55; C7.4.d played both clips (no listening note yet). The run trained with
+    Torch seed 54321 (dropped seed override, fixed `08f29d0`); speed is for this GPU, not a
+    T4 (this commit)
+  - [x] C7.4 fix: `boinga clean-run` + cell C7.4.0 so the re-run starts a fresh smoke run
+    (`90c4504`)
+  - [x] C7.4 re-run results (f681627, RTX PRO 6000, seed 1234): C7.4.0 "PASS: cleaned run
+    smoke: removed .../runs/smoke (2.00 GB ...)"; "STOP at step 50" (peak 3.39 GB),
+    "RESUME from step 50", "STOP at step 60" (peak 3.262 GB); throughput 0.3418 s/step
+    over 10 steps (10,533 steps/h), no NaN loss, loss_mel 30.7 at step 55; C7.2 also PASS
+    again (ids 0..86 of vocab 87); reports/throughput.json replaces run 1's (this commit)
+- [x] C7.4b `train_config.RUN_OVERRIDES` (per-run, value + reason) with print_step 5 for run
+  `smoke` only (user, chat 2026-11-08): steps 5-45 and 55 timed (~10 samples) instead of 1;
+  `reasons(run_name)` fills the DECISIONS table; cell texts updated (this commit)
+- [x] C7.H hand-off: `notebooks/runs/C7_train-runner_run1.ipynb` (T4, GPU required) rebuilt,
+  unchanged since `b0ec918`, `--all --check` clean, pushed; link and save name
+  `colab_runs/C7_train-runner_run1.ipynb` given; no forms; duration not measured (data
+  restore + roughly 10-40 min of training, estimate). Kaggle is not a drop-in fallback: the
+  bootstrap needs google.colab (Drive mount, GH_TOKEN secret) (this commit)
+- [x] C7.V verify run 1 (colab-verify): 11/12 PASS at 87c0470 (notebook built in `b0ec918`),
+  not stale; saved as colab_runs/C7_train_runner_run1.ipynb. C7.1 FAIL ("coqui loaded the
+  config but not these overrides: ['seed']") -> fix `08f29d0` (training_seed) + clean smoke
+  run `90c4504`; results `b2d1884` (C7.2 + digest), `ffdfe0e` (C7.4). GPU: RTX PRO 6000, not T4
+- [x] C7.V2 re-run C7 (fresh smoke run): 13/13 PASS at f681627 (notebook built in `90c4504`),
+  not stale, RTX PRO 6000; C7.1 "PASS: coqui accepts config"; results `705b617` (C7.1:
+  config, overrides table, digest), `40a1a25` (C7.4: throughput)
+- [x] C7.5 Gate G5 — ready to train: PASS (G1 PASS, splits_summary present, no NaN loss,
+  RESUME seen); run 1 verdict `f681627`, conditions met in the re-run (DECISIONS "Gate G5 —
+  ready to train"; this commit)
 
 ## C8
 - [ ] C8.x (subchunks not yet defined)

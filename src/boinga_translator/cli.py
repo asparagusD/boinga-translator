@@ -18,6 +18,9 @@ from boinga_translator import (
     speaker_select,
     text_frontend,
     text_oov,
+    train_config,
+    train_report,
+    train_runner,
 )
 
 
@@ -56,6 +59,22 @@ def build_parser() -> argparse.ArgumentParser:
     prep = sub.add_parser("prepare", help="splits, model-rate wavs, ljspeech manifests and a "
                                           "Drive backup (resumable, restores on a new VM)")
     prep.add_argument("--workers", type=int, default=2, help="transform processes (default 2)")
+    bcfg = sub.add_parser("build-config", help="derive configs/vits_ctg_finetune.json from the "
+                                               "base voice's pretrained config")
+    bcfg.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    sub.add_parser("check-loader", help="load one coqui train batch from the fine-tune config "
+                                        "and check token ids and finite audio")
+    train = sub.add_parser("train", help="train a run: resume its latest Drive checkpoint, "
+                                         "else start from the pretrained one")
+    train.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    train.add_argument("--max-steps", type=int, default=None,
+                       help="stop at N total optimiser steps and save a checkpoint")
+    thr = sub.add_parser("throughput", help="step time, losses and memory of a run into "
+                                            "reports/throughput.json")
+    thr.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    cln = sub.add_parser("clean-run", help="delete a smoke run's folder on Drive for a fresh "
+                                           "start (refuses runs past step 1000)")
+    cln.add_argument("--run", required=True, help="run name (one folder under runs/)")
     return parser
 
 
@@ -65,6 +84,57 @@ def _prepare(workers: int) -> int:
         prepare.build(workers=workers)
     except (ImportError, RuntimeError, ValueError, KeyError, OSError) as exc:
         print(f"FAIL: prepare: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _build_config(run_name: str) -> int:
+    """Write the fine-tune config; FAIL + exit 1 on error."""
+    try:
+        train_config.build(run_name)
+    except (RuntimeError, ValueError, KeyError, OSError) as exc:  # JSONDecodeError is a ValueError
+        print(f"FAIL: build-config: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _check_loader() -> int:
+    """One-batch loader check; FAIL + exit 1 on a bad batch or any error."""
+    try:
+        return 0 if train_runner.check_loader() else 1
+    except Exception as exc:  # noqa: BLE001 - coqui/torch errors vary; show the type
+        print(f"FAIL: loader {type(exc).__name__}: {exc}")
+        return 1
+
+
+def _train(run_name: str, max_steps: int | None) -> int:
+    """Start a fine-tune run; FAIL + exit 1 on any error."""
+    try:
+        session = train_runner.run(run_name, max_steps=max_steps)
+    except Exception as exc:  # noqa: BLE001 - coqui/torch/CUDA errors vary; show the type
+        print(f"FAIL: train {type(exc).__name__}: {exc}")
+        return 1
+    if session["kind"] != "done":  # run() already printed "PASS: ... already at step N"
+        print(f"PASS: run {run_name} at step {session['steps_done']} "
+              f"(peak GPU memory {session['peak_gpu_memory_gb']} GB)")
+    return 0
+
+
+def _throughput(run_name: str) -> int:
+    """Throughput report of a run; FAIL + exit 1 on a NaN loss or any error."""
+    try:
+        return 0 if train_report.throughput(run_name) else 1
+    except (OSError, ValueError, KeyError) as exc:  # JSONDecodeError is a ValueError
+        print(f"FAIL: throughput {type(exc).__name__}: {exc}")
+        return 1
+
+
+def _clean_run(run_name: str) -> int:
+    """Delete a smoke run folder; FAIL + exit 1 if refused or on an error."""
+    try:
+        train_runner.clean_run(run_name)
+    except (RuntimeError, ValueError, OSError) as exc:
+        print(f"FAIL: clean-run {type(exc).__name__}: {exc}")
         return 1
     return 0
 
@@ -259,6 +329,16 @@ def main(argv: list[str] | None = None) -> int:
         return _check_tokenizer()
     elif args.command == "prepare":
         return _prepare(args.workers)
+    elif args.command == "build-config":
+        return _build_config(args.run)
+    elif args.command == "check-loader":
+        return _check_loader()
+    elif args.command == "train":
+        return _train(args.run, args.max_steps)
+    elif args.command == "throughput":
+        return _throughput(args.run)
+    elif args.command == "clean-run":
+        return _clean_run(args.run)
     return 0
 
 

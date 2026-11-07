@@ -120,3 +120,18 @@ under pandas 2.3.3 with uv: 18 failed with the same KeyError.
 reproduce it under pandas 2.3.3 (uv run --with pandas==2.3.3) and pass after the fix
 (54 passed; full suite 455 passed under pandas 2.3.3 and 3.1.1).
 **Commit:** fix(prepare): keep the clip_id column name on pandas 2 in make_splits
+
+## 2026-11-08 C7.1 Colab: coqui loads the fine-tune config but drops the seed override
+**Symptom:** C7 run 1 (87c0470, Colab GPU): cell C7.1 printed "PASS: config written" and
+"sample_rate 22050, batch_size 16, lr_gen 0.0001, ..." then `FAIL: coqui loaded the config
+but not these overrides: ['seed']`. The smoke and resume cells still ran; their log shows
+"Torch seed: 54321" (the pretrained config's value), not settings.SEED 1234.
+**Root cause:** coqui's training seed field is `training_seed` (TrainerConfig); the
+pretrained config.json has `training_seed: 54321` and no `seed` key (the overrides table
+shows `seed` as "(missing)"). coqpit's load_json only reads known fields, so our `seed`
+override was dropped silently. tools/validate_config.py (compares every override after the
+load) caught it, as designed.
+**Fix:** override `training_seed` instead of `seed` in train_config.OVERRIDES.
+**Test added:** tests/test_train_config.py checks `training_seed` == settings.SEED and that
+no `seed` key is written; the real coqui load is re-checked by cell C7.1 in the re-run.
+**Commit:** fix(train): set coqui's training_seed instead of an ignored seed key
