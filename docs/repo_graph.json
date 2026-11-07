@@ -86,6 +86,21 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run3.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run3.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C3_data-audit_run3.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -118,6 +133,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c3_data_audit_run2.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c3_data_audit_run3.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -854,7 +874,7 @@
     },
     {
       "kind": "doc",
-      "lines": 209,
+      "lines": 211,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -895,6 +915,12 @@
       "purpose": "C3 run 2 — Index, audit, summary"
     },
     {
+      "kind": "notebook",
+      "lines": 353,
+      "path": "notebooks/runs/C3_data-audit_run3.ipynb",
+      "purpose": "C3 run 3 — Char-mapped re-audit"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -923,6 +949,12 @@
       "lines": 74,
       "path": "notebooks/specs/c3_data_audit_run2.py",
       "purpose": "Spec: C3 run 2, Chittagonian corpus: index, audit, summary and dialect baseline (T4)."
+    },
+    {
+      "kind": "module",
+      "lines": 37,
+      "path": "notebooks/specs/c3_data_audit_run3.py",
+      "purpose": "Spec: C3 run 3, re-audit the corpus on the char-mapped text and re-summarise (CPU)."
     },
     {
       "kind": "config",
