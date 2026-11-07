@@ -588,11 +588,40 @@ map/notebook and PROGRESS.
   RESUME seen); run 1 verdict `f681627`, conditions met in the re-run (DECISIONS "Gate G5 —
   ready to train"; this commit)
 
-## C8
-- [ ] C8.x (subchunks not yet defined)
+## C8 — Full fine-tune run
+Branch `chunk/C8-finetune`. One GPU notebook per run: spec `notebooks/specs/c8_finetune_run1.py`
+-> `notebooks/runs/C8_finetune_run1.ipynb` (RTX PRO 6000, user's pay-as-you-go GPU). Run name
+`run1`; its settings are frozen once it starts (a resume uses the run folder's config), so any
+change means a new run name (`run2`). Plan basis: reports/throughput.json (0.3418 s/step,
+batch 16, fp16, 3.39 GB peak) and configs/splits_summary.json (6,415 train clips -> ~401
+steps/epoch). Coqui keeps only the last 2 checkpoints + best, so earlier steps are kept as
+"milestones" (model + config, no optimizer) for listening and promotion. Line counts are non-test
+estimates, excluding the generated map/notebook and PROGRESS.
+- [x] C8.1 step budget (local): `train_config.budget_steps(steps_per_hour, hours=3.5)`
+  (rounded down to a save_step multiple); `RUN_BUDGETS = {"run1": 36_500}` (10,533.4 steps/h
+  x 3.5 h = 36,866.9 -> 36,500; 400.9 steps/epoch at batch 16 -> ~91 epochs); `run()` / `boinga
+  train` use RUN_BUDGETS[run] when --max-steps is absent ("budget: N steps (RUN_BUDGETS)").
+  DECISIONS "Run 1 budget". Batch 32 deferred to a timed run2 (unmeasured speed). Tests
+  `tests/test_train_config.py`, `tests/test_train_run.py` (this commit)
+- [ ] C8.2a ckpt_sampler (local + cells): new module `ckpt_sampler.py`: `prompts()` (val
+  texts), `sample(run, step=None)` -> wavs under `paths.eval_dir()/<run>/step<N>/` with fixed
+  seed/scales, skips done steps, saves a milestone copy (model + config) to Drive;
+  `boinga sample --run NAME`. ~80 lines
+- [ ] C8.2b candidates table: eval-block parsing in `train_report.parse_log`, `candidates(run)`
+  -> reports/candidates_<run>.md (step, val losses near the step, wavs), emitted;
+  `boinga candidates --run NAME`. ~60 lines
+- [ ] C8.3 run-1 notebook: `train_runner.train_milestones(run)` (one `boinga train` subprocess
+  per milestone, then sample; idempotent); spec cells: restore data, clean smoke + Drive space
+  check, build-config + validate, loader check, train + sample, throughput, candidates, play,
+  listening form (BEST_STEP + verdict), promote on verdict. ~50 lines + spec
+- [ ] C8.H hand-off run 1 (link, GPU, measured-basis duration, form fields, save name)
+- [ ] C8.V verify run 1 (colab-verify): record losses, candidates, BEST_STEP and verdict;
+  decide promote vs second run (DECISIONS "Run 1 verdict")
+- [ ] C8.4 only if C8.V says so: run-2 settings (RUN_OVERRIDES/RUN_BUDGETS for `run2`) +
+  `notebooks/specs/c8_finetune_run2.py`; C8.H2 / C8.V2
 
 ### C7 follow-ups (from the whole-chunk review; for C8)
-- [ ] `run()` / `boinga train` ignore `train_config.RUN_BUDGETS`: without --max-steps a run
+- [x] `run()` / `boinga train` ignore `train_config.RUN_BUDGETS` (fixed in C8.1): without --max-steps a run
   goes up to 1000 epochs; fall back to RUN_BUDGETS[run_name] (with a test); DECISIONS "Gate G5"
   and the `epochs` reason already assume it
 - [ ] configs/vits_ctg_finetune.json and the DECISIONS overrides table describe the last built

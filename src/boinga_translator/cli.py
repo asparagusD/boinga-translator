@@ -68,7 +68,8 @@ def build_parser() -> argparse.ArgumentParser:
                                          "else start from the pretrained one")
     train.add_argument("--run", required=True, help="run name (one folder under runs/)")
     train.add_argument("--max-steps", type=int, default=None,
-                       help="stop at N total optimiser steps and save a checkpoint")
+                       help="stop at N total optimiser steps and save a checkpoint "
+                            "(default: train_config.RUN_BUDGETS[run], if set)")
     thr = sub.add_parser("throughput", help="step time, losses and memory of a run into "
                                             "reports/throughput.json")
     thr.add_argument("--run", required=True, help="run name (one folder under runs/)")

@@ -58,7 +58,28 @@ COMPUTED_REASONS: dict[str, str] = {
 }
 REASONS: dict[str, str] = {**{k: r for k, (_, r) in OVERRIDES.items()}, **COMPUTED_REASONS}
 
-RUN_BUDGETS: dict[str, int] = {}  # run name -> max steps (filled in C8 from the smoke test)
+BUDGET_HOURS = 3.5  # step time per run (C8.1); eval, checkpoint saves and restarts come on top
+
+
+def budget_steps(steps_per_hour: float, hours: float = BUDGET_HOURS) -> int:
+    """Steps that fit in hours at a measured rate, rounded down to a save_step multiple.
+
+    Uses the global OVERRIDES save_step (no run overrides it yet).
+    """
+    save_step = int(OVERRIDES["save_step"][0])
+    steps = int(steps_per_hour * hours) // save_step * save_step
+    if steps < save_step:
+        raise ValueError(f"{steps_per_hour} steps/h x {hours} h is under one save_step "
+                         f"({save_step}): no checkpoint would be saved")
+    return steps
+
+
+# Run name -> max steps, used by `boinga train` when --max-steps is absent (C8.1).
+# run1, from reports/throughput.json (smoke, RTX PRO 6000, batch 16, fp16) and
+# configs/splits_summary.json: steps/epoch = 6,415 train clips / 16 = 400.9;
+# 10,533.4 steps/h x 3.5 h = 36,866.9 -> rounded down to a multiple of 500 = 36,500 steps
+# (~91 epochs). Equals budget_steps(10533.4).
+RUN_BUDGETS: dict[str, int] = {"run1": 36_500}
 
 # Per-run overrides on top of OVERRIDES, as key: (value, reason); keys must be in OVERRIDES.
 RUN_OVERRIDES: dict[str, dict[str, tuple[Any, str]]] = {

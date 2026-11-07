@@ -941,3 +941,26 @@ shows "Torch seed: 1234"), and the GPU question is settled: the user trains on t
 6000, so the measured speed is the basis for C8 (a T4 is no longer planned).
 **G5: PASS** (final). C8 can plan from 10,533 steps/h at batch 16 fp16; with 3.39 of 95 GB
 used, C8 may raise batch_size (a logged override) and re-measure.
+
+## 2026-11-08 — Run 1 budget
+**Context:** C8.1. Run `run1` (the first full fine-tune) needs a step budget so
+`boinga train --run run1` stops on its own instead of running to `epochs` 1000. Inputs:
+reports/throughput.json (smoke run, NVIDIA RTX PRO 6000, batch 16, fp16, 0.3418 s/step over 10
+timed steps, 10,533.4 steps/h, peak 3.39 GB, no NaN) and configs/splits_summary.json (6,415
+train clips).
+**Decision:** `RUN_BUDGETS["run1"] = 36,500` steps. Steps/epoch = 6,415 / 16 = 400.9, so the
+budget is ~91 epochs. It is the number of steps that fits in 3.5 h of step time: 10,533.4 x 3.5 = 36,866.9,
+rounded down to a multiple of save_step (500) so the last step lands on a checkpoint
+(`train_config.budget_steps`). `boinga train` uses RUN_BUDGETS[run] when --max-steps is not
+given; an explicit --max-steps still wins (it also resumes: max_steps counts total steps).
+**Alternatives:** Batch 32 on the 95 GB GPU (the user's choice in the C8 plan chat): not used
+for run1, because its speed is unmeasured and this budget rests on the measured batch-16 rate;
+it needs its own timing (a new run name, since a run's config is frozen at its start) and is a
+candidate for run2. A budget in epochs instead of hours: equivalent here (91 epochs), but hours
+are what the paid GPU time is planned in.
+**Consequences:** 3.5 h is training-step time only, not a wall-clock promise: per-epoch eval on
+338 val clips, test-sentence synthesis, ~73 checkpoint saves (~1 GB each) to Drive and any
+restarts come on top and are not measured yet; the first hour of run1 measures them. Run1
+keeps batch 16 and the other C7 overrides. RUN_BUDGETS is read from code at each session (not
+frozen in the run folder like the config): never change run1's budget once it has started; each
+session's max_steps is recorded in boinga_run.json.

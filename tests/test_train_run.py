@@ -309,3 +309,38 @@ def test_cli_clean_run(fake: dict[str, Any], capsys: pytest.CaptureFixture[str])
     _folder("smoke-b", "checkpoint_5000.pth")
     assert cli.main(["clean-run", "--run", "smoke"]) == 1
     assert "FAIL: clean-run" in capsys.readouterr().out
+
+
+def test_budget_used_when_max_steps_absent(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch,
+                                           capsys: pytest.CaptureFixture[str]) -> None:
+    monkeypatch.setitem(train_config.RUN_BUDGETS, "smoke", 30)
+    session = train_runner.run("smoke")  # no --max-steps: RUN_BUDGETS["smoke"] applies
+    (tr,) = FakeTrainer.instances
+    assert tr.total_steps_done == 30 and tr.saved == [30] and session["max_steps"] == 30
+    assert "budget: 30 steps (RUN_BUDGETS)" in capsys.readouterr().out
+
+
+def test_explicit_max_steps_beats_budget(fake: dict[str, Any],
+                                         monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setitem(train_config.RUN_BUDGETS, "smoke", 30)
+    session = train_runner.run("smoke", max_steps=12)
+    assert FakeTrainer.instances[0].total_steps_done == 12 and session["max_steps"] == 12
+
+
+def test_cli_train_uses_budget(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch,
+                               capsys: pytest.CaptureFixture[str]) -> None:
+    monkeypatch.setitem(train_config.RUN_BUDGETS, "smoke", 25)
+    assert cli.main(["train", "--run", "smoke"]) == 0
+    assert "PASS: run smoke at step 25" in capsys.readouterr().out
+
+
+def test_budget_on_resume_and_when_reached(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch,
+                                           capsys: pytest.CaptureFixture[str]) -> None:
+    monkeypatch.setitem(train_config.RUN_BUDGETS, "smoke", 30)
+    _folder("smoke-a", "checkpoint_20.pth", "config.json")
+    session = train_runner.run("smoke")  # resumes at 20, budget counts total steps
+    assert session["kind"] == "resume" and FakeTrainer.instances[0].total_steps_done == 30
+    capsys.readouterr()
+    session = train_runner.run("smoke")
+    assert session["kind"] == "done" and len(FakeTrainer.instances) == 1
+    assert "PASS: run smoke already at step 30" in capsys.readouterr().out
