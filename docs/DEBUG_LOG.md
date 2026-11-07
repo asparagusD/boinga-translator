@@ -45,3 +45,13 @@ block and the Drive copy are the record.
 checkout -> clean -> switch order; scratch-repo repro: old sequence errors, fixed
 sequence pulls `track env`.
 **Commit:** fix(colab): drop untracked Colab reports before pulling
+
+## 2026-11-07 C3.1 build_notebook: slug must be lowercase letters, digits and -
+**Symptom:** Local `python tools/build_notebook.py notebooks/specs/c3_data_audit_run1.py`
+raised `ValueError: slug must be lowercase letters, digits and -, got 'data_audit'`.
+**Root cause:** The C3.1 prompt gave `slug="data_audit"`; nbkit.Notebook only allows
+`[a-z0-9-]` in slugs (they become notebook file names).
+**Fix:** `slug="data-audit"` (matches the branch name and the C2 `pretrained-baseline`
+style); the notebook is notebooks/runs/C3_data-audit_run1.ipynb.
+**Test added:** none (nbkit already validates it; tests/test_nbkit.py covers the rule).
+**Commit:** data(download): fetch corpus zip with resume, sha256 check and one-time unzip

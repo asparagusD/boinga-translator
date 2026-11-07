@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 
-from boinga_translator import __version__, baseline, env_report, pretrained
+from boinga_translator import __version__, baseline, data_download, env_report, pretrained
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -18,7 +18,18 @@ def build_parser() -> argparse.ArgumentParser:
     insp.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
     base = sub.add_parser("baseline", help="synthesise the baseline prompts with each voice")
     base.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
+    sub.add_parser("fetch-data", help="download, verify and unpack the corpus (resumable)")
     return parser
+
+
+def _fetch_data() -> int:
+    """Fetch the corpus; print FAIL and return 1 on a bad download or I/O error."""
+    try:
+        data_download.fetch()
+    except (RuntimeError, OSError) as exc:  # urllib's URLError is an OSError
+        print(f"FAIL: fetch-data: {exc}")
+        return 1
+    return 0
 
 
 def _baseline(voice: str) -> int:
@@ -76,6 +87,8 @@ def main(argv: list[str] | None = None) -> int:
         return _inspect_pretrained(args.voice)
     elif args.command == "baseline":
         return _baseline(args.voice)
+    elif args.command == "fetch-data":
+        return _fetch_data()
     return 0
 
 

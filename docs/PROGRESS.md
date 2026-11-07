@@ -121,8 +121,10 @@ Branch `chunk/C3-data-audit`. Two notebooks, one per run: run 1 records the real
 corpus layout, run 2 is written against it. Local tests use tiny synthetic data only.
 
 Run 1 (spec `notebooks/specs/c3_data_audit_run1.py`, CPU):
-- [ ] C3.1 data_download.fetch() + `boinga fetch-data` + cell: zip to Drive with Range resume,
-  size + sha256 check, one-time unzip on Drive, per-VM copy to the fast disk
+- [x] C3.1 code: data_download.fetch() + `boinga fetch-data` + cell C3.1: zip to Drive with
+  Range resume, size + sha256 check, one-time unzip on Drive, per-VM copy to the fast disk
+  (this commit; Colab result and timing come with C3.V1)
+  Review follow-up: time unzip-to-Drive + copy vs extracting the Drive zip straight to /content
 - [ ] C3.2 tools/inspect_layout.py + cell: tree, file types, table heads, audio headers
   -> reports/data_layout.md
 - [ ] C3.H1 hand-off run 1
