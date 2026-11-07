@@ -1,4 +1,4 @@
-"""Training runner: coqui VITS loader check and fine-tune runs (resume, throughput: C7.3b/4)."""
+"""Training runner: coqui VITS loader check, new and resumed fine-tune runs (throughput: C7.4)."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import datetime as dt
 import inspect
 import json
 import os
+import re
 import time
 import types
 from collections.abc import Callable, Mapping
@@ -167,9 +168,29 @@ def _save_record(run_dir: Path, record: dict[str, Any]) -> None:
     os.replace(tmp, path)
 
 
-def checkpoints(run_dir: Path) -> list[Path]:
-    """coqui checkpoints in the run folders under run_dir (any session)."""
-    return sorted(run_dir.glob("*/checkpoint_*.pth"))
+_CKPT = re.compile(r"^checkpoint_(\d+)\.pth$")
+
+
+def _ckpt_step(path: Path) -> int | None:
+    """The step in a coqui checkpoint_<step>.pth name (None for best_model_* and others)."""
+    m = _CKPT.match(path.name)
+    return int(m.group(1)) if m else None
+
+
+def latest_run_folder(run_name: str) -> tuple[Path, int] | None:
+    """(coqui run folder, step) holding the highest-step checkpoint_*.pth, or None.
+
+    Chosen by step, not mtime: Drive sync and copies change mtimes. Folders without a
+    checkpoint (a failed attempt) are ignored. A step tie (a copied folder) goes to the larger
+    folder name; either folder holds the same step.
+    """
+    run_dir = paths.run_dir(run_name)
+    best: tuple[int, str, Path] | None = None
+    for ckpt in run_dir.glob("*/checkpoint_*.pth"):
+        step = _ckpt_step(ckpt)
+        if step is not None and (best is None or (step, ckpt.parent.name) > best[:2]):
+            best = (step, ckpt.parent.name, ckpt.parent)
+    return (best[2], best[0]) if best else None
 
 
 def _stopper(max_steps: int) -> Callable[[Any], None]:
@@ -181,31 +202,48 @@ def _stopper(max_steps: int) -> Callable[[Any], None]:
 
 
 def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
-    """Start a NEW fine-tune run from the pretrained checkpoint; stop after max_steps if given.
+    """Train run_name until max_steps total steps: resume its latest checkpoint, else start new.
 
+    A resume passes continue_path (coqui reloads the folder's config.json, optimizer, scaler
+    and step) and never restore_path; a new run restores the pretrained weights only.
     coqui's Trainer.fit() hard-exits the process (os._exit) on an interrupt and deletes the
     run folder on any other error, so the epoch loop _fit() is called instead and a stop
     raised by the step callback is caught here, followed by a forced checkpoint save.
     """
     if max_steps is not None and max_steps < 1:
         raise ValueError(f"max_steps must be >= 1, got {max_steps}")
+    if re.search(r"checkpoint_\d", run_name):  # coqui matches this anywhere in a file's path
+        raise ValueError(f"run name {run_name!r} would confuse coqui's checkpoint search")
     run_dir = paths.run_dir(run_name)
-    if old := checkpoints(run_dir):
-        raise RuntimeError(f"{run_dir} already has checkpoints ({old[-1].name}): resume it "
-                           "(C7.3b) or pick a new run name")
-    restore = train_config.base_dir() / pretrained.MODEL_FILE
-    if not restore.is_file():
-        raise FileNotFoundError(f"pretrained {restore} is missing: boinga fetch-pretrained")
-    train_config.build(run_name)
-    config_path = paths.REPO / train_config.CONFIG_REL
+    latest = latest_run_folder(run_name)
+    if latest is not None:
+        folder, step = latest
+        if max_steps is not None and step >= max_steps:
+            print(f"PASS: run {run_name} already at step {step}")
+            # nothing trained, so boinga_run.json gets no session on purpose
+            return {"kind": "done", "steps_done": step, "output_path": str(folder)}
+        config_path = folder / "config.json"  # the run's own config, never rebuilt
+        if not config_path.is_file():
+            raise FileNotFoundError(f"cannot resume {folder}: no config.json")
+        print(f"RESUME from step {step} in {folder}")
+        start: dict[str, Any] = {"kind": "resume", "continue_path": str(folder),
+                                 "resumed_from_step": step}
+        trainer_args: dict[str, str] = {"continue_path": str(folder)}
+    else:
+        restore = train_config.base_dir() / pretrained.MODEL_FILE
+        if not restore.is_file():
+            raise FileNotFoundError(f"pretrained {restore} is missing: boinga fetch-pretrained")
+        train_config.build(run_name)
+        config_path = paths.REPO / train_config.CONFIG_REL
+        start = {"kind": "new", "restore_path": str(restore)}
+        trainer_args = {"restore_path": str(restore)}
     coqui = _coqui()
     config = coqui.VitsConfig()
     config.load_json(str(config_path))
     env = env_report.collect()
     session: dict[str, Any] = {
-        "kind": "new", "git_commit": env.get("git_commit"), "env": env,
-        "config_path": str(config_path), "restore_path": str(restore),
-        "max_steps": max_steps, "start_utc": _utc(),
+        **start, "git_commit": env.get("git_commit"), "env": env,
+        "config_path": str(config_path), "max_steps": max_steps, "start_utc": _utc(),
     }
     run_dir.mkdir(parents=True, exist_ok=True)
     record = _load_record(run_dir, run_name)  # keeps failed earlier attempts (no checkpoint)
@@ -216,7 +254,7 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
         model = coqui.Vits(config)  # coqui 0.28: no Vits.init_from_config (see C7.2)
         train, evals = coqui.load_tts_samples(config, eval_split=True)
         trainer = coqui.Trainer(
-            coqui.TrainerArgs(restore_path=str(restore)), config, output_path=str(run_dir),
+            coqui.TrainerArgs(**trainer_args), config, output_path=str(run_dir),
             model=model, train_samples=train, eval_samples=evals,
             parse_command_line_args=False,  # never read `boinga train` flags as overrides
             callbacks={"on_train_step_end": _stopper(max_steps)} if max_steps else {})

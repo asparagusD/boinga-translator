@@ -857,3 +857,22 @@ run(). coqui logs "Partial model initialization" if the restore did not match th
 C7.4 cells should forbid that line. The forced save stores step N (coqui's periodic save
 stores N-1 before its increment) and a continue adds 1, so a resumed run counts one step
 more than it trained: harmless for VITS (scheduler per epoch); C7.3b tests expect it.
+
+## 2026-11-08 — Training resume: latest checkpoint by step, continue_path only
+**Context:** C7.3b: a Colab session can drop at any time, so `boinga train --run NAME` must
+pick up where the run on Drive stopped. Each attempt gets its own dated coqui folder under
+`paths.run_dir(NAME)`.
+**Decision:** `train_runner.latest_run_folder(NAME)` picks the sub-folder holding the
+highest-step `checkpoint_<step>.pth` (by step, not mtime: Drive copies change mtimes; folders
+without a checkpoint and `best_model_*` files are ignored). If it exists, run() passes
+`TrainerArgs(continue_path=<folder>)` and never restore_path, loads that folder's own
+config.json (no rebuild), prints "RESUME from step N in <folder>"; coqui then restores model,
+optimizer, scheduler, scaler and step itself (inside a folder it also picks the highest
+step). max_steps counts total steps; a run whose latest checkpoint is already at max_steps
+prints "PASS: run NAME already at step N" and trains nothing. Otherwise it is a new run from
+the pretrained checkpoint (C7.3a).
+**Alternatives:** Newest folder by mtime (unreliable on Drive); a separate `boinga resume`
+command (one idempotent command is what "Run all" needs).
+**Consequences:** A config change after a run started does not reach that run: a new run name
+is needed. A truncated last checkpoint (Drive write cut off) would still be chosen; coqui
+fails loading it, and the fix is to delete that file (not handled automatically yet).

@@ -1495,13 +1495,13 @@
     },
     {
       "kind": "doc",
-      "lines": 859,
+      "lines": 878,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 551,
+      "lines": 556,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1807,7 +1807,7 @@
     },
     {
       "kind": "module",
-      "lines": 315,
+      "lines": 316,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1903,9 +1903,9 @@
     },
     {
       "kind": "module",
-      "lines": 246,
+      "lines": 284,
       "path": "src/boinga_translator/train_runner.py",
-      "purpose": "Training runner: coqui VITS loader check and fine-tune runs (resume, throughput: C7.3b/4)."
+      "purpose": "Training runner: coqui VITS loader check, new and resumed fine-tune runs (throughput: C7.4)."
     },
     {
       "kind": "test",
@@ -2113,7 +2113,7 @@
     },
     {
       "kind": "test",
-      "lines": 199,
+      "lines": 265,
       "path": "tests/test_train_run.py",
       "purpose": "Tests for train_runner.run() and `boinga train`: TrainerArgs, step stop, boinga_run.json (fakes)."
     },

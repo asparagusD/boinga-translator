@@ -505,12 +505,17 @@ map/notebook and PROGRESS.
   max_steps via an `on_train_step_end` callback raising StopTraining, then a forced
   save_checkpoint and "STOP at step N"; `boinga_run.json` per session (git, env, config,
   restore, max_steps, start/end, steps, peak GPU memory, error; sessions appended); an
-  interrupt saves a checkpoint first; refuses a run folder with checkpoints. DECISIONS "Training run". Tests `tests/test_train_run.py` (fake Trainer, no
+  interrupt saves a checkpoint first; refuses a run folder with checkpoints (replaced by
+  resume in C7.3b). DECISIONS "Training run". Tests `tests/test_train_run.py` (fake Trainer, no
   torch) (this commit). No notebook cell yet (C7.4 adds smoke/resume). Results: C7 run 1
-- [ ] C7.3b auto-resume: `latest_run_folder(run_dir)` finds the coqui run folder with the
-  newest readable `checkpoint_*.pth` (0-byte/unreadable last file -> previous one); found ->
-  `continue_path` and never `restore_path`; none -> new run (C7.3a). Refuses both set. Tests
-  on tmp folders with fake checkpoint files. ~60 lines
+- [x] C7.3b code: `train_runner.latest_run_folder(run_name)` -> (folder, step) of the
+  highest-step `checkpoint_<step>.pth` under `paths.run_dir(run_name)` (not mtime; empty
+  folders and best_model_* ignored); run() resumes with `TrainerArgs(continue_path=folder)`,
+  never restore_path, from the folder's own config.json, printing "RESUME from step N in
+  <folder>"; max_steps counts total steps; already at max_steps -> "PASS: run NAME already at
+  step N" and no training. DECISIONS "Training resume". Tests in `tests/test_train_run.py`
+  (fake folders: new vs resume, highest step, empty folders, already done) (this commit).
+  Not handled: a truncated last checkpoint (C7.3 plan idea) is still chosen
 - [ ] C7.4 throughput + `boinga train --run NAME [--max-steps N]`: a step-end callback
   records step time and `torch.cuda.max_memory_allocated`, NaN/inf in any loss -> stop + FAIL
   (fp16 -> fp32 is then a logged config change, not automatic); `throughput_report()` ->

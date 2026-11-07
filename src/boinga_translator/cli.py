@@ -63,11 +63,11 @@ def build_parser() -> argparse.ArgumentParser:
     bcfg.add_argument("--run", required=True, help="run name (one folder under runs/)")
     sub.add_parser("check-loader", help="load one coqui train batch from the fine-tune config "
                                         "and check token ids and finite audio")
-    train = sub.add_parser("train", help="start a new fine-tune run from the pretrained "
-                                         "checkpoint (run folder on Drive)")
+    train = sub.add_parser("train", help="train a run: resume its latest Drive checkpoint, "
+                                         "else start from the pretrained one")
     train.add_argument("--run", required=True, help="run name (one folder under runs/)")
     train.add_argument("--max-steps", type=int, default=None,
-                       help="stop after N optimiser steps and save a checkpoint")
+                       help="stop at N total optimiser steps and save a checkpoint")
     return parser
 
 
@@ -107,8 +107,9 @@ def _train(run_name: str, max_steps: int | None) -> int:
     except Exception as exc:  # noqa: BLE001 - coqui/torch/CUDA errors vary; show the type
         print(f"FAIL: train {type(exc).__name__}: {exc}")
         return 1
-    print(f"PASS: run {run_name} at step {session['steps_done']} "
-          f"(peak GPU memory {session['peak_gpu_memory_gb']} GB)")
+    if session["kind"] != "done":  # run() already printed "PASS: ... already at step N"
+        print(f"PASS: run {run_name} at step {session['steps_done']} "
+              f"(peak GPU memory {session['peak_gpu_memory_gb']} GB)")
     return 0
 
 
