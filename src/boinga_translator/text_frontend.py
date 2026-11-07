@@ -1,9 +1,9 @@
 """Text front-end: NFC-only normalise() plus configs/char_map.json for every text the model sees."""
 
-# DECISIONS "Character map": prepare() = normalise() (NFC, collapse, strip), then
-# the ordered char_map replacements, then collapse/strip again. Its output is deliberately
-# not NFC (precomposed nukta letters), so nothing may re-normalise it afterwards; prepare()
-# itself is idempotent because the map recomposes what NFC decomposes. Rows containing an
+# DECISIONS "Character map": prepare_text() (= prepare()) = normalise() (NFC, collapse,
+# strip), then apply_char_map() (the ordered replacements), then collapse/strip again. Its
+# output is deliberately not NFC (precomposed nukta letters), so nothing may re-normalise it
+# afterwards; it is idempotent because the map recomposes what NFC decomposes. Rows containing an
 # exclude_rows_with character are dropped from training, never rewritten.
 
 from __future__ import annotations
@@ -68,13 +68,34 @@ def map_digest(cmap: CharMap | None = None) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:10]
 
 
-def prepare(text: str, cmap: CharMap | None = None) -> str:
-    """The text the model reads: NFC, collapse/strip, char_map, collapse/strip again."""
-    cmap = cmap or default_char_map()
-    out = normalise(text)
+def apply_char_map(text: str, mapping: CharMap | None = None) -> str:
+    """Only the ordered char_map replacements (default configs/char_map.json), nothing else.
+
+    Characters not in the map, and whitespace, are left exactly as they are.
+    """
+    cmap = default_char_map() if mapping is None else mapping
     for src, dst in cmap.pairs:
-        out = out.replace(src, dst)
-    return " ".join(out.split())
+        text = text.replace(src, dst)
+    return text
+
+
+def prepare_text(text: str, mapping: CharMap | None = None) -> str:
+    """The text the model reads: apply_char_map(normalise(text)), whitespace re-collapsed.
+
+    Removing a character (quote, bracket) can leave a double or edge space, so whitespace
+    is collapsed and stripped once more. Not NFC-stable: never re-normalise the output.
+    """
+    return " ".join(apply_char_map(normalise(text), mapping).split())
+
+
+def prepare(text: str, cmap: CharMap | None = None) -> str:
+    """Same as prepare_text (the name the audit, baseline and OOV report use)."""
+    return prepare_text(text, cmap)
+
+
+def count_unknown(text: str, charset: frozenset[str] | set[str]) -> int:
+    """Occurrences (not distinct characters) of non-whitespace characters not in charset."""
+    return sum(1 for c in text if c not in charset and not c.isspace())
 
 
 def excluded(text: str, cmap: CharMap | None = None) -> bool:

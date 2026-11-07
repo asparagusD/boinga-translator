@@ -483,6 +483,28 @@ rows (৭ ৯ / : *), so no unknown character reaches training. Gate G2 conditio
 (279 vs the 278 above: the preview counted the 8,004 rows with audio, the audit counts
 all 8,009 index rows; one of the 5 rows without a wav has an excluded character.)
 
+**Reviewed in C5.3 (2026-11-07): no new entries; the map above stays as it is.** C5 run 1
+(reports/oov_report.md, commit 5d35740) checked the training speaker's 7,506 clips,
+mapped with this map, against the base voice's (male) charset: 0 of 251,223 characters
+unknown, 0 clips affected. The user declined (chat, C5.V1) eight optional inference-only
+entries that the corpus never uses: ‐ U+2010, ‑ U+2011 and − U+2212 -> "-"; ― U+2015 -> —;
+and dropping U+200B, U+FEFF, U+00AD, U+2060. The user also chose (chat, C5.3) to keep
+the file and its list format instead of an empty {map, drop} file: an empty file would
+undo the decisions above, and any change to the parsed map changes map_digest and makes
+audit.csv stale. The approved mappings are therefore the 18 entries listed above, in
+order:
+- "।" (U+0964) and "৷" (U+09F7) -> "."
+- ৰ (U+09F0) and ৱ (U+09F1) -> র (U+09B0)
+- ' " “ ” ( ) … removed
+- – (U+2013) -> — (U+2014)
+- | -> "."; ; -> ","; ZWJ (U+200D) removed
+- য+় -> য় (U+09DF), ড+় -> ড় (U+09DC), ঢ+় -> ঢ় (U+09DD)
+
+The row exclusions ("/", ":", "*", digits) are unchanged. text_frontend now exposes the
+steps as apply_char_map() (the replacements only), prepare_text() (=
+apply_char_map(normalise(text)), whitespace collapsed again; prepare() is the same) and
+count_unknown(); behaviour and map digest (151ac177e2) are unchanged.
+
 ## 2026-11-07 — Speakers: fine-tune the single-speaker model on the mixed voices
 **Context:** Gate G2 condition 2. The corpus has no speaker field and the C3.5 listening
 heard "many" speakers. Options offered (chat): A mixed voices (all clean clips into the

@@ -307,8 +307,11 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
   reports/oov_report.md: 7,506 selected clips, 0 excluded, OOV 0 of 251,223 characters
   (0.00%), 0 clips with an OOV character vs the male charset, char map 151ac177e2 (this
   commit)
-- [ ] C5.3 `apply_char_map()` extracted from prepare() + configs/char_map.json entries for
-  any unknown character run 1 finds (user approval; DECISIONS) (local)
+- [x] C5.3 `apply_char_map(text, mapping=None)`, `prepare_text()` (= apply_char_map of
+  normalise, whitespace re-collapsed; prepare() delegates) and `count_unknown(text,
+  charset)` in text_frontend; configs/char_map.json unchanged (user: no new entries, keep
+  the C3.8 map and its list format; digest 151ac177e2, no re-audit); DECISIONS "Character
+  map" C5.3 note (this commit)
 - [ ] C5.4 `text_frontend.check_tokenizer()` + `boinga check-tokenizer` + cells (spec
   `notebooks/specs/c5_text_frontend_run2.py`, CPU): coqui TTSTokenizer from the base
   voice's config on every kept selected row: unknown characters, round trip, token lengths

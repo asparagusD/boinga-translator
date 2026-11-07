@@ -928,6 +928,11 @@
     {
       "kind": "test",
       "source": "tests/test_text_frontend.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_text_frontend.py",
       "target": "src/boinga_translator/text_frontend.py"
     },
     {
@@ -1124,13 +1129,13 @@
     },
     {
       "kind": "doc",
-      "lines": 624,
+      "lines": 646,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 345,
+      "lines": 348,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1454,7 +1459,7 @@
     },
     {
       "kind": "module",
-      "lines": 83,
+      "lines": 104,
       "path": "src/boinga_translator/text_frontend.py",
       "purpose": "Text front-end: NFC-only normalise() plus configs/char_map.json for every text the model sees."
     },
@@ -1634,9 +1639,9 @@
     },
     {
       "kind": "test",
-      "lines": 118,
+      "lines": 157,
       "path": "tests/test_text_frontend.py",
-      "purpose": "Tests for text_frontend.py: NFC-only normalise(), char_map application, row exclusion."
+      "purpose": "Tests for text_frontend.py: normalise, apply_char_map, prepare_text, count_unknown, exclusion."
     },
     {
       "kind": "test",

@@ -1,4 +1,4 @@
-"""Tests for text_frontend.py: NFC-only normalise(), char_map application, row exclusion."""
+"""Tests for text_frontend.py: normalise, apply_char_map, prepare_text, count_unknown, exclusion."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from boinga_translator import data_audit, text_frontend
+from boinga_translator import data_audit, paths, text_frontend
 
 # --- normalise(): NFC + collapse whitespace + strip, nothing else -------------------------
 HASANTA, NUKTA, KHANDA_TA = "্", "়", "ৎ"
@@ -116,3 +116,42 @@ def test_custom_map_file_and_validation(tmp_path: Path) -> None:
                                "exclude_rows_with": {"chars": "", "note": ""}}), encoding="utf-8")
     with pytest.raises(ValueError, match="empty 'from'"):
         text_frontend.load_char_map(bad)
+
+
+# --- apply_char_map / prepare_text / count_unknown (C5.3) ---------------------------------
+MAP_ENTRIES = [(e["from"], e["to"]) for e in json.loads(
+    (paths.configs_dir() / text_frontend.CHAR_MAP_FILE).read_text(encoding="utf-8"))["map"]]
+
+
+@pytest.mark.parametrize(("src", "dst"), MAP_ENTRIES, ids=[f"U+{ord(s[0]):04X}" for s, _ in
+                                                           MAP_ENTRIES])
+def test_apply_char_map_each_approved_entry(src: str, dst: str) -> None:
+    assert text_frontend.apply_char_map(src) == dst
+    assert text_frontend.apply_char_map(f"ক{src}খ") == f"ক{dst}খ"
+
+
+def test_apply_char_map_leaves_unknowns_and_spacing_untouched() -> None:
+    for text in ("xyz", "৭৯", "a/b:c*", "é‐\u200b", "ক  খ "):
+        assert text_frontend.apply_char_map(text) == text  # only listed characters change
+    assert text_frontend.apply_char_map("ক (খ) ") == "ক খ "  # no collapse
+
+
+def test_empty_map_is_a_no_op() -> None:
+    empty = text_frontend.CharMap((), frozenset())
+    for text in ("। ' ৰ |", f"য{NUKTA}", ""):
+        assert text_frontend.apply_char_map(text, empty) == text
+    assert text_frontend.prepare_text("  ক। ", empty) == "ক।"  # normalise only
+
+
+def test_prepare_text_is_map_of_normalise_then_recollapsed() -> None:
+    raw = "  আঁই 'চাট' যায়  । "
+    assert text_frontend.prepare_text(raw) == " ".join(
+        text_frontend.apply_char_map(text_frontend.normalise(raw)).split())
+    assert text_frontend.prepare_text(raw) == text_frontend.prepare(raw)  # same front-end
+
+
+def test_count_unknown() -> None:
+    charset = frozenset("abc ")
+    assert text_frontend.count_unknown("abc cab", charset) == 0
+    assert text_frontend.count_unknown("ab xx y\t", charset) == 3  # whitespace never counts
+    assert text_frontend.count_unknown("", charset) == 0

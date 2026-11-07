@@ -47,7 +47,7 @@ def oov_report(texts: Iterable[str], charset: frozenset[str] | set[str]) -> pd.D
 
 def clips_with_oov(texts: Iterable[str], charset: frozenset[str] | set[str]) -> int:
     """How many texts contain at least one non-space character outside charset."""
-    return sum(any(c not in charset and not c.isspace() for c in t) for t in texts)
+    return sum(text_frontend.count_unknown(t, charset) > 0 for t in texts)
 
 
 _MD_SPECIAL = "\\`*_|"

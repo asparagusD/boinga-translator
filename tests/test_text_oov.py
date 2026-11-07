@@ -12,7 +12,7 @@ import pytest
 
 from boinga_translator import cli, corpus, paths, speaker_select, text_frontend, text_oov
 
-REAL_MAP = Path(__file__).resolve().parents[1] / "configs" / text_frontend.CHAR_MAP_FILE
+REAL_MAP = paths.configs_dir() / text_frontend.CHAR_MAP_FILE  # resolved before any monkeypatch
 
 FAKE = frozenset("abcdন ")  # a tiny "model charset"; the space is never reported
 
