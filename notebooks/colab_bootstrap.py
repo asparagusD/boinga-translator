@@ -1,4 +1,4 @@
-"""Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."""
+"""Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, make folders."""
 
 # tools/build_notebook.py copies these 4 cells (as BOOT.1-4, BRANCH set from the spec) into
 # every notebook under notebooks/runs/ (edit this file, never the .ipynb, then rebuild with
@@ -12,7 +12,8 @@
 #    asparagusD/boinga-translator only (Contents: Read-only), and enable notebook access.
 # 3. Generated notebooks already have BRANCH set (BOOT.2): Runtime > Run all, then follow
 #    the notebook's own "What to do" steps. Pasting cells by hand instead: set BRANCH in
-#    cell 2 to the branch under test and run the cells top to bottom.
+#    cell 2 to the branch under test, run the cells top to bottom, then `!boinga env` (the
+#    HDR cell of a built notebook records the environment; these cells no longer do).
 # 4. If pip asks you to restart, do Runtime > Restart session, then run BOOT.3 and BOOT.4.
 #
 # The token is never printed and never stored in a git URL: cell 2 puts it in git's
@@ -111,7 +112,7 @@ else:
     print(f"FAIL: pip exit {pip.returncode}, versions {versions}")
     raise SystemExit(1)
 
-# %% Cell 4/4 - create project folders and record the environment report
+# %% Cell 4/4 - create project folders (the HDR cell records the environment)
 import os
 import sys
 
@@ -124,7 +125,7 @@ if f"{REPO_DIR}/src" not in sys.path:  # editable install is not visible until a
     sys.path.insert(0, f"{REPO_DIR}/src")
 for name in [m for m in sys.modules if m.split(".")[0] == "boinga_translator"]:
     del sys.modules[name]  # re-import so code pulled by cell 2 is used, not a cached copy
-from boinga_translator import env_report, paths
+from boinga_translator import paths
 
-paths.ensure_dirs()
-env_report.run()  # prints the reports/env.json block and "PASS: env recorded"
+dirs = paths.ensure_dirs()  # refuses if Drive is not mounted
+print(f"PASS: {len(dirs)} project folders ready under {paths.root()}")

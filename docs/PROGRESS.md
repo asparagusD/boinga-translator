@@ -63,9 +63,11 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
   (A = spec + notebook, B = reports from the verified run)
 
 ### C1N follow-ups (before the C1N merge)
-- [ ] reports/env.json is emitted twice per run (BOOT.4 and HDR's run_header);
+- [x] reports/env.json is emitted twice per run (BOOT.4 and HDR's run_header);
   report_io.parse_blocks rejects duplicates, so save_pasted_reports fails on a full paste.
   Make HDR the only emitter in built notebooks; the C1.8 reader parses per cell anyway
+  Done: BOOT.4 no longer records env. Known exception: the C1 pilot spec's own C1.10.a
+  cell (user-specified) still emits env.json next to HDR
 - [ ] Stop-on-FAIL: cell_ok only prints CELL-OK and expect_files only returns False, so a
   FAIL line does not stop Run all; decide raise-in-cell vs reader-only (C1.8 / C1.9)
 

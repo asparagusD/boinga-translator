@@ -3,22 +3,12 @@
     {
       "kind": "import",
       "source": "notebooks/colab_bootstrap.py",
-      "target": "src/boinga_translator/env_report.py"
-    },
-    {
-      "kind": "import",
-      "source": "notebooks/colab_bootstrap.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
-    },
-    {
-      "kind": "notebook",
-      "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
-      "target": "src/boinga_translator/env_report.py"
     },
     {
       "kind": "notebook",
@@ -264,7 +254,7 @@
     },
     {
       "kind": "skill",
-      "lines": 74,
+      "lines": 77,
       "path": ".claude/skills/colab-handoff/SKILL.md",
       "purpose": "\"How to put work on Colab in boinga-translator: write cells into the chunk's notebook spec and hand the whole notebook to the user."
     },
@@ -330,21 +320,21 @@
     },
     {
       "kind": "doc",
-      "lines": 109,
+      "lines": 128,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 110,
+      "lines": 112,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
     {
       "kind": "module",
-      "lines": 130,
+      "lines": 131,
       "path": "notebooks/colab_bootstrap.py",
-      "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."
+      "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, make folders."
     },
     {
       "kind": "notebook",
@@ -408,7 +398,7 @@
     },
     {
       "kind": "module",
-      "lines": 104,
+      "lines": 115,
       "path": "src/boinga_translator/colab_runtime.py",
       "purpose": "Helpers called inside generated Colab cells: run header, cell markers, notes, file checks."
     },
@@ -444,13 +434,13 @@
     },
     {
       "kind": "test",
-      "lines": 59,
+      "lines": 60,
       "path": "tests/test_colab_bootstrap.py",
       "purpose": "Tests for notebooks/colab_bootstrap.py: parses as Python, 4 cells, guards, no secrets in it."
     },
     {
       "kind": "test",
-      "lines": 134,
+      "lines": 150,
       "path": "tests/test_colab_runtime.py",
       "purpose": "Tests for colab_runtime.py: run header, cell marker, notes, expect_files and play fallbacks."
     },
