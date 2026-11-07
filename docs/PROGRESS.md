@@ -458,8 +458,69 @@ the generated map/notebook and PROGRESS.
   "Audio preprocessing" mentions a C6.4 form (listening came by chat); tar size estimates
   1.3 vs 1.2 GB (measure it on Drive)
 
-## C7
-- [ ] C7.x (subchunks not yet defined)
+## C7 — Training runner, smoke test and resume
+Branch `chunk/C7-train-runner`. One T4 notebook for the chunk: spec
+`notebooks/specs/c7_train_runner.py` -> `notebooks/runs/C7_train-runner_run1.ipynb`. Every
+subchunk that adds cells rebuilds it (pre-commit `--check`); only C7.H hands it over. Two new
+modules: `train_config.py` (config from the pretrained config.json + a documented overrides
+dict) and `train_runner.py` (loader check, coqui Trainer setup, resume, throughput). Local tests
+never import torch/TTS/trainer: fake config dicts, fake loaders, fake Trainer factories, tmp run
+folders. Training cells are Python calls that stop with `colab_runtime.fail()` (a failing `!`
+line does not stop Run all). Every cell gets an `md()` explanation before it, and slow work
+(loader check, smoke/resume training, eval synthesis) shows tqdm progress (CLAUDE.md). Base
+voice = male (configs/speaker_selection.json), rate 22,050
+from configs/pretrained_facts.json. Line counts are non-test estimates, excluding the generated
+map/notebook and PROGRESS.
+- [ ] C7.0 skipped: Gate G4 PASS (0 of 297,218 characters unknown) chose no embedding change
+  (DECISIONS "Gate G4 — text frontend")
+- [x] C7.1 code: `train_config.build(run_name)` + `boinga build-config --run NAME`: base
+  voice config.json from `base_dir()` (`paths.pretrained()/<voice>_extended` if present, else
+  `<voice>`; voice from configs/speaker_selection.json), `OVERRIDES` as value + reason (batch
+  16 / eval 8, loader workers 2/1, fp16, run_eval, test_delay_epochs 0, print_step 25,
+  save_step 500, keep 2, best after 1000, seed, epochs 1000, restore_path null) plus computed
+  ones (lr_gen/lr_disc 0.5 x pretrained, min/max audio 0.5/15 s x sample_rate, first 5 val
+  manifest texts as test sentences, ljspeech dataset at `paths.data_prepared()` language bn,
+  output `paths.runs()`, run_name); refuses a change to audio, characters, use_phonemes,
+  text_cleaner, add_blank, model_args or a foreign absolute path; writes
+  configs/vits_ctg_finetune.json + reports/config_overrides.md (emitted) and replaces the
+  table in DECISIONS "Fine-tune config"; `RUN_BUDGETS = {}` (C8). `tools/validate_config.py`
+  (coqui `VitsConfig().load_json`, "PASS: coqui accepts config"). Spec
+  `notebooks/specs/c7_train_runner.py` (slug `train-runner`: nbkit slugs allow no "_"),
+  cells C7.pre (fetch-data + prepare) and C7.1. Tests `tests/test_train_config.py` (this
+  commit). Results: C7 run 1
+- [ ] C7.2 `train_runner.check_loader(cfg_path, n_batches=3)` + `boinga check-loader`:
+  load_tts_samples + Vits.init_from_config + model.get_data_loader (train, no model weights
+  needed beyond init); per batch: shapes, max token id < num_chars, no NaN in wavs/specs, text
+  and audio length bounds, sec/batch; sample counts after the length filter vs
+  configs/splits_summary.json. Cell C7.2. Tests with an injected fake loader. ~70 lines
+- [ ] C7.3a `train_runner.run(run_name, max_steps=None)` for a new run: TrainerArgs
+  `restore_path` = cached pretrained model.pth, `continue_path` empty; output under
+  `paths.run_dir(run_name)` on Drive; restore check logs how many `disc.`/`dec.`/text-encoder
+  keys loaded (G1: 111 disc keys expected; none -> log, longer warm-up, consider F);
+  `max_steps` stop via a trainer step-end callback, mechanism confirmed first against the
+  installed coqui-tts-trainer source (it must leave a checkpoint behind; DECISIONS entry).
+  Factories injected so tests use a fake Trainer. ~110 lines
+- [ ] C7.3b auto-resume: `latest_run_folder(run_dir)` finds the coqui run folder with the
+  newest readable `checkpoint_*.pth` (0-byte/unreadable last file -> previous one); found ->
+  `continue_path` and never `restore_path`; none -> new run (C7.3a). Refuses both set. Tests
+  on tmp folders with fake checkpoint files. ~60 lines
+- [ ] C7.4 throughput + `boinga train --run NAME [--max-steps N]`: a step-end callback
+  records step time and `torch.cuda.max_memory_allocated`, NaN/inf in any loss -> stop + FAIL
+  (fp16 -> fp32 is then a logged config change, not automatic); `throughput_report()` ->
+  `reports/throughput.json` (gpu, batch, fp16, steps, median sec/step after 5 warm-up steps,
+  peak GB, eval sec, hours per 10k steps), emitted. Cells: C7.0 fetch-data, C7.0p prepare
+  (expects "restored" + "0 clip(s) to do", C6 follow-up), C7.0m fetch-pretrained male,
+  C7.4.smoke (run "smoke", 50 steps), C7.4.resume (same run, to step 60: log shows
+  continue_path, first step > 50), C7.4.report, C7.4.play (test sentences of the smoke
+  checkpoint: noise expected, checks the synth path only). ~100 lines
+- [ ] C7.H hand-off: notebook (T4) built, `--all --check` clean, pushed; link, save name
+  `colab_runs/C7_train-runner_run1.ipynb`; duration not measured (smoke ~15-30 min estimate)
+- [ ] C7.V verify (colab-verify): every cell PASS, not stale; reports/throughput.json and
+  configs/vits_ctg_finetune.json committed as results
+- [ ] C7.5 Gate G5 — training runner: PASS if 50 smoke steps + resumed steps finish with
+  finite losses, resume continues from the saved step (no second restore), peak memory fits
+  the T4 with margin and sec/step is measured; record hours for the C8 run from throughput.
+  FAIL -> debug-protocol (batch/fp32/length limits), Chunk F only by its trigger rules
 
 ## C8
 - [ ] C8.x (subchunks not yet defined)

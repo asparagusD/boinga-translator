@@ -18,6 +18,7 @@ from boinga_translator import (
     speaker_select,
     text_frontend,
     text_oov,
+    train_config,
 )
 
 
@@ -56,6 +57,9 @@ def build_parser() -> argparse.ArgumentParser:
     prep = sub.add_parser("prepare", help="splits, model-rate wavs, ljspeech manifests and a "
                                           "Drive backup (resumable, restores on a new VM)")
     prep.add_argument("--workers", type=int, default=2, help="transform processes (default 2)")
+    bcfg = sub.add_parser("build-config", help="derive configs/vits_ctg_finetune.json from the "
+                                               "base voice's pretrained config")
+    bcfg.add_argument("--run", required=True, help="run name (one folder under runs/)")
     return parser
 
 
@@ -65,6 +69,16 @@ def _prepare(workers: int) -> int:
         prepare.build(workers=workers)
     except (ImportError, RuntimeError, ValueError, KeyError, OSError) as exc:
         print(f"FAIL: prepare: {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _build_config(run_name: str) -> int:
+    """Write the fine-tune config; FAIL + exit 1 on error."""
+    try:
+        train_config.build(run_name)
+    except (RuntimeError, ValueError, KeyError, OSError) as exc:  # JSONDecodeError is a ValueError
+        print(f"FAIL: build-config: {type(exc).__name__}: {exc}")
         return 1
     return 0
 
@@ -259,6 +273,8 @@ def main(argv: list[str] | None = None) -> int:
         return _check_tokenizer()
     elif args.command == "prepare":
         return _prepare(args.workers)
+    elif args.command == "build-config":
+        return _build_config(args.run)
     return 0
 
 

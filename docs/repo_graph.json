@@ -181,6 +181,16 @@
       "target": "src/boinga_translator/prepare.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C7_train-runner_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C7_train-runner_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -263,6 +273,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c6_prepare.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c7_train_runner.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -409,6 +424,11 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/text_oov.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/train_config.py"
     },
     {
       "kind": "import",
@@ -644,6 +664,36 @@
       "kind": "import",
       "source": "src/boinga_translator/text_oov.py",
       "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_config.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_config.py",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_config.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_config.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_config.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_config.py",
+      "target": "src/boinga_translator/speaker_select.py"
     },
     {
       "kind": "test",
@@ -1171,6 +1221,31 @@
       "target": "src/boinga_translator/text_oov.py"
     },
     {
+      "kind": "test",
+      "source": "tests/test_train_config.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_config.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_config.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_config.py",
+      "target": "src/boinga_translator/train_config.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_train_config.py",
+      "target": "tools/validate_config.py"
+    },
+    {
       "kind": "import",
       "source": "tools/build_notebook.py",
       "target": "tools/nbkit.py"
@@ -1214,6 +1289,16 @@
       "kind": "import",
       "source": "tools/save_pasted_reports.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/validate_config.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/validate_config.py",
+      "target": "src/boinga_translator/train_config.py"
     }
   ],
   "nodes": [
@@ -1345,13 +1430,13 @@
     },
     {
       "kind": "doc",
-      "lines": 800,
+      "lines": 830,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 483,
+      "lines": 544,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1428,6 +1513,12 @@
       "purpose": "C6 run 1 — C6 — prepared dataset"
     },
     {
+      "kind": "notebook",
+      "lines": 387,
+      "path": "notebooks/runs/C7_train-runner_run1.ipynb",
+      "purpose": "C7 run 1 — C7 — training runner and smoke test"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -1492,6 +1583,12 @@
       "lines": 50,
       "path": "notebooks/specs/c6_prepare.py",
       "purpose": "Spec: C6 run 1, prepared dataset: resampled clips, splits and coqui manifests (CPU)."
+    },
+    {
+      "kind": "module",
+      "lines": 38,
+      "path": "notebooks/specs/c7_train_runner.py",
+      "purpose": "Spec: C7 run 1, training runner: prepared data, fine-tune config, loader, smoke and resume (T4)."
     },
     {
       "kind": "config",
@@ -1645,7 +1742,7 @@
     },
     {
       "kind": "module",
-      "lines": 266,
+      "lines": 282,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1732,6 +1829,12 @@
       "lines": 122,
       "path": "src/boinga_translator/text_oov.py",
       "purpose": "OOV report: characters in the selected clips' model text that the base voice's charset lacks."
+    },
+    {
+      "kind": "module",
+      "lines": 178,
+      "path": "src/boinga_translator/train_config.py",
+      "purpose": "Fine-tune config: the base voice's pretrained config.json plus logged, reasoned overrides."
     },
     {
       "kind": "test",
@@ -1932,6 +2035,12 @@
       "purpose": "Tests for text_frontend.check_tokenizer and `boinga check-tokenizer` with a fake coqui tokenizer."
     },
     {
+      "kind": "test",
+      "lines": 213,
+      "path": "tests/test_train_config.py",
+      "purpose": "Tests for train_config.py and `boinga build-config`: overrides, protected keys, outputs."
+    },
+    {
       "kind": "tool",
       "lines": 216,
       "path": "tools/build_notebook.py",
@@ -1984,6 +2093,12 @@
       "lines": 35,
       "path": "tools/save_pasted_reports.py",
       "purpose": "Save BEGIN/END report blocks pasted from Colab into the repo (from a file or stdin)."
+    },
+    {
+      "kind": "tool",
+      "lines": 42,
+      "path": "tools/validate_config.py",
+      "purpose": "Colab check (C7.1): coqui's VitsConfig loads configs/vits_ctg_finetune.json with every override."
     }
   ]
 }
