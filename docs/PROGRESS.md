@@ -553,6 +553,11 @@ map/notebook and PROGRESS.
     T4 (this commit)
   - [x] C7.4 fix: `boinga clean-run` + cell C7.4.0 so the re-run starts a fresh smoke run
     (`90c4504`)
+  - [x] C7.4 re-run results (f681627, RTX PRO 6000, seed 1234): C7.4.0 "PASS: cleaned run
+    smoke: removed .../runs/smoke (2.00 GB ...)"; "STOP at step 50" (peak 3.39 GB),
+    "RESUME from step 50", "STOP at step 60" (peak 3.262 GB); throughput 0.3418 s/step
+    over 10 steps (10,533 steps/h), no NaN loss, loss_mel 30.7 at step 55; C7.2 also PASS
+    again (ids 0..86 of vocab 87); reports/throughput.json replaces run 1's (this commit)
 - [x] C7.4b `train_config.RUN_OVERRIDES` (per-run, value + reason) with print_step 5 for run
   `smoke` only (user, chat 2026-11-08): steps 5-45 and 55 timed (~10 samples) instead of 1;
   `reasons(run_name)` fills the DECISIONS table; cell texts updated (this commit)
