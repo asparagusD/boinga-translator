@@ -1,24 +1,44 @@
 {
   "edges": [
     {
+      "kind": "import",
+      "source": "notebooks/colab_bootstrap.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "notebook",
-      "source": "notebooks/c1_colab_bootstrap.ipynb",
+      "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C1_pilot_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C1_pilot_run1.ipynb",
       "target": "src/boinga_translator/env_report.py"
     },
     {
       "kind": "notebook",
-      "source": "notebooks/c1_colab_bootstrap.ipynb",
+      "source": "notebooks/runs/C1_pilot_run1.ipynb",
       "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "import",
-      "source": "notebooks/colab_bootstrap.py",
-      "target": "src/boinga_translator/env_report.py"
+      "source": "notebooks/specs/c1_bootstrap.py",
+      "target": "tools/nbkit.py"
     },
     {
       "kind": "import",
-      "source": "notebooks/colab_bootstrap.py",
-      "target": "src/boinga_translator/paths.py"
+      "source": "notebooks/specs/c1_pilot.py",
+      "target": "tools/nbkit.py"
     },
     {
       "kind": "import",
@@ -29,6 +49,21 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/colab_runtime.py",
+      "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/colab_runtime.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/colab_runtime.py",
+      "target": "src/boinga_translator/report_io.py"
     },
     {
       "kind": "import",
@@ -47,7 +82,22 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_build_notebook.py",
+      "target": "tools/build_notebook.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_colab_bootstrap.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_colab_runtime.py",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_colab_runtime.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -72,18 +122,33 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_nbkit.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_notebooks.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "test",
       "source": "tests/test_notebooks.py",
-      "target": "tools/build_notebooks.py"
+      "target": "tools/build_notebook.py"
     },
     {
       "kind": "test",
       "source": "tests/test_paths.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_read_colab_run.py",
+      "target": "tools/build_notebook.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_read_colab_run.py",
+      "target": "tools/read_colab_run.py"
     },
     {
       "kind": "test",
@@ -119,6 +184,31 @@
       "kind": "test",
       "source": "tests/test_smoke_import.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/build_notebook.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/read_colab_run.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/read_colab_run.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/read_colab_run.py",
+      "target": "tools/build_notebook.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/read_colab_run.py",
+      "target": "tools/nbkit.py"
     },
     {
       "kind": "import",
@@ -164,13 +254,19 @@
     },
     {
       "kind": "skill",
-      "lines": 68,
+      "lines": 78,
       "path": ".claude/skills/colab-handoff/SKILL.md",
-      "purpose": "How to hand work to Google Colab and take results back."
+      "purpose": "\"How to put work on Colab in boinga-translator: write cells into the chunk's notebook spec and hand the whole notebook to the user."
     },
     {
       "kind": "skill",
-      "lines": 46,
+      "lines": 50,
+      "path": ".claude/skills/colab-verify/SKILL.md",
+      "purpose": "Verify an executed Colab notebook the user put in colab_runs/."
+    },
+    {
+      "kind": "skill",
+      "lines": 47,
       "path": ".claude/skills/debug-protocol/SKILL.md",
       "purpose": "Structured debugging for boinga-translator."
     },
@@ -212,7 +308,7 @@
     },
     {
       "kind": "doc",
-      "lines": 30,
+      "lines": 35,
       "path": "README.md",
       "purpose": "boinga-translator"
     },
@@ -224,38 +320,68 @@
     },
     {
       "kind": "doc",
-      "lines": 75,
+      "lines": 146,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 79,
+      "lines": 113,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
     {
+      "kind": "module",
+      "lines": 131,
+      "path": "notebooks/colab_bootstrap.py",
+      "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, make folders."
+    },
+    {
       "kind": "notebook",
-      "lines": 183,
-      "path": "notebooks/c1_colab_bootstrap.ipynb",
-      "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."
+      "lines": 266,
+      "path": "notebooks/runs/C1_bootstrap_run1.ipynb",
+      "purpose": "C1 run 1 — Colab bootstrap"
+    },
+    {
+      "kind": "notebook",
+      "lines": 373,
+      "path": "notebooks/runs/C1_pilot_run1.ipynb",
+      "purpose": "C1 run 1 — Pipeline pilot"
     },
     {
       "kind": "module",
-      "lines": 129,
-      "path": "notebooks/colab_bootstrap.py",
-      "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, record env."
+      "lines": 12,
+      "path": "notebooks/specs/c1_bootstrap.py",
+      "purpose": "Spec: C1 bootstrap-only notebook on main (mount Drive, clone, install deps, record env)."
+    },
+    {
+      "kind": "module",
+      "lines": 37,
+      "path": "notebooks/specs/c1_pilot.py",
+      "purpose": "Spec: C1 pilot run proving the notebook pipeline (env report, Drive write, a form)."
     },
     {
       "kind": "config",
-      "lines": 39,
+      "lines": 41,
       "path": "pyproject.toml",
       "purpose": ""
+    },
+    {
+      "kind": "doc",
+      "lines": 168,
+      "path": "reports/colab_runs/C1_pilot_run1.md",
+      "purpose": "Colab run C1 run 1 — Pipeline pilot"
     },
     {
       "kind": "config",
       "lines": 16,
       "path": "reports/env.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 4,
+      "path": "reports/notes/C1.10-notes.json",
       "purpose": ""
     },
     {
@@ -269,6 +395,12 @@
       "lines": 28,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
+    },
+    {
+      "kind": "module",
+      "lines": 116,
+      "path": "src/boinga_translator/colab_runtime.py",
+      "purpose": "Helpers called inside generated Colab cells: run header, cell markers, notes, file checks."
     },
     {
       "kind": "module",
@@ -296,9 +428,21 @@
     },
     {
       "kind": "test",
-      "lines": 59,
+      "lines": 133,
+      "path": "tests/test_build_notebook.py",
+      "purpose": "Tests for tools/build_notebook.py: tiny spec -> .ipynb layout, determinism and --check."
+    },
+    {
+      "kind": "test",
+      "lines": 60,
       "path": "tests/test_colab_bootstrap.py",
       "purpose": "Tests for notebooks/colab_bootstrap.py: parses as Python, 4 cells, guards, no secrets in it."
+    },
+    {
+      "kind": "test",
+      "lines": 150,
+      "path": "tests/test_colab_runtime.py",
+      "purpose": "Tests for colab_runtime.py: run header, cell marker, notes, expect_files and play fallbacks."
     },
     {
       "kind": "test",
@@ -314,15 +458,27 @@
     },
     {
       "kind": "test",
-      "lines": 50,
+      "lines": 142,
+      "path": "tests/test_nbkit.py",
+      "purpose": "Tests for tools/nbkit.py: md/code/form cell sources, metadata, validation and Notebook."
+    },
+    {
+      "kind": "test",
+      "lines": 43,
       "path": "tests/test_notebooks.py",
-      "purpose": "Tests for tools/build_notebooks.py: committed .ipynb files match their \"# %%\" sources."
+      "purpose": "Tests for the committed run notebooks: in sync with their specs; C1 bootstrap shape, no secrets."
     },
     {
       "kind": "test",
       "lines": 102,
       "path": "tests/test_paths.py",
       "purpose": "Tests for paths.py: env overrides, Colab/local defaults, run_dir and ensure_dirs."
+    },
+    {
+      "kind": "test",
+      "lines": 313,
+      "path": "tests/test_read_colab_run.py",
+      "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
     },
     {
       "kind": "test",
@@ -350,9 +506,9 @@
     },
     {
       "kind": "tool",
-      "lines": 70,
-      "path": "tools/build_notebooks.py",
-      "purpose": "Build Colab .ipynb files from \"# %%\" cell files; the header comment becomes a markdown cell."
+      "lines": 175,
+      "path": "tools/build_notebook.py",
+      "purpose": "Build a per-chunk Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/."
     },
     {
       "kind": "tool",
@@ -362,9 +518,21 @@
     },
     {
       "kind": "tool",
-      "lines": 89,
+      "lines": 92,
       "path": "tools/hooks/pre_commit.py",
-      "purpose": "Pre-commit guard: block binaries/large files, stale repo graph, ruff errors and failing tests."
+      "purpose": "Pre-commit guard: block binaries/large files, stale map/notebooks, ruff errors, failing tests."
+    },
+    {
+      "kind": "tool",
+      "lines": 173,
+      "path": "tools/nbkit.py",
+      "purpose": "Notebook spec API (stdlib only): md / code / form cells and the Notebook a spec defines."
+    },
+    {
+      "kind": "tool",
+      "lines": 331,
+      "path": "tools/read_colab_run.py",
+      "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
     },
     {
       "kind": "tool",

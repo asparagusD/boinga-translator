@@ -26,7 +26,8 @@ promptbook for that chunk is handed over.
   two commits: A code + local tests (`cc31783`), B pasted reports/env.json (`9f760cf`);
   fix: drop untracked Colab reports before pulling (`29c7184`)
 - [x] C1.6 Colab notebook notebooks/c1_colab_bootstrap.ipynb generated from the bootstrap
-  cells by tools/build_notebooks.py (sync enforced by tests/test_notebooks.py)
+  cells by tools/build_notebooks.py (sync enforced by tests/test_notebooks.py);
+  superseded by C1.6c (notebooks/runs/C1_bootstrap_run1.ipynb, tools/build_notebook.py)
 
 ### C1 follow-ups (from the whole-chunk review; not blocking)
 - [ ] Bootstrap cell 2: warn loudly when BRANCH == "main" and newer chunk/* branches exist
@@ -39,8 +40,41 @@ promptbook for that chunk is handed over.
 - [ ] DECISIONS: bootstrap cells may hold logic (they run before the package is importable)
 - [ ] Optional: enforce ruff E501 (100 chars) and wrap the existing long lines
 
+## C1N — notebook run pipeline
+Branch `chunk/C1N-notebook-pipeline`. Per chunk: Claude Code writes code + a notebook spec;
+the generated notebook is run once on Colab; the executed .ipynb goes to `colab_runs/`
+(git-ignored); `tools/read_colab_run.py` verifies it and saves its reports per subchunk.
+- [x] C1.6a tools/nbkit.py: spec API (md / code / form cells, cell ids, expectations)
+- [x] C1.6b tools/build_notebook.py: spec -> .ipynb with the bootstrap cells and branch
+  baked in, spec hash in metadata (the commit is recorded at run time by C1.7), `--check` for stale notebooks
+- [x] C1.6c retire tools/build_notebooks.py: C1 bootstrap notebook is now
+  notebooks/runs/C1_bootstrap_run1.ipynb from notebooks/specs/c1_bootstrap.py
+- [x] C1.7 src/boinga_translator/colab_runtime.py: run_header (RUN-HEADER line + env
+  report), cell_ok (CELL-OK line), record_notes, expect_files, play
+  Merge gate: C1N must not merge to main without C1.7 (every built notebook's HDR cell
+  calls run_header; BOOT.2 checks out the spec's branch, main for the C1 bootstrap)
+- [x] C1.8a tools/read_colab_run.py core: load executed .ipynb, drop binary outputs, trim text,
+  identify cells, per-cell status vs the spec (PASS / FAIL / ERROR / NOT RUN), form values,
+  token redaction
+- [x] C1.8b read_colab_run CLI: spec auto-found from RUN-HEADER, staleness, digest
+  reports/colab_runs/<chunk>_<slug>_run<k>.md (slug added in ecdc585), stdout table, --save-reports, exit code
+- [x] C1.9 colab-handoff skill update, new colab-verify skill, CLAUDE.md, .gitignore
+  (`colab_runs/`), DECISIONS entry; colab-verify must say a STALE run exits 1 (re-run it)
+- [x] C1.10 pilot: env-check spec + notebook, run on Colab, verified with the reader
+  (A = spec + notebook, B = reports from the verified run)
+
+### C1N follow-ups (before the C1N merge)
+- [x] reports/env.json is emitted twice per run (BOOT.4 and HDR's run_header);
+  report_io.parse_blocks rejects duplicates, so save_pasted_reports fails on a full paste.
+  Make HDR the only emitter in built notebooks; the C1.8 reader parses per cell anyway
+  Done: BOOT.4 no longer records env. Known exception: the C1 pilot spec's own C1.10.a
+  cell (user-specified) still emits env.json next to HDR
+- [x] Stop-on-FAIL: cell_ok only prints CELL-OK and expect_files only returns False, so a
+  FAIL line does not stop Run all; decide raise-in-cell vs reader-only (C1.8 / C1.9)
+
 ## C2
-- [ ] C2.x (subchunks not yet defined)
+- [ ] C2.x (subchunks not yet defined; draft plan parked in `git stash` on
+  chunk/C2-pretrained-baseline)
 
 ## C3
 - [ ] C3.x (subchunks not yet defined)

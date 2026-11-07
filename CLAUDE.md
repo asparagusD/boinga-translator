@@ -16,8 +16,8 @@ Repo/project name: boinga-translator. Import package: boinga_translator.
 - If a subchunk is over budget (>~150 lines non-test code, >5 files), split it
   into a/b/c before writing code and tell me.
 - Any failure -> follow the `debug-protocol` skill. Log it in docs/DEBUG_LOG.md.
-- Anything that must run on Colab -> follow the `colab-handoff` skill. You
-  cannot see Colab; ask me to paste output.
+- Colab work runs as whole notebooks: see colab-handoff and colab-verify
+  skills.
 
 ## Code rules
 - Logic lives in src/boinga_translator/*.py. Notebook cells only call functions.

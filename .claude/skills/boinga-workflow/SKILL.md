@@ -22,8 +22,8 @@ Follow these steps in order for every subchunk. Do not skip steps.
    - Module docstring on line 1. Type hints. Paths only via paths.py.
 5. **Verify**
    - `ruff check .` and `pytest -q` must pass. Paste the real summary lines.
-   - If the subchunk needs Colab, use the `colab-handoff` skill and wait for
-     the user's pasted output before you commit.
+   - If the subchunk needs Colab, use the `colab-handoff` skill, then the
+     `colab-verify` skill on the executed notebook before you commit results.
 6. **Update the map and logs**
    - `python tools/repo_graph.py` (once it exists) to refresh docs/REPO_GRAPH.md.
    - Tick the subchunk in docs/PROGRESS.md. Add any decision to

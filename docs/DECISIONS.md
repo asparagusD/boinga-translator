@@ -73,3 +73,74 @@ loudly on a mismatch. These values were supplied with the C1.2 task and have
 not yet been checked against a real download; the first download (Colab)
 confirms them. If Mendeley or the release changes, update `settings.py` and
 add a new entry here.
+
+## 2026-11-07 — Colab run reader: a STALE run fails verification
+**Context:** `tools/read_colab_run.py` checks an executed notebook from
+`colab_runs/`. Its staleness check compares the commit the run used
+(RUN-HEADER) with the last commit that built the notebook. The C1.8 task
+said "exit 0 if all spec cells PASS"; a run of an older notebook build can
+pass every cell without verifying the current one.
+**Decision:** The reader exits 1 when the run is STALE, even if every cell
+passed. UNKNOWN (no RUN-HEADER, or the run's commit is not in the local
+clone) does not change the exit code; it is printed and written to the digest.
+**Alternatives:** Cell status only (the original task wording); a separate
+exit code 2 for STALE. Rejected: one non-zero code keeps scripts and hooks
+simple, and the digest says why.
+**Consequences:** After rebuilding a notebook, re-run it on Colab before
+committing its results. The colab-verify skill (C1.9) must say this.
+
+## 2026-11-07 — Colab work runs as whole generated notebooks
+**Context:** Pasting Colab output cell by cell was slow and error-prone
+(truncated pastes, cells run on the wrong branch, no record of what ran).
+**Decision:** Each chunk run on Colab is one notebook generated from a spec
+(`notebooks/specs/cN_<slug>.py`, `tools/nbkit.py`, `tools/build_notebook.py`)
+with the bootstrap cells and branch baked in. The user runs it with "Run all"
+and downloads the executed copy into `colab_runs/` (git-ignored).
+`tools/read_colab_run.py` checks every cell against the spec's expect/forbid
+patterns, writes a digest to `reports/colab_runs/`, and saves report blocks.
+Human judgement goes in form cells. The `colab-handoff` and `colab-verify`
+skills describe the loop.
+**Alternatives:** Keep pasting cell output (rejected: the reason for C1N);
+commit executed notebooks (rejected: large audio/base64 outputs and the risk
+of leaking secrets).
+**Consequences:** Cells must be idempotent, so "Run all" can always be
+repeated after a fix. Executed notebooks never reach git; only the digest and
+reports do. tools/save_pasted_reports.py stays as a fallback.
+
+
+## 2026-11-07 — Colab cells stop the run themselves on failure
+**Context:** In a generated notebook, a cell that only prints `FAIL: ...`
+lets Colab's "Run all" carry on into later cells, which then work on bad
+state. The reader marks such a cell FAIL afterwards, but the run has already
+wasted time (and GPU quota). `cell_ok()` cannot see the cell's output, so it
+cannot stop the run.
+**Decision:** A cell that detects a failure stops the run: it calls
+`colab_runtime.fail(msg)` (prints `FAIL: msg`, raises `SystemExit(1)`) or lets
+library code raise. `colab_runtime.expect_files()` stops by default
+(`stop=False` returns a bool instead). The reader still checks every cell's
+output against the spec, so a forgotten `fail()` is caught at verification (FAIL);
+a stopped cell shows as ERROR (`SystemExit: 1`), with its `FAIL:` line in the digest.
+**Alternatives:** Capture each cell's stdout from `run_header()` and make
+`cell_ok()` raise on a `FAIL:` line (rejected for now: depends on IPython
+output internals that cannot be tested locally); reader-only checking
+(rejected: the run keeps going after a failure).
+**Consequences:** colab-handoff tells spec writers to use `fail()`. Not yet
+seen on Colab: the first failing cell in a real run will confirm that
+`SystemExit` stops "Run all".
+
+## 2026-11-07 — Run notebooks stay tied to their chunk branch
+**Context:** A built notebook's BOOT.2 checks out the branch its spec names
+(e.g. `chunk/C1N-notebook-pipeline`). After the chunk merges, `main` carries
+that notebook, but the code it ran lives on the chunk branch.
+**Decision:** Chunk branches are kept on origin after merging (never deleted),
+so every run notebook can be re-opened and re-run on exactly the code it was
+built for. Run notebooks on `main` are a record; new Colab work gets a new
+spec (or a bumped `run=`) on the new chunk branch. Only bootstrap-style specs
+use `branch="main"`.
+**Alternatives:** Retarget every spec to `main` in a last commit before the
+merge (rejected: rebuilding makes the verified run STALE); delete run
+notebooks at merge (rejected: loses the link between digest and notebook).
+**Consequences:** Don't delete `chunk/*` branches on origin. A STALE result
+for an old run after a later rebuild is expected; its committed digest stays
+the record of what was verified.
+

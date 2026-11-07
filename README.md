@@ -12,11 +12,12 @@ Bangla VITS model (coqui-tts 0.28.0).
 ## Run on Colab
 
 Open the bootstrap notebook (mount Drive, clone, install pinned deps, record the env):
-[notebooks/c1_colab_bootstrap.ipynb](https://colab.research.google.com/github/asparagusD/boinga-translator/blob/main/notebooks/c1_colab_bootstrap.ipynb).
+[notebooks/runs/C1_bootstrap_run1.ipynb](https://colab.research.google.com/github/asparagusD/boinga-translator/blob/main/notebooks/runs/C1_bootstrap_run1.ipynb).
 The repo is private, so Colab must be allowed to read it (File > Open notebook > GitHub,
-tick "Include private repos"). Add a `GH_TOKEN` Colab secret first; the notebook's first
-cell explains how. The notebook is generated from `notebooks/colab_bootstrap.py` with
-`python tools/build_notebooks.py`.
+tick "Include private repos"). Add a `GH_TOKEN` Colab secret first; the clone cell
+(BOOT.2) explains how if it is missing. Every notebook in `notebooks/runs/` is generated
+from a spec in `notebooks/specs/` by `python tools/build_notebook.py --all`; the bootstrap
+cells come from `notebooks/colab_bootstrap.py`.
 
 ## Developer setup
 
@@ -28,3 +29,7 @@ git config core.hooksPath .githooks   # once per clone: commit-msg + pre-commit 
 The hooks enforce the commit format, block audio/checkpoint/archive files and
 anything over 2 MB, and require a fresh `docs/REPO_GRAPH.md`, clean `ruff` and
 passing `pytest`.
+
+Colab runs: download each executed notebook into `colab_runs/` (git-ignored, never
+committed); Claude Code verifies it with `python tools/read_colab_run.py
+colab_runs/<file>.ipynb --save-reports`, which writes the digest to `reports/colab_runs/`.

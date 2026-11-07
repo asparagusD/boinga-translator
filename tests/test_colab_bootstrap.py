@@ -56,4 +56,5 @@ def test_guards_and_branch(text: str) -> None:
     for cell in cells[2:]:
         assert "FAIL: run the bootstrap cells first" in cell
     assert '".[train]"' in cells[2]
-    assert "env_report.run()" in cells[3] and "paths.ensure_dirs()" in cells[3]
+    assert "paths.ensure_dirs()" in cells[3]
+    assert "env_report" not in cells[3]  # HDR (run_header) is the only env.json emitter
