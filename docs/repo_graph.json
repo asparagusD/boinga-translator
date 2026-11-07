@@ -354,7 +354,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 366,
+      "lines": 373,
       "path": "notebooks/runs/C1_pilot_run1.ipynb",
       "purpose": "C1 run 1 — Pipeline pilot"
     },
@@ -366,7 +366,7 @@
     },
     {
       "kind": "module",
-      "lines": 30,
+      "lines": 37,
       "path": "notebooks/specs/c1_pilot.py",
       "purpose": "Spec: C1 pilot run proving the notebook pipeline (env report, Drive write, a form)."
     },
