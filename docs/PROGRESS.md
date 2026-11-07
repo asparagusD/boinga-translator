@@ -607,9 +607,13 @@ estimates, excluding the generated map/notebook and PROGRESS.
   8 / 4, reasons no longer T4-based (max_audio_len, mixed_precision); lr kept; env_report
   records `cpu_count`. DECISIONS "RTX PRO 6000 training settings". Tests
   `tests/test_train_config.py`, `tests/test_env_report.py` (this commit)
-- [ ] C8.1c timing notebook: spec `notebooks/specs/c8_timing.py` -> `C8_timing_run1.ipynb`:
-  env, restore data, build-config smoke + validate, loader check, clean smoke, smoke 50,
-  resume 60, throughput at the new settings; hand-off C8.1c.H, verify C8.1c.V
+- [x] C8.1c timing notebook: spec `notebooks/specs/c8_timing.py` ->
+  `notebooks/runs/C8_timing_run1.ipynb` (GPU; the header cell records env.json with cpu_count): cells C8T.pre (restore
+  data), C8T.1 (build-config smoke + validate, expects batch_size 32), C8T.2 (loader check),
+  C8T.3 (clean smoke), C8T.4 (smoke 50), C8T.5 (resume 60), C8T.6 (throughput, expects
+  batch_size 32), each after an md() explanation (this commit)
+- [ ] C8.1c.H hand-off timing notebook; C8.1c.V verify it (colab-verify), commit
+  reports/throughput.json, env.json, config + overrides table from the run
 - [ ] C8.1d re-derive `RUN_BUDGETS["run1"]` = budget_steps(new steps/h) from the batch-32
   reports/throughput.json; DECISIONS "Run 1 budget" updated
 - [ ] C8.2a ckpt_sampler (local + cells): new module `ckpt_sampler.py`: `prompts()` (val

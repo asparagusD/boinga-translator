@@ -201,6 +201,21 @@
       "target": "src/boinga_translator/train_report.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_timing_run1.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_timing_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_timing_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -293,6 +308,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c7_train_runner.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c8_timing.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -1602,7 +1622,7 @@
     },
     {
       "kind": "doc",
-      "lines": 669,
+      "lines": 673,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1685,6 +1705,12 @@
       "purpose": "C7 run 1 — C7 — training runner and smoke test"
     },
     {
+      "kind": "notebook",
+      "lines": 577,
+      "path": "notebooks/runs/C8_timing_run1.ipynb",
+      "purpose": "C8 run 1 — C8 — timing at batch 32 (RTX PRO 6000)"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -1755,6 +1781,12 @@
       "lines": 110,
       "path": "notebooks/specs/c7_train_runner.py",
       "purpose": "Spec: C7 run 1, training runner: prepared data, fine-tune config, loader, smoke and resume (T4)."
+    },
+    {
+      "kind": "module",
+      "lines": 78,
+      "path": "notebooks/specs/c8_timing.py",
+      "purpose": "Spec: C8 timing run, smoke and resume at the RTX PRO 6000 settings (batch 32) to re-measure speed."
     },
     {
       "kind": "config",
