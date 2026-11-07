@@ -89,8 +89,10 @@ C2.H hands it over. Local tests never import torch/TTS (fakes only).
   cell C2.2 -> configs/pretrained_facts.json, reports/pretrained_inspect.md,
   reports/pretrained_charset_<voice>.txt (each emitted once)
   Not covered (check in C2.5 from the report): text-embedding rows vs vocab size
-- [ ] C2.3 synth_basic.py: load_voice(), seeded synth() with the pinned inference scales,
-  unknown_chars() (local only, no cell)
+- [x] C2.3 synth_basic.py: set_seed(), load_synth() (coqui Synthesizer + pinned inference
+  scales, logs which were set), say() -> duration (local only, no cell);
+  out-of-charset check moves to C2.4a. C2.4a/C2.V: confirm on Colab that the synth log
+  sets all 3 scales, and whether say() durations include per-sentence padding (affects RTF)
 - [ ] C2.4a baseline.py + `boinga baseline` + configs/baseline_prompts.json:
   both voices -> Drive eval/baseline/<voice>/<id>.wav, reports/baseline.json
   (duration, RTF, device, unknown chars, peak/clipping), idempotent.

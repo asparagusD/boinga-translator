@@ -116,6 +116,11 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "import",
+      "source": "src/boinga_translator/synth_basic.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
       "kind": "test",
       "source": "tests/test_build_notebook.py",
       "target": "tools/build_notebook.py"
@@ -254,6 +259,16 @@
       "kind": "test",
       "source": "tests/test_smoke_import.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth_basic.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth_basic.py",
+      "target": "src/boinga_translator/synth_basic.py"
     },
     {
       "kind": "import",
@@ -396,7 +411,7 @@
     },
     {
       "kind": "doc",
-      "lines": 148,
+      "lines": 150,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -515,6 +530,12 @@
       "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
     },
     {
+      "kind": "module",
+      "lines": 68,
+      "path": "src/boinga_translator/synth_basic.py",
+      "purpose": "Minimal seeded synthesis for any VITS checkpoint: load a coqui Synthesizer, say text to a wav."
+    },
+    {
       "kind": "test",
       "lines": 133,
       "path": "tests/test_build_notebook.py",
@@ -603,6 +624,12 @@
       "lines": 7,
       "path": "tests/test_smoke_import.py",
       "purpose": "Smoke test: the package imports and exposes a version."
+    },
+    {
+      "kind": "test",
+      "lines": 109,
+      "path": "tests/test_synth_basic.py",
+      "purpose": "Tests for synth_basic.py: seeding, loader with a fake coqui Synthesizer, say() output and duration."
     },
     {
       "kind": "tool",
