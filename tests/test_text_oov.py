@@ -118,6 +118,24 @@ def test_cli_oov_writes_and_emits_the_report(fake_drive: pd.DataFrame,
     assert (paths.drive_reports() / "reports" / "oov_report.md").is_file()
 
 
+def test_selected_texts_drops_excluded_rows(fake_drive: pd.DataFrame) -> None:
+    texts, n_excluded, voice = text_oov.selected_texts()
+    assert texts == {"0386": "আই যাম।",
+                     "2": "আইক", "4": "মা"}  # raw NFC text, no map
+    assert (n_excluded, voice) == (1, "male")
+
+
+def test_selected_texts_refuses_duplicate_clip_ids(fake_drive: pd.DataFrame) -> None:
+    data = b"clip_id,split_official,duration_s\n2,train,3.0\n2,train,3.0\n"
+    paths.speaker_selection().write_bytes(data)
+    cfg = paths.REPO / speaker_select.SELECTION_REL
+    cfg.write_text(json.dumps({"base_voice": "male",
+                               "csv_sha256": hashlib.sha256(data).hexdigest()}),
+                   encoding="utf-8")
+    with pytest.raises(ValueError, match="twice"):
+        text_oov.selected_texts()
+
+
 def test_cli_oov_fails_on_a_clip_missing_from_the_index(
         fake_drive: pd.DataFrame, monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str]) -> None:

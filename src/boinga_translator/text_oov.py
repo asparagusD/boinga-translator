@@ -91,20 +91,31 @@ def render(texts: Sequence[str], charset: frozenset[str] | set[str], voice: str,
     return "\n".join(lines) + "\n"
 
 
-def run() -> pd.DataFrame:
-    """`boinga oov`: report the selected speaker's model text against the base voice."""
+def selected_texts() -> tuple[dict[str, str], int, str]:
+    """The training speaker's clips: ({clip_id: ctg_text_nfc}, n char_map-excluded, voice).
+
+    Clips with an exclude_rows_with character are left out (they never reach training).
+    """
     selection, sel = speaker_select.load_selection()
-    voice = str(sel["base_voice"])
+    if selection["clip_id"].duplicated().any():
+        raise ValueError("speaker selection lists a clip_id twice")
     index = corpus.load_index().set_index("clip_id")
     if missing := sorted(set(selection["clip_id"]) - set(index.index)):
         raise ValueError(f"{len(missing)} selected clip(s) not in the corpus index: "
                          f"{missing[:5]}")
     raw = index.loc[selection["clip_id"], "ctg_text_nfc"]
-    kept = [text_frontend.prepare(t) for t in raw if not text_frontend.excluded(t)]
+    kept = {str(cid): t for cid, t in raw.items() if not text_frontend.excluded(t)}
+    return kept, len(raw) - len(kept), str(sel["base_voice"])
+
+
+def run() -> pd.DataFrame:
+    """`boinga oov`: report the selected speaker's model text against the base voice."""
+    texts, n_excluded, voice = selected_texts()
+    kept = [text_frontend.prepare(t) for t in texts.values()]
     charset = data_audit.load_model_charset(voice)
     df = oov_report(kept, charset)
     repo_path, _ = report_io.write_report(
-        render(kept, charset, voice, n_excluded=len(raw) - len(kept), df=df), OOV_REL)
+        render(kept, charset, voice, n_excluded=n_excluded, df=df), OOV_REL)
     report_io.emit(repo_path, OOV_REL)
     n_hit = clips_with_oov(kept, charset)
     print(f"PASS: oov report: {len(df)} missing character(s) in {n_hit} of {len(kept)} clips")

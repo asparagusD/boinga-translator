@@ -312,10 +312,17 @@ synthetic text, fake charsets and a fake tokenizer (coqui is not installed local
   charset)` in text_frontend; configs/char_map.json unchanged (user: no new entries, keep
   the C3.8 map and its list format; digest 151ac177e2, no re-audit); DECISIONS "Character
   map" C5.3 note (this commit)
-- [ ] C5.4 `text_frontend.check_tokenizer()` + `boinga check-tokenizer` + cells (spec
-  `notebooks/specs/c5_text_frontend_run2.py`, CPU): coqui TTSTokenizer from the base
-  voice's config on every kept selected row: unknown characters, round trip, token lengths
-  -> reports/tokenizer_check.md + .json
+- [x] C5.4 code: `text_frontend.check_tokenizer(texts, config_path)`: coqui TTSTokenizer
+  (`load_tokenizer`, lazy import, refuses a cleaner or phonemes) on prepare_text() of
+  every kept selected clip (`text_oov.selected_texts()`); `round_trip()` strips bos/eos
+  and blanks, counts characters encode() drops, compares decode with the text ->
+  reports/tokenizer_check.md (unknown-char rate, failing clips with code points, first 10
+  failures in full), emitted, "PASS: tokenizer check unknown_rate=..."; `boinga
+  check-tokenizer` (config from `pretrained.fetch(base voice)`); spec
+  `notebooks/specs/c5_text_frontend_run2.py` (cells C5.0, C5.4; CPU) ->
+  `notebooks/runs/C5_text-frontend_run2.ipynb`; tests with a fake tokenizer
+  (this commit). No token-length stats or .json (narrower than the C5.0 plan, per the
+  C5.4 promptbook)
 - [ ] C5.H2 hand-off run 2
 - [ ] C5.V2 verify run 2
 - [ ] C5.5 Gate G4 — text frontend (criteria to confirm before run 2)
