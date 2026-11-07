@@ -74,12 +74,15 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
 
 ## C2 — Pretrained Bangla VITS inspection and baseline audio
 Branch `chunk/C2-pretrained-baseline`. One notebook for the chunk:
-spec `notebooks/specs/c2_pretrained_baseline.py` -> `notebooks/runs/C2_baseline_run1.ipynb`
+spec `notebooks/specs/c2_pretrained_baseline.py` ->
+`notebooks/runs/C2_pretrained-baseline_run1.ipynb`
 (T4). Every subchunk that adds cells rebuilds the notebook (pre-commit `--check`); only
 C2.H hands it over. Local tests never import torch/TTS (fakes only).
-- [ ] C2.1 pretrained.fetch(voice) / fetch_all(): download the pinned release zip to
-  paths.pretrained()/zips/, record bytes + sha256, safe-unzip to paths.pretrained()/<voice>/,
-  idempotent; cell C2.1 -> reports/pretrained_manifest.json
+- [x] C2.1 code: pretrained.fetch(voice) + `boinga fetch-pretrained --voice female|male|both`:
+  coqui ModelManager, fallback to the pinned release zip (safe unzip); model.pth + config.json
+  cached in paths.pretrained()/<voice>/, skipped when present; cell C2.1 (runs in C2.H)
+  (commit hash in the C2.V entry)
+  Moved to C2.5: record bytes + sha256 of the cached files and pin them
 - [ ] C2.2 pretrained.config_facts() (pure JSON) + ckpt_facts(shapes) + inspect_all():
   sample rate, STFT/mel, charset, cleaner, phonemes, add_blank, speakers, params per
   submodule, `disc.` keys, text-embedding rows vs vocab; cell C2.2 ->
@@ -98,6 +101,10 @@ C2.H hands it over. Local tests never import torch/TTS (fakes only).
   zip sha256s in settings.py
 
 ### C2 follow-ups
+- [ ] C2.2: coqui's download_model may rewrite config.json paths (speakers/d_vector/stats) to
+  its temp folder; check the cached config for /tmp/boinga-* paths (else use the release config)
+- [ ] `!boinga fetch-pretrained` exiting 1 does not stop Run all; once later cells depend on
+  C2.1, call pretrained from Python and stop with colab_runtime.fail()
 - [ ] After C3: add held-out Chittagonian corpus lines (verbatim transcripts) to the
   baseline prompts and re-run the pretrained baseline on them
 

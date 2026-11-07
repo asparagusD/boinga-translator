@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 
-from boinga_translator import __version__, env_report
+from boinga_translator import __version__, env_report, pretrained
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -12,7 +12,21 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("version", help="print the package version")
     sub.add_parser("env", help="record the environment to reports/env.json and print it")
+    fetch = sub.add_parser("fetch-pretrained", help="download and cache the pretrained voices")
+    fetch.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
     return parser
+
+
+def _fetch_pretrained(voice: str) -> int:
+    """Fetch one or both voices; print FAIL and return 1 if any fails."""
+    status = 0
+    for v in pretrained.voices() if voice == "both" else [voice]:
+        try:
+            pretrained.fetch(v)
+        except (RuntimeError, ValueError, OSError) as exc:  # report every voice, then fail
+            print(f"FAIL: {v}: {exc}")
+            status = 1
+    return status
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -21,6 +35,8 @@ def main(argv: list[str] | None = None) -> int:
         print(__version__)
     elif args.command == "env":
         env_report.run()
+    elif args.command == "fetch-pretrained":
+        return _fetch_pretrained(args.voice)
     return 0
 
 
