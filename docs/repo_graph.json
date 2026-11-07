@@ -1596,13 +1596,13 @@
     },
     {
       "kind": "doc",
-      "lines": 966,
+      "lines": 987,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 659,
+      "lines": 669,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1956,7 +1956,7 @@
     },
     {
       "kind": "module",
-      "lines": 100,
+      "lines": 102,
       "path": "src/boinga_translator/env_report.py",
       "purpose": "Record python, torch/CUDA, GPU, coqui-tts, numpy, git and disk info to reports/env.json."
     },
@@ -2232,7 +2232,7 @@
     },
     {
       "kind": "test",
-      "lines": 243,
+      "lines": 244,
       "path": "tests/test_train_config.py",
       "purpose": "Tests for train_config.py and `boinga build-config`: overrides, protected keys, outputs."
     },

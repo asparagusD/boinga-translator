@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime as dt
 import importlib.metadata as md
 import json
+import os
 import platform
 import shutil
 import subprocess
@@ -71,6 +72,7 @@ def collect() -> dict[str, Any]:
     return {
         "python": platform.python_version(),
         "platform": platform.platform(),
+        "cpu_count": os.cpu_count(),
         "is_colab": paths.is_colab(),
         **_torch_info(),
         "coqui_tts": _version("coqui-tts"),

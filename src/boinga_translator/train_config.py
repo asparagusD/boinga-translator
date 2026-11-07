@@ -26,11 +26,11 @@ PROTECTED = ("audio", "characters", "use_phonemes", "text_cleaner", "add_blank",
 
 # Static overrides as key: (value, reason); the reasons also fill the DECISIONS table.
 OVERRIDES: dict[str, tuple[Any, str]] = {
-    "batch_size": (16, "fits a T4 (16 GB) with fp16 and 15 s clips; smoke test measures"),
-    "eval_batch_size": (8, "eval runs beside training memory; half the train batch"),
-    "num_loader_workers": (2, "Colab VMs have 2 vCPUs"),
-    "num_eval_loader_workers": (1, "eval is small; leave the other CPU to training"),
-    "mixed_precision": (True, "fp16 halves memory, speeds up a T4; NaN -> fp32 (skill)"),
+    "batch_size": (32, "RTX PRO 6000 (95 GB): batch 16 used 3.39 GB; 2x it, lr kept"),
+    "eval_batch_size": (16, "half the train batch, as before"),
+    "num_loader_workers": (8, "fixed 8 for the RTX PRO 6000 VM; check env cpu_count"),
+    "num_eval_loader_workers": (4, "eval is small; half the train workers"),
+    "mixed_precision": (True, "fp16: no NaN in the smoke test, less memory; NaN -> fp32"),
     "run_eval": (True, "val loss picks the best checkpoint, with listening (vits-finetune)"),
     "test_delay_epochs": (0, "test sentences from the first epoch: early sanity listening"),
     "print_step": (25, "step logs often enough to read sec/step in the smoke test"),
@@ -48,7 +48,7 @@ OVERRIDES: dict[str, tuple[Any, str]] = {
 COMPUTED_REASONS: dict[str, str] = {
     "lr_gen": f"{LR_FACTOR} x pretrained: fine-tuning should not undo the pretrained weights",
     "lr_disc": f"{LR_FACTOR} x pretrained, like lr_gen, so G and D stay balanced",
-    "max_audio_len": f"{MAX_AUDIO_S:g} s x sample_rate: longer clips risk T4 out-of-memory",
+    "max_audio_len": f"{MAX_AUDIO_S:g} s x sample_rate: kept from C7; a batch pads to its longest clip",
     "min_audio_len": f"{MIN_AUDIO_S:g} s x sample_rate, on trimmed clips (C6 follow-up)",
     "test_sentences": f"first {N_TEST_SENTENCES} val manifest texts: prepare_text output as "
                       "trained, not re-normalised (Gate G4)",
@@ -78,7 +78,7 @@ def budget_steps(steps_per_hour: float, hours: float = BUDGET_HOURS) -> int:
 # run1, from reports/throughput.json (smoke, RTX PRO 6000, batch 16, fp16) and
 # configs/splits_summary.json: steps/epoch = 6,415 train clips / 16 = 400.9;
 # 10,533.4 steps/h x 3.5 h = 36,866.9 -> rounded down to a multiple of 500 = 36,500 steps
-# (~91 epochs). Equals budget_steps(10533.4).
+# (~91 epochs). Equals budget_steps(10533.4). Batch-16 basis: C8.1d re-derives it at batch 32.
 RUN_BUDGETS: dict[str, int] = {"run1": 36_500}
 
 # Per-run overrides on top of OVERRIDES, as key: (value, reason); keys must be in OVERRIDES.

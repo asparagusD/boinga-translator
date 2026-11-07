@@ -593,7 +593,7 @@ Branch `chunk/C8-finetune`. One GPU notebook per run: spec `notebooks/specs/c8_f
 -> `notebooks/runs/C8_finetune_run1.ipynb` (RTX PRO 6000, user's pay-as-you-go GPU). Run name
 `run1`; its settings are frozen once it starts (a resume uses the run folder's config), so any
 change means a new run name (`run2`). Plan basis: reports/throughput.json (0.3418 s/step,
-batch 16, fp16, 3.39 GB peak) and configs/splits_summary.json (6,415 train clips -> ~401
+batch 16, fp16, 3.39 GB peak; re-measured at batch 32 in C8.1c) and configs/splits_summary.json (6,415 train clips -> ~401
 steps/epoch). Coqui keeps only the last 2 checkpoints + best, so earlier steps are kept as
 "milestones" (model + config, no optimizer) for listening and promotion. Line counts are non-test
 estimates, excluding the generated map/notebook and PROGRESS.
@@ -601,8 +601,17 @@ estimates, excluding the generated map/notebook and PROGRESS.
   (rounded down to a save_step multiple); `RUN_BUDGETS = {"run1": 36_500}` (10,533.4 steps/h
   x 3.5 h = 36,866.9 -> 36,500; 400.9 steps/epoch at batch 16 -> ~91 epochs); `run()` / `boinga
   train` use RUN_BUDGETS[run] when --max-steps is absent ("budget: N steps (RUN_BUDGETS)").
-  DECISIONS "Run 1 budget". Batch 32 deferred to a timed run2 (unmeasured speed). Tests
-  `tests/test_train_config.py`, `tests/test_train_run.py` (this commit)
+  DECISIONS "Run 1 budget". Tests `tests/test_train_config.py`, `tests/test_train_run.py`
+  (`5d4b543`). Basis was batch 16; superseded by C8.1d after the RTX PRO 6000 settings (C8.1b)
+- [x] C8.1b RTX PRO 6000 settings (local): OVERRIDES batch_size 32 / eval 16, loader workers
+  8 / 4, reasons no longer T4-based (max_audio_len, mixed_precision); lr kept; env_report
+  records `cpu_count`. DECISIONS "RTX PRO 6000 training settings". Tests
+  `tests/test_train_config.py`, `tests/test_env_report.py` (this commit)
+- [ ] C8.1c timing notebook: spec `notebooks/specs/c8_timing.py` -> `C8_timing_run1.ipynb`:
+  env, restore data, build-config smoke + validate, loader check, clean smoke, smoke 50,
+  resume 60, throughput at the new settings; hand-off C8.1c.H, verify C8.1c.V
+- [ ] C8.1d re-derive `RUN_BUDGETS["run1"]` = budget_steps(new steps/h) from the batch-32
+  reports/throughput.json; DECISIONS "Run 1 budget" updated
 - [ ] C8.2a ckpt_sampler (local + cells): new module `ckpt_sampler.py`: `prompts()` (val
   texts), `sample(run, step=None)` -> wavs under `paths.eval_dir()/<run>/step<N>/` with fixed
   seed/scales, skips done steps, saves a milestone copy (model + config) to Drive;
@@ -627,8 +636,9 @@ estimates, excluding the generated map/notebook and PROGRESS.
 - [ ] configs/vits_ctg_finetune.json and the DECISIONS overrides table describe the last built
   run (now `smoke`, print_step 5): commit them from C8's own build-config and say so in
   DECISIONS
-- [ ] T4-based reasons (batch_size, num_loader_workers, max_audio_len, mixed_precision; spec
-  docstring "(T4)"): revisit for the RTX PRO 6000 (batch 16 used 3.39 of 95 GB, 48 CPUs) and
+- [x] T4-based reasons (batch_size, num_loader_workers, max_audio_len, mixed_precision; spec
+  docstring "(T4)") (C8.1b changed the reasons; the C7 spec stays as the historical
+  record; re-measured in C8.1c): revisit for the RTX PRO 6000 (batch 16 used 3.39 of 95 GB, 48 CPUs) and
   re-measure throughput after any change
 - [ ] Drive space: 6.4 GB free at the C7 re-run; empty the Drive trash and check free space
   before C8 (~1 GB per checkpoint x 2 + best)

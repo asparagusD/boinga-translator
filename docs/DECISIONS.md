@@ -964,3 +964,24 @@ restarts come on top and are not measured yet; the first hour of run1 measures t
 keeps batch 16 and the other C7 overrides. RUN_BUDGETS is read from code at each session (not
 frozen in the run folder like the config): never change run1's budget once it has started; each
 session's max_steps is recorded in boinga_run.json.
+
+## 2026-11-08 — RTX PRO 6000 training settings
+**Context:** C8.1b. The user trains on an NVIDIA RTX PRO 6000 Blackwell (95 GB), not a T4. The
+C7 overrides were sized for a T4: batch 16 (peak 3.39 GB of 95), 2 loader workers (a T4 VM has
+2 vCPUs). The pretrained male voice was trained at batch 104.
+**Decision:** batch_size 32 and eval_batch_size 16; num_loader_workers 8 and
+num_eval_loader_workers 4; fp16 kept (no NaN in the smoke test); lr_gen / lr_disc kept at 0.5 x
+pretrained; max_audio_len 15 s kept. env_report now records `cpu_count`, so the next env report
+shows whether 8 workers fit the VM.
+**Alternatives:** Batch 64 or more (closer to the pretrained 104, more GPU use) was not chosen:
+it gives ~100 updates per epoch on 6,415 clips and would need an lr retune; batch 32 is the
+user's choice from the C8 plan. Scaling lr with the batch (linear rule) was not applied: a
+fine-tune should move the pretrained weights gently. bf16 instead of fp16 and
+`cudnn_benchmark` false (VITS batches vary in length) are possible further speedups, untested.
+**Consequences:** The batch-16 speed no longer applies: C8.1c re-runs the smoke and resume test
+at these settings to measure s/step and memory, and C8.1d re-derives RUN_BUDGETS["run1"] from
+that measurement (the 36,500 steps of "Run 1 budget" assumed batch 16). Run1 must not start
+before C8.1d.
+The generated overrides table above ("Fine-tune config"), configs/vits_ctg_finetune.json and
+reports/config_overrides.md still show the last built run (smoke, batch 16) until C8.1c's
+build-config rewrites them.

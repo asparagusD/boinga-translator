@@ -72,7 +72,8 @@ def test_build_overrides_and_protected(repo: Path) -> None:
     for key in train_config.PROTECTED:
         assert cfg[key] == PRETRAINED[key]
     assert cfg["lr_gen"] == pytest.approx(0.0001) and cfg["lr_disc"] == pytest.approx(0.0002)
-    assert cfg["batch_size"] == 16 and cfg["eval_batch_size"] == 8
+    assert cfg["batch_size"] == 32 and cfg["eval_batch_size"] == 16
+    assert cfg["num_loader_workers"] == 8 and cfg["num_eval_loader_workers"] == 4
     assert cfg["mixed_precision"] is True and cfg["epochs"] == 1000
     assert cfg["training_seed"] == settings.SEED and cfg["run_name"] == "smoke"
     assert "seed" not in cfg  # not a coqui field: VitsConfig would drop it (C7 run 1)
@@ -157,7 +158,7 @@ def test_decisions_table_replaced_between_markers(repo: Path) -> None:
     assert text.count(train_config.DECISIONS_BEGIN) == 1 and "old" not in text
     assert "keep me\n" in text and "keep me too" in text
     assert "| `lr_gen` | 0.0002 | 0.0001 |" in text
-    assert "| `batch_size` | 48 | 16 |" in text
+    assert "| `batch_size` | 48 | 32 |" in text
     report = (repo / train_config.REPORT_REL).read_text(encoding="utf-8")
     assert "| `lr_gen` | 0.0002 | 0.0001 |" in report
 
@@ -215,7 +216,7 @@ def test_validate_config_tool(repo: Path, monkeypatch: pytest.MonkeyPatch,
     _fake_coqui(monkeypatch, ok)
     assert validate_config.main() == 0
     out = capsys.readouterr().out
-    assert "sample_rate 22050, batch_size 16, lr_gen 0.0001" in out
+    assert "sample_rate 22050, batch_size 32, lr_gen 0.0001" in out
     assert "PASS: coqui accepts config" in out
 
     _fake_coqui(monkeypatch, lambda self, path: ok(self, path, drop="save_best_after"))
