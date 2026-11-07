@@ -561,7 +561,7 @@
     },
     {
       "kind": "doc",
-      "lines": 70,
+      "lines": 81,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
@@ -783,7 +783,7 @@
     },
     {
       "kind": "test",
-      "lines": 200,
+      "lines": 214,
       "path": "tests/test_inspect_layout.py",
       "purpose": "Tests for tools/inspect_layout.py: tree counts, table heads, wav headers, metadata values, cap."
     },
@@ -873,7 +873,7 @@
     },
     {
       "kind": "tool",
-      "lines": 197,
+      "lines": 200,
       "path": "tools/inspect_layout.py",
       "purpose": "Describe the raw corpus tree (folders, tables, wav headers, metadata values) for the repo."
     },

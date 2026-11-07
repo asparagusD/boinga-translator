@@ -68,3 +68,14 @@ range: `Python-urllib/3.13` -> 403 (no redirect); `curl/8.5.0` and a
 (data_download.USER_AGENT) on every request.
 **Test added:** tests/test_data_download.py::test_requests_send_project_user_agent
 **Commit:** fix(download): send a project User-Agent; Mendeley 403s Python-urllib
+
+## 2026-11-07 C3.2 Colab: layout inspector PASSes on an empty corpus folder
+**Symptom:** C3 run 1 (c692819): after C3.1 failed, cell C3.2 inspected
+`/content/boinga-fast/data` with `./ (no files)`, `wav files: 0` and still printed
+`PASS: layout inspected` (the reader marked it PASS).
+**Root cause:** tools/inspect_layout.py main() only checked that ROOT is a folder; an
+empty or audio-less tree is not a corpus, but nothing treated it as an error.
+**Fix:** main() prints `FAIL: no .wav files under <root>` and exits 1 (writing no report)
+when the tree holds no .wav files.
+**Test added:** tests/test_inspect_layout.py::test_main_fails_on_empty_or_wavless_tree
+**Commit:** fix(data): fail the layout inspector on a tree without wav files

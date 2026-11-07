@@ -187,6 +187,9 @@ def main(argv: list[str] | None = None) -> int:
     if not args.root.strip() or not root.is_dir():  # "" would silently mean "."
         print(f"FAIL: not a folder: {args.root!r}")
         return 1
+    if not any(p.suffix.lower() == ".wav" and not _junk(p) for p in root.rglob("*")):
+        print(f"FAIL: no .wav files under {root} (did the download cell pass?)")
+        return 1
     repo_path, _drive_copy = report_io.write_report(render(root), REPORT_REL)
     report_io.emit(repo_path, REPORT_REL)
     print("PASS: layout inspected")

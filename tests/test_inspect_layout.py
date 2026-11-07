@@ -192,6 +192,20 @@ def test_main_writes_and_emits_report(
     assert out.rstrip().endswith("PASS: layout inspected")
 
 
+def test_main_fails_on_empty_or_wavless_tree(
+        sandbox: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """C3 run 1: C3.1 failed, C3.2 then printed PASS on an empty data_fast()."""
+    root = tmp_path / "empty"
+    root.mkdir()
+    assert inspect_layout.main([str(root)]) == 1
+    assert "FAIL: no .wav files under" in capsys.readouterr().out
+    (root / "only.csv").write_bytes(b"a\n1\n")
+    assert inspect_layout.main([str(root)]) == 1
+    out = capsys.readouterr().out
+    assert "FAIL: no .wav files under" in out and "PASS" not in out
+    assert not (sandbox / "reports" / "corpus_layout.txt").exists()
+
+
 def test_main_fails_on_missing_root(
         sandbox: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert inspect_layout.main([str(tmp_path / "nope")]) == 1
