@@ -59,7 +59,7 @@ the generated notebook is run once on Colab; the executed .ipynb goes to `colab_
   reports/colab_runs/<chunk>_run<k>.md, stdout table, --save-reports, exit code
 - [x] C1.9 colab-handoff skill update, new colab-verify skill, CLAUDE.md, .gitignore
   (`colab_runs/`), DECISIONS entry; colab-verify must say a STALE run exits 1 (re-run it)
-- [ ] C1.10 pilot: env-check spec + notebook, run on Colab, verified with the reader
+- [x] C1.10 pilot: env-check spec + notebook, run on Colab, verified with the reader
   (A = spec + notebook, B = reports from the verified run)
 
 ### C1N follow-ups (before the C1N merge)

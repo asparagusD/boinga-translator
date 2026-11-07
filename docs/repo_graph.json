@@ -377,9 +377,21 @@
       "purpose": ""
     },
     {
+      "kind": "doc",
+      "lines": 214,
+      "path": "reports/colab_runs/C1_pilot_run1.md",
+      "purpose": "Colab run C1 run 1 — Pipeline pilot"
+    },
+    {
       "kind": "config",
       "lines": 16,
       "path": "reports/env.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 4,
+      "path": "reports/notes/C1.10-notes.json",
       "purpose": ""
     },
     {
