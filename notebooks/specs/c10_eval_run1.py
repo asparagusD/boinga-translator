@@ -21,10 +21,9 @@ NOTEBOOK = Notebook(
         code("C10.pre", "Restore data", "!boinga fetch-data\n!boinga prepare",
              expect=[r"PASS: dataset ready", r"PASS: prepared \d+ clips"]),
         md("""
-            **Pick the 20 evaluation prompts.** P01-P15 are clean clips of our training
-            speaker's test split (never trained on; their real recording is the reference R).
-            P16-P20 are clean official-test clips of other speakers (one per voice cluster),
-            never in our splits. Lines of 5-15 words come first, then the ones least like their
+            **Pick the 20 evaluation prompts.** P01-P20 are clean clips of our test split
+            (never trained on; each one's real recording is the reference R), with no text that
+            a train or val clip has. Lines of 5-15 words come first, then the ones least like their
             Standard Bangla translation (the most dialectal). The text is kept verbatim. If
             `configs/eval_prompts.json` already exists in this checkout, it is kept as it is.
             Expect one line per prompt, `PASS: 20 prompts` and the file printed between

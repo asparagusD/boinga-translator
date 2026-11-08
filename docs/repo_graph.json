@@ -707,11 +707,6 @@
     },
     {
       "kind": "import",
-      "source": "src/boinga_translator/evaluate.py",
-      "target": "src/boinga_translator/speaker_select.py"
-    },
-    {
-      "kind": "import",
       "source": "src/boinga_translator/milestones.py",
       "target": "src/boinga_translator/ckpt_sampler.py"
     },
@@ -2080,19 +2075,19 @@
     },
     {
       "kind": "doc",
-      "lines": 162,
+      "lines": 178,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
     {
       "kind": "doc",
-      "lines": 1169,
+      "lines": 1174,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 859,
+      "lines": 866,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2104,7 +2099,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 478,
+      "lines": 477,
       "path": "notebooks/runs/C10_eval_run1.ipynb",
       "purpose": "C10 run 1 — prompt review"
     },
@@ -2200,7 +2195,7 @@
     },
     {
       "kind": "module",
-      "lines": 62,
+      "lines": 61,
       "path": "notebooks/specs/c10_eval_run1.py",
       "purpose": "Spec: C10 run 1, blind A/B evaluation: pick 20 held-out prompts and review them (CPU)."
     },
@@ -2554,7 +2549,7 @@
     },
     {
       "kind": "module",
-      "lines": 159,
+      "lines": 127,
       "path": "src/boinga_translator/evaluate.py",
       "purpose": "Blind A/B evaluation (C10): 20 held-out, dialect-heavy prompts for the listening test."
     },
@@ -2734,9 +2729,9 @@
     },
     {
       "kind": "test",
-      "lines": 189,
+      "lines": 155,
       "path": "tests/test_evaluate_prompts.py",
-      "purpose": "Tests for evaluate.pick_prompts and `boinga pick-eval-prompts`: 15 + 5, no leaks, stable ids."
+      "purpose": "Tests for evaluate.pick_prompts and `boinga pick-eval-prompts`: 20 test clips, no leaks, ids."
     },
     {
       "kind": "test",

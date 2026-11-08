@@ -780,8 +780,8 @@ non-test estimates, excluding the generated map/notebook and PROGRESS.
 ## C10 — Blind A/B evaluation
 Branch `chunk/C10-eval`. Blind comparison of the pretrained Bangla voice ("baseline") and the
 fine-tuned voice ("boinga", Drive best/, run1 step 36500) on 20 test-split prompts that were never
-trained on. P01-P15 (training speaker) have the real recording (R) as a reference; P16-P20
-(other speakers) have no R. Raters see R (when there is one), A and B. A and B are the
+trained on, each with its real recording (R) as the reference (user, after C10.V1 failed:
+"All 20 from our test"). Raters see R, A and B. A and B are the
 two voices, swapped per prompt by a seeded, balanced draw (10 prompts with boinga as A, 10 as B).
 The key stays on Drive and is not printed until run 3. Three notebooks (user, after C10.1:
 review the prompts before any audio is made): run 1 `notebooks/specs/c10_eval_run1.py` ->
@@ -792,7 +792,8 @@ map/notebook and PROGRESS.
 - [x] C10.1 code (local + spec): new module `evaluate.py`: `pick_prompts(seed, exclude_ids)`:
   P01-P15 = clean clips of our test split (Drive splits.csv), has_reference true; P16-P20 =
   clean official-test clips of other speakers (not in the selection, not in splits.csv), one
-  per voice cluster first, has_reference false. Both groups: no text of a train/val clip,
+  per voice cluster first, has_reference false (replaced by C10.1b: all 20 from our test
+  split). Both groups: no text of a train/val clip,
   distinct text, 5-15 words first, then lowest difflib ratio of ctg_text_nfc vs bn_text
   (`baseline.bangla_similarity`), seeded ties. Writes `configs/eval_prompts.json` (list of
   id, clip_id, ctg_text verbatim, bn_text, has_reference; "replaced" lists clips a prompt
@@ -809,11 +810,17 @@ map/notebook and PROGRESS.
 - [x] C10.H1 hand-off run 1: spec retitled "prompt review", gpu=False; link, CPU runtime,
   a few minutes (not measured; C10.pre restores the prepared data), form C10.1-notes and save
   name `colab_runs/C10_eval_run1.ipynb` given (this commit)
-- [ ] C10.V1 verify run 1 (colab-verify): 20 prompts, configs/eval_prompts.json committed to
+- [x] C10.V1 attempt 1 FAILED at 7829b2f (not stale): C10.pre PASS, C10.1 "need 5
+  other-speaker candidates, found 2": the C4 clustering has 7,506 of 7,513 clean clips in
+  cluster 1 (DEBUG_LOG 2026-11-09)
+- [x] C10.1b fix (user: "All 20 from our test"): P01-P20 all from our test split,
+  has_reference true; clusters and the selection no longer read; spec md updated; tests
+  `tests/test_evaluate_prompts.py` (this commit)
+- [ ] C10.V1 verify run 1 (colab-verify, re-run after C10.1b): 20 prompts, configs/eval_prompts.json committed to
   the branch (run 2's checkout reads it), form
   C10.1-notes filled (REVIEWED_BY, IDS_TO_REPLACE, NOTES)
 - [ ] C10.2 generate A/B/R (local + spec): `evaluate.generate()`: VoiceBank "baseline" and
-  "boinga" speak each prompt (seeded); R = the prepared test wav (P01-P15 only); all three at the model rate,
+  "boinga" speak each prompt (seeded); R = the prepared test wav; all three at the model rate,
   loudness-matched to one RMS target (DECISIONS). Writes Drive `eval/c10/gen/<clip_id>/
   {baseline,boinga,ref}.wav` + gen.json (prompt hash, best md5). Skips work when those
   match. Checks each wav's length and level; tqdm. `boinga eval-generate`. Spec
@@ -821,14 +828,14 @@ map/notebook and PROGRESS.
   any), C10.2.
   Tests `tests/test_eval_generate.py` (fake bank) (~90 lines)
 - [ ] C10.3 blind rating sheet (local + spec): `evaluate.blind_pack(seed)`: balanced A/B
-  assignment; Drive `eval/c10/blind/` holds P01_R/A/B.wav ... P15, P16_A/B.wav ... P20, `sheet.html` (players,
+  assignment; Drive `eval/c10/blind/` holds P01_R/A/B.wav ... P20_R/A/B.wav, `sheet.html` (players,
   prompt text, instructions, dataset credit CC BY 4.0) and `ratings_template.csv` (prompt,
   PREFER, A_INTELL, B_INTELL, NOTES); zipped as `blind_pack.zip`. `eval/c10/key.json` sits
   outside the pack, and only its sha256 is printed. `boinga eval-pack`. Run 2 spec cells C10.3,
   C10.3.play (prompt 1 R/A/B, letters only); form C10-pack (PACK_PLAYS, RATERS_PLANNED,
   NOTES). Tests `tests/test_eval_pack.py` (key not in pack, balance, determinism) (~110 lines)
 - [ ] C10.H2 hand-off run 2 (GPU; save name `colab_runs/C10_eval_run2.ipynb`)
-- [ ] C10.V2 verify run 2 (colab-verify): 55 wavs (40 voice + 15 R), key sha256 printed and
+- [ ] C10.V2 verify run 2 (colab-verify): 60 wavs (40 voice + 20 R), key sha256 printed and
   the key itself not printed, forms filled
 - [ ] (user) raters fill the sheet; user puts each as Drive `eval/c10/ratings/<rater>.csv`
 - [ ] C10.4 score ratings -> reports/eval.md (local + spec run 3): new module `eval_score.py`:

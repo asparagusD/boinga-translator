@@ -1167,3 +1167,8 @@ entry gets an extra "replaced" list so a rejected clip never comes back. Later s
 only id, clip_id, ctg_text, bn_text and has_reference.
 **Alternatives:** A fresh pick per exclusion (other ids would shift); a separate exclusions
 file (one more file to keep in sync).
+**Update 2026-11-09 (C10.1b):** C10 run 1 failed: only 2 clean official-test clips lie
+outside the training speaker's voice cluster (C4 put 7,506 of 7,513 clean clips in cluster 1;
+clusters 2 and 3 hold 7). The user chose "All 20 from our test": P01-P20 all come from our
+test split, each with has_reference true. The other-speaker group, its cluster rule and the
+cluster-aware replacement are gone; the other rules above still hold.
