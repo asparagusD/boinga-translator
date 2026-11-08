@@ -56,7 +56,7 @@ def test_env_overrides(env_roots: tuple[Path, Path]) -> None:
         paths.data_prepared: fast / "prepared",
         paths.prepared_backup: root / "data" / "prepared",
         paths.pretrained: root / "pretrained",
-        paths.runs: fast / "runs",  # not Drive: see paths.runs
+        paths.runs: root / "runs",
         paths.best_ckpt: root / "best",
         paths.eval_dir: root / "eval",
         paths.drive_reports: root / "reports",
@@ -74,8 +74,8 @@ def test_fast_follows_root_override_locally(
 
 
 def test_run_dir_composes(env_roots: tuple[Path, Path]) -> None:
-    _, fast = env_roots
-    assert paths.run_dir("smoke-50") == fast / "runs" / "smoke-50"
+    root, _ = env_roots
+    assert paths.run_dir("smoke-50") == root / "runs" / "smoke-50"
 
 
 @pytest.mark.parametrize("bad", ["", ".", "..", "a/b", "a\\b"])

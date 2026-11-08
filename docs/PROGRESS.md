@@ -663,6 +663,13 @@ estimates, excluding the generated map/notebook and PROGRESS.
   (a step whose whole folder failed to upload fails too); duplicate names and a missing
   folder raise; the signed-in account is printed; `boinga check-milestones --drive-api`, used by C8.flush
   (this commit)
+- [x] C8.5d checkpoints on Drive (user, chat: "all checkpoints should be stored in the drive"):
+  paths.runs() back on Drive; save_step 10,000, save_n_checkpoints 10 (never delete),
+  best-model saves off (`_no_best_models`), `saves_needed` + Drive space check per session,
+  budgets round to BUDGET_ROUND 500; DECISIONS "Checkpoints on Drive every 10,000 steps"
+  (supersedes C8.5a's VM disk) (this commit)
+- [ ] C8.5e notebook: record checkpoint md5s, flush, check every checkpoint via the Drive API;
+  drop C8.keep
 - [ ] C8.H3 / C8.V3 retrain run1 (same name and budget), listen again
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on

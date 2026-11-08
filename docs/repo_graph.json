@@ -1766,13 +1766,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1072,
+      "lines": 1092,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 727,
+      "lines": 734,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2252,7 +2252,7 @@
     },
     {
       "kind": "module",
-      "lines": 217,
+      "lines": 216,
       "path": "src/boinga_translator/train_config.py",
       "purpose": "Fine-tune config: the base voice's pretrained config.json plus logged, reasoned overrides."
     },
@@ -2264,7 +2264,7 @@
     },
     {
       "kind": "module",
-      "lines": 340,
+      "lines": 365,
       "path": "src/boinga_translator/train_runner.py",
       "purpose": "Training runner: coqui VITS loader check, new and resumed fine-tune runs, smoke-run cleanup."
     },
@@ -2498,7 +2498,7 @@
     },
     {
       "kind": "test",
-      "lines": 359,
+      "lines": 377,
       "path": "tests/test_train_run.py",
       "purpose": "Tests for train_runner.run() and `boinga train`: TrainerArgs, step stop, boinga_run.json (fakes)."
     },

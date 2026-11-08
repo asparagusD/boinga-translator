@@ -20,7 +20,8 @@ import numpy as np
 from boinga_translator import env_report, paths, pretrained, train_config
 
 RUN_RECORD = "boinga_run.json"  # in paths.run_dir(name): one entry per training session
-MIN_FREE_GB = 30.0  # runs disk: 2 checkpoints + every best (save_all_best; run 1 ~18 GB)
+CKPT_GB = 1.0  # one coqui VITS checkpoint with optimizer state (run 1: 997.8 MB)
+MARGIN_GB = 2.0  # logs, TensorBoard events, eval audio
 
 # Keyword arguments get_data_loader may take: 0.28 has config, *, is_eval, samples, verbose;
 # assets/num_gpus are older coqui names. Only those in the printed signature are passed.
@@ -224,7 +225,7 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
     run_dir = paths.run_dir(run_name)
     latest = latest_run_folder(run_name)
     if latest is None or max_steps is None or latest[1] < max_steps:
-        _check_space(run_dir)
+        _check_space(run_dir, latest[1] if latest else 0, max_steps)
     if latest is not None:
         folder, step = latest
         if max_steps is not None and step >= max_steps:
@@ -267,6 +268,7 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
             model=model, train_samples=train, eval_samples=evals,
             parse_command_line_args=False,  # never read `boinga train` flags as overrides
             callbacks={"on_train_step_end": _stopper(max_steps)} if max_steps else {})
+        _no_best_models(trainer)
         session["output_path"] = str(trainer.output_path)
         try:
             trainer._fit()
@@ -300,11 +302,33 @@ def free_gb(path: Path) -> float:
     return shutil.disk_usage(path).free / 1e9
 
 
-def _check_space(run_dir: Path) -> None:
-    if (free := free_gb(run_dir)) < MIN_FREE_GB:
-        raise RuntimeError(f"only {free:.1f} GB free for {run_dir} (need {MIN_FREE_GB:.0f} GB): "
-                           "coqui writes ~1 GB checkpoints there")
-    print(f"space: {free:.1f} GB free for {run_dir}")
+def saves_needed(start_step: int, max_steps: int | None) -> int:
+    """Checkpoints a session writes: one per save_step crossed, plus the one at the stop."""
+    save_step = int(train_config.OVERRIDES["save_step"][0])
+    keep = int(train_config.OVERRIDES["save_n_checkpoints"][0])
+    if max_steps is None:
+        return keep
+    n = max_steps // save_step - start_step // save_step + 1
+    if max_steps // save_step + 1 > keep:  # coqui would delete the oldest: a Drive delete
+        raise ValueError(f"{max_steps} steps make {max_steps // save_step + 1} checkpoints but "
+                         f"save_n_checkpoints is {keep}: coqui would delete some on Drive")
+    return n
+
+
+def _check_space(run_dir: Path, start_step: int, max_steps: int | None) -> None:
+    need = saves_needed(start_step, max_steps) * CKPT_GB + MARGIN_GB
+    if (free := free_gb(run_dir)) < need:
+        raise RuntimeError(f"only {free:.1f} GB free for {run_dir} (need {need:.0f} GB: "
+                           f"~{CKPT_GB:.0f} GB per checkpoint): free Drive space, empty its trash")
+    print(f"space: {free:.1f} GB free for {run_dir} (need {need:.0f} GB)")
+
+
+def _no_best_models(trainer: Any) -> None:
+    """Stop coqui saving best_model_<N>.pth: each one replaces and deletes the last on Drive."""
+    if not callable(getattr(trainer, "save_best_model", None)):
+        raise TypeError("coqui Trainer has no save_best_model: cannot turn best saves off")
+    trainer.save_best_model = lambda *args, **kwargs: None
+    print("best-model saves: off (checkpoints every save_step are the candidates)")
 
 
 CLEAN_MAX_STEP = 1000  # clean_run refuses runs past this: those are real training, not smoke
@@ -336,5 +360,6 @@ def clean_run(run_name: str) -> bool:
     shutil.rmtree(run_dir)
     if run_dir.exists():  # a FUSE mount can leave files behind without raising
         raise RuntimeError(f"{run_dir} still exists after deleting it: delete it by hand")
-    print(f"PASS: cleaned run {run_name}: removed {run_dir} ({size / 1e9:.2f} GB)")
+    print(f"PASS: cleaned run {run_name}: removed {run_dir} ({size / 1e9:.2f} GB; Drive keeps "
+          "deleted files in its trash until emptied)")
     return True

@@ -34,10 +34,10 @@ OVERRIDES: dict[str, tuple[Any, str]] = {
     "run_eval": (True, "val loss picks the best checkpoint, with listening (vits-finetune)"),
     "test_delay_epochs": (0, "test sentences from the first epoch: early sanity listening"),
     "print_step": (25, "step logs often enough to read sec/step in the smoke test"),
-    "save_step": (500, "a checkpoint every ~500 steps on the VM disk (vits-finetune)"),
-    "save_n_checkpoints": (2, "keep the last 2 (+ every best, save_all_best): ~1 GB each, VM disk"),
+    "save_step": (10_000, "a ~1 GB checkpoint on Drive every 10,000 steps (user, C8.5d)"),
+    "save_n_checkpoints": (10, "never delete on Drive (a delete fills its trash): above any budget"),
     "save_best_after": (1000, "no best checkpoint from the noisy first steps"),
-    "save_checkpoints": (True, "resume and the listened steps (milestones.keep) need them"),
+    "save_checkpoints": (True, "resume after a disconnect and listening need them"),
     # coqui names the training seed "training_seed"; a "seed" key is silently ignored (C7 run 1)
     "training_seed": (settings.SEED, "the project seed (settings.SEED) for reproducible runs"),
     "epochs": (1000, "upper bound only; runs stop by a step budget (RUN_BUDGETS, C8)"),
@@ -53,24 +53,23 @@ COMPUTED_REASONS: dict[str, str] = {
     "test_sentences": f"first {N_TEST_SENTENCES} val manifest texts: prepare_text output as "
                       "trained, not re-normalised (Gate G4)",
     "datasets": "our prepared ljspeech manifests on the fast disk replace the author's paths",
-    "output_path": "runs on the fast disk (paths.runs()): Drive keeps deleted checkpoints in its trash",
+    "output_path": "runs on Drive (paths.runs()): resume after a disconnect; nothing deleted there",
     "run_name": "given per run (boinga build-config --run NAME)",
 }
 REASONS: dict[str, str] = {**{k: r for k, (_, r) in OVERRIDES.items()}, **COMPUTED_REASONS}
 
 BUDGET_HOURS = 3.5  # step time per run (C8.1); eval, checkpoint saves and restarts come on top
+BUDGET_ROUND = 500  # budgets are whole multiples of this (C8.1 used the old save_step)
 
 
 def budget_steps(steps_per_hour: float, hours: float = BUDGET_HOURS) -> int:
-    """Steps that fit in hours at a measured rate, rounded down to a save_step multiple.
+    """Steps that fit in hours at a measured rate, rounded down to a BUDGET_ROUND multiple.
 
-    Uses the global OVERRIDES save_step (no run overrides it yet).
+    The runner saves a checkpoint at the stop, so the budget need not be a save_step multiple.
     """
-    save_step = int(OVERRIDES["save_step"][0])
-    steps = int(steps_per_hour * hours) // save_step * save_step
-    if steps < save_step:
-        raise ValueError(f"{steps_per_hour} steps/h x {hours} h is under one save_step "
-                         f"({save_step}): no checkpoint would be saved")
+    steps = int(steps_per_hour * hours) // BUDGET_ROUND * BUDGET_ROUND
+    if steps < BUDGET_ROUND:
+        raise ValueError(f"{steps_per_hour} steps/h x {hours} h is under {BUDGET_ROUND} steps")
     return steps
 
 

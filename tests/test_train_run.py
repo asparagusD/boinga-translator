@@ -57,6 +57,9 @@ class FakeTrainer:
             if "on_train_step_end" in self.callbacks:
                 self.callbacks["on_train_step_end"](self)
 
+    def save_best_model(self) -> None:  # replaced by run(): never called
+        raise AssertionError("best-model saves must be off")
+
     def save_checkpoint(self) -> None:
         self.saved.append(self.total_steps_done)
         (self.output_path / f"checkpoint_{self.total_steps_done}.pth").write_bytes(b"x")
@@ -347,13 +350,28 @@ def test_budget_on_resume_and_when_reached(fake: dict[str, Any], monkeypatch: py
 
 
 def test_new_run_needs_disk_space(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(train_runner, "free_gb", lambda path: 3.0)
-    with pytest.raises(RuntimeError, match="only 3.0 GB free"):
+    monkeypatch.setattr(train_runner, "free_gb", lambda path: 2.0)
+    with pytest.raises(RuntimeError, match="only 2.0 GB free"):
         train_runner.run("run1", max_steps=10)
 
 
 def test_resume_needs_disk_space(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch) -> None:
     train_runner.run("run1", max_steps=10)
-    monkeypatch.setattr(train_runner, "free_gb", lambda path: 3.0)
-    with pytest.raises(RuntimeError, match="only 3.0 GB free"):
+    monkeypatch.setattr(train_runner, "free_gb", lambda path: 2.0)
+    with pytest.raises(RuntimeError, match="only 2.0 GB free"):
         train_runner.run("run1", max_steps=20)
+
+
+def test_best_model_saves_are_off(fake: dict[str, Any],
+                                  capsys: pytest.CaptureFixture[str]) -> None:
+    train_runner.run("run1", max_steps=10)
+    trainer = FakeTrainer.instances[-1]
+    trainer.save_best_model()  # the replaced method: a no-op
+    assert "best-model saves: off" in capsys.readouterr().out
+
+
+def test_saves_needed() -> None:
+    assert train_runner.saves_needed(0, 36_500) == 4  # 10k, 20k, 30k + the stop at 36,500
+    assert train_runner.saves_needed(20_100, 36_500) == 2  # resume: 30k + the stop
+    with pytest.raises(ValueError, match="would delete"):
+        train_runner.saves_needed(0, 100_000)
