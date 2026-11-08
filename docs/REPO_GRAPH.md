@@ -770,6 +770,4 @@ graph LR
 
 ## Changed since HEAD
 
-- added: `reports/colab_runs/C10_eval_run2.md`
-- added: `reports/eval_generation.md`
-- added: `reports/rater_instructions.md`
+No files added or removed.
