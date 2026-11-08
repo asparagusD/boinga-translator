@@ -217,6 +217,31 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C8_keep_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_keep_run1.ipynb",
+      "target": "src/boinga_translator/milestones.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_keep_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_keep_run1.ipynb",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_keep_run1.ipynb",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C8_timing_run1.ipynb",
       "target": "src/boinga_translator/cli.py"
     },
@@ -328,6 +353,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c8_finetune_run1.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c8_keep_run1.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -1742,7 +1772,7 @@
     },
     {
       "kind": "doc",
-      "lines": 707,
+      "lines": 710,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1832,6 +1862,12 @@
     },
     {
       "kind": "notebook",
+      "lines": 523,
+      "path": "notebooks/runs/C8_keep_run1.ipynb",
+      "purpose": "C8 run 1 — C8 — keep run1 milestones"
+    },
+    {
+      "kind": "notebook",
       "lines": 577,
       "path": "notebooks/runs/C8_timing_run1.ipynb",
       "purpose": "C8 run 1 — C8 — timing at batch 32 (RTX PRO 6000)"
@@ -1913,6 +1949,12 @@
       "lines": 110,
       "path": "notebooks/specs/c8_finetune_run1.py",
       "purpose": "Spec: C8 run 1, full fine-tune of run1 to its step budget, then sample, rank and listen."
+    },
+    {
+      "kind": "module",
+      "lines": 75,
+      "path": "notebooks/specs/c8_keep_run1.py",
+      "purpose": "Spec: C8.2c, keep model + config copies of run1's listened checkpoints on Drive (no training)."
     },
     {
       "kind": "module",

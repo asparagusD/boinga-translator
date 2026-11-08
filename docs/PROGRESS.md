@@ -642,7 +642,10 @@ estimates, excluding the generated map/notebook and PROGRESS.
   the copy tensor by tensor, skips steps already kept; default steps = the ones the listening
   form played (`ckpt_sampler.listened_steps`: 4 best by eval loss_mel + last);
   `paths.milestones()`; `boinga keep --run NAME [--steps N ...]` (this commit)
-- [ ] C8.2c.H keep notebook for run1 (no training, CPU is enough): `boinga keep --run run1`
+- [x] C8.2c.H keep notebook for run1 (no training, CPU runtime): spec
+  `notebooks/specs/c8_keep_run1.py` -> `notebooks/runs/C8_keep_run1.ipynb`: C8K.1 candidates,
+  C8K.2 `boinga keep --run run1`, C8K.3 list `milestones/run1/`, C8K.4 load the 36500 copy in
+  the Synthesizer (CPU), form C8K-notes (FOUR_FOLDERS_PRESENT, NOTES) (this commit)
 - [ ] C8.2c.V verify the keep run (colab-verify)
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on
