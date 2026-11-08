@@ -655,8 +655,7 @@ estimates, excluding the generated map/notebook and PROGRESS.
   20450; user: BEST_STEP 36500, "good: promote BEST_STEP", clearer and more Chittagonian than
   pretrained, no artefacts (DECISIONS "Run 1 verdict", Training runs table) (this commit)
 - [x] C8.4 not needed (verdict "good")
-- [ ] follow-up: every training/eval text logs "Character '
-' not found in the vocabulary":
+- [ ] follow-up: every training/eval text logs "Character '\n' not found in the vocabulary":
   find where the newline enters (manifest text or coqui test_sentences) and strip it
 - [ ] follow-up: coqui kept 15 best_model_<N>.pth in run1 (not only the newest): check why
   (keep_all_best / Drive delete) before any further run fills Drive
