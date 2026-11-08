@@ -1,0 +1,38 @@
+{
+  "run": "run1",
+  "step": 36500,
+  "run_folder": "run1-November-08-2026_05+25AM-853ac3a",
+  "source": "checkpoint_36500.pth",
+  "bytes": 997792643,
+  "md5": "66970fd54dd14a5447517fa6b8cb3e85",
+  "eval": {
+    "step": 36475,
+    "loss_mel": 20.5995,
+    "loss_total": 43.8919
+  },
+  "base_model": {
+    "voice": "male",
+    "id": "tts_models/bn/custom/vits-male",
+    "license": "Apache-2.0",
+    "coqui_tts": "0.28.0"
+  },
+  "dataset": {
+    "name": "A Synchronized Chittagonian Speech Corpus for Dialect ASR and Speech-to-Speech Translation",
+    "doi": "10.17632/n9xttk45df.1",
+    "license": "CC-BY-4.0"
+  },
+  "speaker_selection": {
+    "kind": "cluster",
+    "id": 1,
+    "csv_sha256": "e170000ef948cfa3051edabdd05b4e6376ee704763ebbf7af27a47964dac592e"
+  },
+  "char_map": "151ac177e2",
+  "seed": 1234,
+  "inference": {
+    "inference_noise_scale": 0.667,
+    "inference_noise_scale_dp": 0.8,
+    "length_scale": 1.0
+  },
+  "git_commit": "dcb26e5",
+  "promoted_utc": "2026-11-08T08:07:01+00:00"
+}
