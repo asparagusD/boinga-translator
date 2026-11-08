@@ -783,10 +783,11 @@ fine-tuned voice ("boinga", Drive best/, run1 step 36500) on 20 test-split promp
 trained on. P01-P15 (training speaker) have the real recording (R) as a reference; P16-P20
 (other speakers) have no R. Raters see R (when there is one), A and B. A and B are the
 two voices, swapped per prompt by a seeded, balanced draw (10 prompts with boinga as A, 10 as B).
-The key stays on Drive and is not printed until run 2. Two notebooks: spec
-`notebooks/specs/c10_eval_run1.py` -> `notebooks/runs/C10_eval_run1.ipynb` (GPU) and
-`notebooks/specs/c10_eval_run2.py` -> `notebooks/runs/C10_eval_run2.ipynb` (CPU). Raters fill
-the sheet between the two runs. Line counts are non-test estimates, excluding the generated
+The key stays on Drive and is not printed until run 3. Three notebooks (user, after C10.1:
+review the prompts before any audio is made): run 1 `notebooks/specs/c10_eval_run1.py` ->
+`notebooks/runs/C10_eval_run1.ipynb` (CPU: prompts + review), run 2 `c10_eval_run2.py` (GPU:
+replace rejected prompts, audio, blind pack) and run 3 `c10_eval_run3.py` (CPU: scoring).
+Raters fill the sheet between runs 2 and 3. Line counts are non-test estimates, excluding the generated
 map/notebook and PROGRESS.
 - [x] C10.1 code (local + spec): new module `evaluate.py`: `pick_prompts(seed, exclude_ids)`:
   P01-P15 = clean clips of our test split (Drive splits.csv), has_reference true; P16-P20 =
@@ -802,41 +803,48 @@ map/notebook and PROGRESS.
   (REVIEWED_BY, IDS_TO_REPLACE, NOTES). Tests `tests/test_evaluate_prompts.py`. ~225 lines
   incl. the spec (over the ~150 budget; kept as one commit as the user asked). DECISIONS
   "C10 evaluation prompts" (this commit)
-- [ ] open: run 1 puts the prompt review form after C10.2/C10.3, so audio and the pack are
-  built before the review; IDS_TO_REPLACE then needs a re-run with `--exclude` and a rebuilt
-  pack. Decide before C10.2: split run 1 (review first) or accept the re-run
+- [x] decided (user, chat: "Review first, hand off"): run 1 = prompts + review only (CPU);
+  C10.2/C10.3 move to run 2, which first runs `boinga pick-eval-prompts --exclude <IDS>` when
+  the review lists any
+- [x] C10.H1 hand-off run 1: spec retitled "prompt review", gpu=False; link, CPU runtime,
+  a few minutes (not measured; C10.pre restores the prepared data), form C10.1-notes and save
+  name `colab_runs/C10_eval_run1.ipynb` given (this commit)
+- [ ] C10.V1 verify run 1 (colab-verify): 20 prompts, configs/eval_prompts.json committed to
+  the branch (run 2's checkout reads it), form
+  C10.1-notes filled (REVIEWED_BY, IDS_TO_REPLACE, NOTES)
 - [ ] C10.2 generate A/B/R (local + spec): `evaluate.generate()`: VoiceBank "baseline" and
   "boinga" speak each prompt (seeded); R = the prepared test wav (P01-P15 only); all three at the model rate,
   loudness-matched to one RMS target (DECISIONS). Writes Drive `eval/c10/gen/<clip_id>/
   {baseline,boinga,ref}.wav` + gen.json (prompt hash, best md5). Skips work when those
-  match. Checks each wav's length and level; tqdm. `boinga eval-generate`. Spec cell C10.2.
+  match. Checks each wav's length and level; tqdm. `boinga eval-generate`. Spec
+  `notebooks/specs/c10_eval_run2.py` (GPU): C10.pre, C10.1x (`--exclude` from C10.1-notes, if
+  any), C10.2.
   Tests `tests/test_eval_generate.py` (fake bank) (~90 lines)
 - [ ] C10.3 blind rating sheet (local + spec): `evaluate.blind_pack(seed)`: balanced A/B
   assignment; Drive `eval/c10/blind/` holds P01_R/A/B.wav ... P15, P16_A/B.wav ... P20, `sheet.html` (players,
   prompt text, instructions, dataset credit CC BY 4.0) and `ratings_template.csv` (prompt,
   PREFER, A_INTELL, B_INTELL, NOTES); zipped as `blind_pack.zip`. `eval/c10/key.json` sits
-  outside the pack, and only its sha256 is printed. `boinga eval-pack`. Spec cells C10.3,
+  outside the pack, and only its sha256 is printed. `boinga eval-pack`. Run 2 spec cells C10.3,
   C10.3.play (prompt 1 R/A/B, letters only); form C10-pack (PACK_PLAYS, RATERS_PLANNED,
   NOTES). Tests `tests/test_eval_pack.py` (key not in pack, balance, determinism) (~110 lines)
-- [ ] C10.H1 hand-off run 1 (link, runtime, duration not measured, forms, save name
-  `colab_runs/C10_eval_run1.ipynb`)
-- [ ] C10.V1 verify run 1 (colab-verify): 55 wavs (40 voice + 15 R), key sha256 printed and the key itself not
-  printed, configs/eval_prompts.json saved, forms filled
+- [ ] C10.H2 hand-off run 2 (GPU; save name `colab_runs/C10_eval_run2.ipynb`)
+- [ ] C10.V2 verify run 2 (colab-verify): 55 wavs (40 voice + 15 R), key sha256 printed and
+  the key itself not printed, forms filled
 - [ ] (user) raters fill the sheet; user puts each as Drive `eval/c10/ratings/<rater>.csv`
-- [ ] C10.4 score ratings -> reports/eval.md (local + spec run 2): new module `eval_score.py`:
+- [ ] C10.4 score ratings -> reports/eval.md (local + spec run 3): new module `eval_score.py`:
   validate sheets (20 rows, allowed values, known prompts), unblind with key.json (sha256
-  must match run 1), raters anonymised R1..Rn; boinga/baseline/same counts, win rate, exact
+  must match run 2), raters anonymised R1..Rn; boinga/baseline/same counts, win rate, exact
   two-sided sign test; mean intelligibility per voice with seeded bootstrap 95% CI and paired
   difference; per-rater and per-prompt tables; reports/eval.md + reports/eval.json emitted.
-  `boinga eval-score`. Spec cells C10.pre2, C10.4; form C10-eval-notes. Tests
+  `boinga eval-score`. Run 3 spec cells C10.pre, C10.4; form C10-eval-notes. Tests
   `tests/test_eval_score.py` (synthetic sheets) (~140 lines)
-- [ ] C10.5 optional MCD (local + spec run 2): new module `eval_mcd.py`: MCD with DTW
+- [ ] C10.5 optional MCD (local + spec run 3): new module `eval_mcd.py`: MCD with DTW
   (librosa MFCC 1-13, `librosa.sequence.dtw`) of each voice vs R per prompt;
-  reports/eval_mcd.json, read by eval.md when present. Placed before C10.4 in run 2, and
+  reports/eval_mcd.json, read by eval.md when present. Placed before C10.4 in run 3, and
   labelled as a rough measure because it mixes speaker and dialect. Tests
   `tests/test_eval_mcd.py` (~70 lines)
-- [ ] C10.H2 hand-off run 2 (CPU; save name `colab_runs/C10_eval_run2.ipynb`)
-- [ ] C10.V2 verify run 2 (colab-verify); DECISIONS "C10 evaluation result"
+- [ ] C10.H3 hand-off run 3 (CPU; save name `colab_runs/C10_eval_run3.ipynb`)
+- [ ] C10.V3 verify run 3 (colab-verify); DECISIONS "C10 evaluation result"
 
 ## C11
 - [ ] C11.x (subchunks not yet defined)

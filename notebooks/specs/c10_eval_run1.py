@@ -1,4 +1,4 @@
-"""Spec: C10 run 1, blind A/B evaluation: pick 20 held-out prompts (audio and sheet follow)."""
+"""Spec: C10 run 1, blind A/B evaluation: pick 20 held-out prompts and review them (CPU)."""
 
 from nbkit import Notebook, code, form, md
 
@@ -6,9 +6,9 @@ NOTEBOOK = Notebook(
     chunk="C10",
     run=1,
     slug="eval",
-    title="C10 run 1 — prompts, audio, rating sheet",
+    title="prompt review",
     branch="chunk/C10-eval",
-    gpu=True,
+    gpu=False,
     cells=[
         md("""
             **Restore data on this VM.** The prompt pick reads the corpus workbook (Chittagonian
@@ -50,7 +50,8 @@ NOTEBOOK = Notebook(
             are offensive, or are hard to read aloud (e.g. `P03,P11`), or `none`. `NOTES`:
             anything else, or `none`. All three fields are required. Ids listed here are
             replaced in a later run with `boinga pick-eval-prompts --exclude ...`; the other ids
-            keep their text.
+            keep their text. Audio and the rating sheet come in run 2, from the reviewed
+            prompts.
         """),
         form("C10.1-notes", "Prompt review (with a Chittagonian speaker)", fields={
             "REVIEWED_BY": "",

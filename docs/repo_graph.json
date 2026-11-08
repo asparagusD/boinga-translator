@@ -2092,7 +2092,7 @@
     },
     {
       "kind": "doc",
-      "lines": 851,
+      "lines": 859,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2104,9 +2104,9 @@
     },
     {
       "kind": "notebook",
-      "lines": 479,
+      "lines": 478,
       "path": "notebooks/runs/C10_eval_run1.ipynb",
-      "purpose": "C10 run 1 — C10 run 1 — prompts, audio, rating sheet"
+      "purpose": "C10 run 1 — prompt review"
     },
     {
       "kind": "notebook",
@@ -2200,9 +2200,9 @@
     },
     {
       "kind": "module",
-      "lines": 61,
+      "lines": 62,
       "path": "notebooks/specs/c10_eval_run1.py",
-      "purpose": "Spec: C10 run 1, blind A/B evaluation: pick 20 held-out prompts (audio and sheet follow)."
+      "purpose": "Spec: C10 run 1, blind A/B evaluation: pick 20 held-out prompts and review them (CPU)."
     },
     {
       "kind": "module",
