@@ -7,6 +7,21 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run1.ipynb",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
@@ -249,6 +264,11 @@
       "kind": "notebook",
       "source": "notebooks/runs/C9_synth-best_run1.ipynb",
       "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c10_eval_run1.py",
+      "target": "tools/nbkit.py"
     },
     {
       "kind": "import",
@@ -523,6 +543,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/milestones.py"
     },
     {
@@ -644,6 +669,46 @@
       "kind": "import",
       "source": "src/boinga_translator/env_report.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/speaker_select.py"
     },
     {
       "kind": "import",
@@ -1233,6 +1298,21 @@
     {
       "kind": "test",
       "source": "tests/test_env_report.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_prompts.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_prompts.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_prompts.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -2006,13 +2086,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1151,
+      "lines": 1169,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 793,
+      "lines": 851,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2021,6 +2101,12 @@
       "lines": 131,
       "path": "notebooks/colab_bootstrap.py",
       "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, make folders."
+    },
+    {
+      "kind": "notebook",
+      "lines": 479,
+      "path": "notebooks/runs/C10_eval_run1.ipynb",
+      "purpose": "C10 run 1 — C10 run 1 — prompts, audio, rating sheet"
     },
     {
       "kind": "notebook",
@@ -2111,6 +2197,12 @@
       "lines": 513,
       "path": "notebooks/runs/C9_synth-best_run1.ipynb",
       "purpose": "C9 run 1 — C9 — best checkpoint"
+    },
+    {
+      "kind": "module",
+      "lines": 61,
+      "path": "notebooks/specs/c10_eval_run1.py",
+      "purpose": "Spec: C10 run 1, blind A/B evaluation: pick 20 held-out prompts (audio and sheet follow)."
     },
     {
       "kind": "module",
@@ -2420,7 +2512,7 @@
     },
     {
       "kind": "module",
-      "lines": 433,
+      "lines": 455,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2459,6 +2551,12 @@
       "lines": 102,
       "path": "src/boinga_translator/env_report.py",
       "purpose": "Record python, torch/CUDA, GPU, coqui-tts, numpy, git and disk info to reports/env.json."
+    },
+    {
+      "kind": "module",
+      "lines": 159,
+      "path": "src/boinga_translator/evaluate.py",
+      "purpose": "Blind A/B evaluation (C10): 20 held-out, dialect-heavy prompts for the listening test."
     },
     {
       "kind": "module",
@@ -2633,6 +2731,12 @@
       "lines": 117,
       "path": "tests/test_env_report.py",
       "purpose": "Tests for env_report.py and `boinga env`: missing torch, fake GPU, JSON keys, CLI wiring."
+    },
+    {
+      "kind": "test",
+      "lines": 189,
+      "path": "tests/test_evaluate_prompts.py",
+      "purpose": "Tests for evaluate.pick_prompts and `boinga pick-eval-prompts`: 15 + 5, no leaks, stable ids."
     },
     {
       "kind": "test",

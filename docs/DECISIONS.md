@@ -1149,3 +1149,21 @@ listener, 3 sentences, judged by ear (no ASR/MOS measure yet). best/model.pth is
 checkpoint with optimizer state (~1 GB); a later promotion replaces it and sends the old one
 to Drive's trash (4.5 GB free on Drive before this copy). best/ was not checked through the
 Drive API (the C9.2b option in PROGRESS); the reload ran from the Drive mount in the same VM.
+
+## 2026-11-09 — C10 evaluation prompts
+**Context:** C10.1. The blind A/B test needs prompts that were never trained on and that show
+the dialect, plus a way to replace prompts a Chittagonian reviewer rejects without moving
+the other prompts.
+**Decision:** `evaluate.pick_prompts` picks P01-P15 from clean clips of our test split
+(has_reference true: R is the speaker's own prepared recording) and P16-P20 from clean
+official-test clips of other speakers (not in the selection, its voice clusters or
+splits.csv; one per cluster first; has_reference false, no R). Both groups drop any text a
+train/val clip has, and any clip without a translation. They rank 5-15 words first, then by
+lowest difflib ratio of ctg_text_nfc vs bn_text (most dialectal), with ties broken by a
+seeded shuffle. Text is copied verbatim. An existing configs/eval_prompts.json is kept on a
+re-run (the notebook is idempotent, and the seed is then not used). `--exclude` gives each
+listed id the next-best unused clip of its group, from an unused cluster for P16-P20. The
+entry gets an extra "replaced" list so a rejected clip never comes back. Later steps read
+only id, clip_id, ctg_text, bn_text and has_reference.
+**Alternatives:** A fresh pick per exclusion (other ids would shift); a separate exclusions
+file (one more file to keep in sync).

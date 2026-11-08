@@ -14,6 +14,7 @@ from boinga_translator import (
     data_download,
     drive_api,
     env_report,
+    evaluate,
     milestones,
     paths,
     prepare,
@@ -47,6 +48,10 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("audit-summary", help="summarise audit.csv into reports/audit_summary.md")
     sub.add_parser("pick-baseline-ctg",
                    help="put 3 held-out dialect lines into configs/baseline_prompts.json")
+    pev = sub.add_parser("pick-eval-prompts",
+                         help="pick 20 held-out dialect prompts into configs/eval_prompts.json")
+    pev.add_argument("--exclude", default="",
+                     help="comma-separated prompt ids to replace, e.g. P03,P11 (others stay)")
     sub.add_parser("embed-speakers",
                    help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
     sub.add_parser("cluster-speakers",
@@ -254,6 +259,21 @@ def _pick_baseline_ctg() -> int:
     return 0
 
 
+def _pick_eval_prompts(exclude: str) -> int:
+    """Pick (or replace some of) the 20 C10 prompts, write and emit them; FAIL + exit 1."""
+    try:
+        ids = [i.strip() for i in exclude.split(",") if i.strip()]
+        prompts = evaluate.pick_prompts(exclude_ids=ids)
+        for p in prompts:
+            print(f"{p['id']} clip {p['clip_id']}: {p['ctg_text']}")
+        evaluate.write_prompts(prompts)
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: pick-eval-prompts: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: {len(prompts)} prompts")
+    return 0
+
+
 def _embed_speakers() -> int:
     """One speaker embedding per clean clip of the Drive audit.csv; FAIL + exit 1 on error."""
     try:
@@ -394,6 +414,8 @@ def main(argv: list[str] | None = None) -> int:
         return _audit_summary()
     elif args.command == "pick-baseline-ctg":
         return _pick_baseline_ctg()
+    elif args.command == "pick-eval-prompts":
+        return _pick_eval_prompts(args.exclude)
     elif args.command == "embed-speakers":
         return _embed_speakers()
     elif args.command == "cluster-speakers":

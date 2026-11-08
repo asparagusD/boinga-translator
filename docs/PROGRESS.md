@@ -777,8 +777,66 @@ non-test estimates, excluding the generated map/notebook and PROGRESS.
 - [x] C9.4 Gate G6 — usable checkpoint: PASS (reload check PASS, INTELLIGIBLE "yes");
   DECISIONS "Gate G6 — usable checkpoint" (`09e4cbc`)
 
-## C10
-- [ ] C10.x (subchunks not yet defined)
+## C10 — Blind A/B evaluation
+Branch `chunk/C10-eval`. Blind comparison of the pretrained Bangla voice ("baseline") and the
+fine-tuned voice ("boinga", Drive best/, run1 step 36500) on 20 test-split prompts that were never
+trained on. P01-P15 (training speaker) have the real recording (R) as a reference; P16-P20
+(other speakers) have no R. Raters see R (when there is one), A and B. A and B are the
+two voices, swapped per prompt by a seeded, balanced draw (10 prompts with boinga as A, 10 as B).
+The key stays on Drive and is not printed until run 2. Two notebooks: spec
+`notebooks/specs/c10_eval_run1.py` -> `notebooks/runs/C10_eval_run1.ipynb` (GPU) and
+`notebooks/specs/c10_eval_run2.py` -> `notebooks/runs/C10_eval_run2.ipynb` (CPU). Raters fill
+the sheet between the two runs. Line counts are non-test estimates, excluding the generated
+map/notebook and PROGRESS.
+- [x] C10.1 code (local + spec): new module `evaluate.py`: `pick_prompts(seed, exclude_ids)`:
+  P01-P15 = clean clips of our test split (Drive splits.csv), has_reference true; P16-P20 =
+  clean official-test clips of other speakers (not in the selection, not in splits.csv), one
+  per voice cluster first, has_reference false. Both groups: no text of a train/val clip,
+  distinct text, 5-15 words first, then lowest difflib ratio of ctg_text_nfc vs bn_text
+  (`baseline.bangla_similarity`), seeded ties. Writes `configs/eval_prompts.json` (list of
+  id, clip_id, ctg_text verbatim, bn_text, has_reference; "replaced" lists clips a prompt
+  replaced) and emits it. An existing file is kept; `--exclude` ids get the next-best unused
+  clip of their group, other ids stay the same. `boinga pick-eval-prompts [--exclude
+  P03,P11]` ("PASS: 20 prompts"); `evaluate.show_prompts()`. Spec
+  `notebooks/specs/c10_eval_run1.py`: C10.pre, C10.1, C10.1.show, form C10.1-notes
+  (REVIEWED_BY, IDS_TO_REPLACE, NOTES). Tests `tests/test_evaluate_prompts.py`. ~225 lines
+  incl. the spec (over the ~150 budget; kept as one commit as the user asked). DECISIONS
+  "C10 evaluation prompts" (this commit)
+- [ ] open: run 1 puts the prompt review form after C10.2/C10.3, so audio and the pack are
+  built before the review; IDS_TO_REPLACE then needs a re-run with `--exclude` and a rebuilt
+  pack. Decide before C10.2: split run 1 (review first) or accept the re-run
+- [ ] C10.2 generate A/B/R (local + spec): `evaluate.generate()`: VoiceBank "baseline" and
+  "boinga" speak each prompt (seeded); R = the prepared test wav (P01-P15 only); all three at the model rate,
+  loudness-matched to one RMS target (DECISIONS). Writes Drive `eval/c10/gen/<clip_id>/
+  {baseline,boinga,ref}.wav` + gen.json (prompt hash, best md5). Skips work when those
+  match. Checks each wav's length and level; tqdm. `boinga eval-generate`. Spec cell C10.2.
+  Tests `tests/test_eval_generate.py` (fake bank) (~90 lines)
+- [ ] C10.3 blind rating sheet (local + spec): `evaluate.blind_pack(seed)`: balanced A/B
+  assignment; Drive `eval/c10/blind/` holds P01_R/A/B.wav ... P15, P16_A/B.wav ... P20, `sheet.html` (players,
+  prompt text, instructions, dataset credit CC BY 4.0) and `ratings_template.csv` (prompt,
+  PREFER, A_INTELL, B_INTELL, NOTES); zipped as `blind_pack.zip`. `eval/c10/key.json` sits
+  outside the pack, and only its sha256 is printed. `boinga eval-pack`. Spec cells C10.3,
+  C10.3.play (prompt 1 R/A/B, letters only); form C10-pack (PACK_PLAYS, RATERS_PLANNED,
+  NOTES). Tests `tests/test_eval_pack.py` (key not in pack, balance, determinism) (~110 lines)
+- [ ] C10.H1 hand-off run 1 (link, runtime, duration not measured, forms, save name
+  `colab_runs/C10_eval_run1.ipynb`)
+- [ ] C10.V1 verify run 1 (colab-verify): 55 wavs (40 voice + 15 R), key sha256 printed and the key itself not
+  printed, configs/eval_prompts.json saved, forms filled
+- [ ] (user) raters fill the sheet; user puts each as Drive `eval/c10/ratings/<rater>.csv`
+- [ ] C10.4 score ratings -> reports/eval.md (local + spec run 2): new module `eval_score.py`:
+  validate sheets (20 rows, allowed values, known prompts), unblind with key.json (sha256
+  must match run 1), raters anonymised R1..Rn; boinga/baseline/same counts, win rate, exact
+  two-sided sign test; mean intelligibility per voice with seeded bootstrap 95% CI and paired
+  difference; per-rater and per-prompt tables; reports/eval.md + reports/eval.json emitted.
+  `boinga eval-score`. Spec cells C10.pre2, C10.4; form C10-eval-notes. Tests
+  `tests/test_eval_score.py` (synthetic sheets) (~140 lines)
+- [ ] C10.5 optional MCD (local + spec run 2): new module `eval_mcd.py`: MCD with DTW
+  (librosa MFCC 1-13, `librosa.sequence.dtw`) of each voice vs R per prompt;
+  reports/eval_mcd.json, read by eval.md when present. Placed before C10.4 in run 2, and
+  labelled as a rough measure because it mixes speaker and dialect. Tests
+  `tests/test_eval_mcd.py` (~70 lines)
+- [ ] C10.H2 hand-off run 2 (CPU; save name `colab_runs/C10_eval_run2.ipynb`)
+- [ ] C10.V2 verify run 2 (colab-verify); DECISIONS "C10 evaluation result"
 
 ## C11
 - [ ] C11.x (subchunks not yet defined)
