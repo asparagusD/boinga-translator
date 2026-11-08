@@ -81,7 +81,10 @@ def pretrained() -> Path:
 
 
 def runs() -> Path:
-    return root() / "runs"
+    """Training runs on the fast disk, not Drive: files deleted through the Drive mount go to
+    Drive's trash and still count against its space, and coqui deletes a ~1 GB checkpoint
+    every save (C8 run 1 lost its checkpoints that way). Keep results with milestones.keep."""
+    return fast() / "runs"
 
 
 def run_dir(name: str) -> Path:

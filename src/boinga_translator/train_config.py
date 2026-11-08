@@ -53,7 +53,7 @@ COMPUTED_REASONS: dict[str, str] = {
     "test_sentences": f"first {N_TEST_SENTENCES} val manifest texts: prepare_text output as "
                       "trained, not re-normalised (Gate G4)",
     "datasets": "our prepared ljspeech manifests on the fast disk replace the author's paths",
-    "output_path": "runs on Drive (paths.runs()) survive a Colab disconnect",
+    "output_path": "runs on the fast disk (paths.runs()): Drive keeps deleted checkpoints in its trash",
     "run_name": "given per run (boinga build-config --run NAME)",
 }
 REASONS: dict[str, str] = {**{k: r for k, (_, r) in OVERRIDES.items()}, **COMPUTED_REASONS}

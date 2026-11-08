@@ -646,7 +646,14 @@ estimates, excluding the generated map/notebook and PROGRESS.
   `notebooks/specs/c8_keep_run1.py` -> `notebooks/runs/C8_keep_run1.ipynb`: C8K.1 candidates,
   C8K.2 `boinga keep --run run1`, C8K.3 list `milestones/run1/`, C8K.4 load the 36500 copy in
   the Synthesizer (CPU), form C8K-notes (FOUR_FOLDERS_PRESENT, NOTES) (this commit)
-- [ ] C8.2c.V verify the keep run (colab-verify)
+- [ ] C8.2c.V verify the keep run (colab-verify): FAILED, run1's checkpoints were never on
+  Drive (DEBUG_LOG 2026-11-08); replaced by C8.5
+- [x] C8.5a runs on the VM disk (local): paths.runs() -> fast()/runs, `boinga train` needs 20 GB
+  free there, sampled audio tied to its run folder; DEBUG_LOG + DECISIONS "Runs train on the VM
+  disk" (this commit)
+- [ ] C8.5b keep + checked upload inside the run-1 notebook (keep after candidates, flush and
+  remount Drive, check milestones); drop the separate keep notebook
+- [ ] C8.H3 / C8.V3 retrain run1 (same name and budget), listen again
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on
   `paths.run_dir('run1')`, optional), C8.train (`boinga train --run run1`, RUN_BUDGETS 36,500,

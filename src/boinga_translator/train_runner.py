@@ -20,6 +20,7 @@ import numpy as np
 from boinga_translator import env_report, paths, pretrained, train_config
 
 RUN_RECORD = "boinga_run.json"  # in paths.run_dir(name): one entry per training session
+MIN_FREE_GB = 20.0  # on the runs disk: 2 checkpoints + best (~1 GB each) and their rewrites
 
 # Keyword arguments get_data_loader may take: 0.28 has config, *, is_eval, samples, verbose;
 # assets/num_gpus are older coqui names. Only those in the printed signature are passed.
@@ -222,6 +223,8 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
         raise ValueError(f"run name {run_name!r} would confuse coqui's checkpoint search")
     run_dir = paths.run_dir(run_name)
     latest = latest_run_folder(run_name)
+    if latest is None or max_steps is None or latest[1] < max_steps:
+        _check_space(run_dir)
     if latest is not None:
         folder, step = latest
         if max_steps is not None and step >= max_steps:
@@ -290,6 +293,20 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
     return session
 
 
+def free_gb(path: Path) -> float:
+    """Free GB on the disk holding path (or its nearest existing parent)."""
+    while not path.exists() and path != path.parent:
+        path = path.parent
+    return shutil.disk_usage(path).free / 1e9
+
+
+def _check_space(run_dir: Path) -> None:
+    if (free := free_gb(run_dir)) < MIN_FREE_GB:
+        raise RuntimeError(f"only {free:.1f} GB free for {run_dir} (need {MIN_FREE_GB:.0f} GB): "
+                           "coqui writes ~1 GB checkpoints there")
+    print(f"space: {free:.1f} GB free for {run_dir}")
+
+
 CLEAN_MAX_STEP = 1000  # clean_run refuses runs past this: those are real training, not smoke
 
 
@@ -319,6 +336,5 @@ def clean_run(run_name: str) -> bool:
     shutil.rmtree(run_dir)
     if run_dir.exists():  # Drive FUSE can leave files behind without raising
         raise RuntimeError(f"{run_dir} still exists after deleting it: delete it by hand")
-    print(f"PASS: cleaned run {run_name}: removed {run_dir} ({size / 1e9:.2f} GB; Drive keeps "
-          "deleted files in its trash until emptied)")
+    print(f"PASS: cleaned run {run_name}: removed {run_dir} ({size / 1e9:.2f} GB)")
     return True

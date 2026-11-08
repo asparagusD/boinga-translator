@@ -15,7 +15,7 @@ Base: `/content/drive/MyDrive/boinga-translator/pretrained/male/config.json`, ru
 | `mixed_precision` | false | true | fp16: no NaN in the smoke test, less memory; NaN -> fp32 |
 | `num_eval_loader_workers` | 4 | 4 | eval is small; half the train workers |
 | `num_loader_workers` | 4 | 8 | RTX PRO 6000 VM has 48 CPUs (env.json); no speed change seen |
-| `output_path` | "/home/ansary/Shabab/" | "/content/drive/MyDrive/boinga-translator/runs" | runs on Drive (paths.runs()) survive a Colab disconnect |
+| `output_path` | "/home/ansary/Shabab/" | "/content/boinga-fast/runs" | runs on the fast disk (paths.runs()): Drive keeps deleted checkpoints in its trash |
 | `print_step` | 50 | 25 | step logs often enough to read sec/step in the smoke test |
 | `restore_path` | "/home/ansary/Shabab/vits_20_october/checkpoint_626000.pth" | null | the author's absolute path; the runner passes it (C7.3) |
 | `run_eval` | true | true | val loss picks the best checkpoint, with listening (vits-finetune) |

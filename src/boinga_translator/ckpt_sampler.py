@@ -88,17 +88,23 @@ def _say_all(model: Path, config: Path, out: Path, texts: list[str]) -> list[flo
         torch.cuda.empty_cache()
     except ImportError:
         pass
-    (out / DONE).write_text(json.dumps({"file": model.name, "texts": texts,
+    (out / DONE).write_text(json.dumps({"file": model.name, "folder": model.parent.name,
+                                        "texts": texts,
                                         "durations": durations}, ensure_ascii=False),
                             encoding="utf-8")
     return durations
 
 
-def _done(out: Path, texts: list[str]) -> bool:
-    """Sampled already with these texts (changed test_sentences resample the step)."""
+def _done(out: Path, texts: list[str], model: Path) -> bool:
+    """Sampled already from this model's folder with these texts.
+
+    Other texts, or the same step of another run folder (a retrained run), resample the step.
+    """
     marker = out / DONE
-    return marker.is_file() and json.loads(marker.read_text(encoding="utf-8")).get(
-        "texts") == texts
+    if not marker.is_file():
+        return False
+    done = json.loads(marker.read_text(encoding="utf-8"))
+    return done.get("texts") == texts and done.get("folder") == model.parent.name
 
 
 def sample(run_name: str) -> int:
@@ -106,13 +112,13 @@ def sample(run_name: str) -> int:
     ckpts, texts, folder = checkpoints(run_name), _texts(), _folder(run_name)
     root = paths.eval_dir() / run_name
     base = train_config.base_dir()
-    if not _done(root / PRETRAINED_DIR, texts):
+    if not _done(root / PRETRAINED_DIR, texts, base / pretrained.MODEL_FILE):
         _say_all(base / pretrained.MODEL_FILE, base / pretrained.CONFIG_FILE,
                  root / PRETRAINED_DIR, texts)
     done = 0
     for step, model in ckpts.items():
         out = root / f"step_{step}"
-        if _done(out, texts):
+        if _done(out, texts, model):
             continue
         durations = _say_all(model, model.parent / pretrained.CONFIG_FILE, out, texts)
         print(f"step {step}: mean {sum(durations) / len(durations):.2f} s")

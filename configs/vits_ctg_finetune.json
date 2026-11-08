@@ -199,7 +199,7 @@
     "eps": 1e-09,
     "weight_decay": 0.01
   },
-  "output_path": "/content/drive/MyDrive/boinga-translator/runs",
+  "output_path": "/content/boinga-fast/runs",
   "phoneme_cache_path": null,
   "phoneme_language": "bn",
   "phonemizer": null,

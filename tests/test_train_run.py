@@ -344,3 +344,9 @@ def test_budget_on_resume_and_when_reached(fake: dict[str, Any], monkeypatch: py
     session = train_runner.run("smoke")
     assert session["kind"] == "done" and len(FakeTrainer.instances) == 1
     assert "PASS: run smoke already at step 30" in capsys.readouterr().out
+
+
+def test_new_run_needs_disk_space(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(train_runner, "free_gb", lambda path: 3.0)
+    with pytest.raises(RuntimeError, match="only 3.0 GB free"):
+        train_runner.run("run1", max_steps=10)

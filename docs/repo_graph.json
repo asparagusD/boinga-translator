@@ -1760,19 +1760,19 @@
     },
     {
       "kind": "doc",
-      "lines": 137,
+      "lines": 162,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
     {
       "kind": "doc",
-      "lines": 1051,
+      "lines": 1072,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 710,
+      "lines": 717,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2156,7 +2156,7 @@
     },
     {
       "kind": "module",
-      "lines": 180,
+      "lines": 186,
       "path": "src/boinga_translator/ckpt_sampler.py",
       "purpose": "Checkpoint sampler: val prompts per training checkpoint, candidates ranked by eval loss."
     },
@@ -2204,7 +2204,7 @@
     },
     {
       "kind": "module",
-      "lines": 158,
+      "lines": 161,
       "path": "src/boinga_translator/paths.py",
       "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
     },
@@ -2270,7 +2270,7 @@
     },
     {
       "kind": "module",
-      "lines": 324,
+      "lines": 340,
       "path": "src/boinga_translator/train_runner.py",
       "purpose": "Training runner: coqui VITS loader check, new and resumed fine-tune runs, smoke-run cleanup."
     },
@@ -2312,7 +2312,7 @@
     },
     {
       "kind": "test",
-      "lines": 139,
+      "lines": 148,
       "path": "tests/test_ckpt_sampler.py",
       "purpose": "Tests for ckpt_sampler.py and `boinga sample` / `boinga candidates` (fake folders, log, synth)."
     },
@@ -2498,7 +2498,7 @@
     },
     {
       "kind": "test",
-      "lines": 346,
+      "lines": 352,
       "path": "tests/test_train_run.py",
       "purpose": "Tests for train_runner.run() and `boinga train`: TrainerArgs, step stop, boinga_run.json (fakes)."
     },
