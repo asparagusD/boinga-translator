@@ -845,7 +845,12 @@ map/notebook and PROGRESS.
   Cell C10.3 in the run-2 spec (not run 1, as for C10.2), forbids "A_baseline"/"B_boinga" in
   its output. DECISIONS "C10 blind rating sheet". Tests `tests/test_evaluate_sheet.py`
   (this commit)
-- [ ] C10.H2 hand-off run 2 (GPU; save name `colab_runs/C10_eval_run2.ipynb`)
+- [x] C10.H2 hand-off run 2: `notebooks/runs/C10_eval_run2.ipynb` (C10.pre, C10.2,
+  C10.2.play, C10.3) unchanged since `5a679fc`, `--all --check` clean, pushed; link, GPU
+  runtime (T4 or the RTX PRO 6000), duration not measured (user estimate ~15 min), rater
+  instructions (share blind/ view-only, a Google Sheets copy of rating_sheet.csv per rater)
+  and save name `colab_runs/C10_eval_run2.ipynb` given. The user's C10.H1 text (build run 1,
+  review prompts) was already done: run 1 verified in `97e9cee` (this commit)
 - [ ] C10.V2 verify run 2 (colab-verify): 60 wavs (40 voice + 20 R), key sha256 printed and
   the key itself not printed, forms filled
 - [ ] (user) raters fill the sheet; user puts each as Drive `eval/c10/ratings/<rater>.csv`
