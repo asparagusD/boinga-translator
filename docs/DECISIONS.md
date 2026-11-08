@@ -1096,3 +1096,28 @@ trainer's `_fit` calls (checked in the coqui-trainer 0.4.0 source by the code-re
 Still on Drive and rewritten: boinga_run.json, config.json on resume, the growing
 trainer_0_log.txt and TensorBoard events file (if the mount keeps old revisions of these,
 they use some space; not measured) and the eval audio.
+
+## 2026-11-08 — Run 1 retrained: checkpoints on Drive, promote step 36500
+**Context:** C8.V3. Run `run1` was retrained from the pretrained male voice to its 36,500-step
+budget with the C8.5d/e design (15/15 cells PASS at 853ac3a, not stale; digest
+reports/colab_runs/C8_finetune_run1.md, run folder run1-November-08-2026_05+25AM-853ac3a).
+Step time 0.1495 s (24,078.5 steps/h over 1,459 timed steps), peak GPU memory 82.333 GB, no
+NaN loss. Wall clock about 1.8 h (folder 05:25 UTC to the last epoch at 07:11 UTC);
+faster than the first run's ~2.4 h, most likely because no best-model saves ran (not
+measured). `boinga record-run` recorded 4 checkpoints + config (997.8 MB each), and after the
+flush and remount `check-run --drive-api` found all 5 on Drive with matching size and md5
+("PASS: 5 files of run run1 on Drive (Drive API)", the owner's Drive account). Eval
+loss_mel: 21.117 (10000), 20.909 (20000), 20.598 (30000), 20.599 (36500)
+(reports/candidates_run1.md).
+
+| run | steps | hours | final eval loss_mel | best eval loss_mel (step) | verdict |
+|---|---|---|---|---|---|
+| run1 (retrain) | 36,500 | ~1.8 (1.5 step time) | 20.599 (eval at 36475) | 20.598 (30000, of 4 checkpoints) | good: promote 36500 |
+
+**Decision:** The user listened to the pretrained voice and the 4 checkpoints and chose
+BEST_STEP 36500, verdict "good: promote BEST_STEP": clearer than the pretrained voice ("yes"),
+more Chittagonian ("yes"), no artefacts (form C8-notes, reports/notes/C8-notes.json). C9
+promotes runs/run1/run1-November-08-2026_05+25AM-853ac3a/checkpoint_36500.pth, which is on
+Drive. This replaces the first run's model, which was lost.
+**Alternatives:** checkpoint_30000 has eval loss_mel 0.001 lower than 36500: within noise,
+and the user chose 36500 by ear, as in the first run.

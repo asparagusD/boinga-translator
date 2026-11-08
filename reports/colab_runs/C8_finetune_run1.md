@@ -1,9 +1,9 @@
 # Colab run C8 run 1 — C8 run 1 — fine-tune
 
 - File: `C8_finetune_run1.ipynb` · spec `notebooks/specs/c8_finetune_run1.py`
-- Run: commit `8005e5d` · branch `chunk/C8-finetune` · GPU `NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition` · time `2026-11-07T22:00:48+00:00`
-- Staleness: OK: the run used 8005e5d, notebook built in adc2f48
-- Result: 13/13 cells PASS
+- Run: commit `853ac3a` · branch `chunk/C8-finetune` · GPU `NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition` · time `2026-11-08T05:22:40+00:00`
+- Staleness: OK: the run used 853ac3a, notebook built in 853ac3a
+- Result: 15/15 cells PASS
 
 ## Cells
 
@@ -18,9 +18,11 @@
 | C8.tb | TensorBoard (optional) | PASS |  |
 | C8.train | Train run1 to its budget (hours; resumable) | PASS |  |
 | C8.thr | Throughput of run1 | PASS |  |
+| C8.rec | Record the checkpoints | PASS |  |
+| C8.flush | Check they really reached Drive | PASS |  |
 | C8.sample | Sample every checkpoint | PASS |  |
 | C8.cand | Rank checkpoints | PASS |  |
-| C8.play | Listen: pretrained vs best candidates vs last | PASS |  |
+| C8.play | Listen: pretrained vs the checkpoints | PASS |  |
 | C8-notes | Your observations — run 1 | PASS |  |
 
 ## Form values
@@ -46,7 +48,7 @@ PASS: Drive mounted
 ### BOOT.2 — clone or update the private repo with the GH_TOKEN secret
 
 ```text
-8005e5d chore(notebook): build C8 run 1 notebook
+853ac3a feat(eval): record run checkpoints on the VM and check them on Drive
 PASS: /content/boinga-translator on chunk/C8-finetune
 ```
 
@@ -62,7 +64,7 @@ PASS: dependencies installed
 ### BOOT.4 — create project folders (the HDR cell records the environment)
 
 ```text
-PASS: 12 project folders ready under /content/drive/MyDrive/boinga-translator
+PASS: 13 project folders ready under /content/drive/MyDrive/boinga-translator
 ```
 
 ### HDR — Run header
@@ -79,17 +81,17 @@ gpu_name           NVIDIA RTX PRO 6000 Blackwell Server Edition
 gpu_mem_gb         95.0
 coqui_tts          0.28.0
 numpy              2.4.6
-git_commit         8005e5d
-disk_free_gb_root  6.4
+git_commit         853ac3a
+disk_free_gb_root  10.1
 disk_free_gb_fast  112.5
-utc_time           2026-11-07T22:00:48+00:00
+utc_time           2026-11-08T05:22:40+00:00
 === BEGIN reports/env.json ===
 {
   "coqui_tts": "0.28.0",
   "cpu_count": 48,
   "disk_free_gb_fast": 112.5,
-  "disk_free_gb_root": 6.4,
-  "git_commit": "8005e5d",
+  "disk_free_gb_root": 10.1,
+  "git_commit": "853ac3a",
   "gpu_mem_gb": 95.0,
   "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
   "is_colab": true,
@@ -99,11 +101,11 @@ utc_time           2026-11-07T22:00:48+00:00
   "torch": "2.14.1+cu130",
   "torch_cuda": "13.0",
   "torch_error": null,
-  "utc_time": "2026-11-07T22:00:48+00:00"
+  "utc_time": "2026-11-08T05:22:40+00:00"
 }
 === END reports/env.json ===
 PASS: env recorded
-RUN-HEADER chunk=C8 run=1 branch=chunk/C8-finetune commit=8005e5d gpu=NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition utc=2026-11-07T22:00:48+00:00
+RUN-HEADER chunk=C8 run=1 branch=chunk/C8-finetune commit=853ac3a gpu=NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition utc=2026-11-08T05:22:40+00:00
 {'python': '3.13.16',
  'platform': 'Linux-6.6.159+-x86_64-with-glibc2.39',
  'cpu_count': 48,
@@ -115,23 +117,25 @@ RUN-HEADER chunk=C8 run=1 branch=chunk/C8-finetune commit=8005e5d gpu=NVIDIA_RTX
  'gpu_mem_gb': 95.0,
  'coqui_tts': '0.28.0',
  'numpy': '2.4.6',
- 'git_commit': '8005e5d',
- 'disk_free_gb_root': 6.4,
+ 'git_commit': '853ac3a',
+ 'disk_free_gb_root': 10.1,
  'disk_free_gb_fast': 112.5,
- 'utc_time': '2026-11-07T22:00:48+00:00'}
+ 'utc_time': '2026-11-08T05:22:40+00:00'}
 ```
 
 ### C8.pre — Restore prepared data
 
 ```text
-SKIP download (done)
-SKIP verify (done)
-SKIP unzip (done)
-copy to fast disk: 100% 8005/8005 [02:11<00:00, 60.83file/s] 
+Dataset.zip: 100% 844M/844M [00:24<00:00, 34.9MB/s]
+DONE download
+DONE verify
+unzip Dataset.zip: 100% 8010/8010 [00:28<00:00, 277.73file/s]
+DONE unzip
+copy to fast disk: 100% 8005/8005 [00:05<00:00, 1338.04file/s]
 DONE copy
 PASS: dataset ready at /content/boinga-fast/data, 8005 files
 selection: 7506 clips, 0 excluded by char_map
-restore: 100% 7512/7512 [00:02<00:00, 2826.63file/s]
+restore: 100% 7512/7512 [00:02<00:00, 3087.82file/s]
 restored /content/boinga-fast/prepared from /content/drive/MyDrive/boinga-translator/data/prepared/prepared-fd93f4827c6d2b41.tar
 transform: 0 clip(s) to do, 7506 already done
 0it [00:00, ?it/s]
@@ -177,9 +181,6 @@ CELL-OK C8.pre
 ### C8.tb — TensorBoard (optional)
 
 ```text
-The tensorboard extension is already loaded. To reload it, use:
-  %reload_ext tensorboard
-Reusing TensorBoard on port 6006 (pid 13366), started 2:45:08 ago. (Use '!kill 13366' to kill it.)
 <IPython.core.display.Javascript object>
 CELL-OK C8.tb
 ```
@@ -188,65 +189,65 @@ CELL-OK C8.tb
 
 ```text
 Streaming output truncated to the last 5000 lines.
-     | > loss_gen: 2.555069923400879  (2.5583861933814123)
-     | > loss_kl: 2.2333428859710693  (2.225482310610591)
-     | > loss_feat: 14.053730964660645  (14.028305807498972)
-     | > loss_mel: 20.3809757232666  (20.938619276489874)
-     | > loss_duration: 1.801131248474121  (1.8598812246563459)
-     | > amp_scaler: 256.0  (256.0)
-     | > loss_1: 41.02425003051758  (41.610674771395615)
-     | > grad_norm_1: tensor(95.4490, device='cuda:0')  (tensor(131.8595, device='cuda:0'))
-     | > step_time: 0.1686  (0.14421914382414372)
-     | > loader_time: 0.0042  (0.0026650880322311877)
+     | > step_time: 0.1504  (0.1425951690365361)
+     | > loader_time: 0.0034  (0.002544482763244134)
+
+
+   --> TIME: 2026-11-08 06:58:35 -- STEP: 396/400 -- GLOBAL_STEP: 32075
+     | > current_lr_0: 1.814018552729449e-06  (1.859552237168974e-06)
+     | > current_lr_1: 1.8185595568198018e-06  (1.8642072250148848e-06)
+     | > loss_disc: 2.3192687034606934  (2.2770669661989102)
+     | > loss_disc_real_0: 0.1739700436592102  (0.153103877686792)
+     | > loss_disc_real_1: 0.1950177103281021  (0.18634674938941242)
+     | > loss_disc_real_2: 0.22584223747253418  (0.2163780623614186)
+     | > loss_disc_real_3: 0.22744540870189667  (0.21966583266703768)
+     | > loss_disc_real_4: 0.2244511991739273  (0.213817770771607)
+     | > loss_disc_real_5: 0.21379737555980682  (0.21859015388922257)
+     | > loss_0: 2.3192687034606934  (2.2770669661989102)
+     | > grad_norm_0: tensor(15.0733, device='cuda:0')  (tensor(15.3375, device='cuda:0'))
+     | > loss_gen: 2.489933967590332  (2.5200221424150913)
+     | > loss_kl: 2.2274041175842285  (2.2219028843171675)
+     | > loss_feat: 13.737055778503418  (13.94014489530313)
+     | > loss_mel: 20.385875701904297  (20.888734514063056)
+     | > loss_duration: 1.7947206497192383  (1.8595370018120965)
+     | > amp_scaler: 512.0  (512.0)
+     | > loss_1: 40.634986877441406  (41.43034157608496)
+     | > grad_norm_1: tensor(94.9868, device='cuda:0')  (tensor(123.0415, device='cuda:0'))
+     | > step_time: 0.1737  (0.14338820931887378)
+     | > loader_time: 0.0044  (0.0026227801737159174)
 
 
  > EVALUATION 
 
-লই তো আইসসি.
-
-Character '\n' not found in the vocabulary. Discarding it.
 দেরি হন বরং ভালা.
 
 Character '\n' not found in the vocabulary. Discarding it.
 পইরতু ইচ্ছা ন গরের .
 
 Character '\n' not found in the vocabulary. Discarding it.
+লই তো আইসসি.
+
 ওঁশিয়ের!
 
 Character '\n' not found in the vocabulary. Discarding it.
+Character '\n' not found in the vocabulary. Discarding it.
 
   --> EVAL PERFORMANCE
-     | > avg_loader_time: 0.002059595925467356 (-3.224327450706676e-05)
-     | > avg_loss_disc: 2.2779814657710853 (+0.0029729604721073777)
-     | > avg_loss_disc_real_0: 0.14455722751361982 (+0.0077681683358691855)
-     | > avg_loss_disc_real_1: 0.18020306527614594 (-0.002030689091909482)
-     | > avg_loss_disc_real_2: 0.20879673248245603 (+0.008665477945691058)
-     | > avg_loss_disc_real_3: 0.20475204288959503 (-0.005003327769892568)
-     | > avg_loss_disc_real_4: 0.19950829836584272 (-0.00019208058005287798)
-     | > avg_loss_disc_real_5: 0.2135747034280073 (+0.015117429551624123)
-     | > avg_loss_0: 2.2779814657710853 (+0.0029729604721073777)
-     | > avg_loss_gen: 2.4444995153517945 (+0.0343033586229593)
-     | > avg_loss_kl: 2.7425851651600435 (-0.011861676261537557)
-     | > avg_loss_feat: 13.786935442969913 (-0.4284297398158472)
-     | > avg_loss_mel: 20.421770913260325 (-0.4259206226893859)
-     | > avg_loss_duration: 1.9028326471646626 (+0.0024546640259879293)
-     | > avg_loss_1: 41.298623857044035 (-0.8294539678664492)
-
-
- > EPOCH: 80/999
- --> /content/drive/MyDrive/boinga-translator/runs/run1/run1-November-07-2026_10+05PM-8005e5d
-
- > TRAINING (2026-11-08 00:10:12) 
-সরবত খন, খন.
-
-Character '\n' not found in the vocabulary. Discarding it.
-বোথ ভালা মাইয়া.
-
-Character '\n' not found in the vocabulary. Discarding it.
-আইয়ী .
-
-Character '\n' not found in the vocabulary. Discarding it.
-অইল্লে এরি.
+     | > avg_loader_time: 0.0018350623902820406 (-2.8326397850399936e-05)
+     | > avg_loss_disc: 2.328086960883367 (+0.02631495680127749)
+     | > avg_loss_disc_real_0: 0.14906744144502138 (+0.00591178309349788)
+     | > avg_loss_disc_real_1: 0.18499132458652767 (+0.004204818890208267)
+     | > avg_loss_disc_real_2: 0.20797955422174363 (+0.006181270238899056)
+     | > avg_loss_disc_real_3: 0.21061478519723528 (+0.00045944643872122826)
+     | > avg_loss_disc_real_4: 0.19983733126095363 (-0.00457755085967837)
+     | > avg_loss_disc_real_5: 0.21490390084329106 (+0.015715799161366062)
+     | > avg_loss_0: 2.328086960883367 (+0.02631495680127749)
+     | > avg_loss_gen: 2.3841426372528076 (+0.012895152682350197)
+     | > avg_loss_kl: 2.7368484054292956 (-0.017107668377102758)
+     | > avg_loss_feat: 13.696801446733021 (-0.310718797502064)
+     | > avg_loss_mel: 20.410486584617974 (-0.4507358641851553)
+     | > avg_loss_duration: 1.9048585579508828 (-7.882004692438827e-05)
+     | > avg_loss_1: 41.133137475876595 (-0.7657464345296177)
 ... [4881 lines trimmed] ...
 Character '\n' not found in the vocabulary. Discarding it.
 Character '\n' not found in the vocabulary. Discarding it.
@@ -258,55 +259,55 @@ Character '\n' not found in the vocabulary. Discarding it.
 Character '\n' not found in the vocabulary. Discarding it.
 
   --> EVAL PERFORMANCE
-     | > avg_loader_time: 0.002036026545933315 (-3.2192184811546606e-05)
-     | > avg_loss_disc: 2.299704114596049 (+0.011058830079577309)
-     | > avg_loss_disc_real_0: 0.14670178595752942 (+0.00480801221870239)
-     | > avg_loss_disc_real_1: 0.18088406785613015 (+0.0011772733359109722)
-     | > avg_loss_disc_real_2: 0.20720360250700087 (+0.00189880742913201)
-     | > avg_loss_disc_real_3: 0.2136911398598126 (+0.0028736669392812886)
-     | > avg_loss_disc_real_4: 0.20140394532964342 (+0.0053608105296180375)
-     | > avg_loss_disc_real_5: 0.21291145859729677 (+0.00863847952513469)
-     | > avg_loss_0: 2.299704114596049 (+0.011058830079577309)
-     | > avg_loss_gen: 2.4230688015619912 (-0.025180629321507553)
-     | > avg_loss_kl: 2.6807159838222328 (+0.01663047642934945)
-     | > avg_loss_feat: 14.12932791028704 (-0.17600821313403792)
-     | > avg_loss_mel: 20.602658317202614 (-0.03626065027146197)
-     | > avg_loss_duration: 1.9010488986968994 (-0.005044057255699563)
-     | > avg_loss_1: 41.736819403512136 (-0.22586332048688718)
+     | > avg_loader_time: 0.0019677309762863885 (+4.406202407110306e-05)
+     | > avg_loss_disc: 2.3388339905511764 (+0.030199533417111013)
+     | > avg_loss_disc_real_0: 0.14666974615483055 (+0.006011280807710767)
+     | > avg_loss_disc_real_1: 0.18380713285434813 (+0.0035017356276512424)
+     | > avg_loss_disc_real_2: 0.20587363165049327 (+0.0008904270472980813)
+     | > avg_loss_disc_real_3: 0.2112175804518518 (+0.002502549617063421)
+     | > avg_loss_disc_real_4: 0.19854305258819036 (+0.008261733111881081)
+     | > avg_loss_disc_real_5: 0.21392134860867545 (+0.008033709866659966)
+     | > avg_loss_0: 2.3388339905511764 (+0.030199533417111013)
+     | > avg_loss_gen: 2.357088429587228 (-0.005856224468775206)
+     | > avg_loss_kl: 2.6800207495689388 (+0.01158393848509931)
+     | > avg_loss_feat: 14.017990521022252 (-0.16696171533493676)
+     | > avg_loss_mel: 20.599488394601003 (-0.02442273639497472)
+     | > avg_loss_duration: 1.8984536500204177 (-0.00964299837748217)
+     | > avg_loss_1: 41.553041730608264 (-0.19530005682080542)
 
 
  > EPOCH: 91/999
- --> /content/drive/MyDrive/boinga-translator/runs/run1/run1-November-07-2026_10+05PM-8005e5d
+ --> /content/drive/MyDrive/boinga-translator/runs/run1/run1-November-08-2026_05+25AM-853ac3a
 
- > TRAINING (2026-11-08 00:25:48) 
-অইল্লে এরি.
-
-আইয়ী .
-
-Character '\n' not found in the vocabulary. Discarding it.
-Character '\n' not found in the vocabulary. Discarding it.
-স্টার্ট ন লর.
+ > TRAINING (2026-11-08 07:11:00) 
+আঁই ন খাই .
 
 ইয়ান ঠিক.
 
+স্টার্ট ন লর.
+
 পরটা ন.
 
+Character '\n' not found in the vocabulary. Discarding it.
+Character '\n' not found in the vocabulary. Discarding it.
+Character '\n' not found in the vocabulary. Discarding it.
+Character '\n' not found in the vocabulary. Discarding it.
 বোথ ভালা মাইয়া.
 
-Character '\n' not found in the vocabulary. Discarding it.
-Character '\n' not found in the vocabulary. Discarding it.
-Character '\n' not found in the vocabulary. Discarding it.
-Character '\n' not found in the vocabulary. Discarding it.
-আঁই ন খাই .
-
-Character '\n' not found in the vocabulary. Discarding it.
 সরবত খন, খন.
 
 Character '\n' not found in the vocabulary. Discarding it.
+Character '\n' not found in the vocabulary. Discarding it.
+আইয়ী .
+
+অইল্লে এরি.
+
+Character '\n' not found in the vocabulary. Discarding it.
+Character '\n' not found in the vocabulary. Discarding it.
 STOP at step 36500
 
- > CHECKPOINT : /content/drive/MyDrive/boinga-translator/runs/run1/run1-November-07-2026_10+05PM-8005e5d/checkpoint_36500.pth
-PASS: run run1 at step 36500 (peak GPU memory 82.335 GB)
+ > CHECKPOINT : /content/drive/MyDrive/boinga-translator/runs/run1/run1-November-08-2026_05+25AM-853ac3a/checkpoint_36500.pth
+PASS: run run1 at step 36500 (peak GPU memory 82.333 GB)
 CELL-OK C8.train
 ```
 
@@ -316,39 +317,68 @@ CELL-OK C8.train
 === BEGIN reports/throughput.json ===
 {
   "run": "run1",
-  "folder": "/content/drive/MyDrive/boinga-translator/runs/run1/run1-November-07-2026_10+05PM-8005e5d",
+  "folder": "/content/drive/MyDrive/boinga-translator/runs/run1/run1-November-08-2026_05+25AM-853ac3a",
   "steps_done": 36500,
   "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
   "batch_size": 16,
   "mixed_precision": true,
-  "sec_per_step_mean": 0.1501,
+  "sec_per_step_mean": 0.1495,
   "n_step_samples": 1459,
   "warmup_only": false,
-  "steps_per_hour": 23983.9,
-  "sec_per_step_coqui_avg": 0.14412398524098582,
+  "steps_per_hour": 24078.5,
+  "sec_per_step_coqui_avg": 0.142929560178286,
   "any_nan_loss": false,
   "last_losses": {
-    "loss_disc": 2.3039069175720215,
-    "loss_disc_real_0": 0.13423344492912292,
-    "loss_disc_real_1": 0.19613981246948242,
-    "loss_disc_real_2": 0.20231404900550842,
-    "loss_disc_real_3": 0.19527901709079742,
-    "loss_disc_real_4": 0.2328655868768692,
-    "loss_disc_real_5": 0.24907612800598145,
-    "loss_0": 2.3039069175720215,
-    "loss_gen": 2.4944379329681396,
-    "loss_kl": 2.4287309646606445,
-    "loss_feat": 12.772073745727539,
-    "loss_mel": 21.291357040405273,
-    "loss_duration": 1.8541450500488281,
-    "loss_1": 40.84074401855469
+    "loss_disc": 2.370466709136963,
+    "loss_disc_real_0": 0.14292851090431213,
+    "loss_disc_real_1": 0.20584696531295776,
+    "loss_disc_real_2": 0.21867868304252625,
+    "loss_disc_real_3": 0.2000235915184021,
+    "loss_disc_real_4": 0.22488945722579956,
+    "loss_disc_real_5": 0.2583351731300354,
+    "loss_0": 2.370466709136963,
+    "loss_gen": 2.465363025665283,
+    "loss_kl": 2.4050445556640625,
+    "loss_feat": 12.664129257202148,
+    "loss_mel": 21.07125473022461,
+    "loss_duration": 1.858324408531189,
+    "loss_1": 40.464115142822266
   },
   "last_logged_step": 36475,
-  "peak_mem_gb": 82.335
+  "peak_mem_gb": 82.333
 }
 === END reports/throughput.json ===
-PASS: throughput recorded: 0.1501 s/step (1459 samples), peak 82.335 GB, losses from logged step 36475 of 36500
+PASS: throughput recorded: 0.1495 s/step (1459 samples), peak 82.333 GB, losses from logged step 36475 of 36500
 CELL-OK C8.thr
+```
+
+### C8.rec — Record the checkpoints
+
+```text
+md5:   0% 0/5 [00:00<?, ?file/s]checkpoint_10000.pth: 997.8 MB
+md5:  20% 1/5 [00:01<00:05,  1.38s/file]checkpoint_20000.pth: 997.8 MB
+md5:  40% 2/5 [00:02<00:04,  1.37s/file]checkpoint_30000.pth: 997.8 MB
+md5:  60% 3/5 [00:04<00:02,  1.37s/file]checkpoint_36500.pth: 997.8 MB
+md5:  80% 4/5 [00:05<00:01,  1.40s/file]config.json: 0.0 MB
+md5: 100% 5/5 [00:05<00:00,  1.11s/file]
+PASS: recorded 5 files of run run1 (run1-November-08-2026_05+25AM-853ac3a)
+CELL-OK C8.rec
+```
+
+### C8.flush — Check they really reached Drive
+
+```text
+Mounted at /content/drive
+WARNING:google_auth_httplib2:httplib2 transport does not support per-request timeout. Set the timeout when constructing the httplib2.Http instance.
+WARNING:google_auth_httplib2:httplib2 transport does not support per-request timeout. Set the timeout when constructing the httplib2.Http instance.
+Drive API as nufel1130@gmail.com: must own the mounted Drive
+checkpoint_10000.pth: ok
+checkpoint_20000.pth: ok
+checkpoint_30000.pth: ok
+checkpoint_36500.pth: ok
+config.json: ok
+PASS: 5 files of run run1 on Drive (Drive API)
+CELL-OK C8.flush
 ```
 
 ### C8.sample — Sample every checkpoint
@@ -357,40 +387,14 @@ CELL-OK C8.thr
 Dataset `` has no language specified.
 synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
 synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 1203: mean 2.48 s
+step 10000: mean 2.59 s
 synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 1604: mean 2.58 s
+step 20000: mean 2.51 s
 synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 2005: mean 2.57 s
+step 30000: mean 2.29 s
 synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 2406: mean 2.51 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 2807: mean 2.57 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 3609: mean 2.60 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 5614: mean 2.77 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 6015: mean 2.83 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 8421: mean 2.74 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 10025: mean 2.85 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 12030: mean 2.81 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 12431: mean 2.72 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 13634: mean 2.84 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 14436: mean 2.82 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 20451: mean 2.70 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 36000: mean 2.01 s
-synth: use_cuda=True; set inference_noise_scale=0.667, inference_noise_scale_dp=0.8, length_scale=1.0
-step 36500: mean 2.07 s
-PASS: sampled 17 checkpoints (17 in run1-November-07-2026_10+05PM-8005e5d)
+step 36500: mean 2.14 s
+PASS: sampled 4 checkpoints (4 in run1-November-08-2026_05+25AM-853ac3a)
 CELL-OK C8.sample
 ```
 
@@ -404,29 +408,16 @@ Eval losses: nearest eval block (eval_step = last logged train step before it).
 
 | step | file | eval_step | loss_mel | loss_total | best_model |
 |---|---|---|---|---|---|
-| 20451 | best_model_20451.pth | 20450 | 20.486 | 43.133 | yes |
-| 36500 | checkpoint_36500.pth | 36475 | 20.603 | 44.037 | no |
-| 36000 | checkpoint_36000.pth | 36075 | 20.639 | 44.251 | no |
-| 14436 | best_model_14436.pth | 14425 | 20.763 | 43.448 | no |
-| 12431 | best_model_12431.pth | 12425 | 20.873 | 43.928 | no |
-| 13634 | best_model_13634.pth | 13625 | 20.9 | 43.925 | no |
-| 12030 | best_model_12030.pth | 12025 | 20.984 | 44.08 | no |
-| 10025 | best_model_10025.pth | 10000 | 21.038 | 44.105 | no |
-| 8421 | best_model_8421.pth | 8400 | 21.246 | 44.317 | no |
-| 6015 | best_model_6015.pth | 6000 | 21.376 | 44.636 | no |
-| 5614 | best_model_5614.pth | 5600 | 21.563 | 44.658 | no |
-| 3609 | best_model_3609.pth | 3600 | 21.984 | 45.101 | no |
-| 2807 | best_model_2807.pth | 2800 | 22.443 | 46.446 | no |
-| 2406 | best_model_2406.pth | 2400 | 22.789 | 46.845 | no |
-| 2005 | best_model_2005.pth | 2000 | 22.913 | 47.464 | no |
-| 1604 | best_model_1604.pth | 1600 | 23.245 | 47.786 | no |
-| 1203 | best_model_1203.pth | 1200 | 23.635 | 48.995 | no |
+| 30000 | checkpoint_30000.pth | 30050 | 20.598 | 43.908 | no |
+| 36500 | checkpoint_36500.pth | 36475 | 20.599 | 43.892 | no |
+| 20000 | checkpoint_20000.pth | 20025 | 20.909 | 44.002 | no |
+| 10000 | checkpoint_10000.pth | 10000 | 21.117 | 44.201 | no |
 === END reports/candidates_run1.md ===
-PASS: candidates listed (17 checkpoints)
+PASS: candidates listed (4 checkpoints)
 CELL-OK C8.cand
 ```
 
-### C8.play — Listen: pretrained vs best candidates vs last
+### C8.play — Listen: pretrained vs the checkpoints
 
 ```text
 AUDIO pretrained male #0: এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন.:
@@ -439,15 +430,15 @@ AUDIO pretrained male #3: দশ মিনিট লাইব.:
 <IPython.lib.display.Audio object>
 AUDIO pretrained male #4: তেই দশশর আগদি আইব.:
 <IPython.lib.display.Audio object>
-AUDIO step 20451 #0: এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন.:
+AUDIO step 30000 #0: এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন.:
 <IPython.lib.display.Audio object>
-AUDIO step 20451 #1: অনে কন ডইল্যা বেয়ারি?:
+AUDIO step 30000 #1: অনে কন ডইল্যা বেয়ারি?:
 <IPython.lib.display.Audio object>
-AUDIO step 20451 #2: ইত্তিরি বেআন.:
+AUDIO step 30000 #2: ইত্তিরি বেআন.:
 <IPython.lib.display.Audio object>
-AUDIO step 20451 #3: দশ মিনিট লাইব.:
+AUDIO step 30000 #3: দশ মিনিট লাইব.:
 <IPython.lib.display.Audio object>
-AUDIO step 20451 #4: তেই দশশর আগদি আইব.:
+AUDIO step 30000 #4: তেই দশশর আগদি আইব.:
 <IPython.lib.display.Audio object>
 AUDIO step 36500 #0: এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন.:
 <IPython.lib.display.Audio object>
@@ -459,25 +450,25 @@ AUDIO step 36500 #3: দশ মিনিট লাইব.:
 <IPython.lib.display.Audio object>
 AUDIO step 36500 #4: তেই দশশর আগদি আইব.:
 <IPython.lib.display.Audio object>
-AUDIO step 36000 #0: এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন.:
+AUDIO step 20000 #0: এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন.:
 <IPython.lib.display.Audio object>
-AUDIO step 36000 #1: অনে কন ডইল্যা বেয়ারি?:
+AUDIO step 20000 #1: অনে কন ডইল্যা বেয়ারি?:
 <IPython.lib.display.Audio object>
-AUDIO step 36000 #2: ইত্তিরি বেআন.:
+AUDIO step 20000 #2: ইত্তিরি বেআন.:
 <IPython.lib.display.Audio object>
-AUDIO step 36000 #3: দশ মিনিট লাইব.:
+AUDIO step 20000 #3: দশ মিনিট লাইব.:
 <IPython.lib.display.Audio object>
-AUDIO step 36000 #4: তেই দশশর আগদি আইব.:
+AUDIO step 20000 #4: তেই দশশর আগদি আইব.:
 <IPython.lib.display.Audio object>
-AUDIO step 14436 #0: এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন.:
+AUDIO step 10000 #0: এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন.:
 <IPython.lib.display.Audio object>
-AUDIO step 14436 #1: অনে কন ডইল্যা বেয়ারি?:
+AUDIO step 10000 #1: অনে কন ডইল্যা বেয়ারি?:
 <IPython.lib.display.Audio object>
-AUDIO step 14436 #2: ইত্তিরি বেআন.:
+AUDIO step 10000 #2: ইত্তিরি বেআন.:
 <IPython.lib.display.Audio object>
-AUDIO step 14436 #3: দশ মিনিট লাইব.:
+AUDIO step 10000 #3: দশ মিনিট লাইব.:
 <IPython.lib.display.Audio object>
-AUDIO step 14436 #4: তেই দশশর আগদি আইব.:
+AUDIO step 10000 #4: তেই দশশর আগদি আইব.:
 <IPython.lib.display.Audio object>
 CELL-OK C8.play
 ```

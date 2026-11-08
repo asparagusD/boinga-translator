@@ -673,7 +673,9 @@ estimates, excluding the generated map/notebook and PROGRESS.
   file in the Drive run folder, size + md5 via the Drive API); `boinga record-run` /
   `boinga check-run [--drive-api]`; run-1 notebook: C8.rec and C8.flush right after training
   (before sampling), C8.keep removed, md text for Drive checkpoints (this commit)
-- [ ] C8.H3 / C8.V3 retrain run1 (same name and budget), listen again
+- [x] C8.H3 / C8.V3 retrain run1 (same name and budget), listen again: 15/15 PASS at 853ac3a, not stale;
+  4 checkpoints (10k, 20k, 30k, 36.5k) checked on Drive through the Drive API (size + md5); user's
+  verdict again "good: promote BEST_STEP" 36500; DECISIONS "Run 1 retrained: checkpoints on Drive" (this commit)
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on
   `paths.run_dir('run1')`, optional), C8.train (`boinga train --run run1`, RUN_BUDGETS 36,500,

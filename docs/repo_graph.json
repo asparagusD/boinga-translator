@@ -1811,13 +1811,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1098,
+      "lines": 1123,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 737,
+      "lines": 739,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2009,7 +2009,7 @@
     },
     {
       "kind": "doc",
-      "lines": 23,
+      "lines": 10,
       "path": "reports/candidates_run1.md",
       "purpose": "Candidates for run run1"
     },
@@ -2081,7 +2081,7 @@
     },
     {
       "kind": "doc",
-      "lines": 499,
+      "lines": 490,
       "path": "reports/colab_runs/C8_finetune_run1.md",
       "purpose": "Colab run C8 run 1 — C8 run 1 — fine-tune"
     },
