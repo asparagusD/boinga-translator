@@ -201,6 +201,36 @@
       "target": "src/boinga_translator/train_report.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_finetune_run1.ipynb",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_finetune_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_finetune_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_timing_run1.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_timing_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_timing_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -297,6 +327,16 @@
     },
     {
       "kind": "import",
+      "source": "notebooks/specs/c8_finetune_run1.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c8_timing.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/audit_summary.py",
       "target": "src/boinga_translator/corpus.py"
     },
@@ -366,6 +406,36 @@
       "target": "src/boinga_translator/text_frontend.py"
     },
     {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/train_config.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/ckpt_sampler.py",
+      "target": "src/boinga_translator/train_runner.py"
+    },
+    {
       "kind": "config",
       "source": "src/boinga_translator/cli.py",
       "target": "configs/baseline_prompts.json"
@@ -394,6 +464,11 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/ckpt_sampler.py"
     },
     {
       "kind": "import",
@@ -698,6 +773,11 @@
     {
       "kind": "config",
       "source": "src/boinga_translator/train_config.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/train_config.py",
       "target": "configs/vits_ctg_finetune.json"
     },
     {
@@ -899,6 +979,31 @@
       "kind": "test",
       "source": "tests/test_char_map.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_ckpt_sampler.py",
+      "target": "src/boinga_translator/train_config.py"
     },
     {
       "kind": "test",
@@ -1591,13 +1696,13 @@
     },
     {
       "kind": "doc",
-      "lines": 943,
+      "lines": 1030,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 630,
+      "lines": 700,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1680,6 +1785,18 @@
       "purpose": "C7 run 1 — C7 — training runner and smoke test"
     },
     {
+      "kind": "notebook",
+      "lines": 644,
+      "path": "notebooks/runs/C8_finetune_run1.ipynb",
+      "purpose": "C8 run 1 — C8 run 1 — fine-tune"
+    },
+    {
+      "kind": "notebook",
+      "lines": 577,
+      "path": "notebooks/runs/C8_timing_run1.ipynb",
+      "purpose": "C8 run 1 — C8 — timing at batch 32 (RTX PRO 6000)"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -1752,6 +1869,18 @@
       "purpose": "Spec: C7 run 1, training runner: prepared data, fine-tune config, loader, smoke and resume (T4)."
     },
     {
+      "kind": "module",
+      "lines": 110,
+      "path": "notebooks/specs/c8_finetune_run1.py",
+      "purpose": "Spec: C8 run 1, full fine-tune of run1 to its step budget, then sample, rank and listen."
+    },
+    {
+      "kind": "module",
+      "lines": 78,
+      "path": "notebooks/specs/c8_timing.py",
+      "purpose": "Spec: C8 timing run, smoke and resume at the RTX PRO 6000 settings (batch 32) to re-measure speed."
+    },
+    {
       "kind": "config",
       "lines": 45,
       "path": "pyproject.toml",
@@ -1762,6 +1891,12 @@
       "lines": 49,
       "path": "reports/audit_summary.md",
       "purpose": "Corpus audit summary"
+    },
+    {
+      "kind": "doc",
+      "lines": 23,
+      "path": "reports/candidates_run1.md",
+      "purpose": "Candidates for run run1"
     },
     {
       "kind": "doc",
@@ -1831,13 +1966,25 @@
     },
     {
       "kind": "doc",
+      "lines": 499,
+      "path": "reports/colab_runs/C8_finetune_run1.md",
+      "purpose": "Colab run C8 run 1 — C8 run 1 — fine-tune"
+    },
+    {
+      "kind": "doc",
+      "lines": 615,
+      "path": "reports/colab_runs/C8_timing_run1.md",
+      "purpose": "Colab run C8 run 1 — C8 — timing at batch 32 (RTX PRO 6000)"
+    },
+    {
+      "kind": "doc",
       "lines": 29,
       "path": "reports/config_overrides.md",
       "purpose": "Fine-tune config overrides"
     },
     {
       "kind": "config",
-      "lines": 16,
+      "lines": 17,
       "path": "reports/env.json",
       "purpose": ""
     },
@@ -1869,6 +2016,12 @@
       "kind": "config",
       "lines": 7,
       "path": "reports/notes/C4.3-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 8,
+      "path": "reports/notes/C8-notes.json",
       "purpose": ""
     },
     {
@@ -1921,7 +2074,13 @@
     },
     {
       "kind": "module",
-      "lines": 346,
+      "lines": 176,
+      "path": "src/boinga_translator/ckpt_sampler.py",
+      "purpose": "Checkpoint sampler: val prompts per training checkpoint, candidates ranked by eval loss."
+    },
+    {
+      "kind": "module",
+      "lines": 366,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -1951,7 +2110,7 @@
     },
     {
       "kind": "module",
-      "lines": 100,
+      "lines": 102,
       "path": "src/boinga_translator/env_report.py",
       "purpose": "Record python, torch/CUDA, GPU, coqui-tts, numpy, git and disk info to reports/env.json."
     },
@@ -2011,7 +2170,7 @@
     },
     {
       "kind": "module",
-      "lines": 195,
+      "lines": 217,
       "path": "src/boinga_translator/train_config.py",
       "purpose": "Fine-tune config: the base voice's pretrained config.json plus logged, reasoned overrides."
     },
@@ -2023,7 +2182,7 @@
     },
     {
       "kind": "module",
-      "lines": 319,
+      "lines": 324,
       "path": "src/boinga_translator/train_runner.py",
       "purpose": "Training runner: coqui VITS loader check, new and resumed fine-tune runs, smoke-run cleanup."
     },
@@ -2062,6 +2221,12 @@
       "lines": 69,
       "path": "tests/test_char_map.py",
       "purpose": "Tests for configs/char_map.json: entry shape, targets inside both voices' charsets, exclusions."
+    },
+    {
+      "kind": "test",
+      "lines": 139,
+      "path": "tests/test_ckpt_sampler.py",
+      "purpose": "Tests for ckpt_sampler.py and `boinga sample` / `boinga candidates` (fake folders, log, synth)."
     },
     {
       "kind": "test",
@@ -2227,7 +2392,7 @@
     },
     {
       "kind": "test",
-      "lines": 230,
+      "lines": 244,
       "path": "tests/test_train_config.py",
       "purpose": "Tests for train_config.py and `boinga build-config`: overrides, protected keys, outputs."
     },
@@ -2239,7 +2404,7 @@
     },
     {
       "kind": "test",
-      "lines": 311,
+      "lines": 346,
       "path": "tests/test_train_run.py",
       "purpose": "Tests for train_runner.run() and `boinga train`: TrainerArgs, step stop, boinga_run.json (fakes)."
     },

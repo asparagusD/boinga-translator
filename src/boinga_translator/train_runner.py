@@ -205,12 +205,17 @@ def _stopper(max_steps: int) -> Callable[[Any], None]:
 def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
     """Train run_name until max_steps total steps: resume its latest checkpoint, else start new.
 
+    max_steps None falls back to train_config.RUN_BUDGETS[run_name] when that is set.
+
     A resume passes continue_path (coqui reloads the folder's config.json, optimizer, scaler
     and step) and never restore_path; a new run restores the pretrained weights only.
     coqui's Trainer.fit() hard-exits the process (os._exit) on an interrupt and deletes the
     run folder on any other error, so the epoch loop _fit() is called instead and a stop
     raised by the step callback is caught here, followed by a forced checkpoint save.
     """
+    if max_steps is None and run_name in train_config.RUN_BUDGETS:
+        max_steps = train_config.RUN_BUDGETS[run_name]
+        print(f"budget: {max_steps} steps (RUN_BUDGETS)")
     if max_steps is not None and max_steps < 1:
         raise ValueError(f"max_steps must be >= 1, got {max_steps}")
     if re.search(r"checkpoint_\d", run_name):  # coqui matches this anywhere in a file's path

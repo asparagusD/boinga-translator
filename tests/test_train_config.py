@@ -73,6 +73,7 @@ def test_build_overrides_and_protected(repo: Path) -> None:
         assert cfg[key] == PRETRAINED[key]
     assert cfg["lr_gen"] == pytest.approx(0.0001) and cfg["lr_disc"] == pytest.approx(0.0002)
     assert cfg["batch_size"] == 16 and cfg["eval_batch_size"] == 8
+    assert cfg["num_loader_workers"] == 8 and cfg["num_eval_loader_workers"] == 4
     assert cfg["mixed_precision"] is True and cfg["epochs"] == 1000
     assert cfg["training_seed"] == settings.SEED and cfg["run_name"] == "smoke"
     assert "seed" not in cfg  # not a coqui field: VitsConfig would drop it (C7 run 1)
@@ -228,3 +229,16 @@ def test_validate_config_tool(repo: Path, monkeypatch: pytest.MonkeyPatch,
     _fake_coqui(monkeypatch, bad)
     assert validate_config.main() == 1
     assert "FAIL: coqui rejects" in capsys.readouterr().out
+
+
+def test_budget_steps_rounds_down_to_save_step() -> None:
+    assert train_config.budget_steps(10533.4, 3.5) == 36_500  # 36,866.9 -> 36,500
+    assert train_config.budget_steps(1000.0, 1.0) == 1000
+    assert train_config.budget_steps(999.0, 1.0) == 500
+    with pytest.raises(ValueError, match="under one save_step"):
+        train_config.budget_steps(400.0, 1.0)
+
+
+def test_run1_budget_is_set_and_a_save_step_multiple() -> None:
+    budget = train_config.RUN_BUDGETS["run1"]
+    assert budget == 36_500 and budget % train_config.OVERRIDES["save_step"][0] == 0

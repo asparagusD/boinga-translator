@@ -8,6 +8,7 @@ from boinga_translator import (
     __version__,
     audit_summary,
     baseline,
+    ckpt_sampler,
     corpus,
     data_audit,
     data_download,
@@ -68,10 +69,17 @@ def build_parser() -> argparse.ArgumentParser:
                                          "else start from the pretrained one")
     train.add_argument("--run", required=True, help="run name (one folder under runs/)")
     train.add_argument("--max-steps", type=int, default=None,
-                       help="stop at N total optimiser steps and save a checkpoint")
+                       help="stop at N total optimiser steps and save a checkpoint "
+                            "(default: train_config.RUN_BUDGETS[run], if set)")
     thr = sub.add_parser("throughput", help="step time, losses and memory of a run into "
                                             "reports/throughput.json")
     thr.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    smp = sub.add_parser("sample", help="synthesise the test sentences for every unsampled "
+                                         "checkpoint of a run (+ the pretrained voice)")
+    smp.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    cnd = sub.add_parser("candidates", help="rank a run's checkpoints by eval loss_mel into "
+                                            "reports/candidates_<run>.md")
+    cnd.add_argument("--run", required=True, help="run name (one folder under runs/)")
     cln = sub.add_parser("clean-run", help="delete a smoke run's folder on Drive for a fresh "
                                            "start (refuses runs past step 1000)")
     cln.add_argument("--run", required=True, help="run name (one folder under runs/)")
@@ -127,6 +135,16 @@ def _throughput(run_name: str) -> int:
     except (OSError, ValueError, KeyError) as exc:  # JSONDecodeError is a ValueError
         print(f"FAIL: throughput {type(exc).__name__}: {exc}")
         return 1
+
+
+def _ckpt(command: str, run_name: str) -> int:
+    """`boinga sample` / `boinga candidates`; FAIL + exit 1 on any error."""
+    try:
+        (ckpt_sampler.sample if command == "sample" else ckpt_sampler.candidates)(run_name)
+    except (OSError, ValueError, KeyError, RuntimeError) as exc:  # run/log/json/coqui load
+        print(f"FAIL: {command} {type(exc).__name__}: {exc}")
+        return 1
+    return 0
 
 
 def _clean_run(run_name: str) -> int:
@@ -337,6 +355,8 @@ def main(argv: list[str] | None = None) -> int:
         return _train(args.run, args.max_steps)
     elif args.command == "throughput":
         return _throughput(args.run)
+    elif args.command in ("sample", "candidates"):
+        return _ckpt(args.command, args.run)
     elif args.command == "clean-run":
         return _clean_run(args.run)
     return 0

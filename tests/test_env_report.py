@@ -13,7 +13,7 @@ import pytest
 from boinga_translator import cli, env_report, paths
 
 KEYS = {
-    "python", "platform", "is_colab", "torch", "torch_cuda", "torch_error",
+    "python", "platform", "cpu_count", "is_colab", "torch", "torch_cuda", "torch_error",
     "gpu_name", "gpu_mem_gb", "coqui_tts", "numpy", "git_commit",
     "disk_free_gb_root", "disk_free_gb_fast", "utc_time",
 }

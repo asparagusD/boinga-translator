@@ -187,8 +187,8 @@
     "use_spectral_norm_disriminator": false
   },
   "model_param_stats": false,
-  "num_eval_loader_workers": 1,
-  "num_loader_workers": 2,
+  "num_eval_loader_workers": 4,
+  "num_loader_workers": 8,
   "num_speakers": 0,
   "optimizer": "AdamW",
   "optimizer_params": {
@@ -206,7 +206,7 @@
   "plot_step": 100,
   "precompute_num_workers": 0,
   "print_eval": false,
-  "print_step": 5,
+  "print_step": 25,
   "project_name": null,
   "r": 1,
   "restore_path": null,
@@ -214,7 +214,7 @@
   "run_description": "🐸Coqui trainer run.",
   "run_eval": true,
   "run_eval_steps": null,
-  "run_name": "smoke",
+  "run_name": "run1",
   "save_all_best": true,
   "save_best_after": 1000,
   "save_checkpoints": true,

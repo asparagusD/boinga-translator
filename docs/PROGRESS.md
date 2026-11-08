@@ -588,18 +588,88 @@ map/notebook and PROGRESS.
   RESUME seen); run 1 verdict `f681627`, conditions met in the re-run (DECISIONS "Gate G5 —
   ready to train"; this commit)
 
-## C8
-- [ ] C8.x (subchunks not yet defined)
+## C8 — Full fine-tune run
+Branch `chunk/C8-finetune`. One GPU notebook per run: spec `notebooks/specs/c8_finetune_run1.py`
+-> `notebooks/runs/C8_finetune_run1.ipynb` (RTX PRO 6000, user's pay-as-you-go GPU). Run name
+`run1`; its settings are frozen once it starts (a resume uses the run folder's config), so any
+change means a new run name (`run2`). Plan basis: reports/throughput.json (0.3418 s/step,
+batch 16, fp16, 3.39 GB peak; batch 32 timed slower in C8.1c,
+so run1 stays at 16) and configs/splits_summary.json (6,415 train clips -> ~401
+steps/epoch). Coqui keeps only the last 2 checkpoints + best, so earlier steps are kept as
+"milestones" (model + config, no optimizer) for listening and promotion. Line counts are non-test
+estimates, excluding the generated map/notebook and PROGRESS.
+- [x] C8.1 step budget (local): `train_config.budget_steps(steps_per_hour, hours=3.5)`
+  (rounded down to a save_step multiple); `RUN_BUDGETS = {"run1": 36_500}` (10,533.4 steps/h
+  x 3.5 h = 36,866.9 -> 36,500; 400.9 steps/epoch at batch 16 -> ~91 epochs); `run()` / `boinga
+  train` use RUN_BUDGETS[run] when --max-steps is absent ("budget: N steps (RUN_BUDGETS)").
+  DECISIONS "Run 1 budget". Tests `tests/test_train_config.py`, `tests/test_train_run.py`
+  (`5d4b543`). Basis was batch 16; superseded by C8.1d after the RTX PRO 6000 settings (C8.1b)
+- [x] C8.1b RTX PRO 6000 settings (local): OVERRIDES batch_size 32 / eval 16, loader workers
+  8 / 4, reasons no longer T4-based (max_audio_len, mixed_precision); lr kept; env_report
+  records `cpu_count`. DECISIONS "RTX PRO 6000 training settings". Tests
+  `tests/test_train_config.py`, `tests/test_env_report.py` (this commit)
+- [x] C8.1c timing notebook: spec `notebooks/specs/c8_timing.py` ->
+  `notebooks/runs/C8_timing_run1.ipynb` (GPU; the header cell records env.json with cpu_count): cells C8T.pre (restore
+  data), C8T.1 (build-config smoke + validate, expects batch_size 32), C8T.2 (loader check),
+  C8T.3 (clean smoke), C8T.4 (smoke 50), C8T.5 (resume 60), C8T.6 (throughput, expects
+  batch_size 32), each after an md() explanation (this commit)
+- [x] C8.1c.H hand-off timing notebook (link, RTX PRO 6000, save name given; `946319e`)
+- [x] C8.1c.V verify (colab-verify): 12/12 PASS at 946319e (built in 946319e), not stale, RTX
+  PRO 6000, cpu_count 48. Batch 32: 0.7262 s/step over 10 steps (4,957.3 steps/h), peak
+  5.642 GB, no NaN (loss_mel 29.8 at step 55); vs batch 16: 0.3418 s/step. Clips/s 44.1 at
+  batch 32 vs 46.8 at batch 16: no throughput gain (GPU-bound; 8 workers did not help). Drive
+  root 4.5 GB free (trash not emptied). Results: throughput, env, config, overrides table
+  (`0df8c10`)
+- [x] C8.1d batch back to 16 / eval 8 (user, chat, after C8.1c: batch 32 is 6% slower per
+  clip); loader workers stay 8 / 4; `RUN_BUDGETS["run1"]` = 36,500 confirmed (batch-16 rate,
+  ~91 epochs). DECISIONS "RTX PRO 6000 training settings" update (this commit)
+- [x] C8.2 ckpt_sampler (local): new module `ckpt_sampler.py`: `checkpoints(run)` (step ->
+  checkpoint_<N>, else best_model_<N>; best_model.pth not sampled twice), `sample(run)` (the 5
+  test_sentences of configs/vits_ctg_finetune.json, synth_basic seeded, to
+  `paths.eval_dir()/<run>/step_<N>/<i>.wav` + done.json; pretrained base voice once into
+  step_0_pretrained/; "step N: mean X s", "PASS: sampled K checkpoints"), `parse_eval(log)`
+  (eval blocks -> last logged train step, avg loss_mel, loss_total = avg_loss_0 + avg_loss_1,
+  coqui's best-model sum), `candidates(run)` -> reports/candidates_<run>.md sorted by loss_mel
+  (emitted, "PASS: candidates listed"), `players(run, steps=None)` ((wav, label) pairs:
+  pretrained + 4 best + last); `boinga sample` / `boinga candidates --run NAME`. Tests
+  `tests/test_ckpt_sampler.py` (fake folders, log, synth) (this commit). Eval-block format
+  ("--> EVAL PERFORMANCE", "| > avg_loss_mel:") not yet seen in a real log (C8.3 checks it).
+  Milestone copies (C8 plan) not in this subchunk: C8.2c
+- [x] C8.2c skipped (user, chat, at the C8 close): coqui kept a best_model_<N> at every improvement, so run1 sampled 17 steps and the chosen step 36500 is still on Drive. Planned scope was milestone copies: keep a model + config copy per sampled milestone on Drive (coqui
+  keeps only the last 2 checkpoints + best), so any sampled step can be promoted
+- [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
+  (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on
+  `paths.run_dir('run1')`, optional), C8.train (`boinga train --run run1`, RUN_BUDGETS 36,500,
+  timeout 360 min, forbids "Partial model initialization"), C8.thr (throughput of run1),
+  C8.sample, C8.cand, C8.play
+  (`ckpt_sampler.players`), form C8-notes (BEST_STEP, VERDICT, CLEARER_THAN_PRETRAINED,
+  MORE_CHITTAGONIAN_THAN_PRETRAINED, ARTEFACTS, NOTES), an md() before each cell (this commit).
+  One `boinga train` to the budget (no milestone segments): C8.sample sees only the last 2
+  checkpoints + best; earlier steps need C8.2c
+- [x] C8.H hand-off run 1: `notebooks/runs/C8_finetune_run1.ipynb` rebuilt, unchanged since
+  `adc2f48`, `--all --check` clean, pushed; link, runtime (RTX PRO 6000; user asked "T4"),
+  ~3.5 h step time + eval/saves/sampling (not measured), disconnect tips, form instructions
+  and save name `colab_runs/C8_finetune_run1.ipynb` given (this commit)
+- [x] C8.V verify run 1 (colab-verify): 13/13 PASS at 8005e5d (built in adc2f48), not stale;
+  36,500 steps in ~2.4 h wall (0.1501 s/step), final eval loss_mel 20.603, best 20.486 at
+  20450; user: BEST_STEP 36500, "good: promote BEST_STEP", clearer and more Chittagonian than
+  pretrained, no artefacts (DECISIONS "Run 1 verdict", Training runs table) (this commit)
+- [x] C8.4 not needed (verdict "good")
+- [ ] follow-up: every training/eval text logs "Character '\n' not found in the vocabulary":
+  find where the newline enters (manifest text or coqui test_sentences) and strip it
+- [ ] follow-up: coqui kept 15 best_model_<N>.pth in run1 (not only the newest): check why
+  (keep_all_best / Drive delete) before any further run fills Drive
 
 ### C7 follow-ups (from the whole-chunk review; for C8)
-- [ ] `run()` / `boinga train` ignore `train_config.RUN_BUDGETS`: without --max-steps a run
+- [x] `run()` / `boinga train` ignore `train_config.RUN_BUDGETS` (fixed in C8.1): without --max-steps a run
   goes up to 1000 epochs; fall back to RUN_BUDGETS[run_name] (with a test); DECISIONS "Gate G5"
   and the `epochs` reason already assume it
 - [ ] configs/vits_ctg_finetune.json and the DECISIONS overrides table describe the last built
   run (now `smoke`, print_step 5): commit them from C8's own build-config and say so in
   DECISIONS
-- [ ] T4-based reasons (batch_size, num_loader_workers, max_audio_len, mixed_precision; spec
-  docstring "(T4)"): revisit for the RTX PRO 6000 (batch 16 used 3.39 of 95 GB, 48 CPUs) and
+- [x] T4-based reasons (batch_size, num_loader_workers, max_audio_len, mixed_precision; spec
+  docstring "(T4)") (C8.1b changed the reasons; the C7 spec stays as the historical
+  record; re-measured in C8.1c): revisit for the RTX PRO 6000 (batch 16 used 3.39 of 95 GB, 48 CPUs) and
   re-measure throughput after any change
 - [ ] Drive space: 6.4 GB free at the C7 re-run; empty the Drive trash and check free space
   before C8 (~1 GB per checkpoint x 2 + best)
