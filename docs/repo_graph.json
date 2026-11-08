@@ -493,6 +493,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/drive_api.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/env_report.py"
     },
     {
@@ -599,6 +604,11 @@
       "kind": "import",
       "source": "src/boinga_translator/data_download.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/drive_api.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "import",
@@ -1089,6 +1099,16 @@
       "kind": "test",
       "source": "tests/test_data_download.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_drive_api.py",
+      "target": "src/boinga_translator/drive_api.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_drive_api.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "test",
@@ -1752,7 +1772,7 @@
     },
     {
       "kind": "doc",
-      "lines": 723,
+      "lines": 727,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1836,7 +1856,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 737,
+      "lines": 740,
       "path": "notebooks/runs/C8_finetune_run1.ipynb",
       "purpose": "C8 run 1 — C8 run 1 — fine-tune"
     },
@@ -1920,7 +1940,7 @@
     },
     {
       "kind": "module",
-      "lines": 146,
+      "lines": 149,
       "path": "notebooks/specs/c8_finetune_run1.py",
       "purpose": "Spec: C8 run 1, fine-tune run1 on the VM disk, sample, rank, keep on Drive and listen."
     },
@@ -2130,7 +2150,7 @@
     },
     {
       "kind": "module",
-      "lines": 388,
+      "lines": 395,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2160,13 +2180,19 @@
     },
     {
       "kind": "module",
+      "lines": 98,
+      "path": "src/boinga_translator/drive_api.py",
+      "purpose": "Drive API listing of My Drive folders: checks what Drive holds, not what the mount shows."
+    },
+    {
+      "kind": "module",
       "lines": 102,
       "path": "src/boinga_translator/env_report.py",
       "purpose": "Record python, torch/CUDA, GPU, coqui-tts, numpy, git and disk info to reports/env.json."
     },
     {
       "kind": "module",
-      "lines": 131,
+      "lines": 176,
       "path": "src/boinga_translator/milestones.py",
       "purpose": "Milestone copies: model weights + config of chosen run checkpoints, kept apart on Drive."
     },
@@ -2316,6 +2342,12 @@
     },
     {
       "kind": "test",
+      "lines": 92,
+      "path": "tests/test_drive_api.py",
+      "purpose": "Tests for drive_api.py with a fake Drive v3 service (no network, no Colab)."
+    },
+    {
+      "kind": "test",
       "lines": 117,
       "path": "tests/test_env_report.py",
       "purpose": "Tests for env_report.py and `boinga env`: missing torch, fake GPU, JSON keys, CLI wiring."
@@ -2334,7 +2366,7 @@
     },
     {
       "kind": "test",
-      "lines": 125,
+      "lines": 169,
       "path": "tests/test_milestones.py",
       "purpose": "Tests for milestones.py and `boinga keep` (fake run folder, pickle instead of torch)."
     },

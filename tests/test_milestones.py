@@ -123,3 +123,47 @@ def test_keep_refuses_another_runs_milestone(run: Path) -> None:
     run.rename(run.with_name("run1-November-09-2026_09+00AM-def5678"))  # run1 retrained
     with pytest.raises(RuntimeError, match="move it away"):
         milestones.keep("run1", [800])
+
+
+def test_check_through_the_drive_api(run: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    milestones.keep("run1", [800])
+    meta = json.loads((milestones.milestone_dir("run1", 800) / "keep.json").read_text(
+        encoding="utf-8"))
+    assert meta["md5"] == milestones.md5(milestones.milestone_dir("run1", 800) / "model.pth")
+    good = {"model.pth": {"size": meta["bytes"], "md5": meta["md5"]},
+            "config.json": {"size": 20, "md5": "x"}}
+    assert milestones.check("run1", lambda folder: good) == 1
+    assert "(Drive API)" in capsys.readouterr().out
+    for remote, why in (({"model.pth": good["model.pth"]}, "no config.json"),
+                        ({**good, "model.pth": {"size": meta["bytes"], "md5": "0"}}, "md5")):
+        with pytest.raises(RuntimeError, match="step_800"):
+            milestones.check("run1", lambda folder, r=remote: r)
+        assert why in capsys.readouterr().out
+
+
+def test_check_needs_every_kept_step(run: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    milestones.keep("run1", [800, 2000])
+    meta = {s: json.loads((milestones.milestone_dir("run1", s) / "keep.json").read_text(
+        encoding="utf-8")) for s in (800, 2000)}
+
+    def remote(folder: Path) -> dict:
+        if folder.name == "step_2000":  # this step's whole folder never uploaded
+            raise FileNotFoundError(f"{folder} is not on Drive")
+        return {"model.pth": {"size": meta[800]["bytes"], "md5": meta[800]["md5"]},
+                "config.json": {"size": 1, "md5": "x"}}
+
+    with pytest.raises(RuntimeError, match="step_2000"):
+        milestones.check("run1", remote)
+    assert "step_800: ok" in capsys.readouterr().out
+
+
+def test_check_old_keep_without_md5(run: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    milestones.keep("run1", [800])
+    record = paths.run_dir("run1") / milestones.MANIFEST
+    manifest = json.loads(record.read_text(encoding="utf-8"))
+    del manifest["800"]["md5"]
+    record.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(RuntimeError):
+        milestones.check("run1", lambda folder: {"model.pth": {"size": 1, "md5": "x"},
+                                                 "config.json": {}})
+    assert "delete this step folder on Drive" in capsys.readouterr().out

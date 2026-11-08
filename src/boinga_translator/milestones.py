@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +14,7 @@ from tqdm import tqdm
 from boinga_translator import ckpt_sampler, paths, pretrained, train_runner
 
 KEEP_FILE = "keep.json"  # written last: a milestone without it is incomplete
+MANIFEST = "kept_milestones.json"  # in the run folder on the VM disk: what check expects
 DROP = ("optimizer", "scaler")  # training state only; everything else is kept
 
 
@@ -59,16 +62,27 @@ def _keep_one(run_name: str, step: int, src: Path) -> float:
         if isinstance(exc, RuntimeError):
             raise
         raise RuntimeError(f"milestone copy of {src.name} unreadable: {exc!r}") from exc
+    digest = md5(part)  # hashed before the rename: the local write, not an upload check
     part.replace(target)
     shutil.copy2(src.parent / pretrained.CONFIG_FILE, out / pretrained.CONFIG_FILE)
     mb = target.stat().st_size / 1e6
     meta = out / f"{KEEP_FILE}.part"
     meta.write_text(json.dumps({
         "run": run_name, "step": step, "source": src.name, "source_folder": src.parent.name,
-        "n_tensors": len(model), "mb": round(mb, 1), "bytes": target.stat().st_size},
+        "n_tensors": len(model), "mb": round(mb, 1), "bytes": target.stat().st_size,
+        "md5": digest},
         indent=2), encoding="utf-8")
     meta.replace(out / KEEP_FILE)  # atomic: a half-written keep.json never marks a step done
     return mb
+
+
+def md5(path: Path) -> str:
+    """Hex md5 of a file (Drive reports md5Checksum for uploaded files)."""
+    digest = hashlib.md5()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(1 << 24), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def _kept(run_name: str, step: int, src: Path) -> bool:
@@ -99,33 +113,64 @@ def keep(run_name: str, steps: list[int] | None = None) -> int:
     for step in tqdm(todo, desc="keep", unit="ckpt"):
         mb = _keep_one(run_name, step, ckpts[step])
         print(f"step {step}: kept {mb:.0f} MB from {ckpts[step].name}")
+    manifest = {str(s): json.loads((milestone_dir(run_name, s) / KEEP_FILE).read_text(
+        encoding="utf-8")) for s in steps}
+    paths.run_dir(run_name).joinpath(MANIFEST).write_text(json.dumps(manifest, indent=2),
+                                                          encoding="utf-8")
     free = shutil.disk_usage(paths.milestones()).free / 1e9
     print(f"PASS: kept {len(todo)} milestones ({len(steps) - len(todo)} already kept) in "
           f"{paths.milestones() / run_name}; {free:.1f} GB free")
     return len(todo)
 
 
-def check(run_name: str) -> int:
-    """Each kept step of a run has its config and a model.pth of the recorded size.
+Listing = dict[str, dict[str, Any]]  # file name -> {"size": int, "md5": str | None}
 
-    Seen through the Drive mount, which may still show local copies of failed uploads; the
-    notebook flushes and remounts first, and C8.5c adds a check through the Drive API.
+
+def _mount_view(folder: Path) -> Listing:
+    if not folder.is_dir():
+        return {}
+    return {p.name: {"size": p.stat().st_size, "md5": None} for p in folder.iterdir()
+            if p.is_file()}
+
+
+def _problems(info: dict[str, Any], files: Listing, api: bool) -> list[str]:
+    got = files.get(pretrained.MODEL_FILE, {})
+    out = []
+    if info.get("bytes") is None:
+        out.append("no recorded size: keep again")
+    elif got.get("size") != info["bytes"]:
+        out.append(f"model {got.get('size')} bytes, expected {info['bytes']}")
+    if api and info.get("md5") is None:
+        out.append("no recorded md5: delete this step folder on Drive, then keep again")
+    elif api and got.get("md5") != info["md5"]:
+        out.append("model md5 differs")
+    if pretrained.CONFIG_FILE not in files:
+        out.append("no config.json")
+    return out
+
+
+def check(run_name: str, remote: Callable[[Path], Listing] | None = None) -> int:
+    """Each step `keep` recorded (MANIFEST, VM disk) is on Drive: config + model size (+ md5).
+
+    remote lists a Drive folder through the Drive API (drive_api.lister): what Drive really
+    holds. Without it the Drive mount is read, which may still show local copies of uploads
+    that failed (C8 run 1), so the notebook uses the API.
     """
-    root = paths.milestones() / run_name
-    kept = sorted(root.glob(f"step_*/{KEEP_FILE}")) if root.is_dir() else []
-    if not kept:
-        raise FileNotFoundError(f"no milestones under {root}: run `boinga keep` first")
-    bad = []
-    for meta in kept:
-        info, d = json.loads(meta.read_text(encoding="utf-8")), meta.parent
-        model = d / pretrained.MODEL_FILE
-        size = model.stat().st_size if model.is_file() else None
-        want = info.get("bytes")
-        ok = want is not None and size == want and (d / pretrained.CONFIG_FILE).is_file()
-        why = "no recorded size: keep again" if want is None else "MISSING OR SHORT"
-        print(f"{d.name}: model {size} bytes (expected {want}) {'ok' if ok else why}")
-        bad += [] if ok else [d.name]
+    root, record = paths.milestones() / run_name, paths.run_dir(run_name) / MANIFEST
+    if not record.is_file():
+        raise FileNotFoundError(f"no {record}: run `boinga keep` first, in the VM that trained")
+    expected = json.loads(record.read_text(encoding="utf-8"))  # VM side: never lost in upload
+    view, bad = remote or _mount_view, []
+    for step, info in sorted(expected.items(), key=lambda kv: int(kv[0])):
+        d = milestone_dir(run_name, int(step))
+        try:
+            problems = _problems(info, view(d), remote is not None)
+        except FileNotFoundError as exc:  # the whole step folder never reached Drive
+            problems = [str(exc)]
+        print(f"{d.name}: {'ok' if not problems else '; '.join(problems)}")
+        bad += [d.name] if problems else []
     if bad:
         raise RuntimeError(f"milestones not on Drive: {bad}")
-    print(f"PASS: {len(kept)} milestones on Drive under {root}")
-    return len(kept)
+    print(f"PASS: {len(expected)} milestones on Drive under {root} "
+          f"({'Drive API' if remote else 'mount'})")
+    return len(expected)

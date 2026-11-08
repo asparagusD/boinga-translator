@@ -96,10 +96,13 @@ NOTEBOOK = Notebook(
             **Check they really reached Drive.** The Drive mount uploads in the background and
             hides failed uploads, so this waits for every pending upload (up to 20 minutes, no
             progress bar: the flush gives none), unmounts and mounts Drive again, then checks
-            each kept `model.pth` has its recorded size. Stay at the computer for this cell:
-            the remount opens a Google sign-in popup that "Run all" waits on. Expect `PASS: K
-            milestones on Drive`. If it fails, do not close the VM: free Drive space, empty its
-            trash, then run "Keep" and this cell again.
+            each kept file through the Drive API (what Drive really holds, not the mount's
+            local copies): `model.pth` size and md5 as recorded at keep time, and config.json.
+            Stay at the computer for this cell: the remount and the API each open a Google
+            sign-in popup that "Run all" waits on; choose the account whose Drive is mounted.
+            Expect `PASS: K milestones on Drive ... (Drive API)`. If it fails, do not close the
+            VM: free Drive space, empty its trash, delete the failing step folders under
+            `milestones/run1/` in Drive, then run "Keep" and this cell again.
         """),
         code("C8.flush", "Check they really reached Drive", """
             from google.colab import drive
@@ -111,9 +114,9 @@ NOTEBOOK = Notebook(
             except Exception as exc:  # stuck uploads: never wait the default 24 h
                 colab_runtime.fail(f"Drive flush did not finish: {exc!r}; free Drive space")
             drive.mount(str(paths.COLAB_DRIVE.parent))
-            if cli.main(["check-milestones", "--run", "run1"]) != 0:
+            if cli.main(["check-milestones", "--run", "run1", "--drive-api"]) != 0:
                 colab_runtime.fail("milestones are not on Drive (see the FAIL line above)")
-        """, expect=[r"PASS: \d+ milestones on Drive"], timeout_min=30),
+        """, expect=[r"PASS: \d+ milestones on Drive .*\(Drive API\)"], timeout_min=30),
         md("""
             **Listen: pretrained vs best candidates vs last.** The 5 sentences by the pretrained
             male voice, then by the 4 best checkpoints by `loss_mel` and the last one; each

@@ -657,8 +657,12 @@ estimates, excluding the generated map/notebook and PROGRESS.
   md text for VM-disk runs; `milestones.keep` refuses without Drive space, keep.json records
   bytes, `milestones.check`, a step kept from another run folder is refused; MIN_FREE_GB 30; save_* reasons no longer say Drive; separate keep notebook
   removed (this commit)
-- [ ] C8.5c check milestones through the Drive API (size + md5 recorded in keep.json), not
-  only through the mount (code-reviewer: the remounted mount may still show local copies)
+- [x] C8.5c check milestones through the Drive API: new module `drive_api.py` (Colab sign-in,
+  folder walk from My Drive, name/size/md5Checksum per file); keep.json records the model md5;
+  `milestones.check(run, remote)` checks every step in the VM-side manifest kept_milestones.json
+  (a step whose whole folder failed to upload fails too); duplicate names and a missing
+  folder raise; the signed-in account is printed; `boinga check-milestones --drive-api`, used by C8.flush
+  (this commit)
 - [ ] C8.H3 / C8.V3 retrain run1 (same name and budget), listen again
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on

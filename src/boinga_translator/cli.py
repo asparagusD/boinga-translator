@@ -12,6 +12,7 @@ from boinga_translator import (
     corpus,
     data_audit,
     data_download,
+    drive_api,
     env_report,
     milestones,
     paths,
@@ -88,6 +89,8 @@ def build_parser() -> argparse.ArgumentParser:
     chk = sub.add_parser("check-milestones", help="check a run's kept milestones on Drive "
                                                   "(after a flush and remount)")
     chk.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    chk.add_argument("--drive-api", action="store_true",
+                     help="list Drive through its API (Colab sign-in) instead of the mount")
     cln = sub.add_parser("clean-run", help="delete a smoke run's folder for a fresh "
                                            "start (refuses runs past step 1000)")
     cln.add_argument("--run", required=True, help="run name (one folder under runs/)")
@@ -155,11 +158,15 @@ def _ckpt(command: str, run_name: str) -> int:
     return 0
 
 
-def _keep(run_name: str, steps: list[int] | None, check: bool = False) -> int:
+def _keep(run_name: str, steps: list[int] | None, check: bool = False,
+          api: bool = False) -> int:
     """`boinga keep` / `boinga check-milestones`; FAIL + exit 1 on any error."""
     try:
-        milestones.check(run_name) if check else milestones.keep(run_name, steps)
-    except (OSError, ValueError, KeyError, RuntimeError) as exc:
+        if check:
+            milestones.check(run_name, drive_api.lister() if api else None)
+        else:
+            milestones.keep(run_name, steps)
+    except (OSError, ValueError, KeyError, RuntimeError, ImportError) as exc:
         print(f"FAIL: {'check-milestones' if check else 'keep'} {type(exc).__name__}: {exc}")
         return 1
     return 0
@@ -378,7 +385,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "keep":
         return _keep(args.run, args.steps)
     elif args.command == "check-milestones":
-        return _keep(args.run, None, check=True)
+        return _keep(args.run, None, check=True, api=args.drive_api)
     elif args.command == "clean-run":
         return _clean_run(args.run)
     return 0
