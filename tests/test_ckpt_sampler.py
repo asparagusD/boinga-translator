@@ -137,3 +137,12 @@ def test_no_log_and_changed_texts(run: dict[str, Any]) -> None:
     cfg = paths.REPO / train_config.CONFIG_REL
     cfg.write_text(json.dumps({"test_sentences": [["নতুন"]]}), encoding="utf-8")
     assert ckpt_sampler.sample("run1") == 3  # other texts: every step is sampled again
+
+
+def test_retrained_run_resamples(run: dict[str, Any]) -> None:
+    ckpt_sampler.sample("run1")
+    new = run["folder"].with_name("run1-November-09-2026_09+00AM-def5678")
+    run["folder"].rename(new)  # same steps, another training of the run
+    run["loaded"].clear()
+    assert ckpt_sampler.sample("run1") == 3  # old audio is never reused
+    assert "model.pth" not in run["loaded"]  # the pretrained voice is still the same

@@ -20,6 +20,8 @@ import numpy as np
 from boinga_translator import env_report, paths, pretrained, train_config
 
 RUN_RECORD = "boinga_run.json"  # in paths.run_dir(name): one entry per training session
+CKPT_GB = 1.0  # one coqui VITS checkpoint with optimizer state (run 1: 997.8 MB)
+MARGIN_GB = 2.0  # logs, TensorBoard events, eval audio
 
 # Keyword arguments get_data_loader may take: 0.28 has config, *, is_eval, samples, verbose;
 # assets/num_gpus are older coqui names. Only those in the printed signature are passed.
@@ -181,7 +183,7 @@ def _ckpt_step(path: Path) -> int | None:
 def latest_run_folder(run_name: str) -> tuple[Path, int] | None:
     """(coqui run folder, step) holding the highest-step checkpoint_*.pth, or None.
 
-    Chosen by step, not mtime: Drive sync and copies change mtimes. Folders without a
+    Chosen by step, not mtime: syncs and copies change mtimes. Folders without a
     checkpoint (a failed attempt) are ignored. A step tie (a copied folder) goes to the larger
     folder name; either folder holds the same step.
     """
@@ -222,6 +224,9 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
         raise ValueError(f"run name {run_name!r} would confuse coqui's checkpoint search")
     run_dir = paths.run_dir(run_name)
     latest = latest_run_folder(run_name)
+    if latest is None or max_steps is None or latest[1] < max_steps:
+        existing = len(list(latest[0].glob("checkpoint_*.pth"))) if latest else 0
+        _check_space(run_dir, latest[1] if latest else 0, max_steps, existing)
     if latest is not None:
         folder, step = latest
         if max_steps is not None and step >= max_steps:
@@ -264,6 +269,7 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
             model=model, train_samples=train, eval_samples=evals,
             parse_command_line_args=False,  # never read `boinga train` flags as overrides
             callbacks={"on_train_step_end": _stopper(max_steps)} if max_steps else {})
+        _no_best_models(trainer)
         session["output_path"] = str(trainer.output_path)
         try:
             trainer._fit()
@@ -283,11 +289,54 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
                        end_utc=_utc(), peak_gpu_memory_gb=_peak_memory_gb())
         try:
             _save_record(run_dir, record)
-        except OSError as exc:  # never hide the training error behind a Drive hiccup
+        except OSError as exc:  # never hide the training error behind a disk hiccup
             print(f"WARN: could not update {run_dir / RUN_RECORD}: {exc}")
         if trainer is not None:
             trainer.dashboard_logger.finish()  # flush logs on success and on error
     return session
+
+
+def free_gb(path: Path) -> float:
+    """Free GB on the disk holding path (or its nearest existing parent)."""
+    while not path.exists() and path != path.parent:
+        path = path.parent
+    return shutil.disk_usage(path).free / 1e9
+
+
+def saves_needed(start_step: int, max_steps: int | None, existing: int = 0) -> int:
+    """Checkpoints a session writes: one per save_step crossed, plus the one at the stop.
+
+    Refuses a session after which the run folder would hold more than save_n_checkpoints
+    (existing ones, e.g. interrupt saves, included): coqui would then delete the oldest on
+    Drive. A run without a step budget is refused for the same reason (epochs 1000).
+    """
+    if max_steps is None:
+        raise ValueError("a run on Drive needs a step budget (--max-steps or RUN_BUDGETS): "
+                         "without one coqui would rotate checkpoints, deleting on Drive")
+    save_step = int(train_config.OVERRIDES["save_step"][0])
+    keep = int(train_config.OVERRIDES["save_n_checkpoints"][0])
+    n = max_steps // save_step - start_step // save_step + 1
+    if existing + n > keep:  # coqui would delete the oldest: a Drive delete
+        raise ValueError(f"{existing} checkpoints + {n} new would exceed save_n_checkpoints "
+                         f"{keep}: coqui would delete some on Drive")
+    return n
+
+
+def _check_space(run_dir: Path, start_step: int, max_steps: int | None,
+                 existing: int = 0) -> None:
+    need = saves_needed(start_step, max_steps, existing) * CKPT_GB + MARGIN_GB
+    if (free := free_gb(run_dir)) < need:
+        raise RuntimeError(f"only {free:.1f} GB free for {run_dir} (need {need:.0f} GB: "
+                           f"~{CKPT_GB:.0f} GB per checkpoint): free Drive space, empty its trash")
+    print(f"space: {free:.1f} GB free for {run_dir} (need {need:.0f} GB)")
+
+
+def _no_best_models(trainer: Any) -> None:
+    """Stop coqui saving best_model_<N>.pth: each one replaces and deletes the last on Drive."""
+    if not callable(getattr(trainer, "save_best_model", None)):
+        raise TypeError("coqui Trainer has no save_best_model: cannot turn best saves off")
+    trainer.save_best_model = lambda *args, **kwargs: None
+    print("best-model saves: off (checkpoints every save_step are the candidates)")
 
 
 CLEAN_MAX_STEP = 1000  # clean_run refuses runs past this: those are real training, not smoke
@@ -317,7 +366,7 @@ def clean_run(run_name: str) -> bool:
                            "run; delete it by hand if you really mean to")
     size = sum(f.stat().st_size for f in run_dir.rglob("*") if f.is_file())
     shutil.rmtree(run_dir)
-    if run_dir.exists():  # Drive FUSE can leave files behind without raising
+    if run_dir.exists():  # a FUSE mount can leave files behind without raising
         raise RuntimeError(f"{run_dir} still exists after deleting it: delete it by hand")
     print(f"PASS: cleaned run {run_name}: removed {run_dir} ({size / 1e9:.2f} GB; Drive keeps "
           "deleted files in its trash until emptied)")

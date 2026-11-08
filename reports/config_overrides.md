@@ -15,15 +15,15 @@ Base: `/content/drive/MyDrive/boinga-translator/pretrained/male/config.json`, ru
 | `mixed_precision` | false | true | fp16: no NaN in the smoke test, less memory; NaN -> fp32 |
 | `num_eval_loader_workers` | 4 | 4 | eval is small; half the train workers |
 | `num_loader_workers` | 4 | 8 | RTX PRO 6000 VM has 48 CPUs (env.json); no speed change seen |
-| `output_path` | "/home/ansary/Shabab/" | "/content/drive/MyDrive/boinga-translator/runs" | runs on Drive (paths.runs()) survive a Colab disconnect |
+| `output_path` | "/home/ansary/Shabab/" | "/content/drive/MyDrive/boinga-translator/runs" | runs on Drive (paths.runs()): resume after a disconnect; nothing deleted there |
 | `print_step` | 50 | 25 | step logs often enough to read sec/step in the smoke test |
 | `restore_path` | "/home/ansary/Shabab/vits_20_october/checkpoint_626000.pth" | null | the author's absolute path; the runner passes it (C7.3) |
 | `run_eval` | true | true | val loss picks the best checkpoint, with listening (vits-finetune) |
 | `run_name` | "vits_20_october" | "run1" | given per run (boinga build-config --run NAME) |
 | `save_best_after` | 500 | 1000 | no best checkpoint from the noisy first steps |
-| `save_checkpoints` | true | true | resume after a Colab disconnect needs them |
-| `save_n_checkpoints` | 5 | 2 | keep the last 2 (+ best): ~1 GB each, Drive budget |
-| `save_step` | 500 | 500 | a checkpoint every ~500 steps to Drive (vits-finetune) |
+| `save_checkpoints` | true | true | resume after a disconnect and listening need them |
+| `save_n_checkpoints` | 5 | 10 | never delete on Drive (a delete fills its trash): above any budget |
+| `save_step` | 500 | 10000 | a ~1 GB checkpoint on Drive every 10,000 steps (user, C8.5d) |
 | `test_delay_epochs` | -1 | 0 | test sentences from the first epoch: early sanity listening |
 | `test_sentences` | [["ইয়াহুদ,নয়,ব্যয়,ইয়াহুদী,নেওয়া,উভয়ে,যায়,হয়েছিল,প্রয়োজন।"]] | [["এ কাজল্লাই খরচ দিয়েদে এ কে খান ফাউন্ডেশন."], ["অনে কন ... | first 5 val manifest texts: prepare_text output as trained, not re-normalised (Gate G4) |
 | `training_seed` | 54321 | 1234 | the project seed (settings.SEED) for reproducible runs |

@@ -635,8 +635,47 @@ estimates, excluding the generated map/notebook and PROGRESS.
   `tests/test_ckpt_sampler.py` (fake folders, log, synth) (this commit). Eval-block format
   ("--> EVAL PERFORMANCE", "| > avg_loss_mel:") not yet seen in a real log (C8.3 checks it).
   Milestone copies (C8 plan) not in this subchunk: C8.2c
-- [x] C8.2c skipped (user, chat, at the C8 close): coqui kept a best_model_<N> at every improvement, so run1 sampled 17 steps and the chosen step 36500 is still on Drive. Planned scope was milestone copies: keep a model + config copy per sampled milestone on Drive (coqui
-  keeps only the last 2 checkpoints + best), so any sampled step can be promoted
+- [x] C8.2c milestone copies (local; reopened after the C8 merge, user: "finish C8.2c, no
+  retraining"; the earlier skip in `72df4bd` is withdrawn): new module `milestones.py`:
+  `keep(run, steps=None)` copies the checkpoint minus optimizer/scaler + config of each step to
+  Drive `milestones/<run>/step_<N>/` (model.pth, config.json, keep.json written last), checks
+  the copy tensor by tensor, skips steps already kept; default steps = the ones the listening
+  form played (`ckpt_sampler.listened_steps`: 4 best by eval loss_mel + last);
+  `paths.milestones()`; `boinga keep --run NAME [--steps N ...]` (this commit)
+- [x] C8.2c.H keep notebook for run1 (no training, CPU runtime): spec
+  `notebooks/specs/c8_keep_run1.py` -> `notebooks/runs/C8_keep_run1.ipynb`: C8K.1 candidates,
+  C8K.2 `boinga keep --run run1`, C8K.3 list `milestones/run1/`, C8K.4 load the 36500 copy in
+  the Synthesizer (CPU), form C8K-notes (FOUR_FOLDERS_PRESENT, NOTES) (this commit)
+- [ ] C8.2c.V verify the keep run (colab-verify): FAILED, run1's checkpoints were never on
+  Drive (DEBUG_LOG 2026-11-08); replaced by C8.5
+- [x] C8.5a runs on the VM disk (local): paths.runs() -> fast()/runs, `boinga train` needs 20 GB
+  free there, sampled audio tied to its run folder; DEBUG_LOG + DECISIONS "Runs train on the VM
+  disk" (this commit)
+- [x] C8.5b keep + checked upload inside the run-1 notebook: spec
+  `notebooks/specs/c8_finetune_run1.py` gains C8.keep (`boinga keep --run run1`) and C8.flush
+  (`drive.flush_and_unmount` with a 20 min timeout, remount, `boinga check-milestones --run run1`) after C8.cand;
+  md text for VM-disk runs; `milestones.keep` refuses without Drive space, keep.json records
+  bytes, `milestones.check`, a step kept from another run folder is refused; MIN_FREE_GB 30; save_* reasons no longer say Drive; separate keep notebook
+  removed (this commit)
+- [x] C8.5c check milestones through the Drive API: new module `drive_api.py` (Colab sign-in,
+  folder walk from My Drive, name/size/md5Checksum per file); keep.json records the model md5;
+  `milestones.check(run, remote)` checks every step in the VM-side manifest kept_milestones.json
+  (a step whose whole folder failed to upload fails too); duplicate names and a missing
+  folder raise; the signed-in account is printed; `boinga check-milestones --drive-api`, used by C8.flush
+  (this commit)
+- [x] C8.5d checkpoints on Drive (user, chat: "all checkpoints should be stored in the drive"):
+  paths.runs() back on Drive; save_step 10,000, save_n_checkpoints 10 (never delete),
+  best-model saves off (`_no_best_models`), `saves_needed` + Drive space check per session,
+  budgets round to BUDGET_ROUND 500; DECISIONS "Checkpoints on Drive every 10,000 steps"
+  (supersedes C8.5a's VM disk) (this commit)
+- [x] C8.5e notebook: new module `run_check.py`: `record(run)` (size + md5 of every checkpoint
+  and the config, on the VM disk at paths.manifests()), `check(run, remote)` (each recorded
+  file in the Drive run folder, size + md5 via the Drive API); `boinga record-run` /
+  `boinga check-run [--drive-api]`; run-1 notebook: C8.rec and C8.flush right after training
+  (before sampling), C8.keep removed, md text for Drive checkpoints (this commit)
+- [x] C8.H3 / C8.V3 retrain run1 (same name and budget), listen again: 15/15 PASS at 853ac3a, not stale;
+  4 checkpoints (10k, 20k, 30k, 36.5k) checked on Drive through the Drive API (size + md5); user's
+  verdict again "good: promote BEST_STEP" 36500; DECISIONS "Run 1 retrained: checkpoints on Drive" (this commit)
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on
   `paths.run_dir('run1')`, optional), C8.train (`boinga train --run run1`, RUN_BUDGETS 36,500,
@@ -657,8 +696,8 @@ estimates, excluding the generated map/notebook and PROGRESS.
 - [x] C8.4 not needed (verdict "good")
 - [ ] follow-up: every training/eval text logs "Character '\n' not found in the vocabulary":
   find where the newline enters (manifest text or coqui test_sentences) and strip it
-- [ ] follow-up: coqui kept 15 best_model_<N>.pth in run1 (not only the newest): check why
-  (keep_all_best / Drive delete) before any further run fills Drive
+- [x] follow-up: coqui kept 15 best_model_<N>.pth in run1: `save_all_best: true` comes from the
+  pretrained config (by design); on the VM disk since C8.5a, so it costs no Drive space
 
 ### C7 follow-ups (from the whole-chunk review; for C8)
 - [x] `run()` / `boinga train` ignore `train_config.RUN_BUDGETS` (fixed in C8.1): without --max-steps a run

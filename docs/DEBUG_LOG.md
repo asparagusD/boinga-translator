@@ -135,3 +135,28 @@ load) caught it, as designed.
 **Test added:** tests/test_train_config.py checks `training_seed` == settings.SEED and that
 no `seed` key is written; the real coqui load is re-checked by cell C7.1 in the re-run.
 **Commit:** fix(train): set coqui's training_seed instead of an ignored seed key
+
+## 2026-11-08 C8 run 1: the trained checkpoints never reached Drive
+**Symptom:** C8 run 1 (8005e5d) passed 13/13 cells and the user picked step 36500 by ear, but
+the C8.2c keep notebook (55ba369, CPU) failed: `no checkpoint under .../runs/run1`. On Drive
+(read through the Drive connector) the run folder holds only best_model_1203.pth,
+best_model_1604.pth and best_model.pth (997.8 MB each); every file in it last changed at
+22:13 UTC, 8 minutes into a run that ended ~00:27, including trainer_0_log.txt and the
+TensorBoard events file. Small files elsewhere kept arriving (runs/run1/boinga_run.json at
+00:26, eval/run1/step_*/ at 00:39-00:43). Drive free: 6.4 GB at the start, 0.8 GB after.
+No checkpoint_*.pth exists on Drive or in its trash.
+**Root cause (most likely; Drive's own logs are not visible):** the Colab Drive mount writes
+locally and uploads in the background. coqui writes a ~1 GB checkpoint every 500 steps and
+deletes older ones; a file deleted through the mount goes to Drive's trash and keeps using
+space. With 6.4 GB free, Drive dropped below the size of one checkpoint after a few saves,
+every later upload in the run folder failed silently and its queue stalled; small files in
+other folders still fit. The VM saw its own local copies, so sampling and ranking of all
+17 checkpoints worked; they vanished with the VM. The C7 follow-up "check Drive free space
+before C8" was still open when run 1 started.
+**Fix:** runs train on the VM's fast disk (paths.runs() -> fast()/runs), where deletes free
+space at once; `boinga train` refuses to start with < 20 GB free there; sampled audio is tied
+to the run folder (a retrained run never reuses old clips). C8.5b copies the listened
+checkpoints to Drive milestones/ and checks after a flush and remount that they arrived.
+**Test added:** tests/test_paths.py (runs on the fast disk), tests/test_train_run.py
+(test_new_run_needs_disk_space), tests/test_ckpt_sampler.py (test_retrained_run_resamples).
+**Commit:** fix(train): train runs on the VM disk so Drive never holds deleted checkpoints

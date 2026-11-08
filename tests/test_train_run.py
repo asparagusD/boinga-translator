@@ -56,6 +56,10 @@ class FakeTrainer:
             self.total_steps_done += 1
             if "on_train_step_end" in self.callbacks:
                 self.callbacks["on_train_step_end"](self)
+        self.save_best_model()  # like coqui's _fit after each epoch's eval
+
+    def save_best_model(self) -> None:  # replaced by run(): never called
+        raise AssertionError("best-model saves must be off")
 
     def save_checkpoint(self) -> None:
         self.saved.append(self.total_steps_done)
@@ -108,14 +112,14 @@ def _record(name: str = "smoke") -> dict:
 
 
 def test_new_run_restores_pretrained(fake: dict[str, Any]) -> None:
-    session = train_runner.run("smoke")
+    session = train_runner.run("smoke", max_steps=1000)  # more than the fake epoch
     (tr,) = FakeTrainer.instances
     assert tr.args.restore_path == str(paths.pretrained() / "male" / "model.pth")
     assert not getattr(tr.args, "continue_path", "")
     assert tr.parse_command_line_args is False  # our CLI flags must not reach coqpit
     assert tr.output_path.parent == paths.run_dir("smoke")
     assert tr.model[0] == "model" and len(tr.train_samples) == 4 and len(tr.eval_samples) == 1
-    assert tr.callbacks == {} and tr.saved == [] and tr.finished
+    assert "on_train_step_end" in tr.callbacks and tr.saved == [] and tr.finished
     assert fake["built"] == "smoke"
     assert fake["config_path"] == str(paths.REPO / train_config.CONFIG_REL)
     assert session["steps_done"] == 100 and session["stopped_early"] is False
@@ -188,12 +192,11 @@ def test_resume_uses_continue_path_never_restore(fake: dict[str, Any],
     assert s["continue_path"] == str(folder) and "restore_path" not in s
 
 
-def test_resume_without_max_steps(fake: dict[str, Any]) -> None:
-    folder = _folder("smoke-a", "checkpoint_50.pth", "config.json")
-    session = train_runner.run("smoke")  # no limit: resume and train to the end of _fit
-    (tr,) = FakeTrainer.instances
-    assert tr.args.continue_path == str(folder) and tr.callbacks == {}
-    assert session["kind"] == "resume" and session["steps_done"] == 151
+def test_run_without_a_budget_is_refused(fake: dict[str, Any]) -> None:
+    _folder("smoke-a", "checkpoint_50.pth", "config.json")
+    with pytest.raises(ValueError, match="needs a step budget"):
+        train_runner.run("smoke")  # epochs 1000 on Drive: coqui would rotate (delete)
+    assert FakeTrainer.instances == []
 
 
 def test_run_name_coqui_would_misread(fake: dict[str, Any]) -> None:
@@ -218,7 +221,7 @@ def test_resume_needs_the_run_config(fake: dict[str, Any]) -> None:
 def test_missing_pretrained_model(fake: dict[str, Any]) -> None:
     (paths.pretrained() / "male" / "model.pth").unlink()
     with pytest.raises(FileNotFoundError, match="model.pth"):
-        train_runner.run("smoke")
+        train_runner.run("smoke", max_steps=10)
 
 
 @pytest.mark.parametrize("bad", [0, -5])
@@ -247,7 +250,7 @@ def test_record_exists_before_fit(fake: dict[str, Any]) -> None:
 def test_interrupt_saves_and_records(fake: dict[str, Any]) -> None:
     FakeTrainer.fail_with = KeyboardInterrupt()
     with pytest.raises(KeyboardInterrupt):
-        train_runner.run("smoke")
+        train_runner.run("smoke", max_steps=1000)
     (tr,) = FakeTrainer.instances
     assert tr.saved == [7] and tr.finished  # saved at the interrupt, logs flushed
     (s,) = _record()["sessions"]
@@ -257,7 +260,7 @@ def test_interrupt_saves_and_records(fake: dict[str, Any]) -> None:
 def test_failed_attempt_kept_and_logs_flushed(fake: dict[str, Any]) -> None:
     FakeTrainer.fail_with = RuntimeError("CUDA out of memory")
     with pytest.raises(RuntimeError):
-        train_runner.run("smoke")
+        train_runner.run("smoke", max_steps=1000)
     assert FakeTrainer.instances[0].finished and FakeTrainer.instances[0].saved == []
     FakeTrainer.fail_with = None
     train_runner.run("smoke", max_steps=3)  # no checkpoint was left, so a rerun is allowed
@@ -344,3 +347,33 @@ def test_budget_on_resume_and_when_reached(fake: dict[str, Any], monkeypatch: py
     session = train_runner.run("smoke")
     assert session["kind"] == "done" and len(FakeTrainer.instances) == 1
     assert "PASS: run smoke already at step 30" in capsys.readouterr().out
+
+
+def test_new_run_needs_disk_space(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(train_runner, "free_gb", lambda path: 2.0)
+    with pytest.raises(RuntimeError, match="only 2.0 GB free"):
+        train_runner.run("run1", max_steps=10)
+
+
+def test_resume_needs_disk_space(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch) -> None:
+    train_runner.run("run1", max_steps=10)
+    monkeypatch.setattr(train_runner, "free_gb", lambda path: 2.0)
+    with pytest.raises(RuntimeError, match="only 2.0 GB free"):
+        train_runner.run("run1", max_steps=20)
+
+
+def test_best_model_saves_are_off(fake: dict[str, Any],
+                                  capsys: pytest.CaptureFixture[str]) -> None:
+    train_runner.run("run1", max_steps=10)
+    trainer = FakeTrainer.instances[-1]
+    trainer.save_best_model()  # the replaced method: a no-op
+    assert "best-model saves: off" in capsys.readouterr().out
+
+
+def test_saves_needed() -> None:
+    assert train_runner.saves_needed(0, 36_500) == 4  # 10k, 20k, 30k + the stop at 36,500
+    assert train_runner.saves_needed(20_100, 36_500) == 2  # resume: 30k + the stop
+    with pytest.raises(ValueError, match="2 checkpoints"):
+        train_runner.saves_needed(0, 90_000, existing=2)  # interrupt saves count too
+    with pytest.raises(ValueError, match="would delete"):
+        train_runner.saves_needed(0, 100_000)

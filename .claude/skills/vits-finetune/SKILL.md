@@ -13,14 +13,15 @@ description: Coqui-TTS VITS fine-tuning specifics for boinga-translator. Use for
 - Do not change: sample rate, STFT/mel params, character set (unless the
   embedding is extended on purpose), model size args.
 - First run: restore_path = pretrained model.pth (fine-tune).
-  Resume after disconnect: continue_path = the run folder on Drive.
+  Resume after disconnect: continue_path = the run folder on Drive (paths.runs()).
   These are different; never restore on a resume.
 - Check on restore: if the checkpoint has no `disc.` keys, the
   discriminator starts from random → log it, use a longer warm-up, consider
   fallback chunk F.
 - Smoke test before any long run: 50 steps, then kill and resume 10 steps.
   Record sec/step and peak GPU memory to reports/throughput.json.
-- Checkpoints every ~500 steps to Drive, keep last 2 + best.
+- Checkpoints every 10,000 steps on Drive, all kept, no best models: never delete or
+  overwrite on Drive (deletes fill its trash, C8 run 1); check them via the Drive API.
 - fp16: test in smoke test; on any NaN, switch to fp32 and log it.
 - Best checkpoint = val loss + listening, never train loss alone.
 - Fixed seed and fixed inference noise scales for all evaluation audio.

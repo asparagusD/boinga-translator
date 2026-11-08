@@ -12,10 +12,13 @@ from boinga_translator import (
     corpus,
     data_audit,
     data_download,
+    drive_api,
     env_report,
+    milestones,
     paths,
     prepare,
     pretrained,
+    run_check,
     speaker_select,
     text_frontend,
     text_oov,
@@ -65,7 +68,7 @@ def build_parser() -> argparse.ArgumentParser:
     bcfg.add_argument("--run", required=True, help="run name (one folder under runs/)")
     sub.add_parser("check-loader", help="load one coqui train batch from the fine-tune config "
                                         "and check token ids and finite audio")
-    train = sub.add_parser("train", help="train a run: resume its latest Drive checkpoint, "
+    train = sub.add_parser("train", help="train a run: resume its latest checkpoint (VM disk), "
                                          "else start from the pretrained one")
     train.add_argument("--run", required=True, help="run name (one folder under runs/)")
     train.add_argument("--max-steps", type=int, default=None,
@@ -80,7 +83,22 @@ def build_parser() -> argparse.ArgumentParser:
     cnd = sub.add_parser("candidates", help="rank a run's checkpoints by eval loss_mel into "
                                             "reports/candidates_<run>.md")
     cnd.add_argument("--run", required=True, help="run name (one folder under runs/)")
-    cln = sub.add_parser("clean-run", help="delete a smoke run's folder on Drive for a fresh "
+    kp = sub.add_parser("keep", help="copy model weights + config of checkpoints to Drive "
+                                      "milestones/<run>/ (default: the steps listened to)")
+    kp.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    kp.add_argument("--steps", type=int, nargs="+", help="steps to keep (default: 4 best + last)")
+    chk = sub.add_parser("check-milestones", help="check a run's kept milestones on Drive "
+                                                  "(after a flush and remount)")
+    chk.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    chk.add_argument("--drive-api", action="store_true",
+                     help="list Drive through its API (Colab sign-in) instead of the mount")
+    rec = sub.add_parser("record-run", help="record size + md5 of a run's checkpoints on the VM")
+    rec.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    crun = sub.add_parser("check-run", help="check a run's recorded checkpoints are on Drive")
+    crun.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    crun.add_argument("--drive-api", action="store_true",
+                      help="list Drive through its API (Colab sign-in) instead of the mount")
+    cln = sub.add_parser("clean-run", help="delete a smoke run's folder for a fresh "
                                            "start (refuses runs past step 1000)")
     cln.add_argument("--run", required=True, help="run name (one folder under runs/)")
     return parser
@@ -142,6 +160,33 @@ def _ckpt(command: str, run_name: str) -> int:
     try:
         (ckpt_sampler.sample if command == "sample" else ckpt_sampler.candidates)(run_name)
     except (OSError, ValueError, KeyError, RuntimeError) as exc:  # run/log/json/coqui load
+        print(f"FAIL: {command} {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _keep(run_name: str, steps: list[int] | None, check: bool = False,
+          api: bool = False) -> int:
+    """`boinga keep` / `boinga check-milestones`; FAIL + exit 1 on any error."""
+    try:
+        if check:
+            milestones.check(run_name, drive_api.lister() if api else None)
+        else:
+            milestones.keep(run_name, steps)
+    except (OSError, ValueError, KeyError, RuntimeError, ImportError) as exc:
+        print(f"FAIL: {'check-milestones' if check else 'keep'} {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _run_check(command: str, run_name: str, api: bool = False) -> int:
+    """`boinga record-run` / `boinga check-run`; FAIL + exit 1 on any error."""
+    try:
+        if command == "record-run":
+            run_check.record(run_name)
+        else:
+            run_check.check(run_name, drive_api.lister() if api else None)
+    except (OSError, ValueError, KeyError, RuntimeError, ImportError) as exc:
         print(f"FAIL: {command} {type(exc).__name__}: {exc}")
         return 1
     return 0
@@ -357,6 +402,12 @@ def main(argv: list[str] | None = None) -> int:
         return _throughput(args.run)
     elif args.command in ("sample", "candidates"):
         return _ckpt(args.command, args.run)
+    elif args.command == "keep":
+        return _keep(args.run, args.steps)
+    elif args.command in ("record-run", "check-run"):
+        return _run_check(args.command, args.run, getattr(args, "drive_api", False))
+    elif args.command == "check-milestones":
+        return _keep(args.run, None, check=True, api=args.drive_api)
     elif args.command == "clean-run":
         return _clean_run(args.run)
     return 0
