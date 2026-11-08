@@ -821,14 +821,18 @@ map/notebook and PROGRESS.
   configs/eval_prompts.json; C10.1-notes: REVIEWED_BY "Me", IDS_TO_REPLACE "None" (no
   replacements; run 2 needs no `--exclude`), NOTES "All okay" (this commit). P08 (clip 29)
   and P10 (clip 6) are C9 reload-check clips the user has heard before
-- [ ] C10.2 generate A/B/R (local + spec): `evaluate.generate()`: VoiceBank "baseline" and
-  "boinga" speak each prompt (seeded); R = the prepared test wav; all three at the model rate,
-  loudness-matched to one RMS target (DECISIONS). Writes Drive `eval/c10/gen/<clip_id>/
-  {baseline,boinga,ref}.wav` + gen.json (prompt hash, best md5). Skips work when those
-  match. Checks each wav's length and level; tqdm. `boinga eval-generate`. Spec
-  `notebooks/specs/c10_eval_run2.py` (GPU): C10.pre, C10.1x (`--exclude` from C10.1-notes, if
-  any), C10.2.
-  Tests `tests/test_eval_generate.py` (fake bank) (~90 lines)
+- [x] C10.2 code (local + spec): `evaluate.generate()`: per prompt VoiceBank "baseline" ->
+  Drive `eval/final/A_baseline/<id>.wav`, "boinga" -> `B_boinga/` (fixed seed + inference
+  scales, raw model output), and for has_reference the corpus clip through
+  `prepare.transform_audio` -> `R_real/`; each wav > 0.5 s and > -50 dBFS, else ValueError;
+  `final/index.csv` (id, set, path, duration_s, rms_db, text); a wav listed there with the
+  same text is kept (a replaced prompt is redone); reports/eval_generation.md (count, mean /
+  min / max duration, mean RMS per set) emitted; `evaluate.players(ids)`; `boinga
+  eval-generate` ("PASS: generated A=20 B=20 R=20": all prompts have R since C10.1b, the
+  user's "R=15" predates it). Cells C10.pre (fetch-data), C10.2, C10.2.play in new spec
+  `notebooks/specs/c10_eval_run2.py` (GPU), not run 1 (run 1 is verified; audio comes after
+  the review, user's "Review first"). No loudness matching here: C10.3 decides it for the
+  blind pack. Tests `tests/test_evaluate_generate.py` (fake VoiceBank) (this commit)
 - [ ] C10.3 blind rating sheet (local + spec): `evaluate.blind_pack(seed)`: balanced A/B
   assignment; Drive `eval/c10/blind/` holds P01_R/A/B.wav ... P20_R/A/B.wav, `sheet.html` (players,
   prompt text, instructions, dataset credit CC BY 4.0) and `ratings_template.csv` (prompt,

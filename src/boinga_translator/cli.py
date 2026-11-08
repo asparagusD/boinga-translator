@@ -52,6 +52,8 @@ def build_parser() -> argparse.ArgumentParser:
                          help="pick 20 held-out dialect prompts into configs/eval_prompts.json")
     pev.add_argument("--exclude", default="",
                      help="comma-separated prompt ids to replace, e.g. P03,P11 (others stay)")
+    sub.add_parser("eval-generate", help="speak the eval prompts with both voices and copy the "
+                                         "real clips to Drive eval/final/ (resumable)")
     sub.add_parser("embed-speakers",
                    help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
     sub.add_parser("cluster-speakers",
@@ -274,6 +276,17 @@ def _pick_eval_prompts(exclude: str) -> int:
     return 0
 
 
+def _eval_generate() -> int:
+    """A/B/R audio for configs/eval_prompts.json; FAIL + exit 1 on error."""
+    try:
+        counts = evaluate.generate()
+    except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
+        print(f"FAIL: eval-generate: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: generated A={counts['A']} B={counts['B']} R={counts['R']}")
+    return 0
+
+
 def _embed_speakers() -> int:
     """One speaker embedding per clean clip of the Drive audit.csv; FAIL + exit 1 on error."""
     try:
@@ -416,6 +429,8 @@ def main(argv: list[str] | None = None) -> int:
         return _pick_baseline_ctg()
     elif args.command == "pick-eval-prompts":
         return _pick_eval_prompts(args.exclude)
+    elif args.command == "eval-generate":
+        return _eval_generate()
     elif args.command == "embed-speakers":
         return _embed_speakers()
     elif args.command == "cluster-speakers":

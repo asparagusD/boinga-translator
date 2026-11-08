@@ -22,6 +22,21 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run2.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run2.ipynb",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run2.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
@@ -273,6 +288,16 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c10_eval_run1.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c10_eval_run2.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c10_eval_run2.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -713,12 +738,22 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
       "target": "src/boinga_translator/report_io.py"
     },
     {
       "kind": "import",
       "source": "src/boinga_translator/evaluate.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/synth.py"
     },
     {
       "kind": "import",
@@ -1308,6 +1343,21 @@
     {
       "kind": "test",
       "source": "tests/test_env_report.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_generate.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_generate.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_generate.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -2113,7 +2163,7 @@
     },
     {
       "kind": "doc",
-      "lines": 868,
+      "lines": 872,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2128,6 +2178,12 @@
       "lines": 477,
       "path": "notebooks/runs/C10_eval_run1.ipynb",
       "purpose": "C10 run 1 — prompt review"
+    },
+    {
+      "kind": "notebook",
+      "lines": 426,
+      "path": "notebooks/runs/C10_eval_run2.ipynb",
+      "purpose": "C10 run 2 — evaluation audio"
     },
     {
       "kind": "notebook",
@@ -2224,6 +2280,12 @@
       "lines": 61,
       "path": "notebooks/specs/c10_eval_run1.py",
       "purpose": "Spec: C10 run 1, blind A/B evaluation: pick 20 held-out prompts and review them (CPU)."
+    },
+    {
+      "kind": "module",
+      "lines": 53,
+      "path": "notebooks/specs/c10_eval_run2.py",
+      "purpose": "Spec: C10 run 2, blind A/B evaluation: baseline, fine-tuned and real audio for the 20 prompts."
     },
     {
       "kind": "module",
@@ -2545,7 +2607,7 @@
     },
     {
       "kind": "module",
-      "lines": 455,
+      "lines": 470,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2587,7 +2649,7 @@
     },
     {
       "kind": "module",
-      "lines": 127,
+      "lines": 253,
       "path": "src/boinga_translator/evaluate.py",
       "purpose": "Blind A/B evaluation (C10): 20 held-out, dialect-heavy prompts for the listening test."
     },
@@ -2764,6 +2826,12 @@
       "lines": 117,
       "path": "tests/test_env_report.py",
       "purpose": "Tests for env_report.py and `boinga env`: missing torch, fake GPU, JSON keys, CLI wiring."
+    },
+    {
+      "kind": "test",
+      "lines": 130,
+      "path": "tests/test_evaluate_generate.py",
+      "purpose": "Tests for evaluate.generate and `boinga eval-generate` with a fake VoiceBank (no coqui)."
     },
     {
       "kind": "test",
