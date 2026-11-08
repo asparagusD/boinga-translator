@@ -66,7 +66,7 @@ def build_parser() -> argparse.ArgumentParser:
     bcfg.add_argument("--run", required=True, help="run name (one folder under runs/)")
     sub.add_parser("check-loader", help="load one coqui train batch from the fine-tune config "
                                         "and check token ids and finite audio")
-    train = sub.add_parser("train", help="train a run: resume its latest Drive checkpoint, "
+    train = sub.add_parser("train", help="train a run: resume its latest checkpoint (VM disk), "
                                          "else start from the pretrained one")
     train.add_argument("--run", required=True, help="run name (one folder under runs/)")
     train.add_argument("--max-steps", type=int, default=None,
@@ -85,7 +85,10 @@ def build_parser() -> argparse.ArgumentParser:
                                       "milestones/<run>/ (default: the steps listened to)")
     kp.add_argument("--run", required=True, help="run name (one folder under runs/)")
     kp.add_argument("--steps", type=int, nargs="+", help="steps to keep (default: 4 best + last)")
-    cln = sub.add_parser("clean-run", help="delete a smoke run's folder on Drive for a fresh "
+    chk = sub.add_parser("check-milestones", help="check a run's kept milestones on Drive "
+                                                  "(after a flush and remount)")
+    chk.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    cln = sub.add_parser("clean-run", help="delete a smoke run's folder for a fresh "
                                            "start (refuses runs past step 1000)")
     cln.add_argument("--run", required=True, help="run name (one folder under runs/)")
     return parser
@@ -152,12 +155,12 @@ def _ckpt(command: str, run_name: str) -> int:
     return 0
 
 
-def _keep(run_name: str, steps: list[int] | None) -> int:
-    """`boinga keep`; FAIL + exit 1 on a missing step, a bad copy or any error."""
+def _keep(run_name: str, steps: list[int] | None, check: bool = False) -> int:
+    """`boinga keep` / `boinga check-milestones`; FAIL + exit 1 on any error."""
     try:
-        milestones.keep(run_name, steps)
+        milestones.check(run_name) if check else milestones.keep(run_name, steps)
     except (OSError, ValueError, KeyError, RuntimeError) as exc:
-        print(f"FAIL: keep {type(exc).__name__}: {exc}")
+        print(f"FAIL: {'check-milestones' if check else 'keep'} {type(exc).__name__}: {exc}")
         return 1
     return 0
 
@@ -374,6 +377,8 @@ def main(argv: list[str] | None = None) -> int:
         return _ckpt(args.command, args.run)
     elif args.command == "keep":
         return _keep(args.run, args.steps)
+    elif args.command == "check-milestones":
+        return _keep(args.run, None, check=True)
     elif args.command == "clean-run":
         return _clean_run(args.run)
     return 0

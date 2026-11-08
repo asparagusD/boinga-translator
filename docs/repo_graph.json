@@ -208,37 +208,17 @@
     {
       "kind": "notebook",
       "source": "notebooks/runs/C8_finetune_run1.ipynb",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C8_finetune_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
     {
       "kind": "notebook",
       "source": "notebooks/runs/C8_finetune_run1.ipynb",
       "target": "src/boinga_translator/paths.py"
-    },
-    {
-      "kind": "notebook",
-      "source": "notebooks/runs/C8_keep_run1.ipynb",
-      "target": "src/boinga_translator/colab_runtime.py"
-    },
-    {
-      "kind": "notebook",
-      "source": "notebooks/runs/C8_keep_run1.ipynb",
-      "target": "src/boinga_translator/milestones.py"
-    },
-    {
-      "kind": "notebook",
-      "source": "notebooks/runs/C8_keep_run1.ipynb",
-      "target": "src/boinga_translator/paths.py"
-    },
-    {
-      "kind": "notebook",
-      "source": "notebooks/runs/C8_keep_run1.ipynb",
-      "target": "src/boinga_translator/pretrained.py"
-    },
-    {
-      "kind": "notebook",
-      "source": "notebooks/runs/C8_keep_run1.ipynb",
-      "target": "src/boinga_translator/synth_basic.py"
     },
     {
       "kind": "notebook",
@@ -353,11 +333,6 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c8_finetune_run1.py",
-      "target": "tools/nbkit.py"
-    },
-    {
-      "kind": "import",
-      "source": "notebooks/specs/c8_keep_run1.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -649,6 +624,11 @@
       "kind": "import",
       "source": "src/boinga_translator/milestones.py",
       "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/milestones.py",
+      "target": "src/boinga_translator/train_runner.py"
     },
     {
       "kind": "config",
@@ -1694,7 +1674,7 @@
     },
     {
       "kind": "skill",
-      "lines": 26,
+      "lines": 27,
       "path": ".claude/skills/vits-finetune/SKILL.md",
       "purpose": "Coqui-TTS VITS fine-tuning specifics for boinga-translator."
     },
@@ -1772,7 +1752,7 @@
     },
     {
       "kind": "doc",
-      "lines": 717,
+      "lines": 723,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1856,15 +1836,9 @@
     },
     {
       "kind": "notebook",
-      "lines": 644,
+      "lines": 737,
       "path": "notebooks/runs/C8_finetune_run1.ipynb",
       "purpose": "C8 run 1 — C8 run 1 — fine-tune"
-    },
-    {
-      "kind": "notebook",
-      "lines": 523,
-      "path": "notebooks/runs/C8_keep_run1.ipynb",
-      "purpose": "C8 run 1 — C8 — keep run1 milestones"
     },
     {
       "kind": "notebook",
@@ -1946,15 +1920,9 @@
     },
     {
       "kind": "module",
-      "lines": 110,
+      "lines": 146,
       "path": "notebooks/specs/c8_finetune_run1.py",
-      "purpose": "Spec: C8 run 1, full fine-tune of run1 to its step budget, then sample, rank and listen."
-    },
-    {
-      "kind": "module",
-      "lines": 75,
-      "path": "notebooks/specs/c8_keep_run1.py",
-      "purpose": "Spec: C8.2c, keep model + config copies of run1's listened checkpoints on Drive (no training)."
+      "purpose": "Spec: C8 run 1, fine-tune run1 on the VM disk, sample, rank, keep on Drive and listen."
     },
     {
       "kind": "module",
@@ -2162,7 +2130,7 @@
     },
     {
       "kind": "module",
-      "lines": 383,
+      "lines": 388,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2198,7 +2166,7 @@
     },
     {
       "kind": "module",
-      "lines": 88,
+      "lines": 131,
       "path": "src/boinga_translator/milestones.py",
       "purpose": "Milestone copies: model weights + config of chosen run checkpoints, kept apart on Drive."
     },
@@ -2366,7 +2334,7 @@
     },
     {
       "kind": "test",
-      "lines": 97,
+      "lines": 125,
       "path": "tests/test_milestones.py",
       "purpose": "Tests for milestones.py and `boinga keep` (fake run folder, pickle instead of torch)."
     },
@@ -2498,7 +2466,7 @@
     },
     {
       "kind": "test",
-      "lines": 352,
+      "lines": 359,
       "path": "tests/test_train_run.py",
       "purpose": "Tests for train_runner.run() and `boinga train`: TrainerArgs, step stop, boinga_run.json (fakes)."
     },

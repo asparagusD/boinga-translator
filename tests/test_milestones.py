@@ -52,6 +52,7 @@ def test_keep_writes_model_only_copies(run: Path, capsys: pytest.CaptureFixture[
     meta = json.loads((out / "keep.json").read_text(encoding="utf-8"))
     assert meta["source"] == "checkpoint_800.pth" and meta["n_tensors"] == 2
     assert meta["source_folder"] == run.name
+    assert meta["bytes"] == (out / "model.pth").stat().st_size
     text = capsys.readouterr().out
     assert "step 800: kept" in text and "PASS: kept 2 milestones (0 already kept)" in text
     assert milestones.keep("run1", [800, 2000]) == 0  # idempotent
@@ -95,3 +96,30 @@ def test_cli(run: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert "PASS: kept 4 milestones (1 already kept)" in capsys.readouterr().out
     assert cli.main(["keep", "--run", "nope"]) == 1
     assert "FAIL: keep FileNotFoundError" in capsys.readouterr().out
+
+
+def test_keep_needs_drive_space(run: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(milestones.train_runner, "free_gb", lambda path: 0.0)
+    with pytest.raises(RuntimeError, match="free on Drive"):
+        milestones.keep("run1", [800])
+    assert not milestones.milestone_dir("run1", 800).exists()
+
+
+def test_check(run: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(FileNotFoundError, match="boinga keep"):
+        milestones.check("run1")
+    milestones.keep("run1", [800, 2000])
+    assert milestones.check("run1") == 2
+    assert "PASS: 2 milestones on Drive" in capsys.readouterr().out
+    (milestones.milestone_dir("run1", 2000) / "model.pth").write_bytes(b"short")  # lost upload
+    with pytest.raises(RuntimeError, match="step_2000"):
+        milestones.check("run1")
+    assert cli.main(["check-milestones", "--run", "run1"]) == 1
+    assert "FAIL: check-milestones RuntimeError" in capsys.readouterr().out
+
+
+def test_keep_refuses_another_runs_milestone(run: Path) -> None:
+    milestones.keep("run1", [800])
+    run.rename(run.with_name("run1-November-09-2026_09+00AM-def5678"))  # run1 retrained
+    with pytest.raises(RuntimeError, match="move it away"):
+        milestones.keep("run1", [800])

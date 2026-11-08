@@ -651,8 +651,14 @@ estimates, excluding the generated map/notebook and PROGRESS.
 - [x] C8.5a runs on the VM disk (local): paths.runs() -> fast()/runs, `boinga train` needs 20 GB
   free there, sampled audio tied to its run folder; DEBUG_LOG + DECISIONS "Runs train on the VM
   disk" (this commit)
-- [ ] C8.5b keep + checked upload inside the run-1 notebook (keep after candidates, flush and
-  remount Drive, check milestones); drop the separate keep notebook
+- [x] C8.5b keep + checked upload inside the run-1 notebook: spec
+  `notebooks/specs/c8_finetune_run1.py` gains C8.keep (`boinga keep --run run1`) and C8.flush
+  (`drive.flush_and_unmount` with a 20 min timeout, remount, `boinga check-milestones --run run1`) after C8.cand;
+  md text for VM-disk runs; `milestones.keep` refuses without Drive space, keep.json records
+  bytes, `milestones.check`, a step kept from another run folder is refused; MIN_FREE_GB 30; save_* reasons no longer say Drive; separate keep notebook
+  removed (this commit)
+- [ ] C8.5c check milestones through the Drive API (size + md5 recorded in keep.json), not
+  only through the mount (code-reviewer: the remounted mount may still show local copies)
 - [ ] C8.H3 / C8.V3 retrain run1 (same name and budget), listen again
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on
@@ -674,8 +680,8 @@ estimates, excluding the generated map/notebook and PROGRESS.
 - [x] C8.4 not needed (verdict "good")
 - [ ] follow-up: every training/eval text logs "Character '\n' not found in the vocabulary":
   find where the newline enters (manifest text or coqui test_sentences) and strip it
-- [ ] follow-up: coqui kept 15 best_model_<N>.pth in run1 (not only the newest): check why
-  (keep_all_best / Drive delete) before any further run fills Drive
+- [x] follow-up: coqui kept 15 best_model_<N>.pth in run1: `save_all_best: true` comes from the
+  pretrained config (by design); on the VM disk since C8.5a, so it costs no Drive space
 
 ### C7 follow-ups (from the whole-chunk review; for C8)
 - [x] `run()` / `boinga train` ignore `train_config.RUN_BUDGETS` (fixed in C8.1): without --max-steps a run

@@ -34,10 +34,10 @@ OVERRIDES: dict[str, tuple[Any, str]] = {
     "run_eval": (True, "val loss picks the best checkpoint, with listening (vits-finetune)"),
     "test_delay_epochs": (0, "test sentences from the first epoch: early sanity listening"),
     "print_step": (25, "step logs often enough to read sec/step in the smoke test"),
-    "save_step": (500, "a checkpoint every ~500 steps to Drive (vits-finetune)"),
-    "save_n_checkpoints": (2, "keep the last 2 (+ best): ~1 GB each, Drive budget"),
+    "save_step": (500, "a checkpoint every ~500 steps on the VM disk (vits-finetune)"),
+    "save_n_checkpoints": (2, "keep the last 2 (+ every best, save_all_best): ~1 GB each, VM disk"),
     "save_best_after": (1000, "no best checkpoint from the noisy first steps"),
-    "save_checkpoints": (True, "resume after a Colab disconnect needs them"),
+    "save_checkpoints": (True, "resume and the listened steps (milestones.keep) need them"),
     # coqui names the training seed "training_seed"; a "seed" key is silently ignored (C7 run 1)
     "training_seed": (settings.SEED, "the project seed (settings.SEED) for reproducible runs"),
     "epochs": (1000, "upper bound only; runs stop by a step budget (RUN_BUDGETS, C8)"),

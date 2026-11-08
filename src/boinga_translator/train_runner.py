@@ -20,7 +20,7 @@ import numpy as np
 from boinga_translator import env_report, paths, pretrained, train_config
 
 RUN_RECORD = "boinga_run.json"  # in paths.run_dir(name): one entry per training session
-MIN_FREE_GB = 20.0  # on the runs disk: 2 checkpoints + best (~1 GB each) and their rewrites
+MIN_FREE_GB = 30.0  # runs disk: 2 checkpoints + every best (save_all_best; run 1 ~18 GB)
 
 # Keyword arguments get_data_loader may take: 0.28 has config, *, is_eval, samples, verbose;
 # assets/num_gpus are older coqui names. Only those in the printed signature are passed.
@@ -182,7 +182,7 @@ def _ckpt_step(path: Path) -> int | None:
 def latest_run_folder(run_name: str) -> tuple[Path, int] | None:
     """(coqui run folder, step) holding the highest-step checkpoint_*.pth, or None.
 
-    Chosen by step, not mtime: Drive sync and copies change mtimes. Folders without a
+    Chosen by step, not mtime: syncs and copies change mtimes. Folders without a
     checkpoint (a failed attempt) are ignored. A step tie (a copied folder) goes to the larger
     folder name; either folder holds the same step.
     """
@@ -286,7 +286,7 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
                        end_utc=_utc(), peak_gpu_memory_gb=_peak_memory_gb())
         try:
             _save_record(run_dir, record)
-        except OSError as exc:  # never hide the training error behind a Drive hiccup
+        except OSError as exc:  # never hide the training error behind a disk hiccup
             print(f"WARN: could not update {run_dir / RUN_RECORD}: {exc}")
         if trainer is not None:
             trainer.dashboard_logger.finish()  # flush logs on success and on error
@@ -334,7 +334,7 @@ def clean_run(run_name: str) -> bool:
                            "run; delete it by hand if you really mean to")
     size = sum(f.stat().st_size for f in run_dir.rglob("*") if f.is_file())
     shutil.rmtree(run_dir)
-    if run_dir.exists():  # Drive FUSE can leave files behind without raising
+    if run_dir.exists():  # a FUSE mount can leave files behind without raising
         raise RuntimeError(f"{run_dir} still exists after deleting it: delete it by hand")
     print(f"PASS: cleaned run {run_name}: removed {run_dir} ({size / 1e9:.2f} GB)")
     return True

@@ -350,3 +350,10 @@ def test_new_run_needs_disk_space(fake: dict[str, Any], monkeypatch: pytest.Monk
     monkeypatch.setattr(train_runner, "free_gb", lambda path: 3.0)
     with pytest.raises(RuntimeError, match="only 3.0 GB free"):
         train_runner.run("run1", max_steps=10)
+
+
+def test_resume_needs_disk_space(fake: dict[str, Any], monkeypatch: pytest.MonkeyPatch) -> None:
+    train_runner.run("run1", max_steps=10)
+    monkeypatch.setattr(train_runner, "free_gb", lambda path: 3.0)
+    with pytest.raises(RuntimeError, match="only 3.0 GB free"):
+        train_runner.run("run1", max_steps=20)
