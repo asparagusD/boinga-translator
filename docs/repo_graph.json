@@ -2178,7 +2178,7 @@
     },
     {
       "kind": "doc",
-      "lines": 882,
+      "lines": 885,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2424,6 +2424,12 @@
     },
     {
       "kind": "doc",
+      "lines": 222,
+      "path": "reports/colab_runs/C10_eval_run2.md",
+      "purpose": "Colab run C10 run 2 — evaluation audio"
+    },
+    {
+      "kind": "doc",
       "lines": 168,
       "path": "reports/colab_runs/C1_pilot_run1.md",
       "purpose": "Colab run C1 run 1 — Pipeline pilot"
@@ -2519,6 +2525,12 @@
       "purpose": ""
     },
     {
+      "kind": "doc",
+      "lines": 9,
+      "path": "reports/eval_generation.md",
+      "purpose": "Evaluation audio"
+    },
+    {
       "kind": "config",
       "lines": 4,
       "path": "reports/notes/C1.10-notes.json",
@@ -2577,6 +2589,12 @@
       "lines": 123,
       "path": "reports/pretrained_inspect.md",
       "purpose": "Pretrained voices"
+    },
+    {
+      "kind": "doc",
+      "lines": 45,
+      "path": "reports/rater_instructions.md",
+      "purpose": "Rating instructions / রেটিং নির্দেশিকা"
     },
     {
       "kind": "doc",

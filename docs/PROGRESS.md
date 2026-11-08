@@ -851,8 +851,11 @@ map/notebook and PROGRESS.
   instructions (share blind/ view-only, a Google Sheets copy of rating_sheet.csv per rater)
   and save name `colab_runs/C10_eval_run2.ipynb` given. The user's C10.H1 text (build run 1,
   review prompts) was already done: run 1 verified in `97e9cee` (this commit)
-- [ ] C10.V2 verify run 2 (colab-verify): 60 wavs (40 voice + 20 R), key sha256 printed and
-  the key itself not printed, forms filled
+- [x] C10.V2 verify run 2 (colab-verify): 9/9 PASS at 05720c3 (built in 5a679fc), not
+  stale. C10.2: A=20 B=20 R=20 in 1:25 (4.29 s/prompt); mean duration A_baseline 3.59 s,
+  B_boinga 2.83 s, R_real 2.90 s; mean RMS -24.1 / -17.7 / -16.6 dBFS
+  (reports/eval_generation.md). C10.3: 40 blind clips, key sha256 printed, no voice name in
+  its output, reports/rater_instructions.md (this commit and the next)
 - [ ] (user) raters fill the sheet; user puts each as Drive `eval/c10/ratings/<rater>.csv`
 - [ ] C10.4 score ratings -> reports/eval.md (local + spec run 3): new module `eval_score.py`:
   validate sheets (20 rows, allowed values, known prompts), unblind with key.json (sha256
