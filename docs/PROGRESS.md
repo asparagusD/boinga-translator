@@ -635,7 +635,7 @@ estimates, excluding the generated map/notebook and PROGRESS.
   `tests/test_ckpt_sampler.py` (fake folders, log, synth) (this commit). Eval-block format
   ("--> EVAL PERFORMANCE", "| > avg_loss_mel:") not yet seen in a real log (C8.3 checks it).
   Milestone copies (C8 plan) not in this subchunk: C8.2c
-- [ ] C8.2c milestone copies: keep a model + config copy per sampled milestone on Drive (coqui
+- [x] C8.2c skipped (user, chat, at the C8 close): coqui kept a best_model_<N> at every improvement, so run1 sampled 17 steps and the chosen step 36500 is still on Drive. Planned scope was milestone copies: keep a model + config copy per sampled milestone on Drive (coqui
   keeps only the last 2 checkpoints + best), so any sampled step can be promoted
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on
