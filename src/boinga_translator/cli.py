@@ -13,6 +13,7 @@ from boinga_translator import (
     data_audit,
     data_download,
     env_report,
+    milestones,
     paths,
     prepare,
     pretrained,
@@ -80,6 +81,10 @@ def build_parser() -> argparse.ArgumentParser:
     cnd = sub.add_parser("candidates", help="rank a run's checkpoints by eval loss_mel into "
                                             "reports/candidates_<run>.md")
     cnd.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    kp = sub.add_parser("keep", help="copy model weights + config of checkpoints to Drive "
+                                      "milestones/<run>/ (default: the steps listened to)")
+    kp.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    kp.add_argument("--steps", type=int, nargs="+", help="steps to keep (default: 4 best + last)")
     cln = sub.add_parser("clean-run", help="delete a smoke run's folder on Drive for a fresh "
                                            "start (refuses runs past step 1000)")
     cln.add_argument("--run", required=True, help="run name (one folder under runs/)")
@@ -143,6 +148,16 @@ def _ckpt(command: str, run_name: str) -> int:
         (ckpt_sampler.sample if command == "sample" else ckpt_sampler.candidates)(run_name)
     except (OSError, ValueError, KeyError, RuntimeError) as exc:  # run/log/json/coqui load
         print(f"FAIL: {command} {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _keep(run_name: str, steps: list[int] | None) -> int:
+    """`boinga keep`; FAIL + exit 1 on a missing step, a bad copy or any error."""
+    try:
+        milestones.keep(run_name, steps)
+    except (OSError, ValueError, KeyError, RuntimeError) as exc:
+        print(f"FAIL: keep {type(exc).__name__}: {exc}")
         return 1
     return 0
 
@@ -357,6 +372,8 @@ def main(argv: list[str] | None = None) -> int:
         return _throughput(args.run)
     elif args.command in ("sample", "candidates"):
         return _ckpt(args.command, args.run)
+    elif args.command == "keep":
+        return _keep(args.run, args.steps)
     elif args.command == "clean-run":
         return _clean_run(args.run)
     return 0

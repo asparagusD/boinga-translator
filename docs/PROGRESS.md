@@ -635,8 +635,15 @@ estimates, excluding the generated map/notebook and PROGRESS.
   `tests/test_ckpt_sampler.py` (fake folders, log, synth) (this commit). Eval-block format
   ("--> EVAL PERFORMANCE", "| > avg_loss_mel:") not yet seen in a real log (C8.3 checks it).
   Milestone copies (C8 plan) not in this subchunk: C8.2c
-- [x] C8.2c skipped (user, chat, at the C8 close): coqui kept a best_model_<N> at every improvement, so run1 sampled 17 steps and the chosen step 36500 is still on Drive. Planned scope was milestone copies: keep a model + config copy per sampled milestone on Drive (coqui
-  keeps only the last 2 checkpoints + best), so any sampled step can be promoted
+- [x] C8.2c milestone copies (local; reopened after the C8 merge, user: "finish C8.2c, no
+  retraining"; the earlier skip in `72df4bd` is withdrawn): new module `milestones.py`:
+  `keep(run, steps=None)` copies the checkpoint minus optimizer/scaler + config of each step to
+  Drive `milestones/<run>/step_<N>/` (model.pth, config.json, keep.json written last), checks
+  the copy tensor by tensor, skips steps already kept; default steps = the ones the listening
+  form played (`ckpt_sampler.listened_steps`: 4 best by eval loss_mel + last);
+  `paths.milestones()`; `boinga keep --run NAME [--steps N ...]` (this commit)
+- [ ] C8.2c.H keep notebook for run1 (no training, CPU is enough): `boinga keep --run run1`
+- [ ] C8.2c.V verify the keep run (colab-verify)
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on
   `paths.run_dir('run1')`, optional), C8.train (`boinga train --run run1`, RUN_BUDGETS 36,500,

@@ -1028,3 +1028,24 @@ newest, which fills Drive (6.4 GB free at the start). The peak GPU memory (82.3 
 a sign of a leak. Every training and eval text logged "Character '\n' not found in the
 vocabulary. Discarding it.", so the texts carry a newline that coqui drops. Training is not
 affected, but the cause is a follow-up.
+
+## 2026-11-08 — Milestone copies: model weights + config per listened step
+**Context:** C8.2c, reopened after the C8 merge (user: finish C8.2c, no retraining). Coqui
+keeps only the last 2 checkpoint_<N>.pth (save_n_checkpoints 2), so a step the user listened
+to can be deleted by any later training of the run. Run1's chosen step 36500 had a single copy
+on Drive, in the run folder.
+**Decision:** `boinga keep --run NAME` copies, per step, the checkpoint without its training
+state (`optimizer` and `scaler` dropped; `model`, `step`, `epoch`, `config` etc. kept) to Drive `milestones/<run>/step_<N>/model.pth` with the run's
+config.json and a keep.json (source file and folder, tensor count, size) written last. Every
+copy is reloaded and compared tensor by tensor before it is accepted. The default steps are
+the ones the listening form played (4 best by eval loss_mel + the last); `--steps` picks
+others. Steps already kept are skipped, so the command is idempotent.
+**Alternatives:** Copying every sampled step (17 for run1): not the default; the full
+checkpoints are ~1 GB each and Drive space is short, while the listened 5 cover every step a
+decision was made on. Copying the full checkpoint: it keeps the optimizer state, which neither
+synthesis nor promotion needs, at about 3x the size. Making coqui keep more checkpoints
+(save_n_checkpoints): would need a new run name (a run's config is frozen) and retraining.
+**Consequences:** coqui's Synthesizer reads only `state["model"]`; keeping `step`/`epoch` is
+meant to let a copy also serve as a restore_path, which is not checked yet (C8.2c.V loads one
+copy through the Synthesizer). Run1 needs one CPU notebook run (C8.2c.H) to keep 36500, 36000,
+20451, 14436 (the listened steps). C9 promotes from `milestones/run1/step_36500/`.

@@ -493,6 +493,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/milestones.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -599,6 +604,21 @@
       "kind": "import",
       "source": "src/boinga_translator/env_report.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/milestones.py",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/milestones.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/milestones.py",
+      "target": "src/boinga_translator/pretrained.py"
     },
     {
       "kind": "config",
@@ -1094,6 +1114,26 @@
       "kind": "test",
       "source": "tests/test_inspect_layout.py",
       "target": "tools/inspect_layout.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_milestones.py",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_milestones.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_milestones.py",
+      "target": "src/boinga_translator/milestones.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_milestones.py",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "test",
@@ -1696,13 +1736,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1030,
+      "lines": 1051,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 700,
+      "lines": 707,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2074,13 +2114,13 @@
     },
     {
       "kind": "module",
-      "lines": 176,
+      "lines": 180,
       "path": "src/boinga_translator/ckpt_sampler.py",
       "purpose": "Checkpoint sampler: val prompts per training checkpoint, candidates ranked by eval loss."
     },
     {
       "kind": "module",
-      "lines": 366,
+      "lines": 383,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2116,7 +2156,13 @@
     },
     {
       "kind": "module",
-      "lines": 153,
+      "lines": 88,
+      "path": "src/boinga_translator/milestones.py",
+      "purpose": "Milestone copies: model weights + config of chosen run checkpoints, kept apart on Drive."
+    },
+    {
+      "kind": "module",
+      "lines": 158,
       "path": "src/boinga_translator/paths.py",
       "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
     },
@@ -2275,6 +2321,12 @@
       "lines": 214,
       "path": "tests/test_inspect_layout.py",
       "purpose": "Tests for tools/inspect_layout.py: tree counts, table heads, wav headers, metadata values, cap."
+    },
+    {
+      "kind": "test",
+      "lines": 97,
+      "path": "tests/test_milestones.py",
+      "purpose": "Tests for milestones.py and `boinga keep` (fake run folder, pickle instead of torch)."
     },
     {
       "kind": "test",

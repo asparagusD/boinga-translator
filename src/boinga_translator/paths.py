@@ -115,6 +115,11 @@ def best_ckpt() -> Path:
     return root() / "best"
 
 
+def milestones() -> Path:
+    """Model + config copies of chosen checkpoints (milestones.keep), safe from coqui's cleanup."""
+    return root() / "milestones"
+
+
 def eval_dir() -> Path:
     return root() / "eval"
 
@@ -135,7 +140,7 @@ def all_dirs() -> list[Path]:
     """Every directory ensure_dirs() creates."""
     return [
         data_raw(), data_unzipped(), data_fast(), data_prepared(), prepared_backup(),
-        pretrained(), runs(), best_ckpt(), eval_dir(), drive_reports(),
+        pretrained(), runs(), best_ckpt(), milestones(), eval_dir(), drive_reports(),
         reports_dir(), configs_dir(),
     ]
 

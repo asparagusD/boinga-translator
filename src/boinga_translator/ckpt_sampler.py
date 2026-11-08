@@ -159,17 +159,21 @@ def candidates(run_name: str) -> list[dict[str, Any]]:
     return rows
 
 
+def listened_steps(run_name: str) -> list[int]:
+    """Steps the listening form covers: the N_BEST best by eval loss_mel, then the last."""
+    rows = _rows(run_name)
+    ranked = [r["step"] for r in rows if r["loss_mel"] is not None][:N_BEST]
+    last = max((r["step"] for r in rows), default=None)
+    return list(dict.fromkeys([*ranked, *([last] if last is not None else [])]))
+
+
 def players(run_name: str, steps: list[int] | None = None) -> list[tuple[str, str]]:
     """(wav, label) pairs by step for colab_runtime.play: default pretrained, 4 best, last."""
     root, texts = paths.eval_dir() / run_name, _texts()
     if steps is None:
-        rows = _rows(run_name)
-        ranked = [r["step"] for r in rows if r["loss_mel"] is not None][:N_BEST]
-        last = max((r["step"] for r in rows), default=None)
         groups: list[tuple[Path, str]] = [(root / PRETRAINED_DIR,
                                            f"pretrained {train_config.base_voice()}")]
-        groups += [(root / f"step_{s}", f"step {s}")
-                   for s in dict.fromkeys([*ranked, *([last] if last is not None else [])])]
+        groups += [(root / f"step_{s}", f"step {s}") for s in listened_steps(run_name)]
     else:
         groups = [(root / f"step_{s}", f"step {s}") for s in steps]
     return [(str(d / f"{i}.wav"), f"{label} #{i}: {t}")
