@@ -56,6 +56,8 @@ def build_parser() -> argparse.ArgumentParser:
                                          "real clips to Drive eval/final/ (resumable)")
     sub.add_parser("eval-sheet", help="blind clip1/clip2 copies, hidden key and an empty rating "
                                       "sheet in Drive eval/final/blind/")
+    sub.add_parser("eval-score", help="unblind the filled rating sheets in Drive eval/final/ratings/ "
+                                      "into reports/eval.md")
     sub.add_parser("embed-speakers",
                    help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
     sub.add_parser("cluster-speakers",
@@ -300,6 +302,17 @@ def _eval_sheet() -> int:
     return 0
 
 
+def _eval_score() -> int:
+    """Score the rating sheets into reports/eval.md; FAIL + exit 1 on error."""
+    try:
+        raters = evaluate.score()
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: eval-score: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: scored {raters} raters")
+    return 0
+
+
 def _embed_speakers() -> int:
     """One speaker embedding per clean clip of the Drive audit.csv; FAIL + exit 1 on error."""
     try:
@@ -446,6 +459,8 @@ def main(argv: list[str] | None = None) -> int:
         return _eval_generate()
     elif args.command == "eval-sheet":
         return _eval_sheet()
+    elif args.command == "eval-score":
+        return _eval_score()
     elif args.command == "embed-speakers":
         return _embed_speakers()
     elif args.command == "cluster-speakers":

@@ -1,9 +1,10 @@
-"""Blind A/B evaluation (C10): 20 held-out, dialect-heavy prompts for the listening test."""
+"""Blind A/B evaluation (C10): held-out prompts, A/B/R audio, blind rating sheet, scoring."""
 
 from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -375,3 +376,97 @@ def make_rating_sheet(seed: int = settings.SEED) -> int:
     report_io.emit(repo_path, INSTRUCTIONS_REL)
     print(f"blind clips in {blind}; key sha256 {hashlib.sha256(key_text.encode()).hexdigest()}")
     return len(sheet_df)
+
+
+# --- C10.4: scoring --------------------------------------------------------------------------
+
+CRITERIA = ["intelligibility", "naturalness", "dialect_authenticity", "dialect_words"]
+EVAL_REL = "reports/eval.md"
+_SCORE = re.compile(r"^[1-5]$")
+LIMITATIONS = """\
+## Limitations
+
+- Informal panel of {n} rater(s), not a formal MOS test; no significance testing, so small
+  differences between A and B may be noise.
+- One target voice (fine-tuned on the corpus's mixed clean clips): this measures unseen
+  sentences in a known voice, not new speakers.
+- The base voice (tts_models/bn/custom/vits-male) was trained on Indian Bengali data; its
+  accent can colour both A and B.
+- The model reads graphemes (Bengali script, NFC + char map), not phonemes, so spelling
+  variation in the dialect text reaches the model directly.
+- ASR word error rate (WER) is not used: standard-Bangla ASR penalises correct Chittagonian forms.
+"""
+
+
+def ratings_dir() -> Path:
+    """Drive folder of the filled rating sheets, one <rater>.csv per rater."""
+    return final_dir() / "ratings"
+
+
+def _read_sheets(key: pd.DataFrame) -> pd.DataFrame:
+    """All rating sheets, checked against the key; raises with every bad cell listed."""
+    files = sorted(ratings_dir().glob("*.csv"))
+    if not files:
+        raise FileNotFoundError(f"no rating sheets (*.csv) in {ratings_dir()}")
+    want = set(zip(key["prompt_id"], key["clip"], strict=True))
+    frames, bad = [], []
+    for i, f in enumerate(files, 1):
+        df = pd.read_csv(f, dtype=str, keep_default_na=False)
+        need = ["prompt_id", "clip", *CRITERIA, "comments"]
+        if missing_cols := [c for c in need if c not in df]:
+            raise ValueError(f"{f.name}: missing columns {missing_cols}")
+        df = df.assign(prompt_id=df["prompt_id"].str.strip(), clip=df["clip"].str.strip())
+        have = list(zip(df["prompt_id"], df["clip"], strict=True))
+        if dups := sorted({f"{p} {c}" for p, c in have if have.count((p, c)) > 1}):
+            raise ValueError(f"{f.name}: duplicate rows {dups}")
+        if extra := sorted({f"{p} {c}" for p, c in have if (p, c) not in want}):
+            raise ValueError(f"{f.name}: rows {extra} are not in the key")
+        if missing := sorted(f"{p} {c}" for p, c in want - set(have)):
+            raise ValueError(f"{f.name}: missing rows {missing}")
+        for row, r in df.iterrows():
+            bad += [f"{f.name} row {int(row) + 2} {c}: {r[c]!r}" for c in CRITERIA
+                    if not _SCORE.match(r[c].strip())]
+        frames.append(df.assign(rater=f"R{i}"))
+    if bad:
+        raise ValueError(f"{len(bad)} bad cell(s); scores must be whole numbers 1-5, fix the "
+                         "sheet(s):\n" + "\n".join(bad))
+    out = pd.concat(frames, ignore_index=True)
+    return out.astype({c: int for c in CRITERIA})
+
+
+def score() -> int:
+    """Unblind the rating sheets with final/key.csv and write + emit reports/eval.md.
+
+    Returns the number of raters. Raters appear as R1..Rn (sheets sorted by file name).
+    """
+    key = pd.read_csv(final_dir() / "key.csv", dtype=str)
+    df = _read_sheets(key).merge(key[["prompt_id", "clip", "set"]], on=["prompt_id", "clip"])
+    df["overall"] = df[CRITERIA].mean(axis=1)
+    raters = sorted(df["rater"].unique(), key=lambda r: int(r[1:]))
+    lines = ["# Blind listening test", "",
+             (f"{len(raters)} raters ({', '.join(raters)}), {df['prompt_id'].nunique()} prompts, "
+             f"{len(df)} ratings. A_baseline = pretrained Bangla voice, B_boinga = fine-tuned "
+             "voice (Drive best/). Scores 1-5; mean ± sd over all ratings."), "",
+             "| criterion | A_baseline | B_boinga | B − A |", "|---|---|---|---|"]
+    for c in [*CRITERIA, "overall"]:
+        a, b = (df.loc[df["set"] == s, c] for s in VOICE_SETS)
+        lines.append(f"| {c} | {a.mean():.2f} ± {a.std():.2f} | {b.mean():.2f} ± "
+                     f"{b.std():.2f} | {b.mean() - a.mean():+.2f} |")
+    wide = df.pivot_table(index=["prompt_id", "rater"], columns="set", values="overall")
+    wide["win"] = np.sign(wide["B_boinga"] - wide["A_baseline"]) / 2 + 0.5
+    per = wide.groupby(level="prompt_id").mean()
+    lines += ["", "## Per prompt", "",
+              ("Mean of the 4 criteria; B win rate = share of raters scoring B above A (tie = "
+              "0.5)."), "", "| prompt | A_baseline | B_boinga | B win rate |", "|---|---|---|---|"]
+    lines += [f"| {p} | {r.A_baseline:.2f} | {r.B_boinga:.2f} | {r.win:.2f} |"
+              for p, r in per.iterrows()]
+    lines += ["", f"B_boinga win rate over prompts: {per['win'].mean():.2f}", "", "## Comments"]
+    for s in VOICE_SETS:
+        notes = df[(df["set"] == s) & (df["comments"].str.strip() != "")]
+        lines += ["", f"### {s}", ""]
+        lines += [f"- {r.prompt_id} ({r.rater}): {' '.join(r.comments.split())}"
+                  for r in notes.itertuples()] or ["(none)"]
+    text = "\n".join(lines) + "\n\n" + LIMITATIONS.format(n=len(raters))
+    repo_path, _ = report_io.write_report(text, EVAL_REL)
+    report_io.emit(repo_path, EVAL_REL)
+    return len(raters)

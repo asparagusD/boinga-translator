@@ -37,6 +37,16 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run3.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run3.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
@@ -298,6 +308,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c10_eval_run2.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c10_eval_run3.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -1382,6 +1397,21 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_evaluate_score.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_score.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_score.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_evaluate_sheet.py",
       "target": "src/boinga_translator/cli.py"
     },
@@ -2178,7 +2208,7 @@
     },
     {
       "kind": "doc",
-      "lines": 885,
+      "lines": 889,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2199,6 +2229,12 @@
       "lines": 473,
       "path": "notebooks/runs/C10_eval_run2.ipynb",
       "purpose": "C10 run 2 — evaluation audio"
+    },
+    {
+      "kind": "notebook",
+      "lines": 348,
+      "path": "notebooks/runs/C10_eval_run3.ipynb",
+      "purpose": "C10 run 3 — scoring"
     },
     {
       "kind": "notebook",
@@ -2301,6 +2337,12 @@
       "lines": 70,
       "path": "notebooks/specs/c10_eval_run2.py",
       "purpose": "Spec: C10 run 2, blind A/B evaluation: baseline, fine-tuned and real audio for the 20 prompts."
+    },
+    {
+      "kind": "module",
+      "lines": 31,
+      "path": "notebooks/specs/c10_eval_run3.py",
+      "purpose": "Spec: C10 run 3, blind A/B evaluation: unblind the filled rating sheets into reports/eval.md."
     },
     {
       "kind": "module",
@@ -2640,7 +2682,7 @@
     },
     {
       "kind": "module",
-      "lines": 485,
+      "lines": 500,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2682,9 +2724,9 @@
     },
     {
       "kind": "module",
-      "lines": 377,
+      "lines": 472,
       "path": "src/boinga_translator/evaluate.py",
-      "purpose": "Blind A/B evaluation (C10): 20 held-out, dialect-heavy prompts for the listening test."
+      "purpose": "Blind A/B evaluation (C10): held-out prompts, A/B/R audio, blind rating sheet, scoring."
     },
     {
       "kind": "module",
@@ -2871,6 +2913,12 @@
       "lines": 155,
       "path": "tests/test_evaluate_prompts.py",
       "purpose": "Tests for evaluate.pick_prompts and `boinga pick-eval-prompts`: 20 test clips, no leaks, ids."
+    },
+    {
+      "kind": "test",
+      "lines": 112,
+      "path": "tests/test_evaluate_score.py",
+      "purpose": "Tests for evaluate.score and `boinga eval-score`: validation, unblinding and reports/eval.md."
     },
     {
       "kind": "test",

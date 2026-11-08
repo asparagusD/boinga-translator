@@ -857,13 +857,17 @@ map/notebook and PROGRESS.
   (reports/eval_generation.md). C10.3: 40 blind clips, key sha256 printed, no voice name in
   its output, reports/rater_instructions.md (this commit and the next)
 - [ ] (user) raters fill the sheet; user puts each as Drive `eval/c10/ratings/<rater>.csv`
-- [ ] C10.4 score ratings -> reports/eval.md (local + spec run 3): new module `eval_score.py`:
-  validate sheets (20 rows, allowed values, known prompts), unblind with key.json (sha256
-  must match run 2), raters anonymised R1..Rn; boinga/baseline/same counts, win rate, exact
-  two-sided sign test; mean intelligibility per voice with seeded bootstrap 95% CI and paired
-  difference; per-rater and per-prompt tables; reports/eval.md + reports/eval.json emitted.
-  `boinga eval-score`. Run 3 spec cells C10.pre, C10.4; form C10-eval-notes. Tests
-  `tests/test_eval_score.py` (synthetic sheets) (~140 lines)
+- [x] C10.4 code (local + spec run 3): `evaluate.score()`: reads every Drive
+  `eval/final/ratings/*.csv`, checks each covers exactly the 40 key rows and every score
+  is a whole number 1-5 (bad cells listed by file, spreadsheet row and column; nothing is
+  guessed or scored), unblinds with final/key.csv, raters anonymised R1..Rn (sheets sorted
+  by file name); reports/eval.md: mean ± sd per criterion (+ overall) A vs B, per-prompt
+  mean of the 4 criteria and B win rate (share of raters scoring B above A, tie 0.5), all
+  comments by set, Limitations (user's list); emitted; `boinga eval-score` ("PASS: scored N
+  raters"). New spec `notebooks/specs/c10_eval_run3.py` (CPU, cell C10.4), not
+  c10_eval_run2.py, which already holds the executed audio + sheet run. User's design
+  replaces the planned sign test / bootstrap / eval.json. Tests `tests/test_evaluate_score.py`
+  (this commit)
 - [ ] C10.5 optional MCD (local + spec run 3): new module `eval_mcd.py`: MCD with DTW
   (librosa MFCC 1-13, `librosa.sequence.dtw`) of each voice vs R per prompt;
   reports/eval_mcd.json, read by eval.md when present. Placed before C10.4 in run 3, and
