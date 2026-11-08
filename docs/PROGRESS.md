@@ -754,7 +754,10 @@ non-test estimates, excluding the generated map/notebook and PROGRESS.
   the play cell (one call). Spec cells C9.pre (restore prepared data: the manifest is on the VM disk), C9.3,
   C9.3.play, form C9-notes (INTELLIGIBLE, NOTES). Tests `tests/test_reload_check.py` (this
   commit)
-- [ ] C9.H hand-off C9 notebook (GPU runtime)
+- [x] C9.H hand-off C9 run 1: `notebooks/runs/C9_synth-best_run1.ipynb` rebuilt, unchanged
+  since `a985044`, `--all --check` clean, pushed; link, runtime (user: T4), a few minutes
+  (not measured; C9.pre restores the prepared data first), form C9-notes and save name
+  `colab_runs/C9_synth-best_run1.ipynb` given (this commit)
 - [ ] C9.V verify the C9 run (colab-verify)
 - [ ] C9.4 Gate G6 — promoted model (DECISIONS)
 
