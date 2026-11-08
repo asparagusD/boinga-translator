@@ -758,7 +758,11 @@ non-test estimates, excluding the generated map/notebook and PROGRESS.
   since `a985044`, `--all --check` clean, pushed; link, runtime (user: T4), a few minutes
   (not measured; C9.pre restores the prepared data first), form C9-notes and save name
   `colab_runs/C9_synth-best_run1.ipynb` given (this commit)
-- [ ] C9.V verify the C9 run (colab-verify)
+- [x] C9.V verify C9 run 1 (colab-verify): 10/10 PASS at dcb26e5 (built in a985044), not stale,
+  RTX PRO 6000 (user asked T4). C9.2: replaces nothing, 998 MB copied in 13 s, md5
+  66970fd5..., provenance in reports/best_provenance.json (`42dd33e`). C9.3: 3 wavs 2.94 /
+  5.23 / 2.71 s at -17.3 / -18.4 / -21.7 dBFS, "PASS: reload check (3 wavs)"; C9-notes
+  INTELLIGIBLE "yes", NOTES "none" (this commit)
 - [ ] C9.4 Gate G6 — promoted model (DECISIONS)
 
 ## C10
