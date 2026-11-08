@@ -816,9 +816,11 @@ map/notebook and PROGRESS.
 - [x] C10.1b fix (user: "All 20 from our test"): P01-P20 all from our test split,
   has_reference true; clusters and the selection no longer read; spec md updated; tests
   `tests/test_evaluate_prompts.py` (this commit)
-- [ ] C10.V1 verify run 1 (colab-verify, re-run after C10.1b): 20 prompts, configs/eval_prompts.json committed to
-  the branch (run 2's checkout reads it), form
-  C10.1-notes filled (REVIEWED_BY, IDS_TO_REPLACE, NOTES)
+- [x] C10.V1 verify run 1 (colab-verify, re-run after C10.1b): 9/9 PASS at b9d78c1 (built in
+  b9d78c1), not stale, CPU. 20 prompts P01-P20 (5-11 words, all has_reference) in
+  configs/eval_prompts.json; C10.1-notes: REVIEWED_BY "Me", IDS_TO_REPLACE "None" (no
+  replacements; run 2 needs no `--exclude`), NOTES "All okay" (this commit). P08 (clip 29)
+  and P10 (clip 6) are C9 reload-check clips the user has heard before
 - [ ] C10.2 generate A/B/R (local + spec): `evaluate.generate()`: VoiceBank "baseline" and
   "boinga" speak each prompt (seeded); R = the prepared test wav; all three at the model rate,
   loudness-matched to one RMS target (DECISIONS). Writes Drive `eval/c10/gen/<clip_id>/

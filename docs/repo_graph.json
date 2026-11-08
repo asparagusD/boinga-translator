@@ -266,6 +266,11 @@
       "target": "src/boinga_translator/synth.py"
     },
     {
+      "kind": "config",
+      "source": "notebooks/specs/c10_eval_run1.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c10_eval_run1.py",
       "target": "tools/nbkit.py"
@@ -488,6 +493,11 @@
     {
       "kind": "config",
       "source": "src/boinga_translator/cli.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/cli.py",
       "target": "configs/speaker_selection.json"
     },
     {
@@ -669,6 +679,11 @@
       "kind": "import",
       "source": "src/boinga_translator/env_report.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "configs/eval_prompts.json"
     },
     {
       "kind": "import",
@@ -1294,6 +1309,11 @@
       "kind": "test",
       "source": "tests/test_env_report.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_evaluate_prompts.py",
+      "target": "configs/eval_prompts.json"
     },
     {
       "kind": "test",
@@ -2051,6 +2071,12 @@
     },
     {
       "kind": "config",
+      "lines": 142,
+      "path": "configs/eval_prompts.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
       "lines": 42,
       "path": "configs/pretrained_facts.json",
       "purpose": ""
@@ -2087,7 +2113,7 @@
     },
     {
       "kind": "doc",
-      "lines": 866,
+      "lines": 868,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2315,6 +2341,12 @@
     },
     {
       "kind": "doc",
+      "lines": 374,
+      "path": "reports/colab_runs/C10_eval_run1.md",
+      "purpose": "Colab run C10 run 1 — prompt review"
+    },
+    {
+      "kind": "doc",
       "lines": 168,
       "path": "reports/colab_runs/C1_pilot_run1.md",
       "purpose": "Colab run C1 run 1 — Pipeline pilot"
@@ -2413,6 +2445,12 @@
       "kind": "config",
       "lines": 4,
       "path": "reports/notes/C1.10-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 5,
+      "path": "reports/notes/C10.1-notes.json",
       "purpose": ""
     },
     {
