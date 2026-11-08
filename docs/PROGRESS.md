@@ -868,6 +868,16 @@ map/notebook and PROGRESS.
   c10_eval_run2.py, which already holds the executed audio + sheet run. User's design
   replaces the planned sign test / bootstrap / eval.json. Tests `tests/test_evaluate_score.py`
   (this commit)
+- [x] C10.4b interactive rating (user, chat: no rater panel, "Rate the 40 blind clips
+  yourself", "build a notebook where I can rate interactively"): new module `rating_app.py`:
+  `load_or_start(rater)` (resume ratings/<rater>.csv, else a copy of blind/rating_sheet.csv),
+  `record` (four scores 1-5 only, comment whitespace collapsed), `progress`, `next_prompt`,
+  `save` (atomic), `check` (PASS only when every clip has four scores), `rate(rater)`
+  (ipywidgets screen: sentence, clip1/clip2 players, 1-5 buttons, comment, Previous / Save &
+  next, saved to Drive after each prompt; no voice names shown). Run-3 spec: C10.R,
+  C10.R.check, then C10.4; title "rating and scoring". DECISIONS "C10 self-rating". Tests
+  `tests/test_rating_app.py` (widget test needs ipywidgets: skipped locally, passed with a
+  scratch install) (this commit)
 - [ ] C10.5 optional MCD (local + spec run 3): new module `eval_mcd.py`: MCD with DTW
   (librosa MFCC 1-13, `librosa.sequence.dtw`) of each voice vs R per prompt;
   reports/eval_mcd.json, read by eval.md when present. Placed before C10.4 in run 3, and

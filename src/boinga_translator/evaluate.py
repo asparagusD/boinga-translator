@@ -351,9 +351,11 @@ def make_rating_sheet(seed: int = settings.SEED) -> int:
     key_text = key_df.to_csv(index=False, lineterminator="\n")
     order = ["prompt_id", "clip", "set"]  # not the source paths: a new Drive mount may move them
     same = key_csv.is_file() and pd.read_csv(key_csv, dtype=str)[order].equals(key_df[order])
-    if edited and not same:
-        raise ValueError(f"{sheet_csv} has ratings in it and a different seed would change "
-                         "the clip order under them: move the sheet away before reshuffling")
+    rated = edited or any(ratings_dir().glob("*.csv"))
+    if rated and not same:
+        raise ValueError("ratings exist (blind/rating_sheet.csv edited or ratings/*.csv) and a "
+                         "different seed would change the clip order under them: move them "
+                         "away before reshuffling")
     blind.mkdir(parents=True, exist_ok=True)
     for k in tqdm(key, desc="blind clips", unit="wav"):
         what = f"{k['prompt_id']} {k['clip']}"  # never the set name: errors must not unblind

@@ -47,6 +47,11 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run3.ipynb",
+      "target": "src/boinga_translator/rating_app.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
@@ -862,6 +867,16 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/rating_app.py",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/rating_app.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/report_io.py",
       "target": "src/boinga_translator/paths.py"
     },
@@ -1622,6 +1637,21 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_rating_app.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_rating_app.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_rating_app.py",
+      "target": "src/boinga_translator/rating_app.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_read_colab_run.py",
       "target": "tools/build_notebook.py"
     },
@@ -2202,13 +2232,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1193,
+      "lines": 1207,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 889,
+      "lines": 899,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2232,9 +2262,9 @@
     },
     {
       "kind": "notebook",
-      "lines": 348,
+      "lines": 430,
       "path": "notebooks/runs/C10_eval_run3.ipynb",
-      "purpose": "C10 run 3 — scoring"
+      "purpose": "C10 run 3 — rating and scoring"
     },
     {
       "kind": "notebook",
@@ -2340,9 +2370,9 @@
     },
     {
       "kind": "module",
-      "lines": 31,
+      "lines": 60,
       "path": "notebooks/specs/c10_eval_run3.py",
-      "purpose": "Spec: C10 run 3, blind A/B evaluation: unblind the filled rating sheets into reports/eval.md."
+      "purpose": "Spec: C10 run 3, blind A/B evaluation: rate the blind clips here, then score into eval.md."
     },
     {
       "kind": "module",
@@ -2724,7 +2754,7 @@
     },
     {
       "kind": "module",
-      "lines": 472,
+      "lines": 474,
       "path": "src/boinga_translator/evaluate.py",
       "purpose": "Blind A/B evaluation (C10): held-out prompts, A/B/R audio, blind rating sheet, scoring."
     },
@@ -2751,6 +2781,12 @@
       "lines": 260,
       "path": "src/boinga_translator/pretrained.py",
       "purpose": "Pretrained Bangla VITS voices: cache model.pth + config.json on Drive and report their facts."
+    },
+    {
+      "kind": "module",
+      "lines": 173,
+      "path": "src/boinga_translator/rating_app.py",
+      "purpose": "Interactive blind rating in Colab: play clip1/clip2, score 1-5, save the sheet to Drive."
     },
     {
       "kind": "module",
@@ -2922,7 +2958,7 @@
     },
     {
       "kind": "test",
-      "lines": 118,
+      "lines": 124,
       "path": "tests/test_evaluate_sheet.py",
       "purpose": "Tests for evaluate.make_rating_sheet and `boinga eval-sheet`: blind clips, hidden key, sheet."
     },
@@ -2991,6 +3027,12 @@
       "lines": 158,
       "path": "tests/test_promote.py",
       "purpose": "Tests for train_runner.promote and `boinga promote` (fake checkpoints on a fake Drive)."
+    },
+    {
+      "kind": "test",
+      "lines": 104,
+      "path": "tests/test_rating_app.py",
+      "purpose": "Tests for rating_app: start/resume a rater's sheet, record scores, progress, check (no widgets)."
     },
     {
       "kind": "test",

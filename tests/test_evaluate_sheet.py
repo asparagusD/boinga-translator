@@ -101,6 +101,12 @@ def test_filled_sheet_is_never_overwritten(tmp_path: Path, monkeypatch: pytest.M
     assert "WARN: kept the edited" in capsys.readouterr().out
     with pytest.raises(ValueError, match="a different seed"):
         evaluate.make_rating_sheet(seed=8)  # would reshuffle clips under a filled sheet
+    sheet.write_text(sheet.read_text(encoding="utf-8").replace(",4,4,3,3,", ",,,,,", 1),
+                     encoding="utf-8")  # blind sheet clean again, but a rater file exists
+    evaluate.ratings_dir().mkdir(parents=True)
+    (evaluate.ratings_dir() / "me.csv").write_text("x\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="ratings exist"):
+        evaluate.make_rating_sheet(seed=8)
 
 
 def test_missing_audio_and_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch,

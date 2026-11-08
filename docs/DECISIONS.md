@@ -1191,3 +1191,17 @@ Drive, so anyone who looks can unblind; error messages name only the prompt and 
 reference clip (useful for dialect scores, but not in the user's sheet design; can be added
 for a second round).
 
+## 2026-11-09 — C10 self-rating
+**Context:** C10.4 scores a rater panel's sheets, but the user works alone and has no
+raters ("There are no raters and I am building as one man").
+**Decision:** The user rates the 40 blind clips themself on an interactive Colab screen
+(`rating_app.rate`, run-3 notebook), which saves Drive eval/final/ratings/me.csv in the
+rating-sheet format; `boinga eval-score` then reports one rater (R1). Other raters' sheets
+can still be added to ratings/ later.
+**Consequences:** One rater, who built the model and heard P01-P03 labelled in run 2
+(C10.2.play), so the test is only partly blind and has no inter-rater agreement; eval.md's
+Limitations already says "informal panel of 1 rater(s)". Results are a sanity check, not
+evidence of quality.
+**Alternatives:** Skip the listening test and rely on G6 plus the C10.2 pace numbers;
+recruit raters (not available).
+
