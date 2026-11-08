@@ -2215,6 +2215,12 @@
       "purpose": "Corpus audit summary"
     },
     {
+      "kind": "config",
+      "lines": 38,
+      "path": "reports/best_provenance.json",
+      "purpose": ""
+    },
+    {
       "kind": "doc",
       "lines": 10,
       "path": "reports/candidates_run1.md",
@@ -2300,6 +2306,12 @@
     },
     {
       "kind": "doc",
+      "lines": 254,
+      "path": "reports/colab_runs/C9_synth-best_run1.md",
+      "purpose": "Colab run C9 run 1 — C9 — best checkpoint"
+    },
+    {
+      "kind": "doc",
       "lines": 29,
       "path": "reports/config_overrides.md",
       "purpose": "Fine-tune config overrides"
@@ -2344,6 +2356,12 @@
       "kind": "config",
       "lines": 8,
       "path": "reports/notes/C8-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 4,
+      "path": "reports/notes/C9-notes.json",
       "purpose": ""
     },
     {
