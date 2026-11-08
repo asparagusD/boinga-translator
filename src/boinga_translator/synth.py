@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,7 @@ import numpy as np
 from boinga_translator import paths, pretrained, settings, synth_basic, text_frontend, train_config
 
 Loader = Callable[[Path, Path], Any]  # (model.pth, config.json) -> coqui-like Synthesizer
+RELOAD_LIST = "reload_check.json"  # tools/reload_check.py: wav, clip_id, text, seconds, dbfs
 
 
 def default_voices() -> dict[str, Path]:
@@ -72,3 +74,15 @@ class VoiceBank:
         out.parent.mkdir(parents=True, exist_ok=True)
         self._synth(voice).save_wav(wav, str(out))
         return wav.size / rate
+
+
+def reload_dir() -> Path:
+    """Drive folder of the reload-check wavs (tools/reload_check.py, C9.3)."""
+    return paths.eval_dir() / "reload_check"
+
+
+def reload_players() -> tuple[list[str], list[str]]:
+    """(wav paths, labels) of the last reload check, for colab_runtime.play."""
+    rows = json.loads((reload_dir() / RELOAD_LIST).read_text(encoding="utf-8"))
+    return ([str(r["wav"]) for r in rows],
+            [f"#{i} {r['clip_id']}: {r['text']}" for i, r in enumerate(rows)])

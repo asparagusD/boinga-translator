@@ -743,14 +743,17 @@ non-test estimates, excluding the generated map/notebook and PROGRESS.
   char map digest, seed, inference scales, git commit, UTC date), emits
   reports/best_provenance.json, "PASS: promoted <run> step <N>"; `boinga promote --run NAME
   --step N`. Spec `notebooks/specs/c9_synth_best.py` cell C9.2 (`!boinga promote --run run1
-  --step 36500`; slug `synth-best`, nbkit refuses `_`). Tests `tests/test_promote.py` (this
-  commit)
+  --step 36500`; slug `synth-best`, nbkit refuses `_`). Tests `tests/test_promote.py`
+  (`1c3bd15`)
 - [ ] optional: check best/ on Drive through the Drive API (size + md5 vs provenance.json),
   as run_check does for checkpoints (planned C9.2b, not in the user's C9.2)
-- [ ] C9.3 tools/reload_check.py + cell: fresh process loads `best` through VoiceBank only,
-  speaks the 5 test sentences + 3 dialect prompts, checks non-silent / finite / plausible
-  length, emits reports/reload_check.md; spec cells C9.reload, C9.play, form C9-notes. Tests
-  `tests/test_reload_check.py` (~110 lines)
+- [x] C9.3 code: `tools/reload_check.py` (own process): VoiceBank "boinga" speaks the first
+  3 rows of metadata_test.csv into `paths.eval_dir()/reload_check/` (+ reload_check.json for
+  the play cell); "PASS: reload check" if every wav > 0.5 s and RMS > -50 dBFS (and finite),
+  else FAIL; a stale list is removed first. `synth.reload_dir()` / `synth.reload_players()` feed
+  the play cell (one call). Spec cells C9.pre (restore prepared data: the manifest is on the VM disk), C9.3,
+  C9.3.play, form C9-notes (INTELLIGIBLE, NOTES). Tests `tests/test_reload_check.py` (this
+  commit)
 - [ ] C9.H hand-off C9 notebook (GPU runtime)
 - [ ] C9.V verify the C9 run (colab-verify)
 - [ ] C9.4 Gate G6 — promoted model (DECISIONS)

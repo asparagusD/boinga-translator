@@ -246,6 +246,11 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C9_synth-best_run1.ipynb",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -1436,6 +1441,26 @@
       "target": "tools/read_colab_run.py"
     },
     {
+      "kind": "test",
+      "source": "tests/test_reload_check.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_reload_check.py",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_reload_check.py",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_reload_check.py",
+      "target": "tools/reload_check.py"
+    },
+    {
       "kind": "config",
       "source": "tests/test_repo_graph.py",
       "target": "configs/char_map.json"
@@ -1807,6 +1832,21 @@
     },
     {
       "kind": "import",
+      "source": "tools/reload_check.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/reload_check.py",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/reload_check.py",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "import",
       "source": "tools/save_pasted_reports.py",
       "target": "src/boinga_translator/paths.py"
     },
@@ -1972,7 +2012,7 @@
     },
     {
       "kind": "doc",
-      "lines": 771,
+      "lines": 774,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2068,7 +2108,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 348,
+      "lines": 513,
       "path": "notebooks/runs/C9_synth-best_run1.ipynb",
       "purpose": "C9 run 1 — C9 — best checkpoint"
     },
@@ -2158,9 +2198,9 @@
     },
     {
       "kind": "module",
-      "lines": 30,
+      "lines": 70,
       "path": "notebooks/specs/c9_synth_best.py",
-      "purpose": "Spec: C9 run 1, promote run1 step 36500 (the user's BEST_STEP) to best/ with provenance."
+      "purpose": "Spec: C9 run 1, promote run1 step 36500 (the user's BEST_STEP) to best/, reload it, listen."
     },
     {
       "kind": "config",
@@ -2452,7 +2492,7 @@
     },
     {
       "kind": "module",
-      "lines": 74,
+      "lines": 88,
       "path": "src/boinga_translator/synth.py",
       "purpose": "Voice bank: the baseline and fine-tuned (boinga) voices, loaded once, speaking prepared text."
     },
@@ -2650,6 +2690,12 @@
     },
     {
       "kind": "test",
+      "lines": 132,
+      "path": "tests/test_reload_check.py",
+      "purpose": "Tests for tools/reload_check.py and synth.reload_players: import, rows, dBFS, PASS/FAIL (fake bank)."
+    },
+    {
+      "kind": "test",
       "lines": 93,
       "path": "tests/test_repo_graph.py",
       "purpose": "Tests for tools/repo_graph.py: node kinds, edge types, stability and --check on a fake repo."
@@ -2791,6 +2837,12 @@
       "lines": 331,
       "path": "tools/read_colab_run.py",
       "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
+    },
+    {
+      "kind": "tool",
+      "lines": 77,
+      "path": "tools/reload_check.py",
+      "purpose": "Colab check (C9.3): a fresh process loads the promoted best/ model and speaks 3 test rows."
     },
     {
       "kind": "tool",
