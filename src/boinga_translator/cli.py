@@ -101,6 +101,10 @@ def build_parser() -> argparse.ArgumentParser:
     cln = sub.add_parser("clean-run", help="delete a smoke run's folder for a fresh "
                                            "start (refuses runs past step 1000)")
     cln.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    prom = sub.add_parser("promote", help="copy a run's checkpoint + config to best/ with "
+                                          "provenance.json (reports/best_provenance.json)")
+    prom.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    prom.add_argument("--step", type=int, required=True, help="checkpoint step to promote")
     return parser
 
 
@@ -188,6 +192,16 @@ def _run_check(command: str, run_name: str, api: bool = False) -> int:
             run_check.check(run_name, drive_api.lister() if api else None)
     except (OSError, ValueError, KeyError, RuntimeError, ImportError) as exc:
         print(f"FAIL: {command} {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _promote(run_name: str, step: int) -> int:
+    """`boinga promote`; FAIL + exit 1 on any error."""
+    try:
+        train_runner.promote(run_name, step)
+    except (OSError, ValueError, KeyError, RuntimeError) as exc:
+        print(f"FAIL: promote {type(exc).__name__}: {exc}")
         return 1
     return 0
 
@@ -410,6 +424,8 @@ def main(argv: list[str] | None = None) -> int:
         return _keep(args.run, None, check=True, api=args.drive_api)
     elif args.command == "clean-run":
         return _clean_run(args.run)
+    elif args.command == "promote":
+        return _promote(args.run, args.step)
     return 0
 
 

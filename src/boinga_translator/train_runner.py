@@ -1,9 +1,10 @@
-"""Training runner: coqui VITS loader check, new and resumed fine-tune runs, smoke-run cleanup."""
+"""Training runner: coqui VITS loader check, fine-tune runs, smoke cleanup, best-model promotion."""
 
 from __future__ import annotations
 
 import contextlib
 import datetime as dt
+import hashlib
 import inspect
 import json
 import os
@@ -16,8 +17,19 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from tqdm import tqdm
 
-from boinga_translator import env_report, paths, pretrained, train_config
+from boinga_translator import (
+    env_report,
+    paths,
+    pretrained,
+    report_io,
+    settings,
+    speaker_select,
+    synth_basic,
+    text_frontend,
+    train_config,
+)
 
 RUN_RECORD = "boinga_run.json"  # in paths.run_dir(name): one entry per training session
 CKPT_GB = 1.0  # one coqui VITS checkpoint with optimizer state (run 1: 997.8 MB)
@@ -371,3 +383,106 @@ def clean_run(run_name: str) -> bool:
     print(f"PASS: cleaned run {run_name}: removed {run_dir} ({size / 1e9:.2f} GB; Drive keeps "
           "deleted files in its trash until emptied)")
     return True
+
+
+PROVENANCE = "provenance.json"  # in paths.best_ckpt(), written last
+PROVENANCE_REL = "reports/best_provenance.json"
+PROMOTE_MARGIN_GB = 0.5
+
+
+def _copy_md5(src: Path, dst: Path) -> str:
+    """Copy src to dst through a .part file (tqdm over bytes); return the md5 of what was read."""
+    part, digest = dst.with_name(dst.name + ".part"), hashlib.md5()
+    with (open(src, "rb") as fin, open(part, "wb") as fout,
+          tqdm(total=src.stat().st_size, unit="B", unit_scale=True, desc=f"copy {src.name}") as bar):
+        for block in iter(lambda: fin.read(1 << 24), b""):
+            fout.write(block)
+            digest.update(block)
+            bar.update(len(block))
+    os.replace(part, dst)
+    return digest.hexdigest()
+
+
+def _eval_near(folder: Path, step: int) -> dict[str, Any] | None:
+    """The eval block nearest to step in the run's coqui log (as in reports/candidates_<run>.md)."""
+    from boinga_translator import ckpt_sampler  # lazy: ckpt_sampler imports this module
+
+    log = folder / ckpt_sampler.LOG_FILE
+    evals = ckpt_sampler.parse_eval(log.read_text(encoding="utf-8")) if log.is_file() else []
+    near = min(evals, key=lambda e: abs(e["step"] - step), default=None)
+    return {k: round(v, 4) if isinstance(v, float) else v for k, v in near.items()} if near else None
+
+
+def _provenance(run_name: str, step: int, src: Path, digest: str) -> dict[str, Any]:
+    sel = json.loads((paths.REPO / speaker_select.SELECTION_REL).read_text(encoding="utf-8"))
+    voice = train_config.base_voice()
+    return {
+        "run": run_name, "step": step, "run_folder": src.parent.name, "source": src.name,
+        "bytes": src.stat().st_size, "md5": digest, "eval": _eval_near(src.parent, step),
+        "base_model": {"voice": voice, "id": settings.PRETRAINED_IDS[voice],
+                       "license": settings.PRETRAINED_LICENSE,
+                       "coqui_tts": settings.COQUI_TTS_VERSION},
+        "dataset": {"name": settings.DATASET_NAME, "doi": settings.DATASET_DOI,
+                    "license": settings.DATASET_LICENSE},
+        "speaker_selection": {k: sel.get(k) for k in ("kind", "id", "csv_sha256")},
+        "char_map": text_frontend.map_digest(),
+        "seed": settings.SEED, "inference": dict(synth_basic.INFERENCE_SCALES),
+        "git_commit": env_report._git_commit(), "promoted_utc": _utc(),
+    }
+
+
+def _old_provenance(best: Path) -> dict[str, Any] | None:
+    path = best / PROVENANCE
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+
+
+def promote(run_name: str, step: int) -> dict[str, Any]:
+    """Copy checkpoint_<step>.pth of the run's latest folder + its config.json into
+    paths.best_ckpt() as model.pth / config.json, with provenance.json written last.
+
+    Says what it replaces; the same run folder + step + size already there is not copied again.
+    Through the Drive mount a replaced model.pth goes to Drive's trash (~1 GB).
+    """
+    latest = latest_run_folder(run_name)
+    if latest is None:
+        raise FileNotFoundError(f"no checkpoint under {paths.run_dir(run_name)}: train first")
+    folder = latest[0]
+    src = folder / f"checkpoint_{step}.pth"
+    if not src.is_file():
+        have = sorted(s for p in folder.glob("checkpoint_*.pth") if (s := _ckpt_step(p)))
+        raise FileNotFoundError(f"no {src.name} in {folder} (have {', '.join(map(str, have))})")
+    best, size = paths.best_ckpt(), src.stat().st_size
+    model = best / pretrained.MODEL_FILE
+    print(f"source: {src} ({size / 1e6:.1f} MB)")
+    old = _old_provenance(best)
+    if (old and old.get("run_folder") == folder.name and old.get("step") == step
+            and model.is_file() and model.stat().st_size == size
+            and (best / pretrained.CONFIG_FILE).is_file()):
+        print(f"{best} already holds run {run_name} step {step}: not copied again")
+        prov = old
+    else:
+        trash = "; the old model.pth goes to Drive's trash (empty it to free the space)"
+        if old:
+            print(f"replaces: run {old.get('run')} step {old.get('step')} "
+                  f"({old.get('run_folder')}){trash if model.is_file() else ''}")
+        elif model.is_file():
+            print(f"replaces: a model.pth without provenance "
+                  f"({model.stat().st_size / 1e6:.1f} MB){trash}")
+        else:
+            print(f"replaces: nothing ({best} holds no model)")
+        if (free := free_gb(best)) < size / 1e9 + PROMOTE_MARGIN_GB:
+            raise RuntimeError(f"only {free:.1f} GB free for {best} (need "
+                               f"{size / 1e9 + PROMOTE_MARGIN_GB:.1f} GB): free Drive space")
+        best.mkdir(parents=True, exist_ok=True)
+        (best / PROVENANCE).unlink(missing_ok=True)  # a half-done promote must not look done
+        digest = _copy_md5(src, model)
+        shutil.copy2(folder / pretrained.CONFIG_FILE, best / pretrained.CONFIG_FILE)
+        prov = _provenance(run_name, step, src, digest)
+        tmp = best / f"{PROVENANCE}.part"
+        tmp.write_text(json.dumps(prov, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        os.replace(tmp, best / PROVENANCE)
+    text = json.dumps(prov, indent=2, ensure_ascii=False) + "\n"
+    repo_path, _ = report_io.write_report(text, PROVENANCE_REL)
+    report_io.emit(repo_path, PROVENANCE_REL)
+    print(f"PASS: promoted {run_name} step {step}")
+    return prov

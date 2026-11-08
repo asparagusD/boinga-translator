@@ -724,7 +724,7 @@ estimates, excluding the generated map/notebook and PROGRESS.
 Branch `chunk/C9-synth-best`. Promotes run1 step 36500 (user's BEST_STEP, reports/notes/C8-notes.json;
 DECISIONS "Run 1 retrained: checkpoints on Drive") from
 runs/run1/run1-November-08-2026_05+25AM-853ac3a/checkpoint_36500.pth to `paths.best_ckpt()`, then
-proves the promoted copy loads and speaks on its own. One CPU notebook: spec
+proves the promoted copy loads and speaks on its own. One GPU notebook (user: gpu=True): spec
 `notebooks/specs/c9_synth_best.py` -> `notebooks/runs/C9_synth-best_run1.ipynb`. Line counts are
 non-test estimates, excluding the generated map/notebook and PROGRESS.
 - [x] C9.1 synth.VoiceBank (local): new module `synth.py`: voices "baseline"
@@ -733,20 +733,25 @@ non-test estimates, excluding the generated map/notebook and PROGRESS.
   Synthesizer loaded once per voice (`synth_basic.load_synth`, pinned inference scales),
   `text_frontend.prepare_text` applied, seeded; `speak_to_file(voice, text, out_wav)` ->
   seconds; ValueError for empty text, unknown or absent voice. Tests `tests/test_synth.py`
-  (fake loader) (this commit). C9.2a must make "boinga" find the promoted folder (flat
-  `best/` today vs the planned `best/<run>-step_<N>/` + best.json pointer)
-- [ ] C9.2a promote() with provenance (local): new module `promote.py`: checkpoint minus
-  optimizer/scaler + config to `best/<run>-step_<N>/`, tensor check, provenance.json written last,
-  `best/best.json` pointer; idempotent, never overwrites a different promotion; step from the
-  notes form (BEST_STEP, verdict must be "good..."); `boinga promote`; VoiceBank gains `best`.
-  DECISIONS "Promoted model: layout and provenance". Tests `tests/test_promote.py` (~145 lines)
-- [ ] C9.2b promoted files checked on Drive + cells (local): `promote.check(remote)` (size + md5
-  via the Drive API), `boinga check-best [--drive-api]`; spec cells C9.prom, C9.flush (~90 lines)
+  (fake loader) (`32e2dc0`)
+- [x] C9.2 code (user's C9.2 replaces the planned 2a/2b): `train_runner.promote(run, step)`
+  copies checkpoint_<N>.pth of the run's latest folder (whole file, tqdm, md5 while copying)
+  as `best/model.pth` + the run's config.json into flat `paths.best_ckpt()` (the folder
+  VoiceBank "boinga" reads), says what it replaces, skips a re-copy of the same run folder +
+  step + size, refuses without Drive space, writes provenance.json last (run, step, folder,
+  md5, nearest eval losses, base model id + licence, dataset DOI + licence, speaker selection,
+  char map digest, seed, inference scales, git commit, UTC date), emits
+  reports/best_provenance.json, "PASS: promoted <run> step <N>"; `boinga promote --run NAME
+  --step N`. Spec `notebooks/specs/c9_synth_best.py` cell C9.2 (`!boinga promote --run run1
+  --step 36500`; slug `synth-best`, nbkit refuses `_`). Tests `tests/test_promote.py` (this
+  commit)
+- [ ] optional: check best/ on Drive through the Drive API (size + md5 vs provenance.json),
+  as run_check does for checkpoints (planned C9.2b, not in the user's C9.2)
 - [ ] C9.3 tools/reload_check.py + cell: fresh process loads `best` through VoiceBank only,
   speaks the 5 test sentences + 3 dialect prompts, checks non-silent / finite / plausible
   length, emits reports/reload_check.md; spec cells C9.reload, C9.play, form C9-notes. Tests
   `tests/test_reload_check.py` (~110 lines)
-- [ ] C9.H hand-off C9 notebook (CPU runtime)
+- [ ] C9.H hand-off C9 notebook (GPU runtime)
 - [ ] C9.V verify the C9 run (colab-verify)
 - [ ] C9.4 Gate G6 — promoted model (DECISIONS)
 

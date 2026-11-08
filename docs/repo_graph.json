@@ -236,6 +236,16 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "notebook",
+      "source": "notebooks/runs/C9_synth-best_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C9_synth-best_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -338,6 +348,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c8_timing.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c9_synth_best.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -943,6 +958,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/train_runner.py",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_runner.py",
       "target": "src/boinga_translator/env_report.py"
     },
     {
@@ -954,6 +974,31 @@
       "kind": "import",
       "source": "src/boinga_translator/train_runner.py",
       "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_runner.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_runner.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_runner.py",
+      "target": "src/boinga_translator/speaker_select.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_runner.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/train_runner.py",
+      "target": "src/boinga_translator/text_frontend.py"
     },
     {
       "kind": "import",
@@ -1339,6 +1384,46 @@
       "kind": "test",
       "source": "tests/test_pretrained_inspect.py",
       "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_promote.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_promote.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_promote.py",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_promote.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_promote.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_promote.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_promote.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_promote.py",
+      "target": "src/boinga_translator/train_runner.py"
     },
     {
       "kind": "test",
@@ -1887,7 +1972,7 @@
     },
     {
       "kind": "doc",
-      "lines": 766,
+      "lines": 771,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1982,6 +2067,12 @@
       "purpose": "C8 run 1 — C8 — timing at batch 32 (RTX PRO 6000)"
     },
     {
+      "kind": "notebook",
+      "lines": 348,
+      "path": "notebooks/runs/C9_synth-best_run1.ipynb",
+      "purpose": "C9 run 1 — C9 — best checkpoint"
+    },
+    {
       "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
@@ -2064,6 +2155,12 @@
       "lines": 78,
       "path": "notebooks/specs/c8_timing.py",
       "purpose": "Spec: C8 timing run, smoke and resume at the RTX PRO 6000 settings (batch 32) to re-measure speed."
+    },
+    {
+      "kind": "module",
+      "lines": 30,
+      "path": "notebooks/specs/c9_synth_best.py",
+      "purpose": "Spec: C9 run 1, promote run1 step 36500 (the user's BEST_STEP) to best/ with provenance."
     },
     {
       "kind": "config",
@@ -2265,7 +2362,7 @@
     },
     {
       "kind": "module",
-      "lines": 417,
+      "lines": 433,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2391,9 +2488,9 @@
     },
     {
       "kind": "module",
-      "lines": 373,
+      "lines": 488,
       "path": "src/boinga_translator/train_runner.py",
-      "purpose": "Training runner: coqui VITS loader check, new and resumed fine-tune runs, smoke-run cleanup."
+      "purpose": "Training runner: coqui VITS loader check, fine-tune runs, smoke cleanup, best-model promotion."
     },
     {
       "kind": "test",
@@ -2538,6 +2635,12 @@
       "lines": 165,
       "path": "tests/test_pretrained_inspect.py",
       "purpose": "Tests for pretrained.inspect(): config facts, checkpoint facts, charset table, reports, CLI."
+    },
+    {
+      "kind": "test",
+      "lines": 158,
+      "path": "tests/test_promote.py",
+      "purpose": "Tests for train_runner.promote and `boinga promote` (fake checkpoints on a fake Drive)."
     },
     {
       "kind": "test",
