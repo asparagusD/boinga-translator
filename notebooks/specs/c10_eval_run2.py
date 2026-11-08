@@ -49,5 +49,22 @@ NOTEBOOK = Notebook(
 
             colab_runtime.play(*evaluate.players(("P01", "P02", "P03")))
         """, expect=[]),
+        md("""
+            **Build the blind rating sheet.** For each prompt, the baseline and fine-tuned
+            wavs become `<id>_clip1.wav` / `<id>_clip2.wav` in Drive `eval/final/blind/`, in a
+            fixed-seed random order that puts each voice first for 10 of the 20 prompts. Both
+            clips are scaled to the same loudness (-23 dBFS RMS), so volume cannot give a voice
+            away. The key (which clip is which voice) is saved as `eval/final/key.csv`,
+            outside `blind/`, and never printed: only its sha256 is, so you stay blind too.
+            `blind/` also gets `rating_sheet.csv` (40 empty rows: rater, prompt, clip, text, four
+            1-5 scores, comments) and `INSTRUCTIONS.md` (English and Bangla), printed between
+            BEGIN/END markers as `reports/rater_instructions.md`. A sheet that raters already
+            edited is kept. Share the `blind/` folder with your raters. Expect
+            `PASS: rating sheet 40 rows`.
+        """),
+        code("C10.3", "Build blind rating sheet", "!boinga eval-sheet",
+             expect=[r"PASS: rating sheet 40 rows",
+                     r"=== BEGIN reports/rater_instructions\.md ==="],
+             forbid=[r"A_baseline", r"B_boinga"]),
     ],
 )

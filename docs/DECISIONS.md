@@ -1172,3 +1172,22 @@ outside the training speaker's voice cluster (C4 put 7,506 of 7,513 clean clips 
 clusters 2 and 3 hold 7). The user chose "All 20 from our test": P01-P20 all come from our
 test split, each with has_reference true. The other-speaker group, its cluster rule and the
 cluster-aware replacement are gone; the other rules above still hold.
+
+## 2026-11-09 — C10 blind rating sheet
+**Context:** C10.3. Raters score the baseline and fine-tuned voices on 20 prompts without
+knowing which is which (user's design: clip1/clip2 per prompt, four 1-5 scales plus
+comments, key kept apart).
+**Decision:** The clip order is drawn with the fixed seed so that the fine-tuned voice is
+clip1 for exactly 10 prompts: a plain coin flip could put one voice first far more often,
+and first-heard position biases ratings. Both clips are scaled to -23 dBFS RMS (lower if a
+peak would pass 0.99): C10.2 left the voices at their raw model level, and a louder voice
+would be easy to spot and tends to be rated clearer. The real recording (R_real) is not in
+the pack, since the sheet rates each voice on its own. key.csv stays in Drive
+eval/final/, outside blind/; only its sha256 is printed, so the user who runs the notebook
+stays blind too. A rating sheet that already holds ratings is never overwritten. The user's
+blindness is a courtesy, not a guarantee: the seed is in the repo and key.csv is on
+Drive, so anyone who looks can unblind; error messages name only the prompt and clip.
+**Alternatives:** Unmatched levels (simplest, but gives the voice away); including R as a
+reference clip (useful for dialect scores, but not in the user's sheet design; can be added
+for a second round).
+

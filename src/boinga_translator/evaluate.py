@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -251,3 +252,126 @@ def players(ids: Iterable[str] = ("P01", "P02", "P03")) -> tuple[list[str], list
         raise KeyError(f"prompt id(s) {', '.join(missing)} not in {final_dir() / 'index.csv'}")
     rows = [r for i in ids for r in index[index["id"] == i].sort_values("set").to_dict("records")]
     return [r["path"] for r in rows], [f"{r['id']} {r['set']}: {r['text']}" for r in rows]
+
+# --- C10.3: blind rating sheet ---------------------------------------------------------------
+
+BLIND_RMS_DBFS = -23.0  # every blind clip is scaled to this RMS, so level never gives a voice away
+PEAK_MAX = 0.99
+SHEET_COLS = ["rater", "prompt_id", "clip", "text", "intelligibility", "naturalness",
+              "dialect_authenticity", "dialect_words", "comments"]
+INSTRUCTIONS_REL = "reports/rater_instructions.md"
+INSTRUCTIONS = """\
+# Rating instructions / রেটিং নির্দেশিকা
+
+## English
+
+You will hear 20 short sentences in Chittagonian. Each sentence is spoken by two computer
+voices, in `<id>_clip1.wav` and `<id>_clip2.wav`. The order is random and you are not told
+which voice is which: please do not try to guess. Read the sentence in `rating_sheet.csv`,
+listen to each clip as often as you like, then fill in its row:
+
+- `rater`: your name or initials (the same in every row).
+- `intelligibility` (1-5): how easily you understand the words. 1 = nothing, 5 = every word.
+- `naturalness` (1-5): how human and fluent it sounds. 1 = very robotic or broken,
+  5 = like a real person.
+- `dialect_authenticity` (1-5): how much it sounds like a native Chittagonian speaker.
+  1 = not at all (e.g. standard Bangla or a foreign accent), 5 = a native speaker.
+- `dialect_words` (1-5): are the Chittagonian-specific words said correctly?
+  1 = mostly wrong, 5 = all correct.
+- `comments` (optional): anything you noticed, e.g. a wrong word, noise, speed.
+
+Write the scores as the digits 1, 2, 3, 4 or 5. Rate each clip on its own. Please do not
+share the files or your ratings with other raters until everyone has finished.
+
+## বাংলা
+
+আপনি চাটগাঁইয়া ভাষায় ২০টি ছোট বাক্য শুনবেন। প্রতিটি বাক্য দুটি কম্পিউটার কণ্ঠে বলা
+হয়েছে: `<id>_clip1.wav` এবং `<id>_clip2.wav`। ক্রম এলোমেলো, আর কোনটি কোন কণ্ঠ তা
+জানানো হবে না: দয়া করে অনুমান করার চেষ্টা করবেন না। `rating_sheet.csv`-এ বাক্যটি পড়ুন, প্রতিটি
+ক্লিপ যতবার ইচ্ছা শুনুন, তারপর তার সারিটি পূরণ করুন:
+
+- `rater`: আপনার নাম বা নামের আদ্যক্ষর (প্রতিটি সারিতে একই)।
+- `intelligibility` (1-5): শব্দগুলো কত সহজে বোঝা যায়। 1 = কিছুই না, 5 = প্রতিটি শব্দ।
+- `naturalness` (1-5): কতটা মানুষের মতো ও সাবলীল শোনায়। 1 = খুব যান্ত্রিক বা ভাঙা,
+  5 = সত্যিকারের মানুষের মতো।
+- `dialect_authenticity` (1-5): কতটা একজন স্থানীয় চাটগাঁইয়া ভাষীর মতো শোনায়।
+  1 = একেবারেই না (যেমন প্রমিত বাংলা বা বিদেশি টান), 5 = স্থানীয় ভাষীর মতো।
+- `dialect_words` (1-5): চাটগাঁইয়া-নির্দিষ্ট শব্দগুলো কি ঠিকভাবে বলা হয়েছে?
+  1 = বেশিরভাগ ভুল, 5 = সবগুলো ঠিক।
+- `comments` (ঐচ্ছিক): যা লক্ষ করেছেন, যেমন ভুল শব্দ, নয়েজ, গতি।
+
+নম্বরগুলো 1, 2, 3, 4 বা 5 অঙ্কে লিখুন। প্রতিটি ক্লিপ আলাদাভাবে মূল্যায়ন করুন। সবার
+রেটিং শেষ না হওয়া পর্যন্ত অন্য রেটারদের সাথে ফাইল বা রেটিং শেয়ার করবেন না।
+
+---
+Sentences: "A Synchronized Chittagonian Speech Corpus" (Mendeley Data,
+doi:10.17632/n9xttk45df.1), CC BY 4.0.
+"""
+
+
+def blind_dir() -> Path:
+    """Drive folder handed to raters: blind clips, rating_sheet.csv, INSTRUCTIONS.md."""
+    return final_dir() / "blind"
+
+
+def _level_matched(wav: np.ndarray) -> np.ndarray:
+    """wav scaled to BLIND_RMS_DBFS RMS, or less if its peak would pass PEAK_MAX."""
+    rms = float(np.sqrt(np.mean(np.square(wav, dtype=np.float64))))
+    gain = min(10 ** (BLIND_RMS_DBFS / 20) / rms, PEAK_MAX / float(np.abs(wav).max()))
+    return (wav * gain).astype(np.float32)
+
+
+def make_rating_sheet(seed: int = settings.SEED) -> int:
+    """Blind clips, hidden key and an empty rating sheet from final/index.csv; returns rows.
+
+    Per prompt, A_baseline and B_boinga become <id>_clip1/_clip2 in a seeded order that puts
+    each voice first for half the prompts; both are level-matched. final/key.csv says which
+    is which and is never copied to blind/ or printed (only its sha256). A rating sheet that
+    raters already edited is kept, and a reshuffle under it is refused.
+    """
+    index = pd.read_csv(final_dir() / "index.csv", dtype=str, keep_default_na=False)
+    voices = index[index["set"].isin(VOICE_SETS)].set_index(["id", "set"])
+    ids = list(dict.fromkeys(index["id"]))
+    rng = np.random.default_rng(seed)
+    b_first = rng.permutation([i < len(ids) // 2 for i in range(len(ids))])
+    key, sheet = [], []
+    for pid, flip in zip(ids, b_first, strict=True):
+        order = ["B_boinga", "A_baseline"] if flip else ["A_baseline", "B_boinga"]
+        for clip, name in zip(("clip1", "clip2"), order, strict=True):
+            row = voices.loc[(pid, name)]
+            key.append({"prompt_id": pid, "clip": clip, "set": name, "source": row["path"]})
+            sheet.append({"prompt_id": pid, "clip": clip, "text": row["text"]})
+    key_df = pd.DataFrame(key)
+    sheet_df = pd.DataFrame(sheet).reindex(columns=SHEET_COLS, fill_value="")
+    sheet_text = sheet_df.to_csv(index=False, lineterminator="\n")
+    blind, key_csv = blind_dir(), final_dir() / "key.csv"
+    sheet_csv = blind / "rating_sheet.csv"
+    edited = sheet_csv.is_file() and sheet_csv.read_text(encoding="utf-8") != sheet_text
+    key_text = key_df.to_csv(index=False, lineterminator="\n")
+    order = ["prompt_id", "clip", "set"]  # not the source paths: a new Drive mount may move them
+    same = key_csv.is_file() and pd.read_csv(key_csv, dtype=str)[order].equals(key_df[order])
+    if edited and not same:
+        raise ValueError(f"{sheet_csv} has ratings in it and a different seed would change "
+                         "the clip order under them: move the sheet away before reshuffling")
+    blind.mkdir(parents=True, exist_ok=True)
+    for k in tqdm(key, desc="blind clips", unit="wav"):
+        what = f"{k['prompt_id']} {k['clip']}"  # never the set name: errors must not unblind
+        try:
+            wav, rate = sf.read(k["source"], dtype="float32")
+        except (OSError, RuntimeError):
+            raise FileNotFoundError(f"{what}: audio missing or unreadable, run `boinga "
+                                    "eval-generate` first") from None
+        if not np.any(wav):
+            raise ValueError(f"{what}: empty or silent audio")
+        sf.write(blind / f"{k['prompt_id']}_{k['clip']}.wav", _level_matched(wav), rate,
+                 subtype="PCM_16")
+    key_csv.write_text(key_text, encoding="utf-8", newline="\n")
+    if edited:
+        print(f"WARN: kept the edited {sheet_csv} (same clip order)")
+    else:
+        sheet_csv.write_text(sheet_text, encoding="utf-8", newline="\n")
+    (blind / "INSTRUCTIONS.md").write_text(INSTRUCTIONS, encoding="utf-8", newline="\n")
+    repo_path, _ = report_io.write_report(INSTRUCTIONS, INSTRUCTIONS_REL)
+    report_io.emit(repo_path, INSTRUCTIONS_REL)
+    print(f"blind clips in {blind}; key sha256 {hashlib.sha256(key_text.encode()).hexdigest()}")
+    return len(sheet_df)

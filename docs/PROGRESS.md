@@ -833,13 +833,18 @@ map/notebook and PROGRESS.
   `notebooks/specs/c10_eval_run2.py` (GPU), not run 1 (run 1 is verified; audio comes after
   the review, user's "Review first"). No loudness matching here: C10.3 decides it for the
   blind pack. Tests `tests/test_evaluate_generate.py` (fake VoiceBank) (this commit)
-- [ ] C10.3 blind rating sheet (local + spec): `evaluate.blind_pack(seed)`: balanced A/B
-  assignment; Drive `eval/c10/blind/` holds P01_R/A/B.wav ... P20_R/A/B.wav, `sheet.html` (players,
-  prompt text, instructions, dataset credit CC BY 4.0) and `ratings_template.csv` (prompt,
-  PREFER, A_INTELL, B_INTELL, NOTES); zipped as `blind_pack.zip`. `eval/c10/key.json` sits
-  outside the pack, and only its sha256 is printed. `boinga eval-pack`. Run 2 spec cells C10.3,
-  C10.3.play (prompt 1 R/A/B, letters only); form C10-pack (PACK_PLAYS, RATERS_PLANNED,
-  NOTES). Tests `tests/test_eval_pack.py` (key not in pack, balance, determinism) (~110 lines)
+- [x] C10.3 code (local + spec): `evaluate.make_rating_sheet(seed)`: per prompt the
+  A_baseline / B_boinga wavs of final/index.csv become Drive `eval/final/blind/<id>_clip1.wav`
+  / `_clip2.wav` in a seeded order with B first for half the prompts, each scaled to -23 dBFS
+  RMS (peak <= 0.99); `final/key.csv` (prompt_id, clip, set, source) outside blind/, never
+  printed (sha256 only), not in the repo; `blind/rating_sheet.csv` (rater, prompt_id, clip,
+  text verbatim, intelligibility, naturalness, dialect_authenticity, dialect_words, comments;
+  40 empty rows); `blind/INSTRUCTIONS.md` English + Bangla, emitted as
+  reports/rater_instructions.md. An edited sheet is kept; a reshuffle under it is refused.
+  R_real is not in the pack (not asked). `boinga eval-sheet` ("PASS: rating sheet 40 rows").
+  Cell C10.3 in the run-2 spec (not run 1, as for C10.2), forbids "A_baseline"/"B_boinga" in
+  its output. DECISIONS "C10 blind rating sheet". Tests `tests/test_evaluate_sheet.py`
+  (this commit)
 - [ ] C10.H2 hand-off run 2 (GPU; save name `colab_runs/C10_eval_run2.ipynb`)
 - [ ] C10.V2 verify run 2 (colab-verify): 60 wavs (40 voice + 20 R), key sha256 printed and
   the key itself not printed, forms filled

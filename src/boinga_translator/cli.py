@@ -54,6 +54,8 @@ def build_parser() -> argparse.ArgumentParser:
                      help="comma-separated prompt ids to replace, e.g. P03,P11 (others stay)")
     sub.add_parser("eval-generate", help="speak the eval prompts with both voices and copy the "
                                          "real clips to Drive eval/final/ (resumable)")
+    sub.add_parser("eval-sheet", help="blind clip1/clip2 copies, hidden key and an empty rating "
+                                      "sheet in Drive eval/final/blind/")
     sub.add_parser("embed-speakers",
                    help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
     sub.add_parser("cluster-speakers",
@@ -287,6 +289,17 @@ def _eval_generate() -> int:
     return 0
 
 
+def _eval_sheet() -> int:
+    """Blind rating sheet from the C10.2 audio; FAIL + exit 1 on error."""
+    try:
+        rows = evaluate.make_rating_sheet()
+    except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
+        print(f"FAIL: eval-sheet: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: rating sheet {rows} rows")
+    return 0
+
+
 def _embed_speakers() -> int:
     """One speaker embedding per clean clip of the Drive audit.csv; FAIL + exit 1 on error."""
     try:
@@ -431,6 +444,8 @@ def main(argv: list[str] | None = None) -> int:
         return _pick_eval_prompts(args.exclude)
     elif args.command == "eval-generate":
         return _eval_generate()
+    elif args.command == "eval-sheet":
+        return _eval_sheet()
     elif args.command == "embed-speakers":
         return _embed_speakers()
     elif args.command == "cluster-speakers":
