@@ -126,7 +126,8 @@ def keep(run_name: str, steps: list[int] | None = None) -> int:
 Listing = dict[str, dict[str, Any]]  # file name -> {"size": int, "md5": str | None}
 
 
-def _mount_view(folder: Path) -> Listing:
+def mount_view(folder: Path) -> Listing:
+    """name -> {size, md5 None} of files in a folder as the Drive mount shows it."""
     if not folder.is_dir():
         return {}
     return {p.name: {"size": p.stat().st_size, "md5": None} for p in folder.iterdir()
@@ -160,7 +161,7 @@ def check(run_name: str, remote: Callable[[Path], Listing] | None = None) -> int
     if not record.is_file():
         raise FileNotFoundError(f"no {record}: run `boinga keep` first, in the VM that trained")
     expected = json.loads(record.read_text(encoding="utf-8"))  # VM side: never lost in upload
-    view, bad = remote or _mount_view, []
+    view, bad = remote or mount_view, []
     for step, info in sorted(expected.items(), key=lambda kv: int(kv[0])):
         d = milestone_dir(run_name, int(step))
         try:

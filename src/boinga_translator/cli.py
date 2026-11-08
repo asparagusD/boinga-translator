@@ -18,6 +18,7 @@ from boinga_translator import (
     paths,
     prepare,
     pretrained,
+    run_check,
     speaker_select,
     text_frontend,
     text_oov,
@@ -91,6 +92,12 @@ def build_parser() -> argparse.ArgumentParser:
     chk.add_argument("--run", required=True, help="run name (one folder under runs/)")
     chk.add_argument("--drive-api", action="store_true",
                      help="list Drive through its API (Colab sign-in) instead of the mount")
+    rec = sub.add_parser("record-run", help="record size + md5 of a run's checkpoints on the VM")
+    rec.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    crun = sub.add_parser("check-run", help="check a run's recorded checkpoints are on Drive")
+    crun.add_argument("--run", required=True, help="run name (one folder under runs/)")
+    crun.add_argument("--drive-api", action="store_true",
+                      help="list Drive through its API (Colab sign-in) instead of the mount")
     cln = sub.add_parser("clean-run", help="delete a smoke run's folder for a fresh "
                                            "start (refuses runs past step 1000)")
     cln.add_argument("--run", required=True, help="run name (one folder under runs/)")
@@ -168,6 +175,19 @@ def _keep(run_name: str, steps: list[int] | None, check: bool = False,
             milestones.keep(run_name, steps)
     except (OSError, ValueError, KeyError, RuntimeError, ImportError) as exc:
         print(f"FAIL: {'check-milestones' if check else 'keep'} {type(exc).__name__}: {exc}")
+        return 1
+    return 0
+
+
+def _run_check(command: str, run_name: str, api: bool = False) -> int:
+    """`boinga record-run` / `boinga check-run`; FAIL + exit 1 on any error."""
+    try:
+        if command == "record-run":
+            run_check.record(run_name)
+        else:
+            run_check.check(run_name, drive_api.lister() if api else None)
+    except (OSError, ValueError, KeyError, RuntimeError, ImportError) as exc:
+        print(f"FAIL: {command} {type(exc).__name__}: {exc}")
         return 1
     return 0
 
@@ -384,6 +404,8 @@ def main(argv: list[str] | None = None) -> int:
         return _ckpt(args.command, args.run)
     elif args.command == "keep":
         return _keep(args.run, args.steps)
+    elif args.command in ("record-run", "check-run"):
+        return _run_check(args.command, args.run, getattr(args, "drive_api", False))
     elif args.command == "check-milestones":
         return _keep(args.run, None, check=True, api=args.drive_api)
     elif args.command == "clean-run":

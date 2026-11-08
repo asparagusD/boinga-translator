@@ -668,8 +668,11 @@ estimates, excluding the generated map/notebook and PROGRESS.
   best-model saves off (`_no_best_models`), `saves_needed` + Drive space check per session,
   budgets round to BUDGET_ROUND 500; DECISIONS "Checkpoints on Drive every 10,000 steps"
   (supersedes C8.5a's VM disk) (this commit)
-- [ ] C8.5e notebook: record checkpoint md5s, flush, check every checkpoint via the Drive API;
-  drop C8.keep
+- [x] C8.5e notebook: new module `run_check.py`: `record(run)` (size + md5 of every checkpoint
+  and the config, on the VM disk at paths.manifests()), `check(run, remote)` (each recorded
+  file in the Drive run folder, size + md5 via the Drive API); `boinga record-run` /
+  `boinga check-run [--drive-api]`; run-1 notebook: C8.rec and C8.flush right after training
+  (before sampling), C8.keep removed, md text for Drive checkpoints (this commit)
 - [ ] C8.H3 / C8.V3 retrain run1 (same name and budget), listen again
 - [x] C8.3 code: spec `notebooks/specs/c8_finetune_run1.py` -> `notebooks/runs/C8_finetune_run1.ipynb`
   (GPU): C8.pre (restore data), md on healthy training and disconnects, C8.tb (TensorBoard on

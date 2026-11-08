@@ -1,4 +1,4 @@
-"""Spec: C8 run 1, fine-tune run1 on the VM disk, sample, rank, keep on Drive and listen."""
+"""Spec: C8 run 1, fine-tune run1 with checkpoints on Drive, check the uploads, sample, listen."""
 
 from nbkit import Notebook, code, form, md
 
@@ -14,9 +14,7 @@ NOTEBOOK = Notebook(
             **Prepared data on this VM.** Training reads wavs and manifests from the fast disk.
             `fetch-data` makes sure the corpus is here; `prepare` restores the prepared dataset
             from its Drive tar (progress bars) instead of recomputing it. Expect `PASS: dataset
-            ready` and `PASS: prepared <n> clips`. Checkpoints are written to this VM's disk,
-            not Drive; only the steps you listen to are copied to Drive at the end (under 1 GB
-            each, a few GB in all), so Drive needs that much free space and an empty trash.
+            ready` and `PASS: prepared <n> clips`.
         """),
         code("C8.pre", "Restore prepared data", "!boinga fetch-data\n!boinga prepare",
              expect=[r"PASS: dataset ready", r"PASS: prepared \d+ clips"]),
@@ -28,15 +26,16 @@ NOTEBOOK = Notebook(
             epochs. A validation pass runs at the end of every epoch (~401 steps) and prints
             `EVAL PERFORMANCE`.
 
-            **Keep this VM alive until the end.** The run lives on this VM's disk (Drive's trash
-            filled up with deleted checkpoints in the first run 1 and lost them). A disconnect
-            or runtime restart before the "Keep" cells loses the run: "Run all" then starts
-            again from the pretrained voice. Keep the tab open.
+            **Checkpoints on Drive.** A ~1 GB checkpoint is written to Drive every 10,000
+            steps and at the end (10k, 20k, 30k, 36.5k), and none is ever deleted or replaced:
+            the first run 1 lost its checkpoints when coqui's deletes filled Drive's trash.
+            No best-model files are saved. **If Colab disconnects:** reconnect and "Run all";
+            training resumes from the newest checkpoint (`RESUME from step N`), repeating at
+            most 10,000 steps (~25 min).
         """),
         md("""
             **TensorBoard (optional).** Opens coqui's loss curves and the per-epoch test-sentence
-            audio for run1's folder on the VM disk. Nothing is checked; skip it if it is slow to
-            load.
+            audio for run1's Drive folder. Nothing is checked; skip it if it is slow to load.
         """),
         code("C8.tb", "TensorBoard (optional)", """
             from boinga_translator import paths
@@ -45,15 +44,16 @@ NOTEBOOK = Notebook(
             %tensorboard --logdir {paths.run_dir('run1')}
         """, expect=[]),
         md("""
-            **Train run1 to its budget (hours).** Starts run1 from the pretrained male
-            checkpoint and stops at the step budget in `train_config.RUN_BUDGETS` (36,500
-            steps, ~91 epochs at batch 16). The first run 1 took ~2.4 h on the RTX PRO 6000
-            (1.5 h of step time, the rest eval and saves). It needs 20 GB free on the VM disk
-            (`space: ... GB free`). coqui's step logs are the progress output. Expect
-            `budget: 36500 steps (RUN_BUDGETS)` and `STOP at step 36500`; a re-run in the same
-            VM prints `already at step 36500` and trains nothing.
+            **Train run1 to its budget (hours; resumable).** Starts run1 from the pretrained
+            male checkpoint (or resumes it) and stops at the step budget in
+            `train_config.RUN_BUDGETS` (36,500 steps, ~91 epochs at batch 16). The first run 1
+            took ~2.4 h on the RTX PRO 6000. Before training it checks Drive has room for this
+            session's checkpoints (`space: ... GB free (need ... GB)`; ~6 GB for a fresh run)
+            and turns best-model saves off. coqui's step logs are the progress output. Expect
+            `budget: 36500 steps (RUN_BUDGETS)` and `STOP at step 36500`; a re-run after the
+            end prints `already at step 36500` and trains nothing.
         """),
-        code("C8.train", "Train run1 to its budget (hours)",
+        code("C8.train", "Train run1 to its budget (hours; resumable)",
              "!boinga train --run run1",
              expect=[r"STOP at step \d+|PASS: run run1 already at step \d+"],
              forbid=[r"Partial model initialization"], gpu=True, timeout_min=360),
@@ -65,44 +65,25 @@ NOTEBOOK = Notebook(
         code("C8.thr", "Throughput of run1", "!boinga throughput --run run1",
              expect=[r"PASS: throughput recorded"]),
         md("""
-            **Sample every checkpoint.** For each checkpoint on the VM disk (the last 2 and
-            every best model) and once for the pretrained voice, synthesises the 5 test
-            sentences (val lines) with the fixed seed and noise scales into Drive
-            `eval/run1/step_<N>/`. Audio from the first run 1 is replaced, never reused. Expect
-            one `step N: mean X s` line per step and `PASS: sampled K checkpoints`.
+            **Record the checkpoints.** Reads each checkpoint and the config in run1's folder
+            and records its size and md5 on this VM's disk (not Drive), as written by
+            training. A tqdm bar counts the files (~1 GB each, a minute or two). Expect one
+            line per file and `PASS: recorded 5 files of run run1` (4 checkpoints + config).
         """),
-        code("C8.sample", "Sample every checkpoint", "!boinga sample --run run1",
-             expect=[r"PASS: sampled \d+ checkpoints"], gpu=True),
-        md("""
-            **Rank checkpoints.** Matches each checkpoint to the nearest validation pass in the
-            training log and sorts by validation `loss_mel` (`loss_total` = the sum coqui picks
-            its best model by). Writes `reports/candidates_run1.md`. Expect the report block and
-            `PASS: candidates listed`.
-        """),
-        code("C8.cand", "Rank checkpoints", "!boinga candidates --run run1",
-             expect=[r"PASS: candidates listed", r"=== BEGIN reports/candidates_run1.md ==="]),
-        md("""
-            **Keep the listened steps on Drive.** Copies the steps the Listen cell plays (the 4
-            best by eval loss_mel and the last) from the VM disk to Drive
-            `milestones/run1/step_<N>/`: model weights without the optimizer, plus config.json,
-            each copy compared with its checkpoint tensor by tensor. It refuses to start if
-            Drive lacks the space. A tqdm bar counts the checkpoints (a few minutes). Expect
-            `step N: kept X MB` lines and `PASS: kept K milestones`.
-        """),
-        code("C8.keep", "Keep the listened steps on Drive", "!boinga keep --run run1",
-             expect=[r"PASS: kept \d+ milestones \(\d+ already kept\)"],
-             forbid=[r"FAIL: keep"], timeout_min=60),
+        code("C8.rec", "Record the checkpoints", "!boinga record-run --run run1",
+             expect=[r"PASS: recorded \d+ files of run run1"]),
         md("""
             **Check they really reached Drive.** The Drive mount uploads in the background and
             hides failed uploads, so this waits for every pending upload (up to 20 minutes, no
-            progress bar: the flush gives none), unmounts and mounts Drive again, then checks
-            each kept file through the Drive API (what Drive really holds, not the mount's
-            local copies): `model.pth` size and md5 as recorded at keep time, and config.json.
-            Stay at the computer for this cell: the remount and the API each open a Google
-            sign-in popup that "Run all" waits on; choose the account whose Drive is mounted.
-            Expect `PASS: K milestones on Drive ... (Drive API)`. If it fails, do not close the
-            VM: free Drive space, empty its trash, delete the failing step folders under
-            `milestones/run1/` in Drive, then run "Keep" and this cell again.
+            progress bar: the flush gives none), unmounts and mounts Drive again, then lists
+            run1's folder through the Drive API (what Drive really holds, not the mount's
+            local copies) and compares every recorded file's size and md5. Stay at the computer
+            for this cell: the remount and the API each open a Google sign-in popup that
+            "Run all" waits on; choose the account whose Drive is mounted (the cell prints the
+            API account). Expect `PASS: 5 files of run run1 on Drive (Drive API)`. This only
+            detects a loss: if a checkpoint is missing or differs, it most likely did not
+            upload and cannot be recovered from this VM. Free Drive space, empty its trash,
+            and tell Claude which files failed before training again.
         """),
         code("C8.flush", "Check they really reached Drive", """
             from google.colab import drive
@@ -114,17 +95,33 @@ NOTEBOOK = Notebook(
             except Exception as exc:  # stuck uploads: never wait the default 24 h
                 colab_runtime.fail(f"Drive flush did not finish: {exc!r}; free Drive space")
             drive.mount(str(paths.COLAB_DRIVE.parent))
-            if cli.main(["check-milestones", "--run", "run1", "--drive-api"]) != 0:
-                colab_runtime.fail("milestones are not on Drive (see the FAIL line above)")
-        """, expect=[r"PASS: \d+ milestones on Drive .*\(Drive API\)"], timeout_min=30),
+            if cli.main(["check-run", "--run", "run1", "--drive-api"]) != 0:
+                colab_runtime.fail("run1's checkpoints are not all on Drive (see above)")
+        """, expect=[r"PASS: \d+ files of run run1 on Drive \(Drive API\)"], timeout_min=30),
         md("""
-            **Listen: pretrained vs best candidates vs last.** The 5 sentences by the pretrained
-            male voice, then by the 4 best checkpoints by `loss_mel` and the last one; each
-            label starts with its step. These are exactly the steps kept on Drive. Listen for
-            clarity, Chittagonian pronunciation and artefacts (buzz, metallic noise, skipped or
-            repeated words). Nothing is checked automatically: write what you hear below.
+            **Sample every checkpoint.** For each checkpoint (10k, 20k, 30k, 36.5k) and once
+            for the pretrained voice, synthesises the 5 test sentences (val lines) with the
+            fixed seed and noise scales into Drive `eval/run1/step_<N>/`. Audio from the first
+            run 1 is replaced, never reused. Expect one `step N: mean X s` line per step and
+            `PASS: sampled K checkpoints`.
         """),
-        code("C8.play", "Listen: pretrained vs best candidates vs last", """
+        code("C8.sample", "Sample every checkpoint", "!boinga sample --run run1",
+             expect=[r"PASS: sampled \d+ checkpoints"], gpu=True),
+        md("""
+            **Rank checkpoints.** Matches each checkpoint to the nearest validation pass in the
+            training log and sorts by validation `loss_mel`. Writes
+            `reports/candidates_run1.md`. Expect the report block and `PASS: candidates listed`.
+        """),
+        code("C8.cand", "Rank checkpoints", "!boinga candidates --run run1",
+             expect=[r"PASS: candidates listed", r"=== BEGIN reports/candidates_run1.md ==="]),
+        md("""
+            **Listen: pretrained vs the checkpoints.** The 5 sentences by the pretrained male
+            voice, then by each checkpoint (best eval loss_mel first, then the last); each
+            label starts with its step. Listen for clarity, Chittagonian pronunciation and
+            artefacts (buzz, metallic noise, skipped or repeated words). Nothing is checked
+            automatically: write what you hear below.
+        """),
+        code("C8.play", "Listen: pretrained vs the checkpoints", """
             from boinga_translator import ckpt_sampler, colab_runtime
 
             colab_runtime.play(*zip(*ckpt_sampler.players("run1"), strict=True))

@@ -1089,4 +1089,10 @@ results reach Drive only at the end. save_step 500 on Drive with deletes: the ru
 Keeping best models (save_all_best): ~15 GB more and deletes of best_model.pth on Drive.
 **Consequences:** Only 4 candidates to listen to, at fixed steps; the best-by-loss step may lie
 between them. A disconnect resumes from the last 10,000-step checkpoint (up to ~25 min of
-training repeated). milestones.keep (model-only copies) is no longer part of the run notebook.
+training repeated). milestones.keep (model-only copies) is no longer part of the run notebook. `boinga train`
+refuses a run without a step budget, or one whose checkpoints (existing interrupt saves
+included) would exceed save_n_checkpoints. `Trainer.save_best_model` is the method coqui-
+trainer's `_fit` calls (checked in the coqui-trainer 0.4.0 source by the code-reviewer).
+Still on Drive and rewritten: boinga_run.json, config.json on resume, the growing
+trainer_0_log.txt and TensorBoard events file (if the mount keeps old revisions of these,
+they use some space; not measured) and the eval audio.

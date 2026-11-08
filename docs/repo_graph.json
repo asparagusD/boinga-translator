@@ -523,6 +523,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/run_check.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/speaker_select.py"
     },
     {
@@ -714,6 +719,26 @@
       "kind": "import",
       "source": "src/boinga_translator/report_io.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/run_check.py",
+      "target": "src/boinga_translator/milestones.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/run_check.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/run_check.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/run_check.py",
+      "target": "src/boinga_translator/train_runner.py"
     },
     {
       "kind": "config",
@@ -1317,6 +1342,26 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_run_check.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_run_check.py",
+      "target": "src/boinga_translator/milestones.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_run_check.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_run_check.py",
+      "target": "src/boinga_translator/run_check.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_settings.py",
       "target": "src/boinga_translator/paths.py"
     },
@@ -1766,13 +1811,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1092,
+      "lines": 1098,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 734,
+      "lines": 737,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1856,7 +1901,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 740,
+      "lines": 737,
       "path": "notebooks/runs/C8_finetune_run1.ipynb",
       "purpose": "C8 run 1 — C8 run 1 — fine-tune"
     },
@@ -1940,9 +1985,9 @@
     },
     {
       "kind": "module",
-      "lines": 149,
+      "lines": 146,
       "path": "notebooks/specs/c8_finetune_run1.py",
-      "purpose": "Spec: C8 run 1, fine-tune run1 on the VM disk, sample, rank, keep on Drive and listen."
+      "purpose": "Spec: C8 run 1, fine-tune run1 with checkpoints on Drive, check the uploads, sample, listen."
     },
     {
       "kind": "module",
@@ -2150,7 +2195,7 @@
     },
     {
       "kind": "module",
-      "lines": 395,
+      "lines": 417,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2192,13 +2237,13 @@
     },
     {
       "kind": "module",
-      "lines": 176,
+      "lines": 177,
       "path": "src/boinga_translator/milestones.py",
       "purpose": "Milestone copies: model weights + config of chosen run checkpoints, kept apart on Drive."
     },
     {
       "kind": "module",
-      "lines": 161,
+      "lines": 167,
       "path": "src/boinga_translator/paths.py",
       "purpose": "Single source of truth for paths: Drive + fast disk on Colab, ./local elsewhere."
     },
@@ -2219,6 +2264,12 @@
       "lines": 124,
       "path": "src/boinga_translator/report_io.py",
       "purpose": "Move Colab reports into the repo: print files between BEGIN/END markers, parse pasted output."
+    },
+    {
+      "kind": "module",
+      "lines": 75,
+      "path": "src/boinga_translator/run_check.py",
+      "purpose": "Upload check of a run's checkpoints: sizes and md5s recorded on the VM, compared on Drive."
     },
     {
       "kind": "module",
@@ -2264,7 +2315,7 @@
     },
     {
       "kind": "module",
-      "lines": 365,
+      "lines": 373,
       "path": "src/boinga_translator/train_runner.py",
       "purpose": "Training runner: coqui VITS loader check, new and resumed fine-tune runs, smoke-run cleanup."
     },
@@ -2432,6 +2483,12 @@
     },
     {
       "kind": "test",
+      "lines": 73,
+      "path": "tests/test_run_check.py",
+      "purpose": "Tests for run_check.py and `boinga record-run` / `check-run` (fake run folder on fake Drive)."
+    },
+    {
+      "kind": "test",
       "lines": 31,
       "path": "tests/test_settings.py",
       "purpose": "Tests for settings.py: pinned hash format, https URLs, both voices, seed and the coqui pin."
@@ -2498,7 +2555,7 @@
     },
     {
       "kind": "test",
-      "lines": 377,
+      "lines": 379,
       "path": "tests/test_train_run.py",
       "purpose": "Tests for train_runner.run() and `boinga train`: TrainerArgs, step stop, boinga_run.json (fakes)."
     },

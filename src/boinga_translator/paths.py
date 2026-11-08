@@ -81,9 +81,10 @@ def pretrained() -> Path:
 
 
 def runs() -> Path:
-    """Training runs on Drive. Nothing may be deleted or overwritten there: through the mount
-    a delete goes to Drive's trash and still uses space (C8 run 1 lost its checkpoints that
-    way), so runs save every 10,000 steps, keep them all and save no best model (C8.5d)."""
+    """Training runs on Drive. No checkpoint may be deleted or replaced there: through the
+    mount a delete goes to Drive's trash and still uses space (C8 run 1 lost its checkpoints
+    that way), so runs save every 10,000 steps, keep them all and save no best model (C8.5d).
+    Small files (boinga_run.json, config.json on resume) are still rewritten: KB, harmless."""
     return root() / "runs"
 
 
@@ -121,6 +122,11 @@ def best_ckpt() -> Path:
 def milestones() -> Path:
     """Model + config copies of chosen checkpoints (milestones.keep), safe from coqui's cleanup."""
     return root() / "milestones"
+
+
+def manifests() -> Path:
+    """Per-run file sizes + md5s on the VM disk (run_check.record), compared with Drive later."""
+    return fast() / "manifests"
 
 
 def eval_dir() -> Path:

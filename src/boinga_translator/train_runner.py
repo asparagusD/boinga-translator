@@ -225,7 +225,8 @@ def run(run_name: str, max_steps: int | None = None) -> dict[str, Any]:
     run_dir = paths.run_dir(run_name)
     latest = latest_run_folder(run_name)
     if latest is None or max_steps is None or latest[1] < max_steps:
-        _check_space(run_dir, latest[1] if latest else 0, max_steps)
+        existing = len(list(latest[0].glob("checkpoint_*.pth"))) if latest else 0
+        _check_space(run_dir, latest[1] if latest else 0, max_steps, existing)
     if latest is not None:
         folder, step = latest
         if max_steps is not None and step >= max_steps:
@@ -302,21 +303,28 @@ def free_gb(path: Path) -> float:
     return shutil.disk_usage(path).free / 1e9
 
 
-def saves_needed(start_step: int, max_steps: int | None) -> int:
-    """Checkpoints a session writes: one per save_step crossed, plus the one at the stop."""
+def saves_needed(start_step: int, max_steps: int | None, existing: int = 0) -> int:
+    """Checkpoints a session writes: one per save_step crossed, plus the one at the stop.
+
+    Refuses a session after which the run folder would hold more than save_n_checkpoints
+    (existing ones, e.g. interrupt saves, included): coqui would then delete the oldest on
+    Drive. A run without a step budget is refused for the same reason (epochs 1000).
+    """
+    if max_steps is None:
+        raise ValueError("a run on Drive needs a step budget (--max-steps or RUN_BUDGETS): "
+                         "without one coqui would rotate checkpoints, deleting on Drive")
     save_step = int(train_config.OVERRIDES["save_step"][0])
     keep = int(train_config.OVERRIDES["save_n_checkpoints"][0])
-    if max_steps is None:
-        return keep
     n = max_steps // save_step - start_step // save_step + 1
-    if max_steps // save_step + 1 > keep:  # coqui would delete the oldest: a Drive delete
-        raise ValueError(f"{max_steps} steps make {max_steps // save_step + 1} checkpoints but "
-                         f"save_n_checkpoints is {keep}: coqui would delete some on Drive")
+    if existing + n > keep:  # coqui would delete the oldest: a Drive delete
+        raise ValueError(f"{existing} checkpoints + {n} new would exceed save_n_checkpoints "
+                         f"{keep}: coqui would delete some on Drive")
     return n
 
 
-def _check_space(run_dir: Path, start_step: int, max_steps: int | None) -> None:
-    need = saves_needed(start_step, max_steps) * CKPT_GB + MARGIN_GB
+def _check_space(run_dir: Path, start_step: int, max_steps: int | None,
+                 existing: int = 0) -> None:
+    need = saves_needed(start_step, max_steps, existing) * CKPT_GB + MARGIN_GB
     if (free := free_gb(run_dir)) < need:
         raise RuntimeError(f"only {free:.1f} GB free for {run_dir} (need {need:.0f} GB: "
                            f"~{CKPT_GB:.0f} GB per checkpoint): free Drive space, empty its trash")
