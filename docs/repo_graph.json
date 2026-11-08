@@ -781,6 +781,41 @@
       "target": "src/boinga_translator/settings.py"
     },
     {
+      "kind": "config",
+      "source": "src/boinga_translator/synth.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/synth.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/synth.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/synth.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/synth.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/synth.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/synth.py",
+      "target": "src/boinga_translator/train_config.py"
+    },
+    {
       "kind": "import",
       "source": "src/boinga_translator/synth_basic.py",
       "target": "src/boinga_translator/settings.py"
@@ -1442,6 +1477,41 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_synth.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth.py",
+      "target": "src/boinga_translator/pretrained.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth.py",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth.py",
+      "target": "src/boinga_translator/synth_basic.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_synth.py",
+      "target": "src/boinga_translator/train_config.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_synth_basic.py",
       "target": "src/boinga_translator/settings.py"
     },
@@ -1817,7 +1887,7 @@
     },
     {
       "kind": "doc",
-      "lines": 739,
+      "lines": 766,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2285,6 +2355,12 @@
     },
     {
       "kind": "module",
+      "lines": 74,
+      "path": "src/boinga_translator/synth.py",
+      "purpose": "Voice bank: the baseline and fine-tuned (boinga) voices, loaded once, speaking prepared text."
+    },
+    {
+      "kind": "module",
       "lines": 68,
       "path": "src/boinga_translator/synth_basic.py",
       "purpose": "Minimal seeded synthesis for any VITS checkpoint: load a coqui Synthesizer, say text to a wav."
@@ -2516,6 +2592,12 @@
       "lines": 139,
       "path": "tests/test_speaker_select.py",
       "purpose": "Tests for speaker_select.embed() and `boinga embed-speakers`: clean clips only, per-clip cache."
+    },
+    {
+      "kind": "test",
+      "lines": 161,
+      "path": "tests/test_synth.py",
+      "purpose": "Tests for synth.VoiceBank: available voices, lazy cached loading, prepared text, seed, errors."
     },
     {
       "kind": "test",
