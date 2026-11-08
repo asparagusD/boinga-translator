@@ -2006,13 +2006,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1123,
+      "lines": 1151,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 781,
+      "lines": 782,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },

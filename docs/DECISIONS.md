@@ -1121,3 +1121,31 @@ promotes runs/run1/run1-November-08-2026_05+25AM-853ac3a/checkpoint_36500.pth, w
 Drive. This replaces the first run's model, which was lost.
 **Alternatives:** checkpoint_30000 has eval loss_mel 0.001 lower than 36500: within noise,
 and the user chose 36500 by ear, as in the first run.
+
+## 2026-11-08 — Gate G6 — usable checkpoint
+**Context:** End of C9 (C9.4). Rule (C9.V promptbook): G6 PASS if the fresh-process reload
+check passes and the user's C9-notes INTELLIGIBLE is "yes"; "PARTIAL" if "partly" (keep the
+model, document the limitation, no Day 3 training until C10 is set up); FAIL otherwise
+(C8.4 retrain or Chunk F). Evidence: C9 run 1 at dcb26e5 (built in a985044), 10/10 cells
+PASS, not stale; digest reports/colab_runs/C9_synth-best_run1.md.
+**Findings:**
+1. Promotion (C9.2): run1 step 36500 (`run1-November-08-2026_05+25AM-853ac3a/
+   checkpoint_36500.pth`, 997,792,643 bytes, md5 66970fd54dd14a5447517fa6b8cb3e85) copied
+   whole to Drive `best/model.pth` + the run's config.json; best/ held no model before.
+   Provenance in reports/best_provenance.json (eval at 36475: loss_mel 20.5995; base
+   tts_models/bn/custom/vits-male, Apache-2.0; dataset 10.17632/n9xttk45df.1, CC-BY-4.0;
+   speaker cluster 1; char map 151ac177e2; seed 1234; pinned inference scales).
+2. Reload check (C9.3): a separate Python process loaded best/ through VoiceBank "boinga"
+   and read the first 3 test-split rows (clips 6, 29, 58, never trained on): 2.94 / 5.23 /
+   2.71 s at -17.3 / -18.4 / -21.7 dBFS RMS, all finite: "PASS: reload check (3 wavs)".
+3. Listening (form C9-notes, reports/notes/C9-notes.json): INTELLIGIBLE "yes", NOTES "none".
+**Decision:** G6: PASS. Drive `best/` (run1 step 36500) is the usable fine-tuned
+Chittagonian voice and the "boinga" voice for later chunks.
+**Alternatives:** PARTIAL / FAIL not indicated (both criteria met); C8.4 and Chunk F not
+needed.
+**Consequences:** Later chunks synthesise through `synth.VoiceBank` ("baseline" vs "boinga")
+and must not retrain to replace best/ without a new promotion. Limits of the evidence: one
+listener, 3 sentences, judged by ear (no ASR/MOS measure yet). best/model.pth is the whole
+checkpoint with optimizer state (~1 GB); a later promotion replaces it and sends the old one
+to Drive's trash (4.5 GB free on Drive before this copy). best/ was not checked through the
+Drive API (the C9.2b option in PROGRESS); the reload ran from the Drive mount in the same VM.

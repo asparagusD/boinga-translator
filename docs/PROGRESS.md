@@ -752,18 +752,19 @@ non-test estimates, excluding the generated map/notebook and PROGRESS.
   the play cell); "PASS: reload check" if every wav > 0.5 s and RMS > -50 dBFS (and finite),
   else FAIL; a stale list is removed first. `synth.reload_dir()` / `synth.reload_players()` feed
   the play cell (one call). Spec cells C9.pre (restore prepared data: the manifest is on the VM disk), C9.3,
-  C9.3.play, form C9-notes (INTELLIGIBLE, NOTES). Tests `tests/test_reload_check.py` (this
-  commit)
+  C9.3.play, form C9-notes (INTELLIGIBLE, NOTES). Tests `tests/test_reload_check.py`
+  (`a985044`)
 - [x] C9.H hand-off C9 run 1: `notebooks/runs/C9_synth-best_run1.ipynb` rebuilt, unchanged
   since `a985044`, `--all --check` clean, pushed; link, runtime (user: T4), a few minutes
   (not measured; C9.pre restores the prepared data first), form C9-notes and save name
-  `colab_runs/C9_synth-best_run1.ipynb` given (this commit)
+  `colab_runs/C9_synth-best_run1.ipynb` given (`dcb26e5`)
 - [x] C9.V verify C9 run 1 (colab-verify): 10/10 PASS at dcb26e5 (built in a985044), not stale,
   RTX PRO 6000 (user asked T4). C9.2: replaces nothing, 998 MB copied in 13 s, md5
   66970fd5..., provenance in reports/best_provenance.json (`42dd33e`). C9.3: 3 wavs 2.94 /
   5.23 / 2.71 s at -17.3 / -18.4 / -21.7 dBFS, "PASS: reload check (3 wavs)"; C9-notes
-  INTELLIGIBLE "yes", NOTES "none" (this commit)
-- [ ] C9.4 Gate G6 — promoted model (DECISIONS)
+  INTELLIGIBLE "yes", NOTES "none" (`a95535f`)
+- [x] C9.4 Gate G6 — usable checkpoint: PASS (reload check PASS, INTELLIGIBLE "yes");
+  DECISIONS "Gate G6 — usable checkpoint" (this commit)
 
 ## C10
 - [ ] C10.x (subchunks not yet defined)
