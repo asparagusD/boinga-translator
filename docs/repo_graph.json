@@ -1696,13 +1696,13 @@
     },
     {
       "kind": "doc",
-      "lines": 996,
+      "lines": 1028,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 695,
+      "lines": 701,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -1894,6 +1894,12 @@
     },
     {
       "kind": "doc",
+      "lines": 23,
+      "path": "reports/candidates_run1.md",
+      "purpose": "Candidates for run run1"
+    },
+    {
+      "kind": "doc",
       "lines": 168,
       "path": "reports/colab_runs/C1_pilot_run1.md",
       "purpose": "Colab run C1 run 1 — Pipeline pilot"
@@ -1960,6 +1966,12 @@
     },
     {
       "kind": "doc",
+      "lines": 499,
+      "path": "reports/colab_runs/C8_finetune_run1.md",
+      "purpose": "Colab run C8 run 1 — C8 run 1 — fine-tune"
+    },
+    {
+      "kind": "doc",
       "lines": 615,
       "path": "reports/colab_runs/C8_timing_run1.md",
       "purpose": "Colab run C8 run 1 — C8 — timing at batch 32 (RTX PRO 6000)"
@@ -2004,6 +2016,12 @@
       "kind": "config",
       "lines": 7,
       "path": "reports/notes/C4.3-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 8,
+      "path": "reports/notes/C8-notes.json",
       "purpose": ""
     },
     {

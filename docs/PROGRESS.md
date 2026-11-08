@@ -650,10 +650,16 @@ estimates, excluding the generated map/notebook and PROGRESS.
   `adc2f48`, `--all --check` clean, pushed; link, runtime (RTX PRO 6000; user asked "T4"),
   ~3.5 h step time + eval/saves/sampling (not measured), disconnect tips, form instructions
   and save name `colab_runs/C8_finetune_run1.ipynb` given (this commit)
-- [ ] C8.V verify run 1 (colab-verify): record losses, candidates, BEST_STEP and verdict;
-  decide promote vs second run (DECISIONS "Run 1 verdict")
-- [ ] C8.4 only if C8.V says so: run-2 settings (RUN_OVERRIDES/RUN_BUDGETS for `run2`) +
-  `notebooks/specs/c8_finetune_run2.py`; C8.H2 / C8.V2
+- [x] C8.V verify run 1 (colab-verify): 13/13 PASS at 8005e5d (built in adc2f48), not stale;
+  36,500 steps in ~2.4 h wall (0.1501 s/step), final eval loss_mel 20.603, best 20.486 at
+  20450; user: BEST_STEP 36500, "good: promote BEST_STEP", clearer and more Chittagonian than
+  pretrained, no artefacts (DECISIONS "Run 1 verdict", Training runs table) (this commit)
+- [x] C8.4 not needed (verdict "good")
+- [ ] follow-up: every training/eval text logs "Character '
+' not found in the vocabulary":
+  find where the newline enters (manifest text or coqui test_sentences) and strip it
+- [ ] follow-up: coqui kept 15 best_model_<N>.pth in run1 (not only the newest): check why
+  (keep_all_best / Drive delete) before any further run fills Drive
 
 ### C7 follow-ups (from the whole-chunk review; for C8)
 - [x] `run()` / `boinga train` ignore `train_config.RUN_BUDGETS` (fixed in C8.1): without --max-steps a run

@@ -994,3 +994,35 @@ run1, which is faster per clip and gives twice the updates. Loader workers stay 
 the batch-32 timing; the batch-16 numbers are in commit 40a1a25.
 The generated overrides table, configs/vits_ctg_finetune.json and reports/config_overrides.md
 show the C8.1c batch-32 build until run1's build-config rewrites them.
+
+## 2026-11-08 — Run 1 verdict: promote step 36500
+**Context:** C8.V. Run `run1` trained from the pretrained male voice to its 36,500-step budget
+in one Colab session on the RTX PRO 6000 (13/13 cells PASS at 8005e5d, not stale; digest
+reports/colab_runs/C8_finetune_run1.md). The run folder starts at 22:05 UTC and the last epoch
+at 00:25:48, so it took about 2.4 h wall clock. Step time was 0.1501 s
+(23,983.9 steps/h over 1,459 timed steps), about 1.5 h of the 2.4 h. That is 2.3x faster than
+the 50-step smoke (0.3418 s, which timed mostly warm-up). No NaN loss. Eval loss_mel fell from
+23.635 (step 1200) to 20.486 (step 20450, coqui's best_model by loss_0 + loss_1). It ended at
+20.603 (eval at 36475), flat from about step 14,000 (reports/candidates_run1.md).
+**Training runs** (one row per run; hours = wall clock of the training cell):
+
+| run | steps | hours | final eval loss_mel | best eval loss_mel (step) | verdict |
+|---|---|---|---|---|---|
+| run1 | 36,500 | ~2.4 (1.5 step time) | 20.603 (eval at 36475) | 20.486 (20450) | good: promote 36500 |
+
+**Decision:** The user listened to the pretrained voice, the 4 best checkpoints by eval
+loss_mel (20451, 36500, 36000, 14436) and the last one. They chose BEST_STEP 36500, verdict
+"good: promote BEST_STEP". It is clearer than the pretrained voice ("yes") and more
+Chittagonian ("yes"), with no artefacts heard (form C8-notes, reports/notes/C8-notes.json).
+C8 needs no second run (C8.4 skipped). C9 promotes checkpoint_36500.pth.
+**Alternatives:** best_model_20451 has the lowest eval loss_mel, but by only 0.117 below 36500,
+and the user preferred 36500 by ear. A longer run2 was not chosen because loss_mel had
+flattened. A lower-LR run2 was not needed because nothing degraded.
+**Consequences:** checkpoint_36500.pth on Drive is the model to promote. Keep it out of any
+cleanup: coqui keeps only the last 2 checkpoints, so it would be deleted if run1 ever trained
+past 36500. Coqui also kept a best_model_<N>.pth at every improvement (15 files), not just the
+newest, which fills Drive (6.4 GB free at the start). The peak GPU memory (82.3 GB, against
+3.39 GB in the smoke) is the CUDA allocator's run-wide peak over variable-length batches, not
+a sign of a leak. Every training and eval text logged "Character '\n' not found in the
+vocabulary. Discarding it.", so the texts carry a newline that coqui drops. Training is not
+affected, but the cause is a follow-up.
