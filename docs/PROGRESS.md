@@ -1,5 +1,16 @@
 # Progress
 
+## End-of-day 2 handover (2026-11-08)
+- Done: C8 (run1 retrained, 4 checkpoints on Drive) and C9 merged to main (`ad4b9ba`); Gate G6 PASS:
+  run1 step 36500 promoted to Drive best/ (reports/best_provenance.json), reloads in a fresh process,
+  user: intelligible.
+- On Drive (boinga-translator/): runs/run1/ (10k/20k/30k/36.5k, ~4 GB), best/ (model.pth ~1 GB +
+  config + provenance), eval/run1/, eval/reload_check/; 4.5 GB free before the best/ copy.
+- First task tomorrow: C10 plan (line up the listening raters first; /clear before C10).
+- Risks: Drive nearly full (empty the trash); G6 rests on one listener and 3 clips; best/ not checked
+  through the Drive API.
+- Open bugs: none blocking; follow-ups: coqui "newline not in vocabulary" (C8), Drive API check of best/ (C9).
+
 ## End-of-day 1 handover (2026-11-08)
 - Done: C0-C7 merged to main (`d49ee06`); Gate G5 PASS: the runner restores the pretrained male
   VITS, smoke 50 steps + resume to 60 passed on Colab (0.34 s/step, 3.39 GB, no NaN).
@@ -764,7 +775,7 @@ non-test estimates, excluding the generated map/notebook and PROGRESS.
   5.23 / 2.71 s at -17.3 / -18.4 / -21.7 dBFS, "PASS: reload check (3 wavs)"; C9-notes
   INTELLIGIBLE "yes", NOTES "none" (`a95535f`)
 - [x] C9.4 Gate G6 — usable checkpoint: PASS (reload check PASS, INTELLIGIBLE "yes");
-  DECISIONS "Gate G6 — usable checkpoint" (this commit)
+  DECISIONS "Gate G6 — usable checkpoint" (`09e4cbc`)
 
 ## C10
 - [ ] C10.x (subchunks not yet defined)
