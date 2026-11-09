@@ -1040,25 +1040,21 @@ C13.3 is over budget as one commit (6 files), so it is split a/b.
   dataset, year 2026 from DataCite). New LICENSE (canonical Apache-2.0 text).
   test_readme: eval rows verbatim, numbers match their JSON files, licence strings,
   LICENSE (this commit)
-- [ ] C13.3a model card: new module `model_card.py`: `render(provenance, eval_md) -> str`
-  (Hugging Face front matter: license, language ctg/bn, base_model, tags; sections: model,
-  data, training, evaluation, intended use / misuse, limitations, licences, citation) ->
-  reports/model_card.md; `boinga model-card`. Test test_model_card (synthetic provenance +
-  eval.md). ~80 lines
-- [ ] C13.3b HF upload: new module `hf_upload.py`: `upload(repo_id, private=True)`: token
-  from the `HF_TOKEN` Colab secret (or env), create repo if missing, upload best/model.pth,
-  config.json, provenance.json and the card as README.md; skips files whose remote LFS
-  sha256 already matches (re-runnable); `boinga hf-upload --repo ID [--public]`. Spec: flag
-  cell `UPLOAD_TO_HF = False`, `HF_REPO_ID = ""`, upload cell `skip_unless="UPLOAD_TO_HF"`.
-  Test test_hf_upload with a fake HfApi (no network). ~80 lines
-- [ ] C13.H hand-off: notebook built, link, CPU runtime, flag choice, save name
-  `colab_runs/C13_release_run1.ipynb`
-- [ ] C13.V verify (colab-verify): repro PASS (best/ md5 matches), upload PASS or SKIPPED;
-  reports/repro.{json,md} into the repo
-- [ ] C13.4 acceptance checklist `docs/ACCEPTANCE.md` (gates G1-G7, verified notebooks,
-  ruff/pytest, no audio/checkpoints in git, licences/credits, README + card), version
-  0.0.1 -> 0.1.0 (pyproject + __init__), end-of-chunk handover; merge to main (--no-ff),
-  annotated tag v0.1.0, push (after your OK)
+- [ ] C13.3a model card: skipped (user, chat: "Skip 13.3")
+- [ ] C13.3b HF upload: skipped (user, chat); no weights uploaded
+- [ ] C13.H / C13.V: skipped (user, chat); notebooks/runs/C13_release_run1.ipynb is built but
+  not run, so reports/repro.json is not yet recorded from Colab
+- [x] C13.4 acceptance checklist `docs/ACCEPTANCE.md`: 17 items with commit/digest evidence,
+  15 PASS, 2 PARTIAL (14: training on the paid Colab RTX PRO 6000; 17: C1.5 `9f760cf` has no
+  digest), 0 FAIL; version 0.0.1 -> 0.1.0 (pyproject, __init__, test_smoke_import); merge to
+  main (--no-ff) and tag v0.1.0 (this commit)
+
+## End-of-day 3 handover (2026-11-09)
+- Done: C13 (repro command, README, LICENSE Apache-2.0, acceptance checklist); v0.1.0 tagged on
+  main.
+- Not done: model card, Hugging Face upload and the C13 Colab run (`boinga repro` on Colab).
+- Open follow-ups: cli help strings (`train` "(VM disk)", `keep` --steps default); uv.lock
+  untracked; earlier chunk follow-ups above.
 
 ## F — Fallback: MMS stack (only if the VITS fine-tune path is abandoned)
 - [ ] F.x (subchunks not yet defined; trigger rules in the debug-protocol skill)

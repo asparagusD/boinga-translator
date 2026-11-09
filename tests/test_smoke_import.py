@@ -4,4 +4,4 @@ import boinga_translator
 
 
 def test_version() -> None:
-    assert boinga_translator.__version__ == "0.0.1"
+    assert boinga_translator.__version__ == "0.1.0"

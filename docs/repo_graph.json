@@ -2571,6 +2571,12 @@
     },
     {
       "kind": "doc",
+      "lines": 32,
+      "path": "docs/ACCEPTANCE.md",
+      "purpose": "Acceptance checklist — boinga-translator v0.1.0"
+    },
+    {
+      "kind": "doc",
       "lines": 191,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
@@ -2583,7 +2589,7 @@
     },
     {
       "kind": "doc",
-      "lines": 1064,
+      "lines": 1060,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
