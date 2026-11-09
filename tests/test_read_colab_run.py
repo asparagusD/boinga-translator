@@ -374,3 +374,48 @@ def test_two_specs_with_same_chunk_and_run(cli_run: Path, tmp_path: Path) -> Non
         read_colab_run.find_spec(nb)
     found = read_colab_run.find_spec(nb, "C9_read_run1 (1).ipynb")  # browser-renamed download
     assert found.path == "notebooks/specs/read.py"
+
+
+SKIP_SPEC = '''"""Reader test spec: cells behind a flag."""
+from nbkit import Notebook, code, md
+
+NOTEBOOK = Notebook(
+    chunk="C9", run=1, slug="skip", title="Skip test", branch="chunk/C9-skip",
+    output="notebooks/skip_test.ipynb",
+    cells=[
+        md("About it."),
+        code("off", "Flag off", "train()", expect=["^STOP at step"], skip_unless="FLAG"),
+        md("About it."),
+        code("on", "Flag on", "train()", expect=["^STOP at step"], skip_unless="FLAG"),
+        md("About it."),
+        code("plain", "No flag", "train()", expect=["^STOP at step"]),
+        md("About it."),
+        code("bad", "Flag off, failed", "train()", expect=["^STOP"], skip_unless="FLAG"),
+    ],
+)
+'''
+
+
+def test_skipped_cell_is_pass(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    (tmp_path / "notebooks" / "specs").mkdir(parents=True)
+    real = build_notebook.ROOT / "notebooks" / "colab_bootstrap.py"
+    (tmp_path / "notebooks" / "colab_bootstrap.py").write_text(
+        real.read_text(encoding="utf-8"), encoding="utf-8")
+    spec_path = tmp_path / "notebooks" / "specs" / "skip.py"
+    spec_path.write_text(SKIP_SPEC, encoding="utf-8")
+    monkeypatch.setattr(build_notebook, "ROOT", tmp_path)
+    rel, text = build_notebook.build(spec_path)
+    assert rel == "notebooks/skip_test.ipynb"
+    nb = nbformat.reads(text, as_version=4)
+    by_id = {c.metadata.get("boinga", {}).get("id"): c for c in nb.cells}
+    printed = {"off": "SKIPPED (FLAG=False)\n", "on": "STOP at step 9\n",
+               "plain": "SKIPPED (FLAG=False)\n", "bad": "SKIPPED (FLAG=False)\nFAIL: x\n"}
+    for cid, out in printed.items():
+        by_id[cid].execution_count = 1
+        by_id[cid].outputs = [new_output("stream", name="stdout", text=f"{out}CELL-OK {cid}\n")]
+    res = {r.id: r for r in read_colab_run.check_run(nb, read_colab_run.load_spec(spec_path))}
+    assert res["off"].status == "PASS", res["off"].reasons
+    assert res["on"].status == "PASS", res["on"].reasons
+    assert res["plain"].status == "FAIL"  # no skip_unless: the skip line proves nothing
+    assert res["bad"].status == "FAIL"  # forbid is still checked on a skipped cell
+    assert any("^FAIL:" in r for r in res["bad"].reasons)

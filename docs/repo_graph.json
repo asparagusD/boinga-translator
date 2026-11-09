@@ -2407,13 +2407,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1273,
+      "lines": 1288,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 974,
+      "lines": 990,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -3127,7 +3127,7 @@
     },
     {
       "kind": "test",
-      "lines": 154,
+      "lines": 168,
       "path": "tests/test_build_notebook.py",
       "purpose": "Tests for tools/build_notebook.py: tiny spec -> .ipynb layout, determinism and --check."
     },
@@ -3241,7 +3241,7 @@
     },
     {
       "kind": "test",
-      "lines": 149,
+      "lines": 208,
       "path": "tests/test_nbkit.py",
       "purpose": "Tests for tools/nbkit.py: md/code/form cell sources, metadata, validation and Notebook."
     },
@@ -3295,7 +3295,7 @@
     },
     {
       "kind": "test",
-      "lines": 376,
+      "lines": 421,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
     },
@@ -3409,9 +3409,9 @@
     },
     {
       "kind": "tool",
-      "lines": 216,
+      "lines": 223,
       "path": "tools/build_notebook.py",
-      "purpose": "Build a per-chunk Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/."
+      "purpose": "Build a Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/ or its output."
     },
     {
       "kind": "tool",
@@ -3445,13 +3445,13 @@
     },
     {
       "kind": "tool",
-      "lines": 183,
+      "lines": 225,
       "path": "tools/nbkit.py",
       "purpose": "Notebook spec API (stdlib only): md / code / form cells and the Notebook a spec defines."
     },
     {
       "kind": "tool",
-      "lines": 337,
+      "lines": 338,
       "path": "tools/read_colab_run.py",
       "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
     },

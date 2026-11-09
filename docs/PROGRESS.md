@@ -964,8 +964,24 @@ promptbook replaces the planned C11.1a/b split: one subchunk, gradio pinned in `
   (run 1 not re-run with it). Bengali digits ০-৬ and ৮ are in the charset (৭, ৯ are not), so
   "১২৩" still speaks, untrained (digit rows were excluded) (this commit)
 
-## C12
-- [ ] C12.x (subchunks not yet defined)
+## C12 — End-to-end notebook
+Branch `chunk/C12-notebook`. One notebook, `notebooks/boinga_translator.ipynb`, built from spec
+`notebooks/specs/final.py`, runs the whole pipeline in 17 sections from cells the C1-C11 specs
+already define, through existing `boinga` commands. A `RUN_TRAINING` flag (default False)
+skips smoke test, fine-tune, samples and candidates, so the notebook uses the promoted Drive
+`best/`; promote stays manual. Over budget as one commit (5+ files), so C12.1 is split a/b.
+- [x] C12.1a code (tooling): `nbkit.Notebook(output=...)` (a `notebooks/...ipynb` path, not
+  under specs/) and `build_notebook.output_path()`, used by the builder, the title cell's save
+  name and `read_colab_run` (staleness, spec lookup, digest name); `nbkit.code(...,
+  skip_unless="FLAG")` wraps src in `if not FLAG: print("SKIPPED (FLAG=False)") else: ...`
+  (metadata key only when set; older notebooks byte-identical); the reader counts a skip line
+  in such a cell as PASS without checking expect (forbid and CELL-OK still checked). DECISIONS
+  "C12 end-to-end notebook". Tests test_nbkit, test_build_notebook, test_read_colab_run (this
+  commit)
+- [ ] C12.1b code: `notebooks/specs/final.py` (17 sections S1-S17, RUN_TRAINING flag cell) ->
+  `notebooks/boinga_translator.ipynb`; test: 17 headings, every `!boinga <cmd>` exists in cli
+- [ ] C12.H hand-off: fresh runtime, Run all with RUN_TRAINING=False
+- [ ] C12.V verify (colab-verify); Gate G7 — end-to-end notebook
 
 ## C13
 - [ ] C13.x (subchunks not yet defined)
