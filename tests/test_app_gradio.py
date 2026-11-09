@@ -149,7 +149,8 @@ def test_build_app_blocks(tmp_path: Path) -> None:
 def test_handler_raises_gradio_error() -> None:
     gr = pytest.importorskip("gradio")
     handler = app_gradio.make_handler(FakeBank(["boinga"]))
-    with pytest.raises(gr.Error, match="Please keep it under 300 characters."):
+    with pytest.raises(gr.Error, match="Please keep it under 300 characters.") as info:
         handler("ক" * 301, "boinga")
+    assert info.value.print_exception is False  # no traceback in the live cell's log
     rate, wav = handler("ক", "boinga")
     assert rate == SR and wav.size == SR

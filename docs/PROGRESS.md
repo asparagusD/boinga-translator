@@ -926,12 +926,24 @@ promptbook replaces the planned C11.1a/b split: one subchunk, gradio pinned in `
   DECISIONS "C11 demo". Tests `tests/test_app_gradio.py` (fake bank; gradio tests ran with
   gradio 6.31.0 in .venv) (this commit). Not done: rejecting characters outside the voice's
   charset (coqui drops them silently; C5 follow-up)
-- [ ] C11.2 demo notebook: `app_gradio.edge_checks(bank)` (fixed edge-case list: empty, blank,
-  digits, Latin, emoji, NBSP/ZWJ, decomposed nukta, danda, very long, held-out prompts; expected
-  accept/reject; accepted ones > 0.5 s, finite, RMS > -50 dBFS, seconds to synthesise) ->
-  reports/demo_checks.md (emitted), "PASS: demo checks N/N"; spec `notebooks/specs/c11_demo.py`
-  cells C11.2.checks, C11.2.live (the app in the notebook), form
-  C11-notes. Tests for edge_checks (fake bank) (~60 + ~70 spec lines)
+- [x] C11.2 code (user's C11.2 promptbook replaces the planned edge_checks/report):
+  `tools/demo_selfcheck.py` calls `app_gradio.make_handler` (the page's own callback) on the
+  real VoiceBank, no UI: first held-out eval prompt in boinga + baseline (audio > 0.5 s,
+  finite), empty and 400 characters (exact friendly messages), prompt + Latin letters and
+  prompt + Bengali digits (audio or a friendly message); only gr.Error may leave the handler;
+  "CASE <name>: ok <s> s|error <message>", "PASS: demo selfcheck (6 cases)". `nbkit.code(...,
+  allow_interrupt=True)` (metadata key only when set, older notebooks unchanged) and
+  `read_colab_run._status`: a KeyboardInterrupt in such a cell is PASS, expect/forbid checked
+  on its output before the stop, no CELL-OK needed (a fallback: gradio's block_thread usually
+  catches Stop itself and the cell ends normally). Spec `notebooks/specs/c11_demo.py` ->
+  `notebooks/runs/C11_demo_run1.ipynb` (GPU): C11.2.check, C11.2.live, form C11-notes
+  (DEMO_WORKED, NOTES). Changes to the user's cell text: the live cell launches with
+  `debug=True` (without it gradio returns at once in Colab and Run all runs on into the form),
+  its md says to (re)run the form after filling it (after Stop the cell usually ends
+  normally, so Run all may already have run the form empty; record_notes saves what it holds); `app_gradio.make_handler` raises gr.Error with
+  `print_exception=False` (gradio otherwise prints a traceback for every friendly error,
+  which the live cell's "Traceback" forbid would flag). Tests `tests/test_demo_selfcheck.py`,
+  test_nbkit, test_read_colab_run (this commit)
 - [ ] C11.H hand-off: notebook built, `--all --check` clean, pushed; link, runtime, form fields,
   save name `colab_runs/C11_demo_run1.ipynb`
 - [ ] C11.V verify run 1 (colab-verify): edge checks PASS, live demo reached, form notes saved

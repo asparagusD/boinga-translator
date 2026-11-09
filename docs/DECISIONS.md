@@ -1254,3 +1254,12 @@ words missing. `pip install -e .[train]` now pulls gradio and its web stack into
 training VM.
 **Alternatives:** A separate `[demo]` extra installed by its own notebook cell (keeps training
 VMs lean; not asked); a charset check in check_input (left for later).
+
+**Update (C11.2):** The demo notebook's live cell runs `launch(share=True, debug=True)`:
+without `debug`, gradio returns at once in Colab, so the cell would not wait for Stop. A cell
+made with `nbkit.code(..., allow_interrupt=True)` counts a KeyboardInterrupt as PASS in the
+reader (its output before the stop is still checked against expect/forbid); gradio's own block_thread usually catches the Stop and the cell ends normally, so this is a fallback for a Stop during model loading. Friendly errors
+are raised with `gr.Error(..., print_exception=False)`, so they leave no traceback in the
+cell's log; a Traceback there now means a real failure. The selfcheck accepts audio or a
+friendly message for Latin letters and Bengali digits, because check_input does not judge
+them (coqui drops unknown characters).

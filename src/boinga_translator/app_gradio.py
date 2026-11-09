@@ -103,7 +103,8 @@ def make_handler(bank: Bank) -> Callable[[str, str], tuple[int, np.ndarray]]:
         try:
             return synthesize(bank, text, voice)
         except DemoError as exc:
-            raise gr.Error(str(exc)) from None  # no chained traceback on the page
+            # no traceback on the page, nor in the server log (the live Colab cell shows it)
+            raise gr.Error(str(exc), print_exception=False) from None
 
     return handler
 

@@ -62,6 +62,26 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C11_demo_run1.ipynb",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C11_demo_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C11_demo_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C11_demo_run1.ipynb",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
@@ -333,6 +353,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c10_eval_run4.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c11_demo.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -1421,6 +1446,21 @@
       "target": "src/boinga_translator/settings.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_demo_selfcheck.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_demo_selfcheck.py",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_demo_selfcheck.py",
+      "target": "tools/demo_selfcheck.py"
+    },
+    {
       "kind": "test",
       "source": "tests/test_drive_api.py",
       "target": "src/boinga_translator/drive_api.py"
@@ -2117,6 +2157,16 @@
     },
     {
       "kind": "import",
+      "source": "tools/demo_selfcheck.py",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/demo_selfcheck.py",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "import",
       "source": "tools/inspect_layout.py",
       "target": "src/boinga_translator/report_io.py"
     },
@@ -2322,13 +2372,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1256,
+      "lines": 1265,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 946,
+      "lines": 958,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2361,6 +2411,12 @@
       "lines": 348,
       "path": "notebooks/runs/C10_eval_run4.ipynb",
       "purpose": "C10 run 4 — objective check"
+    },
+    {
+      "kind": "notebook",
+      "lines": 437,
+      "path": "notebooks/runs/C11_demo_run1.ipynb",
+      "purpose": "C11 run 1 — C11 — demo"
     },
     {
       "kind": "notebook",
@@ -2475,6 +2531,12 @@
       "lines": 32,
       "path": "notebooks/specs/c10_eval_run4.py",
       "purpose": "Spec: C10 run 4, blind A/B evaluation: optional MCD of A and B vs the real recordings."
+    },
+    {
+      "kind": "module",
+      "lines": 50,
+      "path": "notebooks/specs/c11_demo.py",
+      "purpose": "Spec: C11 run 1, Gradio demo: automated edge-case checks, then the live demo and your notes."
     },
     {
       "kind": "module",
@@ -2814,7 +2876,7 @@
     },
     {
       "kind": "module",
-      "lines": 140,
+      "lines": 141,
       "path": "src/boinga_translator/app_gradio.py",
       "purpose": "Gradio demo: type Chittagonian text, hear the fine-tuned (boinga) or the baseline voice."
     },
@@ -2988,7 +3050,7 @@
     },
     {
       "kind": "test",
-      "lines": 155,
+      "lines": 156,
       "path": "tests/test_app_gradio.py",
       "purpose": "Tests for app_gradio: input check, examples, footer, handler errors, Blocks (fake bank)."
     },
@@ -3066,6 +3128,12 @@
     },
     {
       "kind": "test",
+      "lines": 100,
+      "path": "tests/test_demo_selfcheck.py",
+      "purpose": "Tests for tools/demo_selfcheck.py: case lines, PASS/FAIL rules, escaped exceptions (fake bank)."
+    },
+    {
+      "kind": "test",
       "lines": 92,
       "path": "tests/test_drive_api.py",
       "purpose": "Tests for drive_api.py with a fake Drive v3 service (no network, no Colab)."
@@ -3126,7 +3194,7 @@
     },
     {
       "kind": "test",
-      "lines": 142,
+      "lines": 149,
       "path": "tests/test_nbkit.py",
       "purpose": "Tests for tools/nbkit.py: md/code/form cell sources, metadata, validation and Notebook."
     },
@@ -3180,7 +3248,7 @@
     },
     {
       "kind": "test",
-      "lines": 318,
+      "lines": 376,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
     },
@@ -3306,6 +3374,12 @@
     },
     {
       "kind": "tool",
+      "lines": 101,
+      "path": "tools/demo_selfcheck.py",
+      "purpose": "Colab check (C11.2): the demo's own handler on a normal prompt and on bad inputs, no UI."
+    },
+    {
+      "kind": "tool",
       "lines": 80,
       "path": "tools/hooks/commit_msg.py",
       "purpose": "Commit-msg guard: enforce the atomic-commit message format (header, Chunk/What/Why/How verified)."
@@ -3324,13 +3398,13 @@
     },
     {
       "kind": "tool",
-      "lines": 173,
+      "lines": 183,
       "path": "tools/nbkit.py",
       "purpose": "Notebook spec API (stdlib only): md / code / form cells and the Notebook a spec defines."
     },
     {
       "kind": "tool",
-      "lines": 331,
+      "lines": 337,
       "path": "tools/read_colab_run.py",
       "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
     },
