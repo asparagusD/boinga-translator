@@ -6,7 +6,8 @@ description: Verify an executed Colab notebook the user put in colab_runs/. Use 
 
 ## 1. Read the run (never open the .ipynb)
 - Find the newest file in `colab_runs/` matching the expected
-  `<chunk>_<slug>_run<k>.ipynb` (ask the user only if none matches).
+  `<chunk>_<slug>_run<k>.ipynb` (ask the user only if none matches). A spec with
+  `output=` saves under that file's name, e.g. `colab_runs/boinga_translator.ipynb`.
 - Run `python tools/read_colab_run.py colab_runs/<file> --save-reports`.
   Never open the notebook directly: it can hold large outputs and secrets; the
   reader drops binary output and redacts tokens.

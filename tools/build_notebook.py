@@ -1,4 +1,4 @@
-"""Build a per-chunk Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/."""
+"""Build a Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/ or its output."""
 
 # Usage: python tools/build_notebook.py notebooks/specs/<spec>.py [--check]
 #        python tools/build_notebook.py --all [--check]
@@ -7,6 +7,7 @@
 # markdown cell explaining it (CLAUDE.md): the builder writes them for BOOT/HDR, a spec writes
 # its own with md() (a form keeps the md() right before it). Output is deterministic: no outputs,
 # no execution counts, LF line endings. all_cells() is what the reader checks against.
+# --all --check reports orphans in notebooks/runs/ only: delete an old output= file by hand.
 
 from __future__ import annotations
 
@@ -45,7 +46,13 @@ def load_spec(spec: Path) -> nbkit.Notebook:
 
 
 def filename(nb: nbkit.Notebook) -> str:
-    return f"{nb.chunk}_{nb.slug}_run{nb.run}.ipynb"
+    """File name of the built notebook (also the colab_runs/ save name)."""
+    return Path(output_path(nb)).name
+
+
+def output_path(nb: nbkit.Notebook) -> str:
+    """Repo-relative path of the built notebook: the spec's output, else notebooks/runs/."""
+    return nb.output or f"{RUNS}/{nb.chunk}_{nb.slug}_run{nb.run}.ipynb"
 
 
 ABOUT: dict[str, str] = {
@@ -171,7 +178,7 @@ def build(spec: Path) -> tuple[str, str]:
         **({"accelerator": "GPU"} if nb.gpu else {}),
     }
     doc = {"cells": cells, "metadata": metadata, "nbformat": 4, "nbformat_minor": 5}
-    return f"{RUNS}/{filename(nb)}", json.dumps(doc, indent=1, ensure_ascii=False) + "\n"
+    return output_path(nb), json.dumps(doc, indent=1, ensure_ascii=False) + "\n"
 
 
 def main(argv: list[str] | None = None) -> int:

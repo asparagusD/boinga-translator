@@ -1,6 +1,51 @@
 {
   "edges": [
     {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/colab_bootstrap.py",
       "target": "src/boinga_translator/paths.py"
@@ -468,6 +513,41 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c9_synth_best.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/baseline_prompts.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/pretrained_facts.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/vits_ctg_finetune.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/final.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -1607,6 +1687,26 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_final_spec.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_final_spec.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_final_spec.py",
+      "target": "tools/build_notebook.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_final_spec.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_hooks.py",
       "target": "tools/hooks/commit_msg.py"
     },
@@ -2305,7 +2405,7 @@
     },
     {
       "kind": "skill",
-      "lines": 50,
+      "lines": 51,
       "path": ".claude/skills/colab-verify/SKILL.md",
       "purpose": "Verify an executed Colab notebook the user put in colab_runs/."
     },
@@ -2407,15 +2507,21 @@
     },
     {
       "kind": "doc",
-      "lines": 1273,
+      "lines": 1302,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 974,
+      "lines": 1008,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
+    },
+    {
+      "kind": "notebook",
+      "lines": 1485,
+      "path": "notebooks/boinga_translator.ipynb",
+      "purpose": "C12 run 1 — boinga-translator — end-to-end"
     },
     {
       "kind": "module",
@@ -2664,6 +2770,12 @@
       "purpose": "Spec: C9 run 1, promote run1 step 36500 (the user's BEST_STEP) to best/, reload it, listen."
     },
     {
+      "kind": "module",
+      "lines": 325,
+      "path": "notebooks/specs/final.py",
+      "purpose": "Spec: C12 end-to-end notebook: the whole pipeline in 17 sections, training behind RUN_TRAINING."
+    },
+    {
       "kind": "config",
       "lines": 47,
       "path": "pyproject.toml",
@@ -2800,6 +2912,12 @@
       "lines": 254,
       "path": "reports/colab_runs/C9_synth-best_run1.md",
       "purpose": "Colab run C9 run 1 — C9 — best checkpoint"
+    },
+    {
+      "kind": "doc",
+      "lines": 780,
+      "path": "reports/colab_runs/boinga_translator.md",
+      "purpose": "Colab run C12 run 1 — boinga-translator — end-to-end"
     },
     {
       "kind": "doc",
@@ -3127,7 +3245,7 @@
     },
     {
       "kind": "test",
-      "lines": 154,
+      "lines": 168,
       "path": "tests/test_build_notebook.py",
       "purpose": "Tests for tools/build_notebook.py: tiny spec -> .ipynb layout, determinism and --check."
     },
@@ -3223,6 +3341,12 @@
     },
     {
       "kind": "test",
+      "lines": 78,
+      "path": "tests/test_final_spec.py",
+      "purpose": "Tests for notebooks/specs/final.py: 17 numbered sections, real `boinga` commands, flag cells."
+    },
+    {
+      "kind": "test",
       "lines": 57,
       "path": "tests/test_hooks.py",
       "purpose": "Tests for tools/hooks/commit_msg.py: valid messages pass, bad ones fail with the right reason."
@@ -3241,7 +3365,7 @@
     },
     {
       "kind": "test",
-      "lines": 149,
+      "lines": 208,
       "path": "tests/test_nbkit.py",
       "purpose": "Tests for tools/nbkit.py: md/code/form cell sources, metadata, validation and Notebook."
     },
@@ -3295,7 +3419,7 @@
     },
     {
       "kind": "test",
-      "lines": 376,
+      "lines": 421,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
     },
@@ -3409,9 +3533,9 @@
     },
     {
       "kind": "tool",
-      "lines": 216,
+      "lines": 223,
       "path": "tools/build_notebook.py",
-      "purpose": "Build a per-chunk Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/."
+      "purpose": "Build a Colab notebook from a spec (notebooks/specs/*.py) into notebooks/runs/ or its output."
     },
     {
       "kind": "tool",
@@ -3445,13 +3569,13 @@
     },
     {
       "kind": "tool",
-      "lines": 183,
+      "lines": 225,
       "path": "tools/nbkit.py",
       "purpose": "Notebook spec API (stdlib only): md / code / form cells and the Notebook a spec defines."
     },
     {
       "kind": "tool",
-      "lines": 337,
+      "lines": 338,
       "path": "tools/read_colab_run.py",
       "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
     },

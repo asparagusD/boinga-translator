@@ -132,8 +132,10 @@ def _status(spec_cell: nbkit.Cell, cell: nbformat.NotebookNode) -> tuple[str, li
         stopped = True
         checked, _ = output_text({"outputs": [o for o in cell.get("outputs", [])
                                               if o.get("output_type") != "error"]})
-    reasons = [f"expected /{p}/ not found" for p in spec_cell.expect
-               if not re.search(p, checked, re.MULTILINE)]
+    skipped = bool(spec_cell.skip_unless) and None is not re.search(
+        rf"^{re.escape(nbkit.skip_line(str(spec_cell.skip_unless)))}$", checked, re.MULTILINE)
+    reasons = [] if skipped else [f"expected /{p}/ not found" for p in spec_cell.expect
+                                  if not re.search(p, checked, re.MULTILINE)]
     reasons += [f"forbidden /{p}/ found" for p in spec_cell.forbid
                 if re.search(p, checked, re.MULTILINE)]
     if not stopped and f"cell_ok('{spec_cell.id}')" in spec_cell.source and not re.search(
@@ -311,8 +313,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     results = check_run(executed, spec)
     header = run_header(executed)
-    stale = staleness(header.get("commit", ""),
-                      f"{build_notebook.RUNS}/{build_notebook.filename(spec.notebook)}")
+    stale = staleness(header.get("commit", ""), build_notebook.output_path(spec.notebook))
     out = paths.reports_dir() / "colab_runs" / f"{Path(build_notebook.filename(spec.notebook)).stem}.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(digest(Path(args.notebook).name, spec, header, stale, results),

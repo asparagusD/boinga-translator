@@ -964,8 +964,42 @@ promptbook replaces the planned C11.1a/b split: one subchunk, gradio pinned in `
   (run 1 not re-run with it). Bengali digits ০-৬ and ৮ are in the charset (৭, ৯ are not), so
   "১২৩" still speaks, untrained (digit rows were excluded) (this commit)
 
-## C12
-- [ ] C12.x (subchunks not yet defined)
+## C12 — End-to-end notebook
+Branch `chunk/C12-notebook`. One notebook, `notebooks/boinga_translator.ipynb`, built from spec
+`notebooks/specs/final.py`, runs the whole pipeline in 17 sections from cells the C1-C11 specs
+already define, through existing `boinga` commands. A `RUN_TRAINING` flag (default False)
+skips smoke test, fine-tune, samples and candidates, so the notebook uses the promoted Drive
+`best/`; promote stays manual. Over budget as one commit (5+ files), so C12.1 is split a/b.
+- [x] C12.1a code (tooling): `nbkit.Notebook(output=...)` (a `notebooks/...ipynb` path, not
+  under specs/) and `build_notebook.output_path()`, used by the builder, the title cell's save
+  name and `read_colab_run` (staleness, spec lookup, digest name); `nbkit.code(...,
+  skip_unless="FLAG")` wraps src in `if not FLAG: print("SKIPPED (FLAG=False)") else: ...`
+  (metadata key only when set; older notebooks byte-identical); the reader counts a skip line
+  in such a cell as PASS without checking expect (forbid and CELL-OK still checked). DECISIONS
+  "C12 end-to-end notebook". Tests test_nbkit, test_build_notebook, test_read_colab_run (this
+  commit)
+- [x] C12.1 code (C12.1b): `notebooks/specs/final.py` -> `notebooks/boinga_translator.ipynb`
+  (GPU, 81 cells): intro (what it does, licences, README link), flag cell S0 `RUN_TRAINING =
+  False #@param`, 17 `## N.` sections S1-S17 calling existing commands: env, versions,
+  fetch-data + DOI/licence, index + audit + 10 players, audit-summary, prepare + manifest
+  parse, fetch/inspect-pretrained, baseline, check-loader, smoke clean/50/resume 60 [flag],
+  train run1 + throughput [flag], sample + players [flag], candidates [flag] (promote manual),
+  reload_check.py + players, eval-generate + A/B/R players P01-P05, demo selfcheck + live
+  (allow_interrupt), emit reports/env.json. S4 adds `boinga audit` (resumable) because the 10
+  players pick clean clips from audit.csv. Test `tests/test_final_spec.py` (17 headings in
+  order, ids S<n> per section, every `!boinga <cmd>` in cli.build_parser and its arguments
+  parse, `!python tools/...` exist, flagged cells = training cells, flag before them, no
+  promote, live demo before S17); test_notebooks also covers `notebooks/*.ipynb`; ruff
+  excludes the built notebook like notebooks/runs (this commit)
+- [x] C12.H hand-off: `notebooks/boinga_translator.ipynb` rebuilt, unchanged since `8bbe9ba`,
+  `--all --check` clean, pushed; link, runtime T4, steps (Disconnect and delete runtime first,
+  keep RUN_TRAINING = False, Run all, Stop the live demo after trying it) and save name
+  `colab_runs/boinga_translator.ipynb` given; duration not measured (this commit)
+- [x] C12.2 = C12.V verify (colab-verify): 31/31 PASS at f12cce7 (built in 8bbe9ba), not
+  stale, fresh runtime, Tesla T4, RUN_TRAINING = False: S10-S13 printed `SKIPPED
+  (RUN_TRAINING=False)`; S14 "PASS: reload check (3 wavs)", S15 "PASS: generated A=20 B=20
+  R=20", S16 "PASS: demo selfcheck (6 cases)", S16.live public link then Stop. Gate G7 —
+  fresh runtime: PASS (DECISIONS) (this commit)
 
 ## C13
 - [ ] C13.x (subchunks not yet defined)

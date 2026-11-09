@@ -152,3 +152,17 @@ def test_cell_without_explanation_rejected(repo: Path, cells: str) -> None:
                     encoding="utf-8")
     with pytest.raises(ValueError, match=r"needs an md\(\) explanation"):
         build_notebook.main(["notebooks/specs/demo.py"])
+
+
+def test_output_override(repo: Path) -> None:
+    spec = repo / "notebooks" / "specs" / "demo.py"
+    spec.write_text(SPEC.replace("{gpu}", "True").replace(
+        "gpu=True,", 'gpu=True, output="notebooks/demo_final.ipynb",'), encoding="utf-8")
+    assert build_notebook.main(["notebooks/specs/demo.py"]) == 0
+    out = repo / "notebooks" / "demo_final.ipynb"
+    assert out.is_file() and not (repo / "notebooks" / "runs" / "C9_demo_run2.ipynb").exists()
+    nb = json.loads(out.read_text("utf-8"))
+    assert "`colab_runs/demo_final.ipynb`" in _src(nb["cells"][0])  # save name follows output
+    assert build_notebook.main(["--all", "--check"]) == 0
+    out.write_text("{}", encoding="utf-8")
+    assert build_notebook.main(["--all", "--check"]) == 1  # stale override is caught too

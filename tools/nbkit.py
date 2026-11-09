@@ -6,10 +6,12 @@
 
 from __future__ import annotations
 
+import io
 import json
 import keyword
 import re
 import textwrap
+import tokenize
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
 
@@ -18,6 +20,12 @@ RESERVED_IDS = re.compile(r"^(BOOT\.\d+|HDR)$")  # bootstrap and run-header cell
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _SLUG = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 _RUNTIME = "from boinga_translator.colab_runtime import"
+_OUTPUT = re.compile(r"^notebooks/(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+\.ipynb$")
+
+
+def skip_line(flag: str) -> str:
+    """The line a skip_unless cell prints when its flag is off (the reader counts it as PASS)."""
+    return f"SKIPPED ({flag}=False)"
 
 
 @dataclass(frozen=True)
@@ -33,6 +41,7 @@ class Cell:
     gpu: bool = False
     timeout_min: int | None = None
     allow_interrupt: bool = False  # reader: a KeyboardInterrupt (Stop pressed) is a PASS
+    skip_unless: str | None = None  # flag name: the cell does nothing while it is False
 
     @property
     def metadata(self) -> dict[str, object]:
@@ -44,6 +53,8 @@ class Cell:
             "forbid": list(self.forbid), "gpu": self.gpu, "timeout_min": self.timeout_min}
         if self.allow_interrupt:  # only when set, so older built notebooks stay byte-identical
             meta["allow_interrupt"] = True
+        if self.skip_unless:
+            meta["skip_unless"] = self.skip_unless
         return {"boinga": meta}
 
 
@@ -88,6 +99,18 @@ def _checked_cell(kind: str, cell_id: str, title: str, lines: list[str], expect:
                 gpu, timeout_min)
 
 
+def _multiline_string(src: str) -> bool:
+    """True if src has a string spanning lines (indenting it would change the text), or if
+    src cannot be tokenized. IPython `!`/`%` lines are read as `pass` first."""
+    lines = [re.sub(r"^(\s*)[!%].*$", r"\1pass", ln) for ln in src.split("\n")]
+    try:
+        toks = list(tokenize.generate_tokens(io.StringIO("\n".join(lines) + "\n").readline))
+    except (tokenize.TokenError, SyntaxError):
+        return True
+    return any(tokenize.tok_name[t.type] in ("STRING", "FSTRING_MIDDLE") and "\n" in t.string
+               for t in toks)
+
+
 def md(text: str) -> Cell:
     """Markdown cell (dedented, surrounding blank lines dropped)."""
     return Cell("markdown", _body(text))
@@ -95,14 +118,28 @@ def md(text: str) -> Cell:
 
 def code(cell_id: str, title: str, src: str, expect: Iterable[str] = (),
          forbid: Iterable[str] = (), gpu: bool = False, timeout_min: int | None = None,
-         allow_interrupt: bool = False) -> Cell:
+         allow_interrupt: bool = False, skip_unless: str | None = None) -> Cell:
     """Code cell: marker line, dedented src, then cell_ok('<id>').
 
     allow_interrupt: the cell runs until the user presses Stop (e.g. a live demo); the reader
     then counts its KeyboardInterrupt as PASS, still checking expect/forbid on its output.
+    skip_unless: name of a notebook flag (e.g. RUN_TRAINING, set by an earlier cell); src runs
+    only when it is true, else the cell prints skip_line(flag), which the reader counts as PASS
+    without checking expect (`!` shell lines work indented: IPython rewrites them anywhere).
     """
-    cell = _checked_cell("code", cell_id, title, [_body(src)], expect, forbid, gpu, timeout_min)
-    return replace(cell, allow_interrupt=allow_interrupt)
+    body = _body(src)
+    if skip_unless is not None:
+        if not skip_unless.isidentifier() or keyword.iskeyword(skip_unless):
+            raise ValueError(f"skip_unless {skip_unless!r} is not a Python identifier")
+        if not body:
+            raise ValueError(f"cell {cell_id!r}: skip_unless needs a non-empty src")
+        if _multiline_string(body):
+            raise ValueError(f"cell {cell_id!r}: skip_unless indents src, which would change "
+                             "a multi-line string in it; build the text on one line")
+        body = "\n".join([f"if not {skip_unless}:", f"    print({skip_line(skip_unless)!r})",
+                          "else:", textwrap.indent(body, "    ")])
+    cell = _checked_cell("code", cell_id, title, [body], expect, forbid, gpu, timeout_min)
+    return replace(cell, allow_interrupt=allow_interrupt, skip_unless=skip_unless)
 
 
 def _literal(value: object) -> str:
@@ -151,9 +188,14 @@ class Notebook:
     branch: str
     cells: Sequence[Cell]
     gpu: bool = True
+    output: str | None = None  # repo path of the built .ipynb; None = notebooks/runs/<name>
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "cells", tuple(self.cells))
+        if self.output is not None and (not _OUTPUT.match(self.output)
+                                        or self.output.startswith("notebooks/specs/")):
+            raise ValueError("output must be a notebooks/... .ipynb path (letters, digits, _ -;"
+                             f" not under notebooks/specs/), got {self.output!r}")
         if self.run < 1:
             raise ValueError(f"run must be >= 1, got {self.run}")
         if not _SLUG.match(self.slug):

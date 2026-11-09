@@ -1271,3 +1271,32 @@ lacks, in first-seen order, instead of letting coqui drop them with a log warnin
 Latin letters). This closes the C5 follow-up for the demo. Bengali digits ০-৬ and ৮ are in the
 charset, so they pass and are read the way the pretrained voice reads them (digit rows were
 excluded from training); ৭ and ৯ are rejected.
+
+## 2026-11-09 — C12 end-to-end notebook
+**Decision:** The final notebook is built by the same `tools/build_notebook.py` from spec
+`notebooks/specs/final.py`, but written to `notebooks/boinga_translator.ipynb` through a new
+`Notebook(output=...)` (default stays `notebooks/runs/<chunk>_<slug>_run<n>.ipynb`; the save
+name in `colab_runs/` follows the file name). Cells that train or need a training run take
+`code(..., skip_unless="RUN_TRAINING")`: the builder wraps them in an if-guard on a flag set by
+an earlier cell, and when it is False they print `SKIPPED (RUN_TRAINING=False)`, which the
+reader counts as PASS without the cell's expect patterns (forbid and CELL-OK still apply).
+**Why:** one notebook must run end to end on a fresh runtime in minutes, not hours, using the
+promoted Drive `best/`, yet keep the training path one checkbox away; the reader must not
+flag the skipped cells as FAIL, and an if-guard in the cell keeps logic out of the spec.
+**Alternatives:** a `form()` flag (the builder moves forms to the end, after the cells that
+need it); a colab_runtime helper per cell (cannot wrap `!boinga` shell lines); a second
+builder for the final notebook (duplicates the tested layout and reader checks).
+
+## 2026-11-09 — Gate G7 — fresh runtime: PASS
+**Decision:** Gate G7 (the end-to-end notebook runs on a fresh Colab runtime) passes. The user
+deleted the runtime, opened `notebooks/boinga_translator.ipynb` from GitHub on a T4, kept
+`RUN_TRAINING = False` and ran all: 31/31 cells PASS at commit f12cce7 (notebook built in
+8bbe9ba, not stale), digest `reports/colab_runs/boinga_translator.md`. Sections 10-13 printed
+`SKIPPED (RUN_TRAINING=False)`; S14 reload check, S15 eval audio A=20 B=20 R=20, S16 demo
+selfcheck (6 cases) and the live demo (public link, stopped by the user) all passed.
+**Why:** the gate checks that a new user can reproduce the pipeline from the repo plus Drive
+caches with one "Run all" and no manual steps, on the free-tier GPU.
+**Limits:** the training path (`RUN_TRAINING = True`) was not run in this notebook; its cells
+are the C7/C8 commands verified in those chunks. The run reused Drive caches (corpus zip,
+audit parts, prepared tar, pretrained voices, best/, eval wavs, C4 speaker selection), so it
+does not prove a run on an empty Drive. Duration was not recorded by the reader.
