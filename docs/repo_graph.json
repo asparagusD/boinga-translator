@@ -2507,13 +2507,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1288,
+      "lines": 1302,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 1004,
+      "lines": 1008,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2912,6 +2912,12 @@
       "lines": 254,
       "path": "reports/colab_runs/C9_synth-best_run1.md",
       "purpose": "Colab run C9 run 1 — C9 — best checkpoint"
+    },
+    {
+      "kind": "doc",
+      "lines": 780,
+      "path": "reports/colab_runs/boinga_translator.md",
+      "purpose": "Colab run C12 run 1 — boinga-translator — end-to-end"
     },
     {
       "kind": "doc",

@@ -995,7 +995,11 @@ skips smoke test, fine-tune, samples and candidates, so the notebook uses the pr
   `--all --check` clean, pushed; link, runtime T4, steps (Disconnect and delete runtime first,
   keep RUN_TRAINING = False, Run all, Stop the live demo after trying it) and save name
   `colab_runs/boinga_translator.ipynb` given; duration not measured (this commit)
-- [ ] C12.V verify (colab-verify); Gate G7 — end-to-end notebook
+- [x] C12.2 = C12.V verify (colab-verify): 31/31 PASS at f12cce7 (built in 8bbe9ba), not
+  stale, fresh runtime, Tesla T4, RUN_TRAINING = False: S10-S13 printed `SKIPPED
+  (RUN_TRAINING=False)`; S14 "PASS: reload check (3 wavs)", S15 "PASS: generated A=20 B=20
+  R=20", S16 "PASS: demo selfcheck (6 cases)", S16.live public link then Stop. Gate G7 —
+  fresh runtime: PASS (DECISIONS) (this commit)
 
 ## C13
 - [ ] C13.x (subchunks not yet defined)
