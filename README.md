@@ -3,16 +3,18 @@
 Single-speaker **Chittagonian text-to-speech**: a proof of concept that fine-tunes a
 pretrained Bangla VITS voice (`tts_models/bn/custom/vits-male`, coqui-tts 0.28.0) on the
 Chittagonian recordings of "A Synchronized Chittagonian Speech Corpus" (Mendeley Data, DOI
-[10.17632/n9xttk45df.1](https://doi.org/10.17632/n9xttk45df.1)), on Google Colab with a
-$0 budget. You type Chittagonian in Bengali script and one fine-tuned voice reads it aloud.
+[10.17632/n9xttk45df.1](https://doi.org/10.17632/n9xttk45df.1)), on Google Colab. Everything
+runs on free tools except the training GPU time (Colab pay-as-you-go, RTX PRO 6000); the
+notebook without training runs on the free T4. You type Chittagonian in Bengali script and one fine-tuned voice reads it aloud.
 
 **What it is not:** not multi-speaker (one voice, learned from the corpus's mixed clean
 clips), not production-grade (one fine-tune run, informal evaluation), and not native-level
 (in a blind test with one rater it beat the pretrained baseline but stayed far from natural
 Chittagonian).
 
-**Status:** proof of concept, pipeline complete; the end-to-end notebook passes on a fresh
-Colab runtime.
+**Status:** proof of concept, pipeline complete. The end-to-end notebook passed on a fresh
+Colab runtime at `a7f6174` (Gate G7); its last section was changed to `boinga repro` in C13
+and has not been re-run on Colab since.
 
 ## Quickstart (Colab)
 
@@ -35,7 +37,8 @@ reproducibility report.
 5. **`RUN_TRAINING`** (settings cell S0): leave it **off** to reuse the fine-tuned model already
    promoted to Drive `best/`; the smoke test, fine-tune, checkpoint samples and ranking then
    print `SKIPPED (RUN_TRAINING=False)`. Tick it to train (run1 resumes from its newest
-   checkpoint; a fresh run1 took about 2.4 h on an RTX PRO 6000 and ~6 GB of Drive).
+   checkpoint; the promoted run1 took about 1.8 h wall clock on a paid RTX PRO 6000, the first
+   attempt about 2.4 h, and ~6 GB of Drive).
 6. **Runtime > Run all.** Allow Google Drive access when asked. Everything is kept under
    `MyDrive/boinga-translator/` and reused, so "Run all" can be repeated: finished work is
    skipped and training resumes.
@@ -87,7 +90,7 @@ no NaN loss. Promoted checkpoint: step 36,500, eval loss_mel 20.5995 (at step 36
 | G4 | text front-end covers the text | PASS (0 of 297,218 characters unknown) |
 | G5 | ready to train (smoke + resume) | PASS |
 | G6 | usable checkpoint | PASS (one listener, 3 sentences) |
-| G7 | end-to-end notebook on a fresh runtime | PASS (31/31 cells, `RUN_TRAINING = False`) |
+| G7 | end-to-end notebook on a fresh runtime | PASS (31/31 cells, `RUN_TRAINING = False`, at `a7f6174`; S17 changed since, not re-run) |
 
 No gate ended PASS WITH RISK or PARTIAL.
 

@@ -1005,9 +1005,8 @@ skips smoke test, fine-tune, samples and candidates, so the notebook uses the pr
 
 ## C13 — Reproducibility report, docs and release
 Branch `chunk/C13-release`. One CPU notebook, spec `notebooks/specs/c13_release.py` ->
-`notebooks/runs/C13_release_run1.ipynb`: repro report, then an optional Hugging Face upload
-behind an `UPLOAD_TO_HF` flag (default False, `skip_unless`, as in C12). Ends with tag v0.1.0.
-C13.3 is over budget as one commit (6 files), so it is split a/b.
+`notebooks/runs/C13_release_run1.ipynb`: repro report (the planned Hugging Face upload cell
+was not built: C13.3 skipped). Ends with tag v0.1.0.
 - [x] C13.1 code (user's C13.1 promptbook replaces the planned md5/repro.md scope):
   `env_report.final()` -> reports/repro.json (repo + Drive copy, emitted): `env` (collect(),
   the env.json fields), `packages` (torch, coqui-tts, numpy, librosa, gradio), `config_sha256`
@@ -1045,8 +1044,9 @@ C13.3 is over budget as one commit (6 files), so it is split a/b.
 - [ ] C13.H / C13.V: skipped (user, chat); notebooks/runs/C13_release_run1.ipynb is built but
   not run, so reports/repro.json is not yet recorded from Colab
 - [x] C13.4 acceptance checklist `docs/ACCEPTANCE.md`: 17 items with commit/digest evidence,
-  15 PASS, 2 PARTIAL (14: training on the paid Colab RTX PRO 6000; 17: C1.5 `9f760cf` has no
-  digest), 0 FAIL; version 0.0.1 -> 0.1.0 (pyproject, __init__, test_smoke_import); merge to
+  14 PASS, 3 PARTIAL (13: S17 changed since G7, not re-run; 14: training on the paid Colab RTX
+  PRO 6000; 17: C1.5 `9f760cf` has no digest), 0 FAIL (branch review: README "$0" and G7 claims
+  corrected); version 0.0.1 -> 0.1.0 (pyproject, __init__, test_smoke_import); merge to
   main (--no-ff) and tag v0.1.0 (this commit)
 
 ## End-of-day 3 handover (2026-11-09)
