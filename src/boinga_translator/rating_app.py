@@ -5,6 +5,7 @@ from __future__ import annotations
 import html
 import os
 import re
+import time
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -80,8 +81,40 @@ def save(sheet: pd.DataFrame, rater: str) -> Path:
     return path
 
 
+def adopt_blind_sheet(rater: str) -> int:
+    """Copy scores typed straight into blind/rating_sheet.csv to ratings/<rater>.csv.
+
+    Only when the blind sheet has more rated clips than the rater's saved sheet; a saved
+    sheet it replaces is kept as <rater>.csv.<time>.bak (not *.csv, so it is never scored).
+    For one-person evaluation: checking a second rater would adopt the same scores again.
+    Returns the number of rated clips copied (0 when nothing was copied).
+    """
+    src = blind_dir() / "rating_sheet.csv"
+    if not src.is_file():
+        return 0
+    blind = pd.read_csv(src, dtype=str, keep_default_na=False).reindex(columns=SHEET_COLS,
+                                                                       fill_value="")
+    path = sheet_path(rater)
+    have = progress(load_or_start(rater))[0] if path.is_file() else 0
+    done = progress(blind)[0]
+    if done <= have:
+        return 0
+    kept = ""
+    if path.is_file():
+        bak = path.with_name(f"{path.name}.{time.strftime('%Y%m%d-%H%M%S')}.bak")
+        os.replace(path, bak)
+        kept = f" (previous sheet kept as {bak.name})"
+    save(blind.assign(rater=_slug(rater)), rater)
+    print(f"copied {done} rated clips from blind/rating_sheet.csv to {path}{kept}")
+    return done
+
+
 def check(rater: str) -> None:
-    """PASS when every clip of the rater's saved sheet has four scores, else FAIL and stop."""
+    """PASS when every clip of the rater's saved sheet has four scores, else FAIL and stop.
+
+    Scores typed into blind/rating_sheet.csv instead of the rating screen are adopted first.
+    """
+    adopt_blind_sheet(rater)
     path = sheet_path(rater)
     if not path.is_file():
         colab_runtime.fail(f"no ratings saved for {_slug(rater)!r} at {path}")

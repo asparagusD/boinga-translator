@@ -80,6 +80,25 @@ def test_check_needs_every_clip(tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
     assert "PASS: rated 4 of 4 clips" in capsys.readouterr().out
 
 
+def test_check_adopts_ratings_typed_into_the_blind_sheet(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    blind = _setup(tmp_path, monkeypatch)
+    sheet = pd.read_csv(blind / "rating_sheet.csv", dtype=str, keep_default_na=False)
+    rating_app.save(_rate(rating_app.load_or_start("me"), "P01", 2), "me")  # partial, saved
+    filled = _rate(_rate(sheet, "P01", 4), "P02", 5)
+    filled.to_csv(blind / "rating_sheet.csv", index=False)  # scores typed into the blind sheet
+    rating_app.check("me")
+    out = capsys.readouterr().out
+    assert "copied 4 rated clips from blind/rating_sheet.csv" in out
+    assert "previous sheet kept as me.csv." in out and "PASS: rated 4 of 4 clips" in out
+    saved = rating_app.load_or_start("me")
+    assert set(saved["rater"]) == {"me"} and set(saved["naturalness"]) == {"4", "5"}
+    assert len(list(evaluate.ratings_dir().glob("me.csv.*.bak"))) == 1
+    assert len(list(evaluate.ratings_dir().glob("*.csv"))) == 1  # the backup is never scored
+    rating_app.check("me")  # second run: nothing more to copy
+    assert "copied" not in capsys.readouterr().out
+
+
 def test_rate_builds_the_widgets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     pytest.importorskip("ipywidgets")  # Colab has it; the local dev env may not
     blind = _setup(tmp_path, monkeypatch)

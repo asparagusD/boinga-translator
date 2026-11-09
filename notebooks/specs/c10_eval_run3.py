@@ -36,7 +36,11 @@ NOTEBOOK = Notebook(
             **Check the ratings are complete.** "Run all" reaches this cell before you have
             rated anything, so the first time it stops here with `FAIL: rated 0 of 40 clips`:
             that is expected. Rate all 20 prompts above, then click this cell and use
-            Runtime > Run cell and below. Expect `PASS: rated 40 of 40 clips`.
+            Runtime > Run cell and below. Expect `PASS: rated 40 of 40 clips`. If you typed
+            your scores straight into Drive `eval/final/blind/rating_sheet.csv` instead of
+            using the screen, this cell copies them to `eval/final/ratings/me.csv` first
+            (`copied 40 rated clips from blind/rating_sheet.csv ...`); a saved `me.csv` with
+            fewer rated clips is kept as `me.csv.<time>.bak`.
         """),
         code("C10.R.check", "Check the ratings are complete", """
             from boinga_translator import rating_app
