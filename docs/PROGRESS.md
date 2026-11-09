@@ -903,8 +903,38 @@ map/notebook and PROGRESS.
   C10.5 "PASS: mcd table (20 prompts)" in 0:45 (2.30 s/prompt). MCD vs R: A 143.21 ± 14.84,
   B 107.23 ± 24.91; B closer on 20 of 20 prompts (reports/eval.md) (this commit)
 
-## C11
-- [ ] C11.x (subchunks not yet defined)
+## C11 — Gradio demo
+Branch `chunk/C11-demo`. A Gradio page that speaks typed Chittagonian text with the fine-tuned
+voice (Drive best/, run1 step 36500) and, for comparison, the pretrained baseline, through
+`synth.VoiceBank` (prepare_text, fixed seed and inference scales). The input check rejects
+empty text and text over 300 characters; characters coqui would silently drop are not checked
+yet (C5 follow-up, DECISIONS "Gate G4"). New module
+`app_gradio.py` (not `gradio.py`: it would shadow the library); gradio is imported lazily and
+pinned in the `[train]` extra (the bootstrap installs it). One GPU notebook: spec `notebooks/specs/c11_demo.py` ->
+`notebooks/runs/C11_demo_run1.ipynb`. Local tests use a fake VoiceBank, never coqui or the model; the Blocks test needs gradio (skipped when it is not installed). Line counts
+are non-test estimates, excluding the generated map/notebook and PROGRESS. The user's C11.1
+promptbook replaces the planned C11.1a/b split: one subchunk, gradio pinned in `[train]` (no
+`[demo]` extra, so no install cell in C11.2), check_input = empty / > 300 characters only.
+- [x] C11.1 new module `app_gradio.py`: `check_input(text)` -> message or None ("Please enter
+  some Bengali text." for empty/blank, "Please keep it under 300 characters." over 300, edge
+  spaces not counted); `synthesize(bank, text, voice)` (check, then VoiceBank.speak; ValueError
+  messages kept, other errors "Synthesis failed (<type>)", logged); `make_handler` (DemoError ->
+  gr.Error, no traceback); `build_app(bank)` -> gr.Blocks (title, proof-of-concept description,
+  Textbox, Radio of bank.available() default boinga, Synthesize, Audio, gr.Examples from the
+  first 5 of configs/eval_prompts.json if present, footer from settings); `launch(share)`;
+  `boinga demo [--share]`; `settings.PRETRAINED_AUTHOR`; `gradio==6.31.0` in `[train]`.
+  DECISIONS "C11 demo". Tests `tests/test_app_gradio.py` (fake bank; gradio tests ran with
+  gradio 6.31.0 in .venv) (this commit). Not done: rejecting characters outside the voice's
+  charset (coqui drops them silently; C5 follow-up)
+- [ ] C11.2 demo notebook: `app_gradio.edge_checks(bank)` (fixed edge-case list: empty, blank,
+  digits, Latin, emoji, NBSP/ZWJ, decomposed nukta, danda, very long, held-out prompts; expected
+  accept/reject; accepted ones > 0.5 s, finite, RMS > -50 dBFS, seconds to synthesise) ->
+  reports/demo_checks.md (emitted), "PASS: demo checks N/N"; spec `notebooks/specs/c11_demo.py`
+  cells C11.2.checks, C11.2.live (the app in the notebook), form
+  C11-notes. Tests for edge_checks (fake bank) (~60 + ~70 spec lines)
+- [ ] C11.H hand-off: notebook built, `--all --check` clean, pushed; link, runtime, form fields,
+  save name `colab_runs/C11_demo_run1.ipynb`
+- [ ] C11.V verify run 1 (colab-verify): edge checks PASS, live demo reached, form notes saved
 
 ## C12
 - [ ] C12.x (subchunks not yet defined)

@@ -15,6 +15,7 @@ PRETRAINED_IDS: Final[dict[str, str]] = {
     "male": "tts_models/bn/custom/vits-male",
 }
 PRETRAINED_LICENSE: Final[str] = "Apache-2.0"
+PRETRAINED_AUTHOR: Final[str] = "@mobassir94"  # author of both bn/custom voices (C11 footer)
 PRETRAINED_RELEASE_URLS: Final[dict[str, str]] = {
     "female": "https://github.com/coqui-ai/TTS/releases/download/v0.13.3_models/"
     "tts_models--bn--custom--vits_female.zip",

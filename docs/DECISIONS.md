@@ -1231,3 +1231,26 @@ absolute values are far above usual MCD figures (typically ~5-10 dB) because the
 librosa's MFCC scale (128 dB mel bands, orthonormal DCT); they are comparable only inside
 this table, and the real speaker is neither voice, so this is a relative cross-check only.
 
+
+## 2026-11-09 — C11 demo
+**Context:** C11.1 adds a Gradio page for the fine-tuned voice (Drive best/, run1 step 36500)
+and the pretrained baseline, through synth.VoiceBank (prepare_text, fixed seed and inference
+scales).
+**Decision:** New module `app_gradio.py` (never `gradio.py`, which would shadow the library);
+gradio is imported only when the page is built. `gradio==6.31.0` is pinned in the `[train]`
+extra, so the bootstrap installs it: it is the latest release (2026-10-28) and `uv pip
+compile` resolves it together with coqui-tts 0.28.0 for Colab's Python 3.12 (huggingface-hub
+2.4.0, transformers 5.22.2). The input check is only what the user specified: empty text and
+more than 300 characters (leading and trailing spaces not counted). Errors reach the page as
+gr.Error with a short message: VoiceBank's ValueErrors as they are, anything else as
+"Synthesis failed (<type>)", the traceback only in the server log. Examples are the first 5
+held-out prompts of configs/eval_prompts.json, verbatim. The footer credits the base models
+(`settings.PRETRAINED_AUTHOR` "@mobassir94", new pinned fact, Apache-2.0, via coqui-tts) and the
+dataset (name, DOI, CC-BY-4.0, authors from settings). `boinga demo [--share]`; `--share`
+opens a public gradio.live link.
+**Consequences:** Characters outside the voice's charset are still not rejected: coqui drops
+them with only a log warning (C5 follow-up, DECISIONS "Gate G4"), so such text plays with
+words missing. `pip install -e .[train]` now pulls gradio and its web stack into every
+training VM.
+**Alternatives:** A separate `[demo]` extra installed by its own notebook cell (keeps training
+VMs lean; not asked); a charset check in check_input (left for later).

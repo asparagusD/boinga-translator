@@ -447,6 +447,21 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/audit_summary.py",
       "target": "src/boinga_translator/corpus.py"
     },
@@ -569,6 +584,11 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/app_gradio.py"
     },
     {
       "kind": "import",
@@ -1184,6 +1204,21 @@
       "kind": "import",
       "source": "src/boinga_translator/train_runner.py",
       "target": "src/boinga_translator/train_config.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/settings.py"
     },
     {
       "kind": "test",
@@ -2287,13 +2322,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1233,
+      "lines": 1256,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 916,
+      "lines": 946,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2533,7 +2568,7 @@
     },
     {
       "kind": "config",
-      "lines": 45,
+      "lines": 47,
       "path": "pyproject.toml",
       "purpose": ""
     },
@@ -2779,6 +2814,12 @@
     },
     {
       "kind": "module",
+      "lines": 140,
+      "path": "src/boinga_translator/app_gradio.py",
+      "purpose": "Gradio demo: type Chittagonian text, hear the fine-tuned (boinga) or the baseline voice."
+    },
+    {
+      "kind": "module",
       "lines": 125,
       "path": "src/boinga_translator/audit_summary.py",
       "purpose": "Audit summary: exclusion rules (clean_mask), reports/audit_summary.md, clean clips to hear."
@@ -2797,7 +2838,7 @@
     },
     {
       "kind": "module",
-      "lines": 517,
+      "lines": 533,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2893,7 +2934,7 @@
     },
     {
       "kind": "module",
-      "lines": 43,
+      "lines": 44,
       "path": "src/boinga_translator/settings.py",
       "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
     },
@@ -2944,6 +2985,12 @@
       "lines": 488,
       "path": "src/boinga_translator/train_runner.py",
       "purpose": "Training runner: coqui VITS loader check, fine-tune runs, smoke cleanup, best-model promotion."
+    },
+    {
+      "kind": "test",
+      "lines": 155,
+      "path": "tests/test_app_gradio.py",
+      "purpose": "Tests for app_gradio: input check, examples, footer, handler errors, Blocks (fake bank)."
     },
     {
       "kind": "test",

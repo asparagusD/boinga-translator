@@ -19,7 +19,9 @@ dependencies = [
 
 [project.optional-dependencies]
 # resemblyzer: speaker embeddings (C4.2a); its webrtcvad imports pkg_resources (setuptools<81).
-train = ["coqui-tts==0.28.0", "openpyxl", "resemblyzer==0.1.4", "setuptools<81"]
+# gradio: the C11 demo (app_gradio.py); 6.31.0 = what pip resolves with coqui-tts 0.28.0 for
+# Colab's Python 3.12 (uv pip compile, 2026-11-09).
+train = ["coqui-tts==0.28.0", "openpyxl", "resemblyzer==0.1.4", "setuptools<81", "gradio==6.31.0"]
 # Only if resemblyzer cannot import on Colab (DECISIONS "Speaker encoder").
 speaker-fallback = ["speechbrain==1.1.2"]
 dev = ["pytest", "ruff", "nbformat"]
