@@ -944,8 +944,10 @@ promptbook replaces the planned C11.1a/b split: one subchunk, gradio pinned in `
   `print_exception=False` (gradio otherwise prints a traceback for every friendly error,
   which the live cell's "Traceback" forbid would flag). Tests `tests/test_demo_selfcheck.py`,
   test_nbkit, test_read_colab_run (this commit)
-- [ ] C11.H hand-off: notebook built, `--all --check` clean, pushed; link, runtime, form fields,
-  save name `colab_runs/C11_demo_run1.ipynb`
+- [x] C11.H hand-off: `notebooks/runs/C11_demo_run1.ipynb` rebuilt, unchanged since `a1bc809`,
+  `--all --check` clean, pushed; link, runtime (user: T4), notebook instructions, form
+  C11-notes and save name `colab_runs/C11_demo_run1.ipynb` given; duration not measured (this
+  commit)
 - [ ] C11.V verify run 1 (colab-verify): edge checks PASS, live demo reached, form notes saved
 
 ## C12
