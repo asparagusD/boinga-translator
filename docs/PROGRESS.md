@@ -1003,8 +1003,48 @@ skips smoke test, fine-tune, samples and candidates, so the notebook uses the pr
 - [x] after the merge to main: `final.py` branch="main", so the notebook's bootstrap clones
   main (only BRANCH and the title line change; verified cells unchanged) (this commit)
 
-## C13
-- [ ] C13.x (subchunks not yet defined)
+## C13 — Reproducibility report, docs and release
+Branch `chunk/C13-release`. One CPU notebook, spec `notebooks/specs/c13_release.py` ->
+`notebooks/runs/C13_release_run1.ipynb`: repro report, then an optional Hugging Face upload
+behind an `UPLOAD_TO_HF` flag (default False, `skip_unless`, as in C12). Ends with tag v0.1.0.
+C13.3 is over budget as one commit (6 files), so it is split a/b.
+- [ ] C13.1 code: `env_report.final()` -> reports/repro.json + reports/repro.md: collect()
+  plus pandas/librosa/soxr/gradio/huggingface-hub versions (C6 follow-up), pinned facts
+  (settings: model ids, coqui-tts, dataset DOI/sha256, seed, inference scales), sha256 of
+  configs/char_map.json, splits_summary.json, vits_ctg_finetune.json, speaker_selection.json,
+  best_provenance.json summary, and when Drive best/model.pth exists its md5 (tqdm) vs the
+  provenance md5 (PASS/FAIL; C9 follow-up via the mount, not the Drive API); emits both.
+  `boinga repro`. Spec cell C13.1. Tests: test_env_report (fake files, md5 match/mismatch,
+  missing best/ -> "not checked", CLI). ~90 lines
+- [ ] C13.2a README core: what it is, status, quick start (end-to-end notebook link, GH_TOKEN,
+  RUN_TRAINING), local dev, pipeline table (stage -> `boinga` command -> report), repo
+  layout (pointer to docs/REPO_GRAPH.md), how to reproduce (reports/repro.md). Test
+  tests/test_readme.py: relative links resolve, every `boinga <cmd>` named is in
+  cli.build_parser
+- [ ] C13.2b README results/limitations/licences: eval.md headline (B vs A, win rate 0.82,
+  1 rater), MCD (relative only), gates G1-G7 with DECISIONS links, limitations (from eval.md
+  + G7 limits), credits and licences (dataset name, DOI 10.17632/n9xttk45df.1, authors,
+  CC BY 4.0; base voices @mobassir94 Apache-2.0; coqui-tts 0.28.0), citation, repo
+  LICENSE file. test_readme: DOI, authors and licence strings present
+- [ ] C13.3a model card: new module `model_card.py`: `render(provenance, eval_md) -> str`
+  (Hugging Face front matter: license, language ctg/bn, base_model, tags; sections: model,
+  data, training, evaluation, intended use / misuse, limitations, licences, citation) ->
+  reports/model_card.md; `boinga model-card`. Test test_model_card (synthetic provenance +
+  eval.md). ~80 lines
+- [ ] C13.3b HF upload: new module `hf_upload.py`: `upload(repo_id, private=True)`: token
+  from the `HF_TOKEN` Colab secret (or env), create repo if missing, upload best/model.pth,
+  config.json, provenance.json and the card as README.md; skips files whose remote LFS
+  sha256 already matches (re-runnable); `boinga hf-upload --repo ID [--public]`. Spec: flag
+  cell `UPLOAD_TO_HF = False`, `HF_REPO_ID = ""`, upload cell `skip_unless="UPLOAD_TO_HF"`.
+  Test test_hf_upload with a fake HfApi (no network). ~80 lines
+- [ ] C13.H hand-off: notebook built, link, CPU runtime, flag choice, save name
+  `colab_runs/C13_release_run1.ipynb`
+- [ ] C13.V verify (colab-verify): repro PASS (best/ md5 matches), upload PASS or SKIPPED;
+  reports/repro.{json,md} into the repo
+- [ ] C13.4 acceptance checklist `docs/ACCEPTANCE.md` (gates G1-G7, verified notebooks,
+  ruff/pytest, no audio/checkpoints in git, licences/credits, README + card), version
+  0.0.1 -> 0.1.0 (pyproject + __init__), end-of-chunk handover; merge to main (--no-ff),
+  annotated tag v0.1.0, push (after your OK)
 
 ## F — Fallback: MMS stack (only if the VITS fine-tune path is abandoned)
 - [ ] F.x (subchunks not yet defined; trigger rules in the debug-protocol skill)
