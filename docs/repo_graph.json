@@ -1,6 +1,51 @@
 {
   "edges": [
     {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/ckpt_sampler.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/boinga_translator.ipynb",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/colab_bootstrap.py",
       "target": "src/boinga_translator/paths.py"
@@ -468,6 +513,41 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c9_synth_best.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/baseline_prompts.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/pretrained_facts.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/final.py",
+      "target": "configs/vits_ctg_finetune.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/final.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -1607,6 +1687,26 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_final_spec.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_final_spec.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_final_spec.py",
+      "target": "tools/build_notebook.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_final_spec.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_hooks.py",
       "target": "tools/hooks/commit_msg.py"
     },
@@ -2305,7 +2405,7 @@
     },
     {
       "kind": "skill",
-      "lines": 50,
+      "lines": 51,
       "path": ".claude/skills/colab-verify/SKILL.md",
       "purpose": "Verify an executed Colab notebook the user put in colab_runs/."
     },
@@ -2413,9 +2513,15 @@
     },
     {
       "kind": "doc",
-      "lines": 990,
+      "lines": 1001,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
+    },
+    {
+      "kind": "notebook",
+      "lines": 1485,
+      "path": "notebooks/boinga_translator.ipynb",
+      "purpose": "C12 run 1 — boinga-translator — end-to-end"
     },
     {
       "kind": "module",
@@ -2662,6 +2768,12 @@
       "lines": 70,
       "path": "notebooks/specs/c9_synth_best.py",
       "purpose": "Spec: C9 run 1, promote run1 step 36500 (the user's BEST_STEP) to best/, reload it, listen."
+    },
+    {
+      "kind": "module",
+      "lines": 325,
+      "path": "notebooks/specs/final.py",
+      "purpose": "Spec: C12 end-to-end notebook: the whole pipeline in 17 sections, training behind RUN_TRAINING."
     },
     {
       "kind": "config",
@@ -3220,6 +3332,12 @@
       "lines": 124,
       "path": "tests/test_evaluate_sheet.py",
       "purpose": "Tests for evaluate.make_rating_sheet and `boinga eval-sheet`: blind clips, hidden key, sheet."
+    },
+    {
+      "kind": "test",
+      "lines": 78,
+      "path": "tests/test_final_spec.py",
+      "purpose": "Tests for notebooks/specs/final.py: 17 numbered sections, real `boinga` commands, flag cells."
     },
     {
       "kind": "test",

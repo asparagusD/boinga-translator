@@ -14,14 +14,15 @@ import pytest
 from boinga_translator import paths
 
 C1_NOTEBOOK = paths.REPO / "notebooks" / "runs" / "C1_bootstrap_run1.ipynb"
+BUILT = sorted([*(paths.REPO / "notebooks" / "runs").glob("*.ipynb"),
+                *(paths.REPO / "notebooks").glob("*.ipynb")])  # output= notebooks too
 
 
 def test_committed_notebooks_are_in_sync() -> None:
     assert build_notebook.main(["--all", "--check"]) == 0, "run `tools/build_notebook.py --all`"
 
 
-@pytest.mark.parametrize("nb_path", sorted((paths.REPO / "notebooks" / "runs").glob("*.ipynb")),
-                         ids=lambda p: p.name)
+@pytest.mark.parametrize("nb_path", BUILT, ids=lambda p: p.name)
 def test_run_notebooks_have_no_outputs_or_tokens(nb_path: Path) -> None:
     nb = json.loads(nb_path.read_text(encoding="utf-8"))
     for cell in nb["cells"]:
@@ -30,8 +31,7 @@ def test_run_notebooks_have_no_outputs_or_tokens(nb_path: Path) -> None:
     assert not re.search(r"ghp_|gho_|ghs_|github_pat_", json.dumps(nb))
 
 
-@pytest.mark.parametrize("nb_path", sorted((paths.REPO / "notebooks" / "runs").glob("*.ipynb")),
-                         ids=lambda p: p.name)
+@pytest.mark.parametrize("nb_path", BUILT, ids=lambda p: p.name)
 def test_every_cell_has_an_explanation(nb_path: Path) -> None:
     """CLAUDE.md: every code/form cell comes right after a markdown cell explaining it."""
     cells = json.loads(nb_path.read_text(encoding="utf-8"))["cells"]

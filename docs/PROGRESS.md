@@ -978,8 +978,19 @@ skips smoke test, fine-tune, samples and candidates, so the notebook uses the pr
   in such a cell as PASS without checking expect (forbid and CELL-OK still checked). DECISIONS
   "C12 end-to-end notebook". Tests test_nbkit, test_build_notebook, test_read_colab_run (this
   commit)
-- [ ] C12.1b code: `notebooks/specs/final.py` (17 sections S1-S17, RUN_TRAINING flag cell) ->
-  `notebooks/boinga_translator.ipynb`; test: 17 headings, every `!boinga <cmd>` exists in cli
+- [x] C12.1 code (C12.1b): `notebooks/specs/final.py` -> `notebooks/boinga_translator.ipynb`
+  (GPU, 81 cells): intro (what it does, licences, README link), flag cell S0 `RUN_TRAINING =
+  False #@param`, 17 `## N.` sections S1-S17 calling existing commands: env, versions,
+  fetch-data + DOI/licence, index + audit + 10 players, audit-summary, prepare + manifest
+  parse, fetch/inspect-pretrained, baseline, check-loader, smoke clean/50/resume 60 [flag],
+  train run1 + throughput [flag], sample + players [flag], candidates [flag] (promote manual),
+  reload_check.py + players, eval-generate + A/B/R players P01-P05, demo selfcheck + live
+  (allow_interrupt), emit reports/env.json. S4 adds `boinga audit` (resumable) because the 10
+  players pick clean clips from audit.csv. Test `tests/test_final_spec.py` (17 headings in
+  order, ids S<n> per section, every `!boinga <cmd>` in cli.build_parser and its arguments
+  parse, `!python tools/...` exist, flagged cells = training cells, flag before them, no
+  promote, live demo before S17); test_notebooks also covers `notebooks/*.ipynb`; ruff
+  excludes the built notebook like notebooks/runs (this commit)
 - [ ] C12.H hand-off: fresh runtime, Run all with RUN_TRAINING=False
 - [ ] C12.V verify (colab-verify); Gate G7 — end-to-end notebook
 
