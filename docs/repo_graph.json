@@ -52,6 +52,16 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run4.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run4.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
@@ -318,6 +328,11 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c10_eval_run3.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c10_eval_run4.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -598,6 +613,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/eval_mcd.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/evaluate.py"
     },
     {
@@ -723,6 +743,21 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/env_report.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/eval_mcd.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/eval_mcd.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/eval_mcd.py",
       "target": "src/boinga_translator/report_io.py"
     },
     {
@@ -1373,6 +1408,26 @@
     {
       "kind": "test",
       "source": "tests/test_env_report.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_eval_mcd.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_eval_mcd.py",
+      "target": "src/boinga_translator/eval_mcd.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_eval_mcd.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_eval_mcd.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -2238,7 +2293,7 @@
     },
     {
       "kind": "doc",
-      "lines": 908,
+      "lines": 913,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2265,6 +2320,12 @@
       "lines": 479,
       "path": "notebooks/runs/C10_eval_run3.ipynb",
       "purpose": "C10 run 3 — rating and scoring"
+    },
+    {
+      "kind": "notebook",
+      "lines": 348,
+      "path": "notebooks/runs/C10_eval_run4.ipynb",
+      "purpose": "C10 run 4 — objective check"
     },
     {
       "kind": "notebook",
@@ -2373,6 +2434,12 @@
       "lines": 82,
       "path": "notebooks/specs/c10_eval_run3.py",
       "purpose": "Spec: C10 run 3, blind A/B evaluation: rate the blind clips here, then score into eval.md."
+    },
+    {
+      "kind": "module",
+      "lines": 32,
+      "path": "notebooks/specs/c10_eval_run4.py",
+      "purpose": "Spec: C10 run 4, blind A/B evaluation: optional MCD of A and B vs the real recordings."
     },
     {
       "kind": "module",
@@ -2724,7 +2791,7 @@
     },
     {
       "kind": "module",
-      "lines": 500,
+      "lines": 517,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2763,6 +2830,12 @@
       "lines": 102,
       "path": "src/boinga_translator/env_report.py",
       "purpose": "Record python, torch/CUDA, GPU, coqui-tts, numpy, git and disk info to reports/env.json."
+    },
+    {
+      "kind": "module",
+      "lines": 100,
+      "path": "src/boinga_translator/eval_mcd.py",
+      "purpose": "Objective check for C10: mel-cepstral distortion (DTW) of each voice vs the real recordings."
     },
     {
       "kind": "module",
@@ -2949,6 +3022,12 @@
       "lines": 117,
       "path": "tests/test_env_report.py",
       "purpose": "Tests for env_report.py and `boinga env`: missing torch, fake GPU, JSON keys, CLI wiring."
+    },
+    {
+      "kind": "test",
+      "lines": 106,
+      "path": "tests/test_eval_mcd.py",
+      "purpose": "Tests for eval_mcd: MCD with DTW, the per-prompt table in eval.md, `boinga eval-mcd`."
     },
     {
       "kind": "test",

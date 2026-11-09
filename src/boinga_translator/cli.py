@@ -58,6 +58,8 @@ def build_parser() -> argparse.ArgumentParser:
                                       "sheet in Drive eval/final/blind/")
     sub.add_parser("eval-score", help="unblind the filled rating sheets in Drive eval/final/ratings/ "
                                       "into reports/eval.md")
+    sub.add_parser("eval-mcd", help="mel-cepstral distortion of A and B vs the real recordings, "
+                                    "appended to reports/eval.md (relative only)")
     sub.add_parser("embed-speakers",
                    help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
     sub.add_parser("cluster-speakers",
@@ -313,6 +315,19 @@ def _eval_score() -> int:
     return 0
 
 
+def _eval_mcd() -> int:
+    """MCD of A and B vs the real recordings into reports/eval.md; FAIL + exit 1 on error."""
+    from boinga_translator import eval_mcd  # librosa import only for this command
+
+    try:
+        table = eval_mcd.mcd_table()
+    except (FileNotFoundError, ValueError, KeyError, OSError, RuntimeError) as exc:
+        print(f"FAIL: eval-mcd: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: mcd table ({len(table)} prompts)")
+    return 0
+
+
 def _embed_speakers() -> int:
     """One speaker embedding per clean clip of the Drive audit.csv; FAIL + exit 1 on error."""
     try:
@@ -461,6 +476,8 @@ def main(argv: list[str] | None = None) -> int:
         return _eval_sheet()
     elif args.command == "eval-score":
         return _eval_score()
+    elif args.command == "eval-mcd":
+        return _eval_mcd()
     elif args.command == "embed-speakers":
         return _embed_speakers()
     elif args.command == "cluster-speakers":

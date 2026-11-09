@@ -878,11 +878,14 @@ map/notebook and PROGRESS.
   C10.R.check, then C10.4; title "rating and scoring". DECISIONS "C10 self-rating". Tests
   `tests/test_rating_app.py` (widget test needs ipywidgets: skipped locally, passed with a
   scratch install) (this commit)
-- [ ] C10.5 optional MCD (local + spec run 3): new module `eval_mcd.py`: MCD with DTW
-  (librosa MFCC 1-13, `librosa.sequence.dtw`) of each voice vs R per prompt;
-  reports/eval_mcd.json, read by eval.md when present. Placed before C10.4 in run 3, and
-  labelled as a rough measure because it mixes speaker and dialect. Tests
-  `tests/test_eval_mcd.py` (~70 lines)
+- [x] C10.5 optional MCD (user: "Yes, build it"; local + spec run 4): new module
+  `eval_mcd.py`: `mcd_dtw(a_wav, r_wav)` (librosa MFCC 1-13, silence trimmed, DTW with
+  `librosa.sequence.dtw`, MCD in dB = sqrt(2) x Euclidean of dB-scaled MFCCs) and
+  `mcd_table()` for all 20 prompts with a reference (A vs R, B vs R), replacing or
+  appending "Objective check (relative only)" in reports/eval.md; `boinga eval-mcd`
+  ("PASS: mcd table"). New spec `notebooks/specs/c10_eval_run4.py` (CPU, cell C10.5)
+  instead of run 2 (already verified); 20 prompts, not 15 (every prompt has R). Tests
+  `tests/test_eval_mcd.py` (this commit)
 - [x] C10.4c ratings typed into blind/rating_sheet.csv: `rating_app.adopt_blind_sheet`, called
   by `check`, copies it to ratings/<rater>.csv when it has more rated clips (older sheet kept
   as .bak) (e18615b)
@@ -893,7 +896,9 @@ map/notebook and PROGRESS.
 - [x] C10.V3 verify run 3 (colab-verify): 9/9 PASS at 9e17032 (built in 9e17032), not stale.
   C10.R.import copied 40 rated clips from the Google Sheet; C10.R.check "PASS: rated 40 of
   40 clips"; C10.4 "PASS: scored 1 raters". reports/eval.md: overall A 1.12 vs B 1.73
-  (+0.60), B win rate 0.82 over 20 prompts. DECISIONS "C10 evaluation result" (this commit)
+  (+0.60), B win rate 0.82 over 20 prompts. DECISIONS "C10 evaluation result" (b3e5ffa)
+- [ ] C10.H4 hand-off run 4 (CPU; save name `colab_runs/C10_eval_run4.ipynb`)
+- [ ] C10.V4 verify run 4 (colab-verify)
 
 ## C11
 - [ ] C11.x (subchunks not yet defined)
