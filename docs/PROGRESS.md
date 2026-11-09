@@ -991,7 +991,10 @@ skips smoke test, fine-tune, samples and candidates, so the notebook uses the pr
   parse, `!python tools/...` exist, flagged cells = training cells, flag before them, no
   promote, live demo before S17); test_notebooks also covers `notebooks/*.ipynb`; ruff
   excludes the built notebook like notebooks/runs (this commit)
-- [ ] C12.H hand-off: fresh runtime, Run all with RUN_TRAINING=False
+- [x] C12.H hand-off: `notebooks/boinga_translator.ipynb` rebuilt, unchanged since `8bbe9ba`,
+  `--all --check` clean, pushed; link, runtime T4, steps (Disconnect and delete runtime first,
+  keep RUN_TRAINING = False, Run all, Stop the live demo after trying it) and save name
+  `colab_runs/boinga_translator.ipynb` given; duration not measured (this commit)
 - [ ] C12.V verify (colab-verify); Gate G7 — end-to-end notebook
 
 ## C13
