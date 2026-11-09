@@ -312,14 +312,16 @@ NOTEBOOK = Notebook(
 
         md("## 17. Reproducibility report"),
         md("""
-            **Environment of this run.** Prints `reports/env.json` (written by the run header:
-            GPU, versions, git commit) between BEGIN/END markers. C13.1 extends this report.
-            Expect `=== BEGIN reports/env.json ===`.
+            **Reproducibility report.** `boinga repro` records what this run used into
+            `reports/repro.json` (and a Drive copy): the environment (GPU, Python, git commit),
+            the versions of torch, coqui-tts, numpy, librosa and gradio, the sha256 of the
+            fine-tune config, the splits summary and the char map, the seed, the provenance of
+            the best checkpoint, and the steps and training hours of each run folder on Drive.
+            A missing input prints a `WARN:` line instead of failing. Expect the file between
+            `=== BEGIN reports/repro.json ===` / `=== END ... ===` markers, then
+            `PASS: repro recorded`.
         """),
-        code("S17", "Reproducibility report", """
-            from boinga_translator import paths, report_io
-
-            report_io.emit(paths.reports_dir() / "env.json", "reports/env.json")
-        """, expect=[r"=== BEGIN reports/env.json ==="]),
+        code("S17", "Reproducibility report", "!boinga repro",
+             expect=[r"PASS: repro recorded", r"=== BEGIN reports/repro.json ==="]),
     ],
 )

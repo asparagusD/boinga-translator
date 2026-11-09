@@ -1008,17 +1008,20 @@ Branch `chunk/C13-release`. One CPU notebook, spec `notebooks/specs/c13_release.
 `notebooks/runs/C13_release_run1.ipynb`: repro report, then an optional Hugging Face upload
 behind an `UPLOAD_TO_HF` flag (default False, `skip_unless`, as in C12). Ends with tag v0.1.0.
 C13.3 is over budget as one commit (6 files), so it is split a/b.
-- [ ] C13.1 code: `env_report.final()` -> reports/repro.json + reports/repro.md: collect()
-  plus pandas/librosa/soxr/gradio/huggingface-hub versions (C6 follow-up), pinned facts
-  (settings: model ids, coqui-tts, dataset DOI/sha256, seed, inference scales), sha256 of
-  configs/char_map.json, splits_summary.json, vits_ctg_finetune.json, speaker_selection.json,
-  best_provenance.json summary, and when Drive best/model.pth exists its md5 (tqdm) vs the
-  provenance md5 (PASS/FAIL; C9 follow-up via the mount, not the Drive API); emits both.
-  `boinga repro`. Spec cell C13.1. Tests: test_env_report (fake files, md5 match/mismatch,
-  missing best/ -> "not checked", CLI). ~90 lines
+- [x] C13.1 code (user's C13.1 promptbook replaces the planned md5/repro.md scope):
+  `env_report.final()` -> reports/repro.json (repo + Drive copy, emitted): `env` (collect(),
+  the env.json fields), `packages` (torch, coqui-tts, numpy, librosa, gradio), `config_sha256`
+  of configs/vits_ctg_finetune.json, splits_summary.json, char_map.json, `seed`,
+  `best_provenance` (reports/best_provenance.json as is), `runs` per Drive run folder: steps
+  (highest checkpoint_<step>.pth) and hours (sum of boinga_run.json sessions with start and
+  end), sessions count; missing inputs print WARN, then "PASS: repro recorded". `boinga
+  repro`. final.py S17 now runs `!boinga repro` (notebook rebuilt); new spec
+  notebooks/specs/c13_release.py -> notebooks/runs/C13_release_run1.ipynb (CPU, cell C13.1).
+  Tests test_env_report (fake configs, provenance, run folder; missing inputs; CLI) (this
+  commit)
 - [ ] C13.2a README core: what it is, status, quick start (end-to-end notebook link, GH_TOKEN,
   RUN_TRAINING), local dev, pipeline table (stage -> `boinga` command -> report), repo
-  layout (pointer to docs/REPO_GRAPH.md), how to reproduce (reports/repro.md). Test
+  layout (pointer to docs/REPO_GRAPH.md), how to reproduce (reports/repro.json). Test
   tests/test_readme.py: relative links resolve, every `boinga <cmd>` named is in
   cli.build_parser
 - [ ] C13.2b README results/limitations/licences: eval.md headline (B vs A, win rate 0.82,
