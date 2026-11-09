@@ -1,7 +1,8 @@
-"""Tests for env_report.py and `boinga env`: missing torch, fake GPU, JSON keys, CLI wiring."""
+"""Tests for env_report.py, `boinga env` and `boinga repro`: env keys, fake GPU, repro.json."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -114,4 +115,96 @@ def test_cli_env_subcommand_calls_run(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[tuple[Any, ...]] = []
     monkeypatch.setattr(env_report, "run", lambda *a: calls.append(a) or {})
     assert cli.main(["env"]) == 0
+    assert calls == [()]
+
+
+# --- C13.1: env_report.final() and `boinga repro` ---
+
+def _sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _fake_run(name: str, sessions: list[dict[str, Any]], steps: tuple[int, ...]) -> None:
+    """A run folder like Drive runs/<name>/: boinga_run.json + one coqui folder of checkpoints."""
+    run = paths.run_dir(name)
+    folder = run / f"{name}-November-08-2026_05+25AM-abc1234"
+    folder.mkdir(parents=True)
+    for step in steps:
+        (folder / f"checkpoint_{step}.pth").write_bytes(b"x")
+    (folder / "best_model_5.pth").write_bytes(b"x")  # not a checkpoint_<step>: ignored
+    (run / "boinga_run.json").write_text(
+        json.dumps({"run": name, "sessions": sessions}), encoding="utf-8")
+
+
+def test_final_records_everything(
+    sandbox: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from boinga_translator import settings
+
+    configs = sandbox / "configs"
+    configs.mkdir()
+    blobs = {name: f"{{\"{name}\": 1}}\n".encode() for name in env_report.REPRO_CONFIGS}
+    for name, data in blobs.items():
+        (configs / name).write_bytes(data)
+    provenance = {"run": "run1", "step": 200, "md5": "abc"}
+    (sandbox / "reports").mkdir()
+    (sandbox / "reports" / "best_provenance.json").write_text(json.dumps(provenance))
+    _fake_run("run1", [
+        {"start_utc": "2026-11-08T05:00:00+00:00", "end_utc": "2026-11-08T06:00:00+00:00"},
+        {"start_utc": "2026-11-08T07:00:00+00:00", "end_utc": "2026-11-08T07:30:00+00:00"},
+        {"start_utc": "2026-11-08T08:00:00+00:00"},  # no end: not counted in hours
+    ], steps=(100, 200))
+
+    repro = env_report.final()
+
+    saved = json.loads((sandbox / "reports" / "repro.json").read_text(encoding="utf-8"))
+    assert saved == repro
+    assert set(repro["env"]) == KEYS
+    assert set(repro["packages"]) == {"torch", "coqui-tts", "numpy", "librosa", "gradio"}
+    assert repro["config_sha256"] == {f"configs/{n}": _sha(d) for n, d in blobs.items()}
+    assert repro["seed"] == settings.SEED
+    assert repro["best_provenance"] == provenance
+    assert repro["runs"] == {"run1": {"steps": 200, "hours": 1.5, "sessions": 3}}
+    assert (paths.drive_reports() / "reports" / "repro.json").is_file()
+    out = capsys.readouterr().out
+    assert "=== BEGIN reports/repro.json ===" in out and "WARN" not in out
+    assert out.rstrip().endswith("PASS: repro recorded")
+
+
+def test_final_missing_inputs_warn_not_crash(
+    sandbox: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    run = paths.run_dir("smoke")
+    (run / "smoke-folder").mkdir(parents=True)  # no record, no checkpoint
+    repro = env_report.final()
+    assert set(repro["config_sha256"].values()) == {None}
+    assert repro["best_provenance"] is None
+    assert repro["runs"] == {"smoke": {"steps": None, "hours": None, "sessions": 0}}
+    out = capsys.readouterr().out
+    assert "WARN: missing configs/char_map.json" in out
+    assert "WARN: missing reports/best_provenance.json" in out
+    assert out.rstrip().endswith("PASS: repro recorded")
+
+
+@pytest.mark.parametrize("record", ["{not json", '{"sessions": 3}',
+                                    '{"sessions": [{"start_utc": "x", "end_utc": "y"}]}'])
+def test_final_damaged_run_record_warns(
+    sandbox: Path, capsys: pytest.CaptureFixture[str], record: str
+) -> None:
+    _fake_run("run1", [], steps=(100,))
+    (paths.run_dir("run1") / "boinga_run.json").write_text(record, encoding="utf-8")
+    assert env_report.final()["runs"] == {"run1": {"steps": 100, "hours": None, "sessions": 0}}
+    out = capsys.readouterr().out
+    assert "WARN: unreadable run1/boinga_run.json" in out
+    assert out.rstrip().endswith("PASS: repro recorded")
+
+
+def test_final_no_runs_folder(sandbox: Path) -> None:
+    assert env_report.final()["runs"] == {}
+
+
+def test_cli_repro_subcommand_calls_final(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[tuple[Any, ...]] = []
+    monkeypatch.setattr(env_report, "final", lambda *a: calls.append(a) or {})
+    assert cli.main(["repro"]) == 0
     assert calls == [()]

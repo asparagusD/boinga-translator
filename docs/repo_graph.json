@@ -33,11 +33,6 @@
     {
       "kind": "notebook",
       "source": "notebooks/boinga_translator.ipynb",
-      "target": "src/boinga_translator/report_io.py"
-    },
-    {
-      "kind": "notebook",
-      "source": "notebooks/boinga_translator.ipynb",
       "target": "src/boinga_translator/settings.py"
     },
     {
@@ -124,6 +119,16 @@
       "kind": "notebook",
       "source": "notebooks/runs/C11_demo_run1.ipynb",
       "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C13_release_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C13_release_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
     },
     {
       "kind": "notebook",
@@ -403,6 +408,26 @@
     {
       "kind": "import",
       "source": "notebooks/specs/c11_demo.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c13_release.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c13_release.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c13_release.py",
+      "target": "configs/vits_ctg_finetune.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c13_release.py",
       "target": "tools/nbkit.py"
     },
     {
@@ -884,6 +909,16 @@
       "kind": "import",
       "source": "src/boinga_translator/env_report.py",
       "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/env_report.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/env_report.py",
+      "target": "src/boinga_translator/train_runner.py"
     },
     {
       "kind": "import",
@@ -1586,6 +1621,11 @@
       "target": "src/boinga_translator/paths.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_env_report.py",
+      "target": "configs/char_map.json"
+    },
+    {
       "kind": "test",
       "source": "tests/test_env_report.py",
       "target": "src/boinga_translator/cli.py"
@@ -1599,6 +1639,11 @@
       "kind": "test",
       "source": "tests/test_env_report.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_env_report.py",
+      "target": "src/boinga_translator/settings.py"
     },
     {
       "kind": "test",
@@ -1924,6 +1969,31 @@
       "kind": "test",
       "source": "tests/test_read_colab_run.py",
       "target": "tools/read_colab_run.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_readme.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_readme.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_readme.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_readme.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_readme.py",
+      "target": "src/boinga_translator/settings.py"
     },
     {
       "kind": "test",
@@ -2453,7 +2523,7 @@
     },
     {
       "kind": "doc",
-      "lines": 35,
+      "lines": 306,
       "path": "README.md",
       "purpose": "boinga-translator"
     },
@@ -2501,25 +2571,31 @@
     },
     {
       "kind": "doc",
+      "lines": 32,
+      "path": "docs/ACCEPTANCE.md",
+      "purpose": "Acceptance checklist — boinga-translator v0.1.0"
+    },
+    {
+      "kind": "doc",
       "lines": 191,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
     {
       "kind": "doc",
-      "lines": 1302,
+      "lines": 1316,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 1010,
+      "lines": 1060,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
     {
       "kind": "notebook",
-      "lines": 1485,
+      "lines": 1489,
       "path": "notebooks/boinga_translator.ipynb",
       "purpose": "C12 run 1 — boinga-translator — end-to-end"
     },
@@ -2558,6 +2634,12 @@
       "lines": 439,
       "path": "notebooks/runs/C11_demo_run1.ipynb",
       "purpose": "C11 run 1 — C11 — demo"
+    },
+    {
+      "kind": "notebook",
+      "lines": 348,
+      "path": "notebooks/runs/C13_release_run1.ipynb",
+      "purpose": "C13 run 1 — C13 — repro and release"
     },
     {
       "kind": "notebook",
@@ -2681,6 +2763,12 @@
     },
     {
       "kind": "module",
+      "lines": 28,
+      "path": "notebooks/specs/c13_release.py",
+      "purpose": "Spec: C13 run 1, repro and release: the reproducibility report (CPU)."
+    },
+    {
+      "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
       "purpose": "Spec: C1 bootstrap-only notebook on main (mount Drive, clone, install deps, record env)."
@@ -2771,7 +2859,7 @@
     },
     {
       "kind": "module",
-      "lines": 325,
+      "lines": 327,
       "path": "notebooks/specs/final.py",
       "purpose": "Spec: C12 end-to-end notebook: the whole pipeline in 17 sections, training behind RUN_TRAINING."
     },
@@ -3065,7 +3153,7 @@
     },
     {
       "kind": "module",
-      "lines": 533,
+      "lines": 537,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -3101,9 +3189,9 @@
     },
     {
       "kind": "module",
-      "lines": 102,
+      "lines": 168,
       "path": "src/boinga_translator/env_report.py",
-      "purpose": "Record python, torch/CUDA, GPU, coqui-tts, numpy, git and disk info to reports/env.json."
+      "purpose": "Record the environment (reports/env.json) and the reproducibility report (reports/repro.json)."
     },
     {
       "kind": "module",
@@ -3305,9 +3393,9 @@
     },
     {
       "kind": "test",
-      "lines": 117,
+      "lines": 210,
       "path": "tests/test_env_report.py",
-      "purpose": "Tests for env_report.py and `boinga env`: missing torch, fake GPU, JSON keys, CLI wiring."
+      "purpose": "Tests for env_report.py, `boinga env` and `boinga repro`: env keys, fake GPU, repro.json."
     },
     {
       "kind": "test",
@@ -3422,6 +3510,12 @@
       "lines": 421,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
+    },
+    {
+      "kind": "test",
+      "lines": 103,
+      "path": "tests/test_readme.py",
+      "purpose": "Tests for README.md: links, `boinga` subcommands, result numbers traced to reports, licences."
     },
     {
       "kind": "test",

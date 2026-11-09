@@ -1003,8 +1003,58 @@ skips smoke test, fine-tune, samples and candidates, so the notebook uses the pr
 - [x] after the merge to main: `final.py` branch="main", so the notebook's bootstrap clones
   main (only BRANCH and the title line change; verified cells unchanged) (this commit)
 
-## C13
-- [ ] C13.x (subchunks not yet defined)
+## C13 — Reproducibility report, docs and release
+Branch `chunk/C13-release`. One CPU notebook, spec `notebooks/specs/c13_release.py` ->
+`notebooks/runs/C13_release_run1.ipynb`: repro report (the planned Hugging Face upload cell
+was not built: C13.3 skipped). Ends with tag v0.1.0.
+- [x] C13.1 code (user's C13.1 promptbook replaces the planned md5/repro.md scope):
+  `env_report.final()` -> reports/repro.json (repo + Drive copy, emitted): `env` (collect(),
+  the env.json fields), `packages` (torch, coqui-tts, numpy, librosa, gradio), `config_sha256`
+  of configs/vits_ctg_finetune.json, splits_summary.json, char_map.json, `seed`,
+  `best_provenance` (reports/best_provenance.json as is), `runs` per Drive run folder: steps
+  (highest checkpoint_<step>.pth) and hours (sum of boinga_run.json sessions with start and
+  end), sessions count; missing inputs print WARN, then "PASS: repro recorded". `boinga
+  repro`. final.py S17 now runs `!boinga repro` (notebook rebuilt); new spec
+  notebooks/specs/c13_release.py -> notebooks/runs/C13_release_run1.ipynb (CPU, cell C13.1).
+  Tests test_env_report (fake configs, provenance, run folder; missing inputs; CLI) (this
+  commit)
+- [x] C13.2a README core (user's C13.2a promptbook): README.md rewritten: what it is / is
+  not, Colab quickstart (GH_TOKEN fine-grained read-only token + secret, open from GitHub,
+  T4, RUN_TRAINING, Run all, stop the live demo), repo layout table + REPO_GRAPH link, every
+  `boinga` subcommand (one line each, from cli.py), retrain (prepare -> build-config ->
+  train -> sample -> candidates -> promote; resume, budget, fixed settings, Drive space,
+  smoke test), demo (Colab, elsewhere), per-chunk notebook workflow (spec, build, run,
+  verify); "Developer setup" kept. New test tests/test_readme.py: relative links resolve,
+  every `boinga <cmd>` named is in cli.build_parser, every subcommand documented, Developer
+  setup kept (this commit)
+- [x] C13.2b README results/limitations/licences (user's C13.2b promptbook): Results (1 rater,
+  eval.md criterion rows verbatim, B win rate 0.82, MCD relative check, training data from
+  splits_summary + speaker_selection, run1 steps/GPU/s-per-step/hours from throughput.json,
+  best_provenance and DECISIONS "Run 1 retrained", gates G1-G7 table); Limitations (blended
+  voice, one rater, unseen sentences in a known voice, Indian Bengali (IITM) base, G2
+  conditional PASS: dialect words with standard accent, grapheme input + NFC + char map,
+  digits, G7 scope); Licences and attribution (code Apache-2.0 = user's choice, base model
+  @mobassir94 Apache-2.0 via coqui-tts Idiap fork MPL-2.0, dataset + authors + DOI CC BY 4.0,
+  Kothon DOI 10.17632/2fv6vf9v2z.4, weights not MMS); Citation (BibTeX for the repo and the
+  dataset, year 2026 from DataCite). New LICENSE (canonical Apache-2.0 text).
+  test_readme: eval rows verbatim, numbers match their JSON files, licence strings,
+  LICENSE (this commit)
+- [ ] C13.3a model card: skipped (user, chat: "Skip 13.3")
+- [ ] C13.3b HF upload: skipped (user, chat); no weights uploaded
+- [ ] C13.H / C13.V: skipped (user, chat); notebooks/runs/C13_release_run1.ipynb is built but
+  not run, so reports/repro.json is not yet recorded from Colab
+- [x] C13.4 acceptance checklist `docs/ACCEPTANCE.md`: 17 items with commit/digest evidence,
+  14 PASS, 3 PARTIAL (13: S17 changed since G7, not re-run; 14: training on the paid Colab RTX
+  PRO 6000; 17: C1.5 `9f760cf` has no digest), 0 FAIL (branch review: README "$0" and G7 claims
+  corrected); version 0.0.1 -> 0.1.0 (pyproject, __init__, test_smoke_import); merge to
+  main (--no-ff) and tag v0.1.0 (this commit)
+
+## End-of-day 3 handover (2026-11-09)
+- Done: C13 (repro command, README, LICENSE Apache-2.0, acceptance checklist); v0.1.0 tagged on
+  main.
+- Not done: model card, Hugging Face upload and the C13 Colab run (`boinga repro` on Colab).
+- Open follow-ups: cli help strings (`train` "(VM disk)", `keep` --steps default); uv.lock
+  untracked; earlier chunk follow-ups above.
 
 ## F — Fallback: MMS stack (only if the VITS fine-tune path is abandoned)
 - [ ] F.x (subchunks not yet defined; trigger rules in the debug-protocol skill)

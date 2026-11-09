@@ -35,6 +35,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("version", help="print the package version")
     sub.add_parser("env", help="record the environment to reports/env.json and print it")
+    sub.add_parser("repro", help="versions, config hashes, seed, best provenance and run "
+                   "steps/hours to reports/repro.json")
     fetch = sub.add_parser("fetch-pretrained", help="download and cache the pretrained voices")
     fetch.add_argument("--voice", choices=[*pretrained.voices(), "both"], default="both")
     insp = sub.add_parser("inspect-pretrained", help="report config/checkpoint facts per voice")
@@ -466,6 +468,8 @@ def main(argv: list[str] | None = None) -> int:
         print(__version__)
     elif args.command == "env":
         env_report.run()
+    elif args.command == "repro":
+        env_report.final()
     elif args.command == "fetch-pretrained":
         return _fetch_pretrained(args.voice)
     elif args.command == "inspect-pretrained":
