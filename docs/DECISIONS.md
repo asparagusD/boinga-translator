@@ -1263,3 +1263,11 @@ are raised with `gr.Error(..., print_exception=False)`, so they leave no traceba
 cell's log; a Traceback there now means a real failure. The selfcheck accepts audio or a
 friendly message for Latin letters and Bengali digits, because check_input does not judge
 them (coqui drops unknown characters).
+
+**Update (C11.3):** check_input now also takes the voice's charset (the base voice's
+characters | punctuations | space from configs/pretrained_facts.json, which the fine-tuned
+voice shares: Gate G4 kept the embedding) and lists the characters of prepare_text(text) it
+lacks, in first-seen order, instead of letting coqui drop them with a log warning (C11 run 1:
+Latin letters). This closes the C5 follow-up for the demo. Bengali digits ০-৬ and ৮ are in the
+charset, so they pass and are read the way the pretrained voice reads them (digit rows were
+excluded from training); ৭ and ৯ are rejected.

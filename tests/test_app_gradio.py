@@ -53,6 +53,45 @@ def test_check_input_ok() -> None:
     assert app_gradio.check_input("হেঁততে উগ্গো পোয়া ছুটি আইসসি।") is None
 
 
+CHARSET = frozenset("কখগ।. ")
+
+
+def test_check_input_unknown_characters_listed_once_in_order() -> None:
+    msg = app_gradio.check_input("ক hello খ", CHARSET)
+    assert msg is not None and msg.startswith(app_gradio.MSG_UNKNOWN)
+    assert msg.endswith("h, e, l, o")  # distinct, first-seen order; spaces never counted
+
+
+def test_check_input_charset_after_prepare_text() -> None:
+    # NFC and configs/char_map.json run first: the danda "।" is mapped (to "."), so a
+    # charset holding only the mapped form still accepts it
+    assert app_gradio.check_input("ক।", frozenset("ক. ")) is None
+
+
+def test_check_input_empty_after_prepare_text() -> None:
+    from boinga_translator import text_frontend
+
+    removed = [s for s, d in text_frontend.default_char_map().pairs if d == ""]
+    assert removed, "char_map removes no character: pick another example"
+    assert app_gradio.check_input(removed[0] * 2, CHARSET) == app_gradio.MSG_EMPTY
+
+
+def test_check_input_without_charset_skips_the_check() -> None:
+    assert app_gradio.check_input("hello") is None
+
+
+def test_check_input_empty_and_length_come_first() -> None:
+    assert app_gradio.check_input("  ", CHARSET) == app_gradio.MSG_EMPTY
+    assert app_gradio.check_input("x" * 301, CHARSET) == app_gradio.MSG_TOO_LONG
+
+
+def test_model_charset_is_the_base_voices() -> None:
+    from boinga_translator import data_audit, train_config
+
+    assert app_gradio.model_charset() == data_audit.load_model_charset(
+        train_config.base_voice())
+
+
 def test_example_texts_first_five_verbatim(tmp_path: Path) -> None:
     texts = app_gradio.example_texts(_prompts(tmp_path, 7))
     assert texts == [f"বাক্য {i} " for i in range(1, 6)]  # trailing space kept: verbatim
@@ -81,6 +120,8 @@ def test_synthesize_rejects_bad_input_before_the_model() -> None:
     bank = FakeBank(["boinga"])
     with pytest.raises(app_gradio.DemoError, match="Please enter some Bengali text."):
         app_gradio.synthesize(bank, "  ", "boinga")
+    with pytest.raises(app_gradio.DemoError, match="h, i"):
+        app_gradio.synthesize(bank, "ক hi", "boinga", CHARSET)
     assert bank.calls == []
 
 
@@ -148,7 +189,9 @@ def test_build_app_blocks(tmp_path: Path) -> None:
 
 def test_handler_raises_gradio_error() -> None:
     gr = pytest.importorskip("gradio")
-    handler = app_gradio.make_handler(FakeBank(["boinga"]))
+    handler = app_gradio.make_handler(FakeBank(["boinga"]), CHARSET)
+    with pytest.raises(gr.Error, match=app_gradio.MSG_UNKNOWN):
+        handler("ক hello", "boinga")
     with pytest.raises(gr.Error, match="Please keep it under 300 characters.") as info:
         handler("ক" * 301, "boinga")
     assert info.value.print_exception is False  # no traceback in the live cell's log

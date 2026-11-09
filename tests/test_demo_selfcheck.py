@@ -58,9 +58,10 @@ def test_pass(capsys: pytest.CaptureFixture[str]) -> None:
     assert "CASE normal-boinga: ok 1.00 s" in out and "CASE normal-baseline: ok 1.00 s" in out
     assert f"CASE empty: error {app_gradio.MSG_EMPTY}" in out
     assert f"CASE too-long: error {app_gradio.MSG_TOO_LONG}" in out
-    assert "CASE latin-mixed: ok" in out and "CASE bengali-digits: ok" in out
+    assert f"CASE latin-mixed: error {app_gradio.MSG_UNKNOWN}h, e, l, o, w, r, d" in out
+    assert "CASE bengali-digits: ok" in out
     assert out.rstrip().endswith("PASS: demo selfcheck (6 cases)")
-    assert ("baseline", PROMPT) in bank.spoken and len(bank.spoken) == 4  # bad input never spoken
+    assert ("baseline", PROMPT) in bank.spoken and len(bank.spoken) == 3  # bad input never spoken
 
 
 def test_friendly_error_on_a_normal_case_fails(capsys: pytest.CaptureFixture[str]) -> None:

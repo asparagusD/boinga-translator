@@ -1,9 +1,9 @@
 """Colab check (C11.2): the demo's own handler on a normal prompt and on bad inputs, no UI."""
 
 # Calls app_gradio.make_handler (the button callback build_app wires up) on the real voice
-# bank. A normal prompt must give audio in both voices; empty and 400-character input must
-# give the app's friendly message; Latin letters and Bengali digits may give audio or a
-# friendly message (check_input does not judge them). Only gr.Error may leave the handler.
+# bank. A normal prompt must give audio in both voices; empty, 400-character and Latin-letter
+# input must give the app's friendly message (the Latin one lists the letters); Bengali
+# digits may give audio or a friendly message. Only gr.Error may leave the handler.
 
 from __future__ import annotations
 
@@ -23,12 +23,16 @@ LONG_CHARS = 400
 
 @dataclass(frozen=True)
 class Case:
-    """One input; expect_error = the exact message, None = audio, "" = audio or any message."""
+    """One input; expect_error = the message, None = audio, "" = audio or any message.
+
+    prefix: expect_error is only the start of the message (it lists the characters).
+    """
 
     name: str
     voice: str
     text: str
     expect_error: str | None
+    prefix: bool = False
 
 
 def cases(prompt: str) -> list[Case]:
@@ -37,7 +41,8 @@ def cases(prompt: str) -> list[Case]:
         *(Case(f"normal-{v}", v, prompt, None) for v in VOICES),
         Case("empty", "boinga", "", app_gradio.MSG_EMPTY),
         Case("too-long", "boinga", "ক" * LONG_CHARS, app_gradio.MSG_TOO_LONG),
-        Case("latin-mixed", "boinga", f"{prompt.strip()} hello world", ""),
+        Case("latin-mixed", "boinga", f"{prompt.strip()} hello world", app_gradio.MSG_UNKNOWN,
+             prefix=True),
         Case("bengali-digits", "boinga", f"{prompt.strip()} ১২৩", ""),
     ]
 
@@ -53,7 +58,9 @@ def run_case(handler: Handler, case: Case) -> tuple[bool, str]:
         rate, wav = handler(case.text, case.voice)
     except gr.Error as exc:
         message = str(exc.message)
-        ok = case.expect_error == "" or case.expect_error == message
+        ok = case.expect_error == "" or (
+            message.startswith(case.expect_error) if case.prefix and case.expect_error
+            else message == case.expect_error)
         return ok, f"error {message}"
     except Exception as exc:  # noqa: BLE001 - the point of the check: nothing else may escape
         return False, f"escaped {type(exc).__name__}: {exc}"

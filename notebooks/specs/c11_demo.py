@@ -19,7 +19,9 @@ NOTEBOOK = Notebook(
             little while). Expect one `CASE <name>: ok <seconds> s` or `CASE <name>: error
             <message>` line per case: audio for the two normal cases, the friendly messages
             "Please enter some Bengali text." and "Please keep it under 300 characters." for
-            the bad ones, then `PASS: demo selfcheck (6 cases)`.
+            the empty and long ones, "The voice cannot say these characters, please remove
+            them: h, e, l, o, w, r, d" for the Latin letters, audio or a message for the
+            digits, then `PASS: demo selfcheck (6 cases)`.
         """),
         code("C11.2.check", "Automated demo checks", "!python tools/demo_selfcheck.py",
              expect=[r"PASS: demo selfcheck"]),

@@ -955,9 +955,14 @@ promptbook replaces the planned C11.1a/b split: one subchunk, gradio pinned in `
   loading). C11.2.live: public gradio.live link up; gradio caught Stop ("Keyboard interruption
   in main thread... closing server.") and the cell ended with CELL-OK, so the allow_interrupt
   fallback was not needed. C11-notes: DEMO_WORKED "yes", NOTES "none" (this commit)
-- [ ] follow-up: Latin letters are dropped silently (coqui logs "Character 'h' not found in the
-  vocabulary. Discarding it." per letter): reject or warn about characters outside the
-  voice's charset in check_input (C5 follow-up, DECISIONS "Gate G4")
+- [x] follow-up: Latin letters are dropped silently (coqui logs "Character 'h' not found in the
+  vocabulary. Discarding it." per letter): C11.3 `app_gradio.check_input(text, charset)` lists
+  characters the voice lacks after prepare_text ("The voice cannot say these characters,
+  please remove them: h, e, ..."); `model_charset()` = base voice's charset from
+  configs/pretrained_facts.json; `make_handler` uses it by default; all 20 eval prompts pass;
+  selfcheck latin-mixed now expects that message; C11.2.check md updated, notebook rebuilt
+  (run 1 not re-run with it). Bengali digits ০-৬ and ৮ are in the charset (৭, ৯ are not), so
+  "১২৩" still speaks, untrained (digit rows were excluded) (this commit)
 
 ## C12
 - [ ] C12.x (subchunks not yet defined)

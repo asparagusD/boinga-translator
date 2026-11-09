@@ -473,6 +473,11 @@
     {
       "kind": "import",
       "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
       "target": "src/boinga_translator/paths.py"
     },
     {
@@ -484,6 +489,16 @@
       "kind": "import",
       "source": "src/boinga_translator/app_gradio.py",
       "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/train_config.py"
     },
     {
       "kind": "import",
@@ -1231,6 +1246,11 @@
       "target": "src/boinga_translator/train_config.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_app_gradio.py",
+      "target": "configs/char_map.json"
+    },
+    {
       "kind": "test",
       "source": "tests/test_app_gradio.py",
       "target": "src/boinga_translator/app_gradio.py"
@@ -1243,7 +1263,22 @@
     {
       "kind": "test",
       "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/train_config.py"
     },
     {
       "kind": "test",
@@ -2372,13 +2407,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1265,
+      "lines": 1273,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 969,
+      "lines": 974,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2414,7 +2449,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 437,
+      "lines": 439,
       "path": "notebooks/runs/C11_demo_run1.ipynb",
       "purpose": "C11 run 1 — C11 — demo"
     },
@@ -2534,7 +2569,7 @@
     },
     {
       "kind": "module",
-      "lines": 50,
+      "lines": 52,
       "path": "notebooks/specs/c11_demo.py",
       "purpose": "Spec: C11 run 1, Gradio demo: automated edge-case checks, then the live demo and your notes."
     },
@@ -2888,7 +2923,7 @@
     },
     {
       "kind": "module",
-      "lines": 141,
+      "lines": 165,
       "path": "src/boinga_translator/app_gradio.py",
       "purpose": "Gradio demo: type Chittagonian text, hear the fine-tuned (boinga) or the baseline voice."
     },
@@ -3062,7 +3097,7 @@
     },
     {
       "kind": "test",
-      "lines": 156,
+      "lines": 199,
       "path": "tests/test_app_gradio.py",
       "purpose": "Tests for app_gradio: input check, examples, footer, handler errors, Blocks (fake bank)."
     },
@@ -3140,7 +3175,7 @@
     },
     {
       "kind": "test",
-      "lines": 100,
+      "lines": 101,
       "path": "tests/test_demo_selfcheck.py",
       "purpose": "Tests for tools/demo_selfcheck.py: case lines, PASS/FAIL rules, escaped exceptions (fake bank)."
     },
@@ -3386,7 +3421,7 @@
     },
     {
       "kind": "tool",
-      "lines": 101,
+      "lines": 108,
       "path": "tools/demo_selfcheck.py",
       "purpose": "Colab check (C11.2): the demo's own handler on a normal prompt and on bad inputs, no UI."
     },

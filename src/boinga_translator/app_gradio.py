@@ -13,7 +13,7 @@ from typing import Any, Protocol
 
 import numpy as np
 
-from boinga_translator import paths, settings
+from boinga_translator import data_audit, paths, settings, text_frontend, train_config
 
 TITLE = "boinga-translator — Chittagonian TTS (proof of concept)"
 DESCRIPTION = (
@@ -27,6 +27,7 @@ EVAL_PROMPTS_FILE = "eval_prompts.json"
 MSG_EMPTY = "Please enter some Bengali text."
 MSG_TOO_LONG = f"Please keep it under {MAX_CHARS} characters."
 MSG_NO_VOICE = "Please choose a voice."
+MSG_UNKNOWN = "The voice cannot say these characters, please remove them: "
 DEFAULT_VOICE = "boinga"
 
 log = logging.getLogger(__name__)
@@ -44,13 +45,29 @@ class DemoError(ValueError):
     """A message for the person using the demo (shown as a gr.Error, never a traceback)."""
 
 
-def check_input(text: str | None) -> str | None:
-    """Error message for text the demo will not synthesise, else None (edge spaces ignored)."""
+def model_charset() -> frozenset[str]:
+    """Characters the base voice (and so the fine-tuned one) knows, from pretrained facts."""
+    return data_audit.load_model_charset(train_config.base_voice())
+
+
+def check_input(text: str | None, charset: frozenset[str] | None = None) -> str | None:
+    """Error message for text the demo will not synthesise, else None (edge spaces ignored).
+
+    With a charset, characters the voice lacks after prepare_text (NFC + char_map, as the
+    voice bank reads it) are listed: coqui would drop them with only a log warning.
+    """
     stripped = (text or "").strip()
     if not stripped:
         return MSG_EMPTY
     if len(stripped) > MAX_CHARS:
         return MSG_TOO_LONG
+    if charset is not None:
+        prepared = text_frontend.prepare_text(stripped)
+        if not prepared:  # e.g. only quotes or brackets, which char_map removes
+            return MSG_EMPTY
+        unknown = [c for c in prepared if c not in charset and not c.isspace()]
+        if unknown:
+            return MSG_UNKNOWN + ", ".join(dict.fromkeys(unknown))
     return None
 
 
@@ -78,9 +95,10 @@ def footer_markdown() -> str:
     )
 
 
-def synthesize(bank: Bank, text: str | None, voice: str | None) -> tuple[int, np.ndarray]:
+def synthesize(bank: Bank, text: str | None, voice: str | None,
+               charset: frozenset[str] | None = None) -> tuple[int, np.ndarray]:
     """(sample_rate, wav) for the demo; every failure becomes a DemoError with a short message."""
-    problem = check_input(text)
+    problem = check_input(text, charset)
     if problem:
         raise DemoError(problem)
     if not voice:
@@ -95,13 +113,19 @@ def synthesize(bank: Bank, text: str | None, voice: str | None) -> tuple[int, np
         raise DemoError(message) from exc
 
 
-def make_handler(bank: Bank) -> Callable[[str, str], tuple[int, np.ndarray]]:
-    """Button callback: synthesize(), with DemoError turned into gr.Error for the page."""
+def make_handler(bank: Bank, charset: frozenset[str] | None = None
+                 ) -> Callable[[str, str], tuple[int, np.ndarray]]:
+    """Button callback: synthesize(), with DemoError turned into gr.Error for the page.
+
+    charset defaults to model_charset() (loaded once, when the handler is made).
+    """
     import gradio as gr
+
+    known = model_charset() if charset is None else charset
 
     def handler(text: str, voice: str) -> tuple[int, np.ndarray]:
         try:
-            return synthesize(bank, text, voice)
+            return synthesize(bank, text, voice, known)
         except DemoError as exc:
             # no traceback on the page, nor in the server log (the live Colab cell shows it)
             raise gr.Error(str(exc), print_exception=False) from None
