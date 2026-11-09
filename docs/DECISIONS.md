@@ -1205,3 +1205,23 @@ evidence of quality.
 **Alternatives:** Skip the listening test and rely on G6 plus the C10.2 pace numbers;
 recruit raters (not available).
 
+**Update (C10.V3):** The sheet that was scored was filled in Google Sheets by an outside
+rater (the name in its rater column is not the user's), not on the self-rating screen; the
+screen remains for later raters. The report anonymises them as R1. Whether this rater heard
+the labelled run-2 clips is not recorded.
+
+## 2026-11-09 — C10 evaluation result
+**Context:** C10 run 3 (9e17032) scored one rater's 40 blind ratings (20 prompts from our
+test split, baseline A vs fine-tuned B, level-matched, balanced order) into reports/eval.md.
+**Decision:** Accept the result as C10's outcome: B is rated above A on every criterion
+(overall 1.73 vs 1.12 on 1-5, +0.60; intelligibility +0.50, naturalness +0.70, dialect
+authenticity +0.60, dialect words +0.60) and wins 16 of 20 prompts (A wins P01, P02, P05;
+P16 ties; win rate 0.82). Both voices score low in absolute terms (B's best prompts reach
+2.75; A's dialect scores are all 1).
+**Consequences:** The fine-tuning moved the voice towards Chittagonian, but the proof of
+concept is not yet a good dialect voice. One rater, no significance test, no comments, so
+this is a direction, not a measurement. Next work should target intelligibility and
+naturalness of B, and add raters before claiming quality.
+**Alternatives:** Re-run with more raters before recording a result (none available now);
+optional MCD (C10.5) as an objective cross-check (not built).
+

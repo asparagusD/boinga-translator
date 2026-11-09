@@ -2232,13 +2232,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1207,
+      "lines": 1227,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 899,
+      "lines": 908,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2502,6 +2502,12 @@
     },
     {
       "kind": "doc",
+      "lines": 199,
+      "path": "reports/colab_runs/C10_eval_run3.md",
+      "purpose": "Colab run C10 run 3 — rating and scoring"
+    },
+    {
+      "kind": "doc",
       "lines": 168,
       "path": "reports/colab_runs/C1_pilot_run1.md",
       "purpose": "Colab run C1 run 1 — Pipeline pilot"
@@ -2595,6 +2601,12 @@
       "lines": 17,
       "path": "reports/env.json",
       "purpose": ""
+    },
+    {
+      "kind": "doc",
+      "lines": 62,
+      "path": "reports/eval.md",
+      "purpose": "Blind listening test"
     },
     {
       "kind": "doc",

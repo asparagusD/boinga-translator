@@ -883,8 +883,17 @@ map/notebook and PROGRESS.
   reports/eval_mcd.json, read by eval.md when present. Placed before C10.4 in run 3, and
   labelled as a rough measure because it mixes speaker and dialect. Tests
   `tests/test_eval_mcd.py` (~70 lines)
-- [ ] C10.H3 hand-off run 3 (CPU; save name `colab_runs/C10_eval_run3.ipynb`)
-- [ ] C10.V3 verify run 3 (colab-verify); DECISIONS "C10 evaluation result"
+- [x] C10.4c ratings typed into blind/rating_sheet.csv: `rating_app.adopt_blind_sheet`, called
+  by `check`, copies it to ratings/<rater>.csv when it has more rated clips (older sheet kept
+  as .bak) (e18615b)
+- [x] C10.4d ratings saved as a Google Sheet (run 3 failed: no blind/rating_sheet.csv, the
+  folder held a Google Sheet `rating_sheet`): `rating_app.import_google_sheet` exports it
+  through the Drive API; new cell C10.R.import; DEBUG_LOG entry (9e17032)
+- [x] C10.H3 hand-off run 3 (CPU; save name `colab_runs/C10_eval_run3.ipynb`)
+- [x] C10.V3 verify run 3 (colab-verify): 9/9 PASS at 9e17032 (built in 9e17032), not stale.
+  C10.R.import copied 40 rated clips from the Google Sheet; C10.R.check "PASS: rated 40 of
+  40 clips"; C10.4 "PASS: scored 1 raters". reports/eval.md: overall A 1.12 vs B 1.73
+  (+0.60), B win rate 0.82 over 20 prompts. DECISIONS "C10 evaluation result" (this commit)
 
 ## C11
 - [ ] C11.x (subchunks not yet defined)
