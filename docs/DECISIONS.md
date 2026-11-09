@@ -1231,3 +1231,43 @@ absolute values are far above usual MCD figures (typically ~5-10 dB) because the
 librosa's MFCC scale (128 dB mel bands, orthonormal DCT); they are comparable only inside
 this table, and the real speaker is neither voice, so this is a relative cross-check only.
 
+
+## 2026-11-09 — C11 demo
+**Context:** C11.1 adds a Gradio page for the fine-tuned voice (Drive best/, run1 step 36500)
+and the pretrained baseline, through synth.VoiceBank (prepare_text, fixed seed and inference
+scales).
+**Decision:** New module `app_gradio.py` (never `gradio.py`, which would shadow the library);
+gradio is imported only when the page is built. `gradio==6.31.0` is pinned in the `[train]`
+extra, so the bootstrap installs it: it is the latest release (2026-10-28) and `uv pip
+compile` resolves it together with coqui-tts 0.28.0 for Python 3.12 (C11 run 1 installed it on Colab's Python 3.13.16) (huggingface-hub
+2.4.0, transformers 5.22.2). The input check is only what the user specified: empty text and
+more than 300 characters (leading and trailing spaces not counted). Errors reach the page as
+gr.Error with a short message: VoiceBank's ValueErrors as they are, anything else as
+"Synthesis failed (<type>)", the traceback only in the server log. Examples are the first 5
+held-out prompts of configs/eval_prompts.json, verbatim. The footer credits the base models
+(`settings.PRETRAINED_AUTHOR` "@mobassir94", new pinned fact, Apache-2.0, via coqui-tts) and the
+dataset (name, DOI, CC-BY-4.0, authors from settings). `boinga demo [--share]`; `--share`
+opens a public gradio.live link.
+**Consequences:** (Charset rejection: superseded by Update (C11.3) below.) Characters outside the voice's charset are still not rejected: coqui drops
+them with only a log warning (C5 follow-up, DECISIONS "Gate G4"), so such text plays with
+words missing. `pip install -e .[train]` now pulls gradio and its web stack into every
+training VM.
+**Alternatives:** A separate `[demo]` extra installed by its own notebook cell (keeps training
+VMs lean; not asked); a charset check in check_input (left for later).
+
+**Update (C11.2):** The demo notebook's live cell runs `launch(share=True, debug=True)`:
+without `debug`, gradio returns at once in Colab, so the cell would not wait for Stop. A cell
+made with `nbkit.code(..., allow_interrupt=True)` counts a KeyboardInterrupt as PASS in the
+reader (its output before the stop is still checked against expect/forbid); gradio's own block_thread usually catches the Stop and the cell ends normally, so this is a fallback for a Stop during model loading. Friendly errors
+are raised with `gr.Error(..., print_exception=False)`, so they leave no traceback in the
+cell's log; a Traceback there now means a real failure. The selfcheck accepts audio or a
+friendly message for Latin letters and Bengali digits, because check_input does not judge
+them (coqui drops unknown characters).
+
+**Update (C11.3):** check_input now also takes the voice's charset (the base voice's
+characters | punctuations | space from configs/pretrained_facts.json, which the fine-tuned
+voice shares: Gate G4 kept the embedding) and lists the characters of prepare_text(text) it
+lacks, in first-seen order, instead of letting coqui drop them with a log warning (C11 run 1:
+Latin letters). This closes the C5 follow-up for the demo. Bengali digits ০-৬ and ৮ are in the
+charset, so they pass and are read the way the pretrained voice reads them (digit rows were
+excluded from training); ৭ and ৯ are rejected.

@@ -124,13 +124,19 @@ def _status(spec_cell: nbkit.Cell, cell: nbformat.NotebookNode) -> tuple[str, li
     if not cell.get("outputs"):
         ran = cell.get("execution_count") is not None
         return "NOT RUN", ["executed but printed nothing"] if ran else [], raw
+    checked, stopped = raw, False
     if error:
-        return "ERROR", [error], raw
+        if not (spec_cell.allow_interrupt and error.startswith("KeyboardInterrupt")):
+            return "ERROR", [error], raw
+        # Stop pressed on a cell that runs until stopped: check what it printed before that
+        stopped = True
+        checked, _ = output_text({"outputs": [o for o in cell.get("outputs", [])
+                                              if o.get("output_type") != "error"]})
     reasons = [f"expected /{p}/ not found" for p in spec_cell.expect
-               if not re.search(p, raw, re.MULTILINE)]
+               if not re.search(p, checked, re.MULTILINE)]
     reasons += [f"forbidden /{p}/ found" for p in spec_cell.forbid
-                if re.search(p, raw, re.MULTILINE)]
-    if f"cell_ok('{spec_cell.id}')" in spec_cell.source and not re.search(
+                if re.search(p, checked, re.MULTILINE)]
+    if not stopped and f"cell_ok('{spec_cell.id}')" in spec_cell.source and not re.search(
             rf"^CELL-OK {re.escape(str(spec_cell.id))}$", raw, re.MULTILINE):
         reasons.append("no CELL-OK line (cell did not reach its end)")
     return ("FAIL" if reasons else "PASS"), reasons, raw

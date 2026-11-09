@@ -62,6 +62,26 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C11_demo_run1.ipynb",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C11_demo_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C11_demo_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C11_demo_run1.ipynb",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
@@ -337,6 +357,11 @@
     },
     {
       "kind": "import",
+      "source": "notebooks/specs/c11_demo.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
     },
@@ -444,6 +469,36 @@
       "kind": "import",
       "source": "notebooks/specs/c9_synth_best.py",
       "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/app_gradio.py",
+      "target": "src/boinga_translator/train_config.py"
     },
     {
       "kind": "import",
@@ -569,6 +624,11 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/__init__.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/app_gradio.py"
     },
     {
       "kind": "import",
@@ -1186,6 +1246,41 @@
       "target": "src/boinga_translator/train_config.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_app_gradio.py",
+      "target": "configs/char_map.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/text_frontend.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_app_gradio.py",
+      "target": "src/boinga_translator/train_config.py"
+    },
+    {
       "kind": "test",
       "source": "tests/test_audit_corpus.py",
       "target": "src/boinga_translator/audit_summary.py"
@@ -1384,6 +1479,21 @@
       "kind": "test",
       "source": "tests/test_data_download.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_demo_selfcheck.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_demo_selfcheck.py",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_demo_selfcheck.py",
+      "target": "tools/demo_selfcheck.py"
     },
     {
       "kind": "test",
@@ -2082,6 +2192,16 @@
     },
     {
       "kind": "import",
+      "source": "tools/demo_selfcheck.py",
+      "target": "src/boinga_translator/app_gradio.py"
+    },
+    {
+      "kind": "import",
+      "source": "tools/demo_selfcheck.py",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "import",
       "source": "tools/inspect_layout.py",
       "target": "src/boinga_translator/report_io.py"
     },
@@ -2287,13 +2407,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1233,
+      "lines": 1273,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 916,
+      "lines": 974,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2326,6 +2446,12 @@
       "lines": 348,
       "path": "notebooks/runs/C10_eval_run4.ipynb",
       "purpose": "C10 run 4 — objective check"
+    },
+    {
+      "kind": "notebook",
+      "lines": 439,
+      "path": "notebooks/runs/C11_demo_run1.ipynb",
+      "purpose": "C11 run 1 — C11 — demo"
     },
     {
       "kind": "notebook",
@@ -2443,6 +2569,12 @@
     },
     {
       "kind": "module",
+      "lines": 52,
+      "path": "notebooks/specs/c11_demo.py",
+      "purpose": "Spec: C11 run 1, Gradio demo: automated edge-case checks, then the live demo and your notes."
+    },
+    {
+      "kind": "module",
       "lines": 12,
       "path": "notebooks/specs/c1_bootstrap.py",
       "purpose": "Spec: C1 bootstrap-only notebook on main (mount Drive, clone, install deps, record env)."
@@ -2533,7 +2665,7 @@
     },
     {
       "kind": "config",
-      "lines": 45,
+      "lines": 47,
       "path": "pyproject.toml",
       "purpose": ""
     },
@@ -2578,6 +2710,12 @@
       "lines": 207,
       "path": "reports/colab_runs/C10_eval_run4.md",
       "purpose": "Colab run C10 run 4 — objective check"
+    },
+    {
+      "kind": "doc",
+      "lines": 169,
+      "path": "reports/colab_runs/C11_demo_run1.md",
+      "purpose": "Colab run C11 run 1 — C11 — demo"
     },
     {
       "kind": "doc",
@@ -2701,6 +2839,12 @@
     },
     {
       "kind": "config",
+      "lines": 4,
+      "path": "reports/notes/C11-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
       "lines": 6,
       "path": "reports/notes/C2.4-notes.json",
       "purpose": ""
@@ -2779,6 +2923,12 @@
     },
     {
       "kind": "module",
+      "lines": 165,
+      "path": "src/boinga_translator/app_gradio.py",
+      "purpose": "Gradio demo: type Chittagonian text, hear the fine-tuned (boinga) or the baseline voice."
+    },
+    {
+      "kind": "module",
       "lines": 125,
       "path": "src/boinga_translator/audit_summary.py",
       "purpose": "Audit summary: exclusion rules (clean_mask), reports/audit_summary.md, clean clips to hear."
@@ -2797,7 +2947,7 @@
     },
     {
       "kind": "module",
-      "lines": 517,
+      "lines": 533,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2893,7 +3043,7 @@
     },
     {
       "kind": "module",
-      "lines": 43,
+      "lines": 44,
       "path": "src/boinga_translator/settings.py",
       "purpose": "Pinned facts: pretrained model ids/URLs, dataset file + sha256, seed and inference scales."
     },
@@ -2944,6 +3094,12 @@
       "lines": 488,
       "path": "src/boinga_translator/train_runner.py",
       "purpose": "Training runner: coqui VITS loader check, fine-tune runs, smoke cleanup, best-model promotion."
+    },
+    {
+      "kind": "test",
+      "lines": 199,
+      "path": "tests/test_app_gradio.py",
+      "purpose": "Tests for app_gradio: input check, examples, footer, handler errors, Blocks (fake bank)."
     },
     {
       "kind": "test",
@@ -3019,6 +3175,12 @@
     },
     {
       "kind": "test",
+      "lines": 101,
+      "path": "tests/test_demo_selfcheck.py",
+      "purpose": "Tests for tools/demo_selfcheck.py: case lines, PASS/FAIL rules, escaped exceptions (fake bank)."
+    },
+    {
+      "kind": "test",
       "lines": 92,
       "path": "tests/test_drive_api.py",
       "purpose": "Tests for drive_api.py with a fake Drive v3 service (no network, no Colab)."
@@ -3079,7 +3241,7 @@
     },
     {
       "kind": "test",
-      "lines": 142,
+      "lines": 149,
       "path": "tests/test_nbkit.py",
       "purpose": "Tests for tools/nbkit.py: md/code/form cell sources, metadata, validation and Notebook."
     },
@@ -3133,7 +3295,7 @@
     },
     {
       "kind": "test",
-      "lines": 318,
+      "lines": 376,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
     },
@@ -3259,6 +3421,12 @@
     },
     {
       "kind": "tool",
+      "lines": 108,
+      "path": "tools/demo_selfcheck.py",
+      "purpose": "Colab check (C11.2): the demo's own handler on a normal prompt and on bad inputs, no UI."
+    },
+    {
+      "kind": "tool",
       "lines": 80,
       "path": "tools/hooks/commit_msg.py",
       "purpose": "Commit-msg guard: enforce the atomic-commit message format (header, Chunk/What/Why/How verified)."
@@ -3277,13 +3445,13 @@
     },
     {
       "kind": "tool",
-      "lines": 173,
+      "lines": 183,
       "path": "tools/nbkit.py",
       "purpose": "Notebook spec API (stdlib only): md / code / form cells and the Notebook a spec defines."
     },
     {
       "kind": "tool",
-      "lines": 331,
+      "lines": 337,
       "path": "tools/read_colab_run.py",
       "purpose": "Read an executed Colab notebook (colab_runs/*.ipynb) and check every cell against its spec."
     },

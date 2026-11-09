@@ -6,6 +6,7 @@ import argparse
 
 from boinga_translator import (
     __version__,
+    app_gradio,
     audit_summary,
     baseline,
     ckpt_sampler,
@@ -118,7 +119,20 @@ def build_parser() -> argparse.ArgumentParser:
                                           "provenance.json (reports/best_provenance.json)")
     prom.add_argument("--run", required=True, help="run name (one folder under runs/)")
     prom.add_argument("--step", type=int, required=True, help="checkpoint step to promote")
+    demo = sub.add_parser("demo", help="serve the Gradio demo (boinga and baseline voices)")
+    demo.add_argument("--share", action="store_true",
+                      help="also open a public gradio.live link (anyone with it can use it)")
     return parser
+
+
+def _demo(share: bool) -> int:
+    """Serve the Gradio demo; FAIL + exit 1 if gradio or a voice is missing."""
+    try:
+        app_gradio.launch(share=share)
+    except (ImportError, ValueError, OSError) as exc:
+        print(f"FAIL: demo {type(exc).__name__}: {exc}")
+        return 1
+    return 0
 
 
 def _prepare(workers: int) -> int:
@@ -510,6 +524,8 @@ def main(argv: list[str] | None = None) -> int:
         return _clean_run(args.run)
     elif args.command == "promote":
         return _promote(args.run, args.step)
+    elif args.command == "demo":
+        return _demo(args.share)
     return 0
 
 

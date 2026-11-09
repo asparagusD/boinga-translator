@@ -130,6 +130,64 @@ def _rewrite(path: Path, cid: str, outputs: list[dict]) -> None:
     path.write_text(json.dumps(nb), encoding="utf-8")
 
 
+LIVE_SPEC = '''"""Reader test spec: a cell stopped by the user."""
+from nbkit import Notebook, code, md
+
+NOTEBOOK = Notebook(
+    chunk="C9", run=1, slug="live", title="Live test", branch="chunk/C9-live",
+    cells=[
+        md("About it."),
+        code("live", "Live demo", "serve()", expect=["^Running on"], allow_interrupt=True),
+        md("About it."),
+        code("plain", "Plain cell", "serve()"),
+    ],
+)
+'''
+
+
+def _interrupt(text: str) -> list[dict]:
+    return [new_output("stream", name="stdout", text=text),
+            new_output("error", ename="KeyboardInterrupt", evalue="",
+                       traceback=["Traceback (most recent call last)", "KeyboardInterrupt: "])]
+
+
+def _live_results(tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+                  live: list[dict]) -> dict[str, read_colab_run.CellResult]:
+    (tmp_path / "notebooks" / "specs").mkdir(parents=True)
+    real = build_notebook.ROOT / "notebooks" / "colab_bootstrap.py"
+    (tmp_path / "notebooks" / "colab_bootstrap.py").write_text(
+        real.read_text(encoding="utf-8"), encoding="utf-8")
+    spec_path = tmp_path / "notebooks" / "specs" / "live.py"
+    spec_path.write_text(LIVE_SPEC, encoding="utf-8")
+    monkeypatch.setattr(build_notebook, "ROOT", tmp_path)
+    nb = nbformat.reads(build_notebook.build(spec_path)[1], as_version=4)
+    by_id = {c.metadata.get("boinga", {}).get("id"): c for c in nb.cells}
+    by_id["live"].execution_count, by_id["live"].outputs = 1, live
+    by_id["plain"].execution_count, by_id["plain"].outputs = 1, _interrupt("Running on x\n")
+    return {r.id: r for r in read_colab_run.check_run(nb, read_colab_run.load_spec(spec_path))}
+
+
+def test_allowed_interrupt_is_pass(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    res = _live_results(tmp_path, monkeypatch, _interrupt("Running on public URL: x\n"))
+    assert res["live"].status == "PASS", res["live"].reasons
+    assert "KeyboardInterrupt" in res["live"].raw  # the digest still shows the stop
+    assert res["plain"].status == "ERROR"  # without allow_interrupt it stays an error
+
+
+def test_allowed_interrupt_still_checks_output(tmp_path: Path,
+                                               monkeypatch: pytest.MonkeyPatch) -> None:
+    res = _live_results(tmp_path, monkeypatch, _interrupt("FAIL: no voice\n"))
+    assert res["live"].status == "FAIL"
+    assert any("^Running on" in r for r in res["live"].reasons)
+    assert any("^FAIL:" in r for r in res["live"].reasons)
+
+
+def test_allowed_interrupt_only_for_keyboard_interrupt(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    other = [new_output("error", ename="RuntimeError", evalue="boom", traceback=["x"])]
+    assert _live_results(tmp_path, monkeypatch, other)["live"].status == "ERROR"
+
+
 def test_cell_ok_required_only_for_cells_that_call_it(
         run: tuple[Path, read_colab_run.Spec]) -> None:
     path, _spec = run

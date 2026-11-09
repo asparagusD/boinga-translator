@@ -903,8 +903,66 @@ map/notebook and PROGRESS.
   C10.5 "PASS: mcd table (20 prompts)" in 0:45 (2.30 s/prompt). MCD vs R: A 143.21 ± 14.84,
   B 107.23 ± 24.91; B closer on 20 of 20 prompts (reports/eval.md) (this commit)
 
-## C11
-- [ ] C11.x (subchunks not yet defined)
+## C11 — Gradio demo
+Branch `chunk/C11-demo`. A Gradio page that speaks typed Chittagonian text with the fine-tuned
+voice (Drive best/, run1 step 36500) and, for comparison, the pretrained baseline, through
+`synth.VoiceBank` (prepare_text, fixed seed and inference scales). The input check rejects
+empty text and text over 300 characters, and since C11.3 characters the voice lacks (coqui
+would drop them silently; C5 follow-up, DECISIONS "Gate G4"). New module
+`app_gradio.py` (not `gradio.py`: it would shadow the library); gradio is imported lazily and
+pinned in the `[train]` extra (the bootstrap installs it). One GPU notebook: spec `notebooks/specs/c11_demo.py` ->
+`notebooks/runs/C11_demo_run1.ipynb`. Local tests use a fake VoiceBank, never coqui or the model; the Blocks test needs gradio (skipped when it is not installed). Line counts
+are non-test estimates, excluding the generated map/notebook and PROGRESS. The user's C11.1
+promptbook replaces the planned C11.1a/b split: one subchunk, gradio pinned in `[train]` (no
+`[demo]` extra, so no install cell in C11.2), check_input = empty / > 300 characters only.
+- [x] C11.1 new module `app_gradio.py`: `check_input(text)` -> message or None ("Please enter
+  some Bengali text." for empty/blank, "Please keep it under 300 characters." over 300, edge
+  spaces not counted); `synthesize(bank, text, voice)` (check, then VoiceBank.speak; ValueError
+  messages kept, other errors "Synthesis failed (<type>)", logged); `make_handler` (DemoError ->
+  gr.Error, no traceback); `build_app(bank)` -> gr.Blocks (title, proof-of-concept description,
+  Textbox, Radio of bank.available() default boinga, Synthesize, Audio, gr.Examples from the
+  first 5 of configs/eval_prompts.json if present, footer from settings); `launch(share)`;
+  `boinga demo [--share]`; `settings.PRETRAINED_AUTHOR`; `gradio==6.31.0` in `[train]`.
+  DECISIONS "C11 demo". Tests `tests/test_app_gradio.py` (fake bank; gradio tests ran with
+  gradio 6.31.0 in .venv) (this commit). Not done: rejecting characters outside the voice's
+  charset (coqui drops them silently; C5 follow-up)
+- [x] C11.2 code (user's C11.2 promptbook replaces the planned edge_checks/report):
+  `tools/demo_selfcheck.py` calls `app_gradio.make_handler` (the page's own callback) on the
+  real VoiceBank, no UI: first held-out eval prompt in boinga + baseline (audio > 0.5 s,
+  finite), empty and 400 characters (exact friendly messages), prompt + Latin letters and
+  prompt + Bengali digits (audio or a friendly message); only gr.Error may leave the handler;
+  "CASE <name>: ok <s> s|error <message>", "PASS: demo selfcheck (6 cases)". `nbkit.code(...,
+  allow_interrupt=True)` (metadata key only when set, older notebooks unchanged) and
+  `read_colab_run._status`: a KeyboardInterrupt in such a cell is PASS, expect/forbid checked
+  on its output before the stop, no CELL-OK needed (a fallback: gradio's block_thread usually
+  catches Stop itself and the cell ends normally). Spec `notebooks/specs/c11_demo.py` ->
+  `notebooks/runs/C11_demo_run1.ipynb` (GPU): C11.2.check, C11.2.live, form C11-notes
+  (DEMO_WORKED, NOTES). Changes to the user's cell text: the live cell launches with
+  `debug=True` (without it gradio returns at once in Colab and Run all runs on into the form),
+  its md says to (re)run the form after filling it (after Stop the cell usually ends
+  normally, so Run all may already have run the form empty; record_notes saves what it holds); `app_gradio.make_handler` raises gr.Error with
+  `print_exception=False` (gradio otherwise prints a traceback for every friendly error,
+  which the live cell's "Traceback" forbid would flag). Tests `tests/test_demo_selfcheck.py`,
+  test_nbkit, test_read_colab_run (this commit)
+- [x] C11.H hand-off: `notebooks/runs/C11_demo_run1.ipynb` rebuilt, unchanged since `a1bc809`,
+  `--all --check` clean, pushed; link, runtime (user: T4), notebook instructions, form
+  C11-notes and save name `colab_runs/C11_demo_run1.ipynb` given; duration not measured (this
+  commit)
+- [x] C11.V verify run 1 (colab-verify): 8/8 PASS at 0280e8c (built in a1bc809), not stale,
+  RTX PRO 6000 (user asked T4), Colab Python 3.13.16. C11.2.check: normal-boinga ok 3.21 s,
+  normal-baseline ok 3.08 s, empty and too-long gave the friendly messages, latin-mixed ok
+  5.06 s, bengali-digits ok 5.52 s, "PASS: demo selfcheck (6 cases)" in 3:00 (mostly model
+  loading). C11.2.live: public gradio.live link up; gradio caught Stop ("Keyboard interruption
+  in main thread... closing server.") and the cell ended with CELL-OK, so the allow_interrupt
+  fallback was not needed. C11-notes: DEMO_WORKED "yes", NOTES "none" (this commit)
+- [x] follow-up: Latin letters are dropped silently (coqui logs "Character 'h' not found in the
+  vocabulary. Discarding it." per letter): C11.3 `app_gradio.check_input(text, charset)` lists
+  characters the voice lacks after prepare_text ("The voice cannot say these characters,
+  please remove them: h, e, ..."); `model_charset()` = base voice's charset from
+  configs/pretrained_facts.json; `make_handler` uses it by default; all 20 eval prompts pass;
+  selfcheck latin-mixed now expects that message; C11.2.check md updated, notebook rebuilt
+  (run 1 not re-run with it). Bengali digits ০-৬ and ৮ are in the charset (৭, ৯ are not), so
+  "১২৩" still speaks, untrained (digit rows were excluded) (this commit)
 
 ## C12
 - [ ] C12.x (subchunks not yet defined)

@@ -11,7 +11,7 @@ import keyword
 import re
 import textwrap
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 ALWAYS_FORBID: tuple[str, ...] = (r"^FAIL:", "Traceback")
 RESERVED_IDS = re.compile(r"^(BOOT\.\d+|HDR)$")  # bootstrap and run-header cells (builder)
@@ -32,15 +32,19 @@ class Cell:
     forbid: tuple[str, ...] = ()
     gpu: bool = False
     timeout_min: int | None = None
+    allow_interrupt: bool = False  # reader: a KeyboardInterrupt (Stop pressed) is a PASS
 
     @property
     def metadata(self) -> dict[str, object]:
         """Cell metadata for the .ipynb (a copy of the spec's checks, for humans)."""
         if self.kind == "markdown":
             return {}
-        return {"boinga": {"id": self.id, "kind": self.kind, "expect": list(self.expect),
-                           "forbid": list(self.forbid), "gpu": self.gpu,
-                           "timeout_min": self.timeout_min}}
+        meta: dict[str, object] = {
+            "id": self.id, "kind": self.kind, "expect": list(self.expect),
+            "forbid": list(self.forbid), "gpu": self.gpu, "timeout_min": self.timeout_min}
+        if self.allow_interrupt:  # only when set, so older built notebooks stay byte-identical
+            meta["allow_interrupt"] = True
+        return {"boinga": meta}
 
 
 def _check_id(cell_id: str) -> None:
@@ -90,9 +94,15 @@ def md(text: str) -> Cell:
 
 
 def code(cell_id: str, title: str, src: str, expect: Iterable[str] = (),
-         forbid: Iterable[str] = (), gpu: bool = False, timeout_min: int | None = None) -> Cell:
-    """Code cell: marker line, dedented src, then cell_ok('<id>')."""
-    return _checked_cell("code", cell_id, title, [_body(src)], expect, forbid, gpu, timeout_min)
+         forbid: Iterable[str] = (), gpu: bool = False, timeout_min: int | None = None,
+         allow_interrupt: bool = False) -> Cell:
+    """Code cell: marker line, dedented src, then cell_ok('<id>').
+
+    allow_interrupt: the cell runs until the user presses Stop (e.g. a live demo); the reader
+    then counts its KeyboardInterrupt as PASS, still checking expect/forbid on its output.
+    """
+    cell = _checked_cell("code", cell_id, title, [_body(src)], expect, forbid, gpu, timeout_min)
+    return replace(cell, allow_interrupt=allow_interrupt)
 
 
 def _literal(value: object) -> str:

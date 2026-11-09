@@ -40,6 +40,13 @@ def test_code_forbid_always_has_defaults_and_metadata_mirrors_spec() -> None:
     assert cell.metadata == {"boinga": {
         "id": "x1", "kind": "code", "expect": [], "forbid": [r"^FAIL:", "Traceback", "oops"],
         "gpu": True, "timeout_min": 5}}
+    assert cell.allow_interrupt is False  # default: no metadata key, old notebooks unchanged
+
+
+def test_code_allow_interrupt() -> None:
+    cell = nbkit.code("live", "Live demo", "serve()", allow_interrupt=True)
+    assert cell.allow_interrupt is True and cell.metadata["boinga"]["allow_interrupt"] is True
+    assert cell.source.endswith(CELL_OK.format("live"))
 
 
 def test_shell_line_requires_expect() -> None:
