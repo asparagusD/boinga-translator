@@ -14,6 +14,7 @@ from boinga_translator import (
     data_download,
     drive_api,
     env_report,
+    evaluate,
     milestones,
     paths,
     prepare,
@@ -47,6 +48,18 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("audit-summary", help="summarise audit.csv into reports/audit_summary.md")
     sub.add_parser("pick-baseline-ctg",
                    help="put 3 held-out dialect lines into configs/baseline_prompts.json")
+    pev = sub.add_parser("pick-eval-prompts",
+                         help="pick 20 held-out dialect prompts into configs/eval_prompts.json")
+    pev.add_argument("--exclude", default="",
+                     help="comma-separated prompt ids to replace, e.g. P03,P11 (others stay)")
+    sub.add_parser("eval-generate", help="speak the eval prompts with both voices and copy the "
+                                         "real clips to Drive eval/final/ (resumable)")
+    sub.add_parser("eval-sheet", help="blind clip1/clip2 copies, hidden key and an empty rating "
+                                      "sheet in Drive eval/final/blind/")
+    sub.add_parser("eval-score", help="unblind the filled rating sheets in Drive eval/final/ratings/ "
+                                      "into reports/eval.md")
+    sub.add_parser("eval-mcd", help="mel-cepstral distortion of A and B vs the real recordings, "
+                                    "appended to reports/eval.md (relative only)")
     sub.add_parser("embed-speakers",
                    help="embed every clean clip's speaker to Drive speaker_emb/ (resumable)")
     sub.add_parser("cluster-speakers",
@@ -254,6 +267,67 @@ def _pick_baseline_ctg() -> int:
     return 0
 
 
+def _pick_eval_prompts(exclude: str) -> int:
+    """Pick (or replace some of) the 20 C10 prompts, write and emit them; FAIL + exit 1."""
+    try:
+        ids = [i.strip() for i in exclude.split(",") if i.strip()]
+        prompts = evaluate.pick_prompts(exclude_ids=ids)
+        for p in prompts:
+            print(f"{p['id']} clip {p['clip_id']}: {p['ctg_text']}")
+        evaluate.write_prompts(prompts)
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: pick-eval-prompts: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: {len(prompts)} prompts")
+    return 0
+
+
+def _eval_generate() -> int:
+    """A/B/R audio for configs/eval_prompts.json; FAIL + exit 1 on error."""
+    try:
+        counts = evaluate.generate()
+    except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
+        print(f"FAIL: eval-generate: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: generated A={counts['A']} B={counts['B']} R={counts['R']}")
+    return 0
+
+
+def _eval_sheet() -> int:
+    """Blind rating sheet from the C10.2 audio; FAIL + exit 1 on error."""
+    try:
+        rows = evaluate.make_rating_sheet()
+    except (FileNotFoundError, ValueError, KeyError, RuntimeError, OSError) as exc:
+        print(f"FAIL: eval-sheet: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: rating sheet {rows} rows")
+    return 0
+
+
+def _eval_score() -> int:
+    """Score the rating sheets into reports/eval.md; FAIL + exit 1 on error."""
+    try:
+        raters = evaluate.score()
+    except (FileNotFoundError, ValueError, KeyError, OSError) as exc:
+        print(f"FAIL: eval-score: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: scored {raters} raters")
+    return 0
+
+
+def _eval_mcd() -> int:
+    """MCD of A and B vs the real recordings into reports/eval.md; FAIL + exit 1 on error."""
+    from boinga_translator import eval_mcd  # librosa import only for this command
+
+    try:
+        table = eval_mcd.mcd_table()
+    except (FileNotFoundError, ValueError, KeyError, OSError, RuntimeError) as exc:
+        print(f"FAIL: eval-mcd: {type(exc).__name__}: {exc}")
+        return 1
+    print(f"PASS: mcd table ({len(table)} prompts)")
+    return 0
+
+
 def _embed_speakers() -> int:
     """One speaker embedding per clean clip of the Drive audit.csv; FAIL + exit 1 on error."""
     try:
@@ -394,6 +468,16 @@ def main(argv: list[str] | None = None) -> int:
         return _audit_summary()
     elif args.command == "pick-baseline-ctg":
         return _pick_baseline_ctg()
+    elif args.command == "pick-eval-prompts":
+        return _pick_eval_prompts(args.exclude)
+    elif args.command == "eval-generate":
+        return _eval_generate()
+    elif args.command == "eval-sheet":
+        return _eval_sheet()
+    elif args.command == "eval-score":
+        return _eval_score()
+    elif args.command == "eval-mcd":
+        return _eval_mcd()
     elif args.command == "embed-speakers":
         return _embed_speakers()
     elif args.command == "cluster-speakers":

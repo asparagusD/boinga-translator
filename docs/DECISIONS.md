@@ -1149,3 +1149,85 @@ listener, 3 sentences, judged by ear (no ASR/MOS measure yet). best/model.pth is
 checkpoint with optimizer state (~1 GB); a later promotion replaces it and sends the old one
 to Drive's trash (4.5 GB free on Drive before this copy). best/ was not checked through the
 Drive API (the C9.2b option in PROGRESS); the reload ran from the Drive mount in the same VM.
+
+## 2026-11-09 — C10 evaluation prompts
+**Context:** C10.1. The blind A/B test needs prompts that were never trained on and that show
+the dialect, plus a way to replace prompts a Chittagonian reviewer rejects without moving
+the other prompts.
+**Decision:** `evaluate.pick_prompts` picks P01-P15 from clean clips of our test split
+(has_reference true: R is the speaker's own prepared recording) and P16-P20 from clean
+official-test clips of other speakers (not in the selection, its voice clusters or
+splits.csv; one per cluster first; has_reference false, no R). Both groups drop any text a
+train/val clip has, and any clip without a translation. They rank 5-15 words first, then by
+lowest difflib ratio of ctg_text_nfc vs bn_text (most dialectal), with ties broken by a
+seeded shuffle. Text is copied verbatim. An existing configs/eval_prompts.json is kept on a
+re-run (the notebook is idempotent, and the seed is then not used). `--exclude` gives each
+listed id the next-best unused clip of its group, from an unused cluster for P16-P20. The
+entry gets an extra "replaced" list so a rejected clip never comes back. Later steps read
+only id, clip_id, ctg_text, bn_text and has_reference.
+**Alternatives:** A fresh pick per exclusion (other ids would shift); a separate exclusions
+file (one more file to keep in sync).
+**Update 2026-11-09 (C10.1b):** C10 run 1 failed: only 2 clean official-test clips lie
+outside the training speaker's voice cluster (C4 put 7,506 of 7,513 clean clips in cluster 1;
+clusters 2 and 3 hold 7). The user chose "All 20 from our test": P01-P20 all come from our
+test split, each with has_reference true. The other-speaker group, its cluster rule and the
+cluster-aware replacement are gone; the other rules above still hold.
+
+## 2026-11-09 — C10 blind rating sheet
+**Context:** C10.3. Raters score the baseline and fine-tuned voices on 20 prompts without
+knowing which is which (user's design: clip1/clip2 per prompt, four 1-5 scales plus
+comments, key kept apart).
+**Decision:** The clip order is drawn with the fixed seed so that the fine-tuned voice is
+clip1 for exactly 10 prompts: a plain coin flip could put one voice first far more often,
+and first-heard position biases ratings. Both clips are scaled to -23 dBFS RMS (lower if a
+peak would pass 0.99): C10.2 left the voices at their raw model level, and a louder voice
+would be easy to spot and tends to be rated clearer. The real recording (R_real) is not in
+the pack, since the sheet rates each voice on its own. key.csv stays in Drive
+eval/final/, outside blind/; only its sha256 is printed, so the user who runs the notebook
+stays blind too. A rating sheet that already holds ratings is never overwritten. The user's
+blindness is a courtesy, not a guarantee: the seed is in the repo and key.csv is on
+Drive, so anyone who looks can unblind; error messages name only the prompt and clip.
+**Alternatives:** Unmatched levels (simplest, but gives the voice away); including R as a
+reference clip (useful for dialect scores, but not in the user's sheet design; can be added
+for a second round).
+
+## 2026-11-09 — C10 self-rating
+**Context:** C10.4 scores a rater panel's sheets, but the user works alone and has no
+raters ("There are no raters and I am building as one man").
+**Decision:** The user rates the 40 blind clips themself on an interactive Colab screen
+(`rating_app.rate`, run-3 notebook), which saves Drive eval/final/ratings/me.csv in the
+rating-sheet format; `boinga eval-score` then reports one rater (R1). Other raters' sheets
+can still be added to ratings/ later.
+**Consequences:** One rater, who built the model and heard P01-P03 labelled in run 2
+(C10.2.play), so the test is only partly blind and has no inter-rater agreement; eval.md's
+Limitations already says "informal panel of 1 rater(s)". Results are a sanity check, not
+evidence of quality.
+**Alternatives:** Skip the listening test and rely on G6 plus the C10.2 pace numbers;
+recruit raters (not available).
+
+**Update (C10.V3):** The sheet that was scored was filled in Google Sheets by an outside
+rater (the name in its rater column is not the user's), not on the self-rating screen; the
+screen remains for later raters. The report anonymises them as R1. Whether this rater heard
+the labelled run-2 clips is not recorded.
+
+## 2026-11-09 — C10 evaluation result
+**Context:** C10 run 3 (9e17032) scored one rater's 40 blind ratings (20 prompts from our
+test split, baseline A vs fine-tuned B, level-matched, balanced order) into reports/eval.md.
+**Decision:** Accept the result as C10's outcome: B is rated above A on every criterion
+(overall 1.73 vs 1.12 on 1-5, +0.60; intelligibility +0.50, naturalness +0.70, dialect
+authenticity +0.60, dialect words +0.60) and wins 16 of 20 prompts (A wins P01, P02, P05;
+P16 ties; win rate 0.82). Both voices score low in absolute terms (B's best prompts reach
+2.75; A's dialect scores are all 1).
+**Consequences:** The fine-tuning moved the voice towards Chittagonian, but the proof of
+concept is not yet a good dialect voice. One rater, no significance test, no comments, so
+this is a direction, not a measurement. Next work should target intelligibility and
+naturalness of B, and add raters before claiming quality.
+**Alternatives:** Re-run with more raters before recording a result (none available now);
+optional MCD (C10.5) as an objective cross-check (not built).
+
+**Update (C10.V4):** The optional MCD check was built (C10.5) and agrees in direction: B is
+closer to the real recordings than A on all 20 prompts (mean 107.2 vs 143.2, -25%). The
+absolute values are far above usual MCD figures (typically ~5-10 dB) because they use
+librosa's MFCC scale (128 dB mel bands, orthonormal DCT); they are comparable only inside
+this table, and the real speaker is neither voice, so this is a relative cross-check only.
+

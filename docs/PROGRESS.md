@@ -777,8 +777,131 @@ non-test estimates, excluding the generated map/notebook and PROGRESS.
 - [x] C9.4 Gate G6 — usable checkpoint: PASS (reload check PASS, INTELLIGIBLE "yes");
   DECISIONS "Gate G6 — usable checkpoint" (`09e4cbc`)
 
-## C10
-- [ ] C10.x (subchunks not yet defined)
+## C10 — Blind A/B evaluation
+Branch `chunk/C10-eval`. Blind comparison of the pretrained Bangla voice ("baseline") and the
+fine-tuned voice ("boinga", Drive best/, run1 step 36500) on 20 test-split prompts that were never
+trained on, each with its real recording (R) as the reference (user, after C10.V1 failed:
+"All 20 from our test"). Raters see R, A and B. A and B are the
+two voices, swapped per prompt by a seeded, balanced draw (10 prompts with boinga as A, 10 as B).
+The key stays on Drive and is not printed until run 3. Three notebooks (user, after C10.1:
+review the prompts before any audio is made): run 1 `notebooks/specs/c10_eval_run1.py` ->
+`notebooks/runs/C10_eval_run1.ipynb` (CPU: prompts + review), run 2 `c10_eval_run2.py` (GPU:
+replace rejected prompts, audio, blind pack) and run 3 `c10_eval_run3.py` (CPU: scoring).
+Raters fill the sheet between runs 2 and 3. Line counts are non-test estimates, excluding the generated
+map/notebook and PROGRESS.
+- [x] C10.1 code (local + spec): new module `evaluate.py`: `pick_prompts(seed, exclude_ids)`:
+  P01-P15 = clean clips of our test split (Drive splits.csv), has_reference true; P16-P20 =
+  clean official-test clips of other speakers (not in the selection, not in splits.csv), one
+  per voice cluster first, has_reference false (replaced by C10.1b: all 20 from our test
+  split). Both groups: no text of a train/val clip,
+  distinct text, 5-15 words first, then lowest difflib ratio of ctg_text_nfc vs bn_text
+  (`baseline.bangla_similarity`), seeded ties. Writes `configs/eval_prompts.json` (list of
+  id, clip_id, ctg_text verbatim, bn_text, has_reference; "replaced" lists clips a prompt
+  replaced) and emits it. An existing file is kept; `--exclude` ids get the next-best unused
+  clip of their group, other ids stay the same. `boinga pick-eval-prompts [--exclude
+  P03,P11]` ("PASS: 20 prompts"); `evaluate.show_prompts()`. Spec
+  `notebooks/specs/c10_eval_run1.py`: C10.pre, C10.1, C10.1.show, form C10.1-notes
+  (REVIEWED_BY, IDS_TO_REPLACE, NOTES). Tests `tests/test_evaluate_prompts.py`. ~225 lines
+  incl. the spec (over the ~150 budget; kept as one commit as the user asked). DECISIONS
+  "C10 evaluation prompts" (this commit)
+- [x] decided (user, chat: "Review first, hand off"): run 1 = prompts + review only (CPU);
+  C10.2/C10.3 move to run 2, which first runs `boinga pick-eval-prompts --exclude <IDS>` when
+  the review lists any
+- [x] C10.H1 hand-off run 1: spec retitled "prompt review", gpu=False; link, CPU runtime,
+  a few minutes (not measured; C10.pre restores the prepared data), form C10.1-notes and save
+  name `colab_runs/C10_eval_run1.ipynb` given (this commit)
+- [x] C10.V1 attempt 1 FAILED at 7829b2f (not stale): C10.pre PASS, C10.1 "need 5
+  other-speaker candidates, found 2": the C4 clustering has 7,506 of 7,513 clean clips in
+  cluster 1 (DEBUG_LOG 2026-11-09)
+- [x] C10.1b fix (user: "All 20 from our test"): P01-P20 all from our test split,
+  has_reference true; clusters and the selection no longer read; spec md updated; tests
+  `tests/test_evaluate_prompts.py` (this commit)
+- [x] C10.V1 verify run 1 (colab-verify, re-run after C10.1b): 9/9 PASS at b9d78c1 (built in
+  b9d78c1), not stale, CPU. 20 prompts P01-P20 (5-11 words, all has_reference) in
+  configs/eval_prompts.json; C10.1-notes: REVIEWED_BY "Me", IDS_TO_REPLACE "None" (no
+  replacements; run 2 needs no `--exclude`), NOTES "All okay" (this commit). P08 (clip 29)
+  and P10 (clip 6) are C9 reload-check clips the user has heard before
+- [x] C10.2 code (local + spec): `evaluate.generate()`: per prompt VoiceBank "baseline" ->
+  Drive `eval/final/A_baseline/<id>.wav`, "boinga" -> `B_boinga/` (fixed seed + inference
+  scales, raw model output), and for has_reference the corpus clip through
+  `prepare.transform_audio` -> `R_real/`; each wav > 0.5 s and > -50 dBFS, else ValueError;
+  `final/index.csv` (id, set, path, duration_s, rms_db, text); a wav listed there with the
+  same text is kept (a replaced prompt is redone); reports/eval_generation.md (count, mean /
+  min / max duration, mean RMS per set) emitted; `evaluate.players(ids)`; `boinga
+  eval-generate` ("PASS: generated A=20 B=20 R=20": all prompts have R since C10.1b, the
+  user's "R=15" predates it). Cells C10.pre (fetch-data), C10.2, C10.2.play in new spec
+  `notebooks/specs/c10_eval_run2.py` (GPU), not run 1 (run 1 is verified; audio comes after
+  the review, user's "Review first"). No loudness matching here: C10.3 decides it for the
+  blind pack. Tests `tests/test_evaluate_generate.py` (fake VoiceBank) (this commit)
+- [x] C10.3 code (local + spec): `evaluate.make_rating_sheet(seed)`: per prompt the
+  A_baseline / B_boinga wavs of final/index.csv become Drive `eval/final/blind/<id>_clip1.wav`
+  / `_clip2.wav` in a seeded order with B first for half the prompts, each scaled to -23 dBFS
+  RMS (peak <= 0.99); `final/key.csv` (prompt_id, clip, set, source) outside blind/, never
+  printed (sha256 only), not in the repo; `blind/rating_sheet.csv` (rater, prompt_id, clip,
+  text verbatim, intelligibility, naturalness, dialect_authenticity, dialect_words, comments;
+  40 empty rows); `blind/INSTRUCTIONS.md` English + Bangla, emitted as
+  reports/rater_instructions.md. An edited sheet is kept; a reshuffle under it is refused.
+  R_real is not in the pack (not asked). `boinga eval-sheet` ("PASS: rating sheet 40 rows").
+  Cell C10.3 in the run-2 spec (not run 1, as for C10.2), forbids "A_baseline"/"B_boinga" in
+  its output. DECISIONS "C10 blind rating sheet". Tests `tests/test_evaluate_sheet.py`
+  (this commit)
+- [x] C10.H2 hand-off run 2: `notebooks/runs/C10_eval_run2.ipynb` (C10.pre, C10.2,
+  C10.2.play, C10.3) unchanged since `5a679fc`, `--all --check` clean, pushed; link, GPU
+  runtime (T4 or the RTX PRO 6000), duration not measured (user estimate ~15 min), rater
+  instructions (share blind/ view-only, a Google Sheets copy of rating_sheet.csv per rater)
+  and save name `colab_runs/C10_eval_run2.ipynb` given. The user's C10.H1 text (build run 1,
+  review prompts) was already done: run 1 verified in `97e9cee` (this commit)
+- [x] C10.V2 verify run 2 (colab-verify): 9/9 PASS at 05720c3 (built in 5a679fc), not
+  stale. C10.2: A=20 B=20 R=20 in 1:25 (4.29 s/prompt); mean duration A_baseline 3.59 s,
+  B_boinga 2.83 s, R_real 2.90 s; mean RMS -24.1 / -17.7 / -16.6 dBFS
+  (reports/eval_generation.md). C10.3: 40 blind clips, key sha256 printed, no voice name in
+  its output, reports/rater_instructions.md (this commit and the next)
+- [x] (user) rater fills the sheet: one outside rater filled it in Google Sheets; run 3's
+  C10.R.import saved it as Drive `eval/final/ratings/me.csv` (C10.4d, C10.V3)
+- [x] C10.4 code (local + spec run 3): `evaluate.score()`: reads every Drive
+  `eval/final/ratings/*.csv`, checks each covers exactly the 40 key rows and every score
+  is a whole number 1-5 (bad cells listed by file, spreadsheet row and column; nothing is
+  guessed or scored), unblinds with final/key.csv, raters anonymised R1..Rn (sheets sorted
+  by file name); reports/eval.md: mean ± sd per criterion (+ overall) A vs B, per-prompt
+  mean of the 4 criteria and B win rate (share of raters scoring B above A, tie 0.5), all
+  comments by set, Limitations (user's list); emitted; `boinga eval-score` ("PASS: scored N
+  raters"). New spec `notebooks/specs/c10_eval_run3.py` (CPU, cell C10.4), not
+  c10_eval_run2.py, which already holds the executed audio + sheet run. User's design
+  replaces the planned sign test / bootstrap / eval.json. Tests `tests/test_evaluate_score.py`
+  (this commit)
+- [x] C10.4b interactive rating (user, chat: no rater panel, "Rate the 40 blind clips
+  yourself", "build a notebook where I can rate interactively"): new module `rating_app.py`:
+  `load_or_start(rater)` (resume ratings/<rater>.csv, else a copy of blind/rating_sheet.csv),
+  `record` (four scores 1-5 only, comment whitespace collapsed), `progress`, `next_prompt`,
+  `save` (atomic), `check` (PASS only when every clip has four scores), `rate(rater)`
+  (ipywidgets screen: sentence, clip1/clip2 players, 1-5 buttons, comment, Previous / Save &
+  next, saved to Drive after each prompt; no voice names shown). Run-3 spec: C10.R,
+  C10.R.check, then C10.4; title "rating and scoring". DECISIONS "C10 self-rating". Tests
+  `tests/test_rating_app.py` (widget test needs ipywidgets: skipped locally, passed with a
+  scratch install) (this commit)
+- [x] C10.5 optional MCD (user: "Yes, build it"; local + spec run 4): new module
+  `eval_mcd.py`: `mcd_dtw(a_wav, r_wav)` (librosa MFCC 1-13, silence trimmed, DTW with
+  `librosa.sequence.dtw`, MCD in dB = sqrt(2) x Euclidean of dB-scaled MFCCs) and
+  `mcd_table()` for all 20 prompts with a reference (A vs R, B vs R), replacing or
+  appending "Objective check (relative only)" in reports/eval.md; `boinga eval-mcd`
+  ("PASS: mcd table"). New spec `notebooks/specs/c10_eval_run4.py` (CPU, cell C10.5)
+  instead of run 2 (already verified); 20 prompts, not 15 (every prompt has R). Tests
+  `tests/test_eval_mcd.py` (this commit)
+- [x] C10.4c ratings typed into blind/rating_sheet.csv: `rating_app.adopt_blind_sheet`, called
+  by `check`, copies it to ratings/<rater>.csv when it has more rated clips (older sheet kept
+  as .bak) (e18615b)
+- [x] C10.4d ratings saved as a Google Sheet (run 3 failed: no blind/rating_sheet.csv, the
+  folder held a Google Sheet `rating_sheet`): `rating_app.import_google_sheet` exports it
+  through the Drive API; new cell C10.R.import; DEBUG_LOG entry (9e17032)
+- [x] C10.H3 hand-off run 3 (CPU; save name `colab_runs/C10_eval_run3.ipynb`)
+- [x] C10.V3 verify run 3 (colab-verify): 9/9 PASS at 9e17032 (built in 9e17032), not stale.
+  C10.R.import copied 40 rated clips from the Google Sheet; C10.R.check "PASS: rated 40 of
+  40 clips"; C10.4 "PASS: scored 1 raters". reports/eval.md: overall A 1.12 vs B 1.73
+  (+0.60), B win rate 0.82 over 20 prompts. DECISIONS "C10 evaluation result" (b3e5ffa)
+- [x] C10.H4 hand-off run 4 (CPU; save name `colab_runs/C10_eval_run4.ipynb`)
+- [x] C10.V4 verify run 4 (colab-verify): 6/6 PASS at 2487e29 (built in 2487e29), not stale.
+  C10.5 "PASS: mcd table (20 prompts)" in 0:45 (2.30 s/prompt). MCD vs R: A 143.21 ± 14.84,
+  B 107.23 ± 24.91; B closer on 20 of 20 prompts (reports/eval.md) (this commit)
 
 ## C11
 - [ ] C11.x (subchunks not yet defined)

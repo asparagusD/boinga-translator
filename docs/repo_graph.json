@@ -7,6 +7,61 @@
     },
     {
       "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run1.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run1.ipynb",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run1.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run2.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run2.ipynb",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run2.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run3.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run3.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run3.ipynb",
+      "target": "src/boinga_translator/rating_app.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run4.ipynb",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "notebook",
+      "source": "notebooks/runs/C10_eval_run4.ipynb",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "notebook",
       "source": "notebooks/runs/C1_bootstrap_run1.ipynb",
       "target": "src/boinga_translator/colab_runtime.py"
     },
@@ -251,6 +306,36 @@
       "target": "src/boinga_translator/synth.py"
     },
     {
+      "kind": "config",
+      "source": "notebooks/specs/c10_eval_run1.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c10_eval_run1.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "config",
+      "source": "notebooks/specs/c10_eval_run2.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c10_eval_run2.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c10_eval_run3.py",
+      "target": "tools/nbkit.py"
+    },
+    {
+      "kind": "import",
+      "source": "notebooks/specs/c10_eval_run4.py",
+      "target": "tools/nbkit.py"
+    },
+    {
       "kind": "import",
       "source": "notebooks/specs/c1_bootstrap.py",
       "target": "tools/nbkit.py"
@@ -468,6 +553,11 @@
     {
       "kind": "config",
       "source": "src/boinga_translator/cli.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/cli.py",
       "target": "configs/speaker_selection.json"
     },
     {
@@ -519,6 +609,16 @@
       "kind": "import",
       "source": "src/boinga_translator/cli.py",
       "target": "src/boinga_translator/env_report.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/eval_mcd.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/cli.py",
+      "target": "src/boinga_translator/evaluate.py"
     },
     {
       "kind": "import",
@@ -647,6 +747,71 @@
     },
     {
       "kind": "import",
+      "source": "src/boinga_translator/eval_mcd.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/eval_mcd.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/eval_mcd.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "config",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/audit_summary.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/baseline.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/corpus.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/data_audit.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/prepare.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/report_io.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/evaluate.py",
+      "target": "src/boinga_translator/synth.py"
+    },
+    {
+      "kind": "import",
       "source": "src/boinga_translator/milestones.py",
       "target": "src/boinga_translator/ckpt_sampler.py"
     },
@@ -734,6 +899,16 @@
       "kind": "import",
       "source": "src/boinga_translator/pretrained.py",
       "target": "src/boinga_translator/settings.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/rating_app.py",
+      "target": "src/boinga_translator/colab_runtime.py"
+    },
+    {
+      "kind": "import",
+      "source": "src/boinga_translator/rating_app.py",
+      "target": "src/boinga_translator/evaluate.py"
     },
     {
       "kind": "import",
@@ -1237,6 +1412,91 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_eval_mcd.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_eval_mcd.py",
+      "target": "src/boinga_translator/eval_mcd.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_eval_mcd.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_eval_mcd.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_generate.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_generate.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_generate.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_evaluate_prompts.py",
+      "target": "configs/eval_prompts.json"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_prompts.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_prompts.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_prompts.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_score.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_score.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_score.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_sheet.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_sheet.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_evaluate_sheet.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_hooks.py",
       "target": "tools/hooks/commit_msg.py"
     },
@@ -1429,6 +1689,21 @@
       "kind": "test",
       "source": "tests/test_promote.py",
       "target": "src/boinga_translator/train_runner.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_rating_app.py",
+      "target": "src/boinga_translator/evaluate.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_rating_app.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_rating_app.py",
+      "target": "src/boinga_translator/rating_app.py"
     },
     {
       "kind": "test",
@@ -1976,6 +2251,12 @@
     },
     {
       "kind": "config",
+      "lines": 142,
+      "path": "configs/eval_prompts.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
       "lines": 42,
       "path": "configs/pretrained_facts.json",
       "purpose": ""
@@ -2000,19 +2281,19 @@
     },
     {
       "kind": "doc",
-      "lines": 162,
+      "lines": 191,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
     {
       "kind": "doc",
-      "lines": 1151,
+      "lines": 1233,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 793,
+      "lines": 916,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2021,6 +2302,30 @@
       "lines": 131,
       "path": "notebooks/colab_bootstrap.py",
       "purpose": "Colab bootstrap cells: mount Drive, clone/pull the private repo, install deps, make folders."
+    },
+    {
+      "kind": "notebook",
+      "lines": 477,
+      "path": "notebooks/runs/C10_eval_run1.ipynb",
+      "purpose": "C10 run 1 — prompt review"
+    },
+    {
+      "kind": "notebook",
+      "lines": 473,
+      "path": "notebooks/runs/C10_eval_run2.ipynb",
+      "purpose": "C10 run 2 — evaluation audio"
+    },
+    {
+      "kind": "notebook",
+      "lines": 479,
+      "path": "notebooks/runs/C10_eval_run3.ipynb",
+      "purpose": "C10 run 3 — rating and scoring"
+    },
+    {
+      "kind": "notebook",
+      "lines": 348,
+      "path": "notebooks/runs/C10_eval_run4.ipynb",
+      "purpose": "C10 run 4 — objective check"
     },
     {
       "kind": "notebook",
@@ -2111,6 +2416,30 @@
       "lines": 513,
       "path": "notebooks/runs/C9_synth-best_run1.ipynb",
       "purpose": "C9 run 1 — C9 — best checkpoint"
+    },
+    {
+      "kind": "module",
+      "lines": 61,
+      "path": "notebooks/specs/c10_eval_run1.py",
+      "purpose": "Spec: C10 run 1, blind A/B evaluation: pick 20 held-out prompts and review them (CPU)."
+    },
+    {
+      "kind": "module",
+      "lines": 70,
+      "path": "notebooks/specs/c10_eval_run2.py",
+      "purpose": "Spec: C10 run 2, blind A/B evaluation: baseline, fine-tuned and real audio for the 20 prompts."
+    },
+    {
+      "kind": "module",
+      "lines": 82,
+      "path": "notebooks/specs/c10_eval_run3.py",
+      "purpose": "Spec: C10 run 3, blind A/B evaluation: rate the blind clips here, then score into eval.md."
+    },
+    {
+      "kind": "module",
+      "lines": 32,
+      "path": "notebooks/specs/c10_eval_run4.py",
+      "purpose": "Spec: C10 run 4, blind A/B evaluation: optional MCD of A and B vs the real recordings."
     },
     {
       "kind": "module",
@@ -2228,6 +2557,30 @@
     },
     {
       "kind": "doc",
+      "lines": 374,
+      "path": "reports/colab_runs/C10_eval_run1.md",
+      "purpose": "Colab run C10 run 1 — prompt review"
+    },
+    {
+      "kind": "doc",
+      "lines": 222,
+      "path": "reports/colab_runs/C10_eval_run2.md",
+      "purpose": "Colab run C10 run 2 — evaluation audio"
+    },
+    {
+      "kind": "doc",
+      "lines": 199,
+      "path": "reports/colab_runs/C10_eval_run3.md",
+      "purpose": "Colab run C10 run 3 — rating and scoring"
+    },
+    {
+      "kind": "doc",
+      "lines": 207,
+      "path": "reports/colab_runs/C10_eval_run4.md",
+      "purpose": "Colab run C10 run 4 — objective check"
+    },
+    {
+      "kind": "doc",
       "lines": 168,
       "path": "reports/colab_runs/C1_pilot_run1.md",
       "purpose": "Colab run C1 run 1 — Pipeline pilot"
@@ -2323,9 +2676,27 @@
       "purpose": ""
     },
     {
+      "kind": "doc",
+      "lines": 92,
+      "path": "reports/eval.md",
+      "purpose": "Blind listening test"
+    },
+    {
+      "kind": "doc",
+      "lines": 9,
+      "path": "reports/eval_generation.md",
+      "purpose": "Evaluation audio"
+    },
+    {
       "kind": "config",
       "lines": 4,
       "path": "reports/notes/C1.10-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 5,
+      "path": "reports/notes/C10.1-notes.json",
       "purpose": ""
     },
     {
@@ -2378,6 +2749,12 @@
     },
     {
       "kind": "doc",
+      "lines": 45,
+      "path": "reports/rater_instructions.md",
+      "purpose": "Rating instructions / রেটিং নির্দেশিকা"
+    },
+    {
+      "kind": "doc",
       "lines": 21,
       "path": "reports/speaker_ranking.md",
       "purpose": "Speaker clusters"
@@ -2420,7 +2797,7 @@
     },
     {
       "kind": "module",
-      "lines": 433,
+      "lines": 517,
       "path": "src/boinga_translator/cli.py",
       "purpose": "Command-line entry point (`boinga`) for data prep, training and demo commands."
     },
@@ -2462,6 +2839,18 @@
     },
     {
       "kind": "module",
+      "lines": 100,
+      "path": "src/boinga_translator/eval_mcd.py",
+      "purpose": "Objective check for C10: mel-cepstral distortion (DTW) of each voice vs the real recordings."
+    },
+    {
+      "kind": "module",
+      "lines": 474,
+      "path": "src/boinga_translator/evaluate.py",
+      "purpose": "Blind A/B evaluation (C10): held-out prompts, A/B/R audio, blind rating sheet, scoring."
+    },
+    {
+      "kind": "module",
       "lines": 177,
       "path": "src/boinga_translator/milestones.py",
       "purpose": "Milestone copies: model weights + config of chosen run checkpoints, kept apart on Drive."
@@ -2483,6 +2872,12 @@
       "lines": 260,
       "path": "src/boinga_translator/pretrained.py",
       "purpose": "Pretrained Bangla VITS voices: cache model.pth + config.json on Drive and report their facts."
+    },
+    {
+      "kind": "module",
+      "lines": 257,
+      "path": "src/boinga_translator/rating_app.py",
+      "purpose": "Interactive blind rating in Colab: play clip1/clip2, score 1-5, save the sheet to Drive."
     },
     {
       "kind": "module",
@@ -2636,6 +3031,36 @@
     },
     {
       "kind": "test",
+      "lines": 106,
+      "path": "tests/test_eval_mcd.py",
+      "purpose": "Tests for eval_mcd: MCD with DTW, the per-prompt table in eval.md, `boinga eval-mcd`."
+    },
+    {
+      "kind": "test",
+      "lines": 130,
+      "path": "tests/test_evaluate_generate.py",
+      "purpose": "Tests for evaluate.generate and `boinga eval-generate` with a fake VoiceBank (no coqui)."
+    },
+    {
+      "kind": "test",
+      "lines": 155,
+      "path": "tests/test_evaluate_prompts.py",
+      "purpose": "Tests for evaluate.pick_prompts and `boinga pick-eval-prompts`: 20 test clips, no leaks, ids."
+    },
+    {
+      "kind": "test",
+      "lines": 112,
+      "path": "tests/test_evaluate_score.py",
+      "purpose": "Tests for evaluate.score and `boinga eval-score`: validation, unblinding and reports/eval.md."
+    },
+    {
+      "kind": "test",
+      "lines": 124,
+      "path": "tests/test_evaluate_sheet.py",
+      "purpose": "Tests for evaluate.make_rating_sheet and `boinga eval-sheet`: blind clips, hidden key, sheet."
+    },
+    {
+      "kind": "test",
       "lines": 57,
       "path": "tests/test_hooks.py",
       "purpose": "Tests for tools/hooks/commit_msg.py: valid messages pass, bad ones fail with the right reason."
@@ -2699,6 +3124,12 @@
       "lines": 158,
       "path": "tests/test_promote.py",
       "purpose": "Tests for train_runner.promote and `boinga promote` (fake checkpoints on a fake Drive)."
+    },
+    {
+      "kind": "test",
+      "lines": 176,
+      "path": "tests/test_rating_app.py",
+      "purpose": "Tests for rating_app: start/resume a rater's sheet, record scores, progress, check (no widgets)."
     },
     {
       "kind": "test",

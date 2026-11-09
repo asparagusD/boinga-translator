@@ -160,3 +160,32 @@ checkpoints to Drive milestones/ and checks after a flush and remount that they 
 **Test added:** tests/test_paths.py (runs on the fast disk), tests/test_train_run.py
 (test_new_run_needs_disk_space), tests/test_ckpt_sampler.py (test_retrained_run_resamples).
 **Commit:** fix(train): train runs on the VM disk so Drive never holds deleted checkpoints
+
+## 2026-11-09 C10 run 1: pick-eval-prompts finds 2 other-speaker clips, needs 5
+**Symptom:** C10 run 1 at 7829b2f (not stale): C10.pre PASS, C10.1 `FAIL: pick-eval-prompts:
+ValueError: need 5 other-speaker candidates, found 2`; C10.1.show then hit FileNotFoundError
+(no configs/eval_prompts.json).
+**Root cause:** the requirement, not the code. reports/speaker_ranking.md: threshold 0.50
+gives 3 clusters; cluster 1 (the training selection) holds 7,506 of the 7,513 clean clips,
+cluster 2 holds 5 (0.06 test minutes, ~2 clips) and cluster 3 holds 2 (val only). The
+official test split has 755 clean clips; 753 are in our test split, so only 2 clean
+official-test clips are "other speakers".
+**Fix:** user chose "All 20 from our test": `evaluate.pick_prompts` takes P01-P20 from our
+test split (has_reference true); the other-speaker group is removed.
+**Test added:** tests/test_evaluate_prompts.py: test_pick_20_test_split_prompts and
+test_too_few_candidates_raises ("need 20 test-split candidates, found 19"); cluster tests
+removed with the rule.
+**Commit:** fix(eval): take all 20 prompts from our test split
+
+## 2026-11-09 C10 run 3: blind/rating_sheet.csv not found, ratings sit in a Google Sheet
+**Symptom:** C10 run 3 at e18615b (not stale): C10.R `FileNotFoundError: [Errno 2] No such
+file or directory: '/content/drive/MyDrive/boinga-translator/eval/final/blind/rating_sheet.csv'`;
+C10.R.check `FAIL: rated 0 of 40 clips (next: P01)`; C10.4 not run.
+**Root cause:** the sheet was rated in Google Sheets. The blind folder now holds a Google
+Sheet `rating_sheet` (40 rows, every score filled) and no `rating_sheet.csv`; Colab's Drive
+mount cannot read a Google Sheet as a file, and `eval-score` reads only ratings/*.csv.
+**Fix:** `rating_app.import_google_sheet` finds the one Google Sheet called `rating_sheet`
+through the Drive API (Colab sign-in), exports it as CSV and saves it to ratings/me.csv
+(older sheet kept as .bak); new cell C10.R.import runs it before the rating screen.
+**Test added:** tests/test_rating_app.py::test_import_google_sheet (fake Drive session).
+**Commit:** fix(eval): import ratings saved as a Google Sheet
