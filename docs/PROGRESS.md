@@ -948,7 +948,16 @@ promptbook replaces the planned C11.1a/b split: one subchunk, gradio pinned in `
   `--all --check` clean, pushed; link, runtime (user: T4), notebook instructions, form
   C11-notes and save name `colab_runs/C11_demo_run1.ipynb` given; duration not measured (this
   commit)
-- [ ] C11.V verify run 1 (colab-verify): edge checks PASS, live demo reached, form notes saved
+- [x] C11.V verify run 1 (colab-verify): 8/8 PASS at 0280e8c (built in a1bc809), not stale,
+  RTX PRO 6000 (user asked T4), Colab Python 3.13.16. C11.2.check: normal-boinga ok 3.21 s,
+  normal-baseline ok 3.08 s, empty and too-long gave the friendly messages, latin-mixed ok
+  5.06 s, bengali-digits ok 5.52 s, "PASS: demo selfcheck (6 cases)" in 3:00 (mostly model
+  loading). C11.2.live: public gradio.live link up; gradio caught Stop ("Keyboard interruption
+  in main thread... closing server.") and the cell ended with CELL-OK, so the allow_interrupt
+  fallback was not needed. C11-notes: DEMO_WORKED "yes", NOTES "none" (this commit)
+- [ ] follow-up: Latin letters are dropped silently (coqui logs "Character 'h' not found in the
+  vocabulary. Discarding it." per letter): reject or warn about characters outside the
+  voice's charset in check_input (C5 follow-up, DECISIONS "Gate G4")
 
 ## C12
 - [ ] C12.x (subchunks not yet defined)

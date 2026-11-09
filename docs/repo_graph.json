@@ -2378,7 +2378,7 @@
     },
     {
       "kind": "doc",
-      "lines": 960,
+      "lines": 969,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -2678,6 +2678,12 @@
     },
     {
       "kind": "doc",
+      "lines": 169,
+      "path": "reports/colab_runs/C11_demo_run1.md",
+      "purpose": "Colab run C11 run 1 — C11 — demo"
+    },
+    {
+      "kind": "doc",
       "lines": 168,
       "path": "reports/colab_runs/C1_pilot_run1.md",
       "purpose": "Colab run C1 run 1 — Pipeline pilot"
@@ -2794,6 +2800,12 @@
       "kind": "config",
       "lines": 5,
       "path": "reports/notes/C10.1-notes.json",
+      "purpose": ""
+    },
+    {
+      "kind": "config",
+      "lines": 4,
+      "path": "reports/notes/C11-notes.json",
       "purpose": ""
     },
     {
