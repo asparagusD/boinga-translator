@@ -1028,11 +1028,18 @@ C13.3 is over budget as one commit (6 files), so it is split a/b.
   verify); "Developer setup" kept. New test tests/test_readme.py: relative links resolve,
   every `boinga <cmd>` named is in cli.build_parser, every subcommand documented, Developer
   setup kept (this commit)
-- [ ] C13.2b README results/limitations/licences: eval.md headline (B vs A, win rate 0.82,
-  1 rater), MCD (relative only), gates G1-G7 with DECISIONS links, limitations (from eval.md
-  + G7 limits), credits and licences (dataset name, DOI 10.17632/n9xttk45df.1, authors,
-  CC BY 4.0; base voices @mobassir94 Apache-2.0; coqui-tts 0.28.0), citation, repo
-  LICENSE file. test_readme: DOI, authors and licence strings present
+- [x] C13.2b README results/limitations/licences (user's C13.2b promptbook): Results (1 rater,
+  eval.md criterion rows verbatim, B win rate 0.82, MCD relative check, training data from
+  splits_summary + speaker_selection, run1 steps/GPU/s-per-step/hours from throughput.json,
+  best_provenance and DECISIONS "Run 1 retrained", gates G1-G7 table); Limitations (blended
+  voice, one rater, unseen sentences in a known voice, Indian Bengali (IITM) base, G2
+  conditional PASS: dialect words with standard accent, grapheme input + NFC + char map,
+  digits, G7 scope); Licences and attribution (code Apache-2.0 = user's choice, base model
+  @mobassir94 Apache-2.0 via coqui-tts Idiap fork MPL-2.0, dataset + authors + DOI CC BY 4.0,
+  Kothon DOI 10.17632/2fv6vf9v2z.4, weights not MMS); Citation (BibTeX for the repo and the
+  dataset, year 2026 from DataCite). New LICENSE (canonical Apache-2.0 text).
+  test_readme: eval rows verbatim, numbers match their JSON files, licence strings,
+  LICENSE (this commit)
 - [ ] C13.3a model card: new module `model_card.py`: `render(provenance, eval_md) -> str`
   (Hugging Face front matter: license, language ctg/bn, base_model, tags; sections: model,
   data, training, evaluation, intended use / misuse, limitations, licences, citation) ->

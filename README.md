@@ -44,6 +44,79 @@ reproducibility report.
 
 Fine-tuned weights, audio and the dataset live on your Google Drive, never in the repo.
 
+## Results
+
+**Blind listening test** ([reports/eval.md](reports/eval.md)): 1 rater, 20 prompts from our
+held-out test split, 40 ratings. A = the pretrained Bangla voice (baseline), B = the
+fine-tuned voice (Drive `best/`); scores 1-5, mean ± sd over all ratings.
+
+| criterion | A_baseline | B_boinga | B − A |
+|---|---|---|---|
+| intelligibility | 1.40 ± 0.50 | 1.90 ± 0.79 | +0.50 |
+| naturalness | 1.10 ± 0.31 | 1.80 ± 0.70 | +0.70 |
+| dialect_authenticity | 1.00 ± 0.00 | 1.60 ± 0.68 | +0.60 |
+| dialect_words | 1.00 ± 0.00 | 1.60 ± 0.75 | +0.60 |
+| overall | 1.12 ± 0.17 | 1.73 ± 0.60 | +0.60 |
+
+B is rated above A on every criterion, with a B win rate 0.82 over the 20 prompts. Both
+voices score low in absolute terms: the fine-tune moved the voice towards Chittagonian, but it
+is not yet a good dialect voice. A relative objective check agrees: mel-cepstral distortion to
+the real recordings is 107.23 ± 24.91 for B vs 143.21 ± 14.84 for A, B closer on 20 of 20
+prompts (librosa scale, comparable only inside that table).
+
+**Training data** ([configs/splits_summary.json](configs/splits_summary.json)): one
+single-speaker voice learned from speaker cluster 1 of the corpus, 7,506 clips, 490.73 clean
+minutes ([configs/speaker_selection.json](configs/speaker_selection.json)), resampled to
+22,050 Hz and trimmed: train 6,415 clips, 419.62 min; val 338 clips, 22.35 min; test 753
+clips, 48.76 min (the corpus's official test split, never trained on).
+
+**Training** ([reports/throughput.json](reports/throughput.json),
+[reports/best_provenance.json](reports/best_provenance.json)): run1, restored from
+`tts_models/bn/custom/vits-male`, 36,500 steps (about 91 epochs) at batch 16 with mixed
+precision on an NVIDIA RTX PRO 6000 Blackwell Server Edition: 0.1495 s/step, about 1.5 h of
+step time and about 1.8 h wall clock (DECISIONS "Run 1 retrained"), peak GPU memory 82.333 GB,
+no NaN loss. Promoted checkpoint: step 36,500, eval loss_mel 20.5995 (at step 36,475).
+
+**Gates** (each decided in [docs/DECISIONS.md](docs/DECISIONS.md)):
+
+| gate | what it checks | verdict |
+|---|---|---|
+| G1 | pretrained model usable | PASS |
+| G2 | corpus fit for the fine-tune | PASS with conditions (re-decided after a FAIL) |
+| G3 | enough speaker data | PASS (490.73 min) |
+| G4 | text front-end covers the text | PASS (0 of 297,218 characters unknown) |
+| G5 | ready to train (smoke + resume) | PASS |
+| G6 | usable checkpoint | PASS (one listener, 3 sentences) |
+| G7 | end-to-end notebook on a fresh runtime | PASS (31/31 cells, `RUN_TRAINING = False`) |
+
+No gate ended PASS WITH RISK or PARTIAL.
+
+## Limitations
+
+- **One voice, many speakers behind it.** The corpus has no speaker ids; the training set is
+  one cluster of speaker embeddings that holds many voices, so the single output voice is a
+  blend, not one recorded person.
+- **Small, informal panel.** One rater, 20 prompts, no significance test and no comments: a
+  direction, not a measurement (not a formal MOS test). G6 rests on one listener and 3
+  sentences.
+- **Unseen sentences in a known voice.** The test measures held-out text read by the voice it
+  was trained on, not new speakers.
+- **Indian Bengali base.** The base voice was trained on Indian Bengali data (reported as
+  IITM Bangla; the config itself does not name the corpus, DECISIONS "Gate G1"); its accent
+  can colour both A and B.
+- **Dialect words, standard accent.** Gate G2 passed with conditions: the corpus speakers read
+  the Chittagonian transcripts with a largely standard-Bangla pronunciation, so the voice
+  learns dialect vocabulary and spelling more than regional accent.
+- **Grapheme input.** The model reads Bengali-script characters, not phonemes, after Unicode
+  NFC and the logged [configs/char_map.json](configs/char_map.json); spelling variation in the
+  dialect text reaches the model directly. ASR word error rate is not used, because a
+  standard-Bangla recogniser penalises correct Chittagonian forms.
+- **Characters and digits.** Text outside the voice's character set is rejected by the demo
+  (e.g. Latin letters, the digits ৭ and ৯); rows with digits were excluded from training, so
+  the other Bengali digits are read the way the pretrained voice reads them.
+- **Reproduction scope.** G7 ran with `RUN_TRAINING = False` and reused Drive caches; the
+  training path was verified in its own chunks (C7, C8), not in the end-to-end notebook.
+
 ## Repo layout
 
 | Path | What lives there |
@@ -187,3 +260,44 @@ Local dev needs no GPU: `pytest -q` and `ruff check .` run on any machine.
 The hooks enforce the commit format, block audio/checkpoint/archive files and
 anything over 2 MB, and require a fresh `docs/REPO_GRAPH.md`, clean `ruff` and
 passing `pytest`.
+
+## Licences and attribution
+
+- **Code:** this repository is licensed under Apache-2.0 ([LICENSE](LICENSE)).
+- **Base model:** `tts_models/bn/custom/vits-male` and `tts_models/bn/custom/vits-female`
+  by @mobassir94, Apache-2.0, distributed through the Coqui model registry and loaded with
+  coqui-tts 0.28.0 (Idiap fork of Coqui TTS, MPL-2.0 code).
+- **Dataset:** "A Synchronized Chittagonian Speech Corpus for Dialect ASR and
+  Speech-to-Speech Translation" by Dipto Saha, Md Ariful Islam and Md. Milon Islam, Mendeley
+  Data, DOI [10.17632/n9xttk45df.1](https://doi.org/10.17632/n9xttk45df.1), CC BY 4.0. Its
+  text is derived from the Kothon corpus, DOI
+  [10.17632/2fv6vf9v2z.4](https://doi.org/10.17632/2fv6vf9v2z.4), CC BY 4.0. The transcripts
+  are used verbatim (Unicode NFC plus the logged character map); no audio, transcripts or
+  checkpoints are in this repository.
+- **Fine-tuned weights:** derived from the Apache-2.0 base model and trained on the CC BY 4.0
+  corpus; they stay on Google Drive. Anyone sharing them must credit the dataset authors and
+  the base model as above. The MMS fallback (Chunk F) was not used, so no CC BY-NC terms
+  apply.
+
+## Citation
+
+```bibtex
+@software{boinga_translator,
+  title   = {boinga-translator: single-speaker Chittagonian text-to-speech
+             fine-tuned from a pretrained Bangla VITS},
+  author  = {{asparagusD}},
+  year    = {2026},
+  url     = {https://github.com/asparagusD/boinga-translator}
+}
+
+@misc{saha2026chittagonian,
+  title     = {A Synchronized Chittagonian Speech Corpus for Dialect ASR and
+               Speech-to-Speech Translation},
+  author    = {Saha, Dipto and Islam, Md Ariful and Islam, Md. Milon},
+  publisher = {Mendeley Data},
+  year      = {2026},
+  version   = {1},
+  doi       = {10.17632/n9xttk45df.1},
+  url       = {https://doi.org/10.17632/n9xttk45df.1}
+}
+```

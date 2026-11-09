@@ -1300,3 +1300,17 @@ caches with one "Run all" and no manual steps, on the free-tier GPU.
 are the C7/C8 commands verified in those chunks. The run reused Drive caches (corpus zip,
 audit parts, prepared tar, pretrained voices, best/, eval wavs, C4 speaker selection), so it
 does not prove a run on an empty Drive. Duration was not recorded by the reader.
+
+## 2026-11-09 — Licences and attribution (C13.2b)
+**Context:** The README's licence, attribution and citation sections need facts that no repo
+file held yet.
+**Decision:** Our code is Apache-2.0 (user, chat, C13.2b), LICENSE = the canonical apache.org
+text. Recorded from the user's C13.2b promptbook: coqui-tts (Idiap fork) code is MPL-2.0; the
+corpus text derives from the Kothon corpus (Mendeley, DOI 10.17632/2fv6vf9v2z.4, CC BY 4.0);
+the CC BY-NC 4.0 terms of facebook/mms-tts-ben would apply only if Chunk F had been used, and it
+was not (Gate G1). The dataset BibTeX year 2026 comes from its DataCite record
+(api.datacite.org/dois/10.17632/n9xttk45df.1, fetched 2026-11-09). The fine-tuned weights are
+not given a separate licence here; the README asks anyone sharing them to credit the dataset
+authors and the base model (C13.3 model card decides how they are released).
+**Alternatives:** MIT for the code (offered; the user chose Apache-2.0, matching the base model).
+

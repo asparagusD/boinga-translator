@@ -1971,6 +1971,16 @@
       "target": "tools/read_colab_run.py"
     },
     {
+      "kind": "config",
+      "source": "tests/test_readme.py",
+      "target": "configs/speaker_selection.json"
+    },
+    {
+      "kind": "config",
+      "source": "tests/test_readme.py",
+      "target": "configs/splits_summary.json"
+    },
+    {
       "kind": "test",
       "source": "tests/test_readme.py",
       "target": "src/boinga_translator/cli.py"
@@ -1979,6 +1989,11 @@
       "kind": "test",
       "source": "tests/test_readme.py",
       "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_readme.py",
+      "target": "src/boinga_translator/settings.py"
     },
     {
       "kind": "test",
@@ -2508,7 +2523,7 @@
     },
     {
       "kind": "doc",
-      "lines": 189,
+      "lines": 303,
       "path": "README.md",
       "purpose": "boinga-translator"
     },
@@ -2562,13 +2577,13 @@
     },
     {
       "kind": "doc",
-      "lines": 1302,
+      "lines": 1316,
       "path": "docs/DECISIONS.md",
       "purpose": "Decisions"
     },
     {
       "kind": "doc",
-      "lines": 1057,
+      "lines": 1064,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -3492,9 +3507,9 @@
     },
     {
       "kind": "test",
-      "lines": 48,
+      "lines": 103,
       "path": "tests/test_readme.py",
-      "purpose": "Tests for README.md: relative links resolve, every `boinga` subcommand is listed and real."
+      "purpose": "Tests for README.md: links, `boinga` subcommands, result numbers traced to reports, licences."
     },
     {
       "kind": "test",
