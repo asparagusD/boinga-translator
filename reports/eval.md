@@ -60,3 +60,33 @@ B_boinga win rate over prompts: 0.82
 - The model reads graphemes (Bengali script, NFC + char map), not phonemes, so spelling
   variation in the dialect text reaches the model directly.
 - ASR word error rate (WER) is not used: standard-Bangla ASR penalises correct Chittagonian forms.
+
+## Objective check (relative only)
+
+MCD in dB (mel-cepstral distortion: librosa MFCC 1-13, silence trimmed, DTW-aligned; librosa's convention, not comparable to published MCD values) of each voice against the real recording of the same prompt, 20 prompts; lower is closer to the real recording. The real speaker is not the voice of A or B, so MCD mixes speaker and dialect: only the A vs B difference means anything, and the listening test above outranks it.
+
+| prompt | A_baseline vs R | B_boinga vs R |
+|---|---|---|
+| P01 | 124.84 | 59.81 |
+| P02 | 145.42 | 100.28 |
+| P03 | 136.19 | 110.63 |
+| P04 | 131.68 | 127.76 |
+| P05 | 146.24 | 126.90 |
+| P06 | 146.90 | 127.04 |
+| P07 | 149.96 | 93.76 |
+| P08 | 175.59 | 116.11 |
+| P09 | 159.10 | 95.47 |
+| P10 | 151.49 | 99.08 |
+| P11 | 154.22 | 141.67 |
+| P12 | 129.39 | 114.16 |
+| P13 | 117.48 | 72.16 |
+| P14 | 140.23 | 93.48 |
+| P15 | 123.72 | 71.10 |
+| P16 | 125.94 | 89.57 |
+| P17 | 148.42 | 125.08 |
+| P18 | 164.47 | 163.77 |
+| P19 | 151.88 | 112.00 |
+| P20 | 141.06 | 104.77 |
+| mean ± sd | 143.21 ± 14.84 | 107.23 ± 24.91 |
+
+B_boinga closer than A_baseline on 20 of 20 prompts.

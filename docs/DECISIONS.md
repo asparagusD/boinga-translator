@@ -1225,3 +1225,9 @@ naturalness of B, and add raters before claiming quality.
 **Alternatives:** Re-run with more raters before recording a result (none available now);
 optional MCD (C10.5) as an objective cross-check (not built).
 
+**Update (C10.V4):** The optional MCD check was built (C10.5) and agrees in direction: B is
+closer to the real recordings than A on all 20 prompts (mean 107.2 vs 143.2, -25%). The
+absolute values are far above usual MCD figures (typically ~5-10 dB) because they use
+librosa's MFCC scale (128 dB mel bands, orthonormal DCT); they are comparable only inside
+this table, and the real speaker is neither voice, so this is a relative cross-check only.
+

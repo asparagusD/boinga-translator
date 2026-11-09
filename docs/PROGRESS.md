@@ -897,8 +897,10 @@ map/notebook and PROGRESS.
   C10.R.import copied 40 rated clips from the Google Sheet; C10.R.check "PASS: rated 40 of
   40 clips"; C10.4 "PASS: scored 1 raters". reports/eval.md: overall A 1.12 vs B 1.73
   (+0.60), B win rate 0.82 over 20 prompts. DECISIONS "C10 evaluation result" (b3e5ffa)
-- [ ] C10.H4 hand-off run 4 (CPU; save name `colab_runs/C10_eval_run4.ipynb`)
-- [ ] C10.V4 verify run 4 (colab-verify)
+- [x] C10.H4 hand-off run 4 (CPU; save name `colab_runs/C10_eval_run4.ipynb`)
+- [x] C10.V4 verify run 4 (colab-verify): 6/6 PASS at 2487e29 (built in 2487e29), not stale.
+  C10.5 "PASS: mcd table (20 prompts)" in 0:45 (2.30 s/prompt). MCD vs R: A 143.21 ± 14.84,
+  B 107.23 ± 24.91; B closer on 20 of 20 prompts (reports/eval.md) (this commit)
 
 ## C11
 - [ ] C11.x (subchunks not yet defined)
