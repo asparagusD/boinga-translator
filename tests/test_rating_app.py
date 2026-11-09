@@ -99,6 +99,59 @@ def test_check_adopts_ratings_typed_into_the_blind_sheet(
     assert "copied" not in capsys.readouterr().out
 
 
+class _Resp:
+    def __init__(self, payload: object) -> None:
+        self.payload = payload
+
+    def raise_for_status(self) -> None:
+        pass
+
+    def json(self) -> object:
+        return self.payload
+
+    @property
+    def content(self) -> bytes:
+        return str(self.payload).encode("utf-8")
+
+
+class _FakeDrive:
+    """Drive API stand-in: a file listing, then the CSV export of the sheet."""
+
+    def __init__(self, files: list[dict[str, str]], csv: str = "") -> None:
+        self.files, self.csv, self.calls = files, csv, []
+
+    def get(self, url: str, params: dict[str, str] | None = None) -> _Resp:
+        self.calls.append((url, params or {}))
+        if url.endswith("/export"):
+            return _Resp(self.csv)
+        return _Resp({"files": self.files})
+
+
+def test_import_google_sheet(tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+                             capsys: pytest.CaptureFixture[str]) -> None:
+    blind = _setup(tmp_path, monkeypatch)
+    sheet = pd.read_csv(blind / "rating_sheet.csv", dtype=str, keep_default_na=False)
+    csv = _rate(_rate(sheet, "P01", 3), "P02", 1).assign(rater="Some One").to_csv(index=False)
+    (blind / "rating_sheet.csv").unlink()  # the CSV became a Google Sheet on Drive
+    rating_app.import_google_sheet("me", session=_FakeDrive([], ""))
+    assert "no Google Sheet called 'rating_sheet'" in capsys.readouterr().out
+    two = _FakeDrive([{"id": "a"}, {"id": "b"}])
+    with pytest.raises(ValueError, match="2 Google Sheets called 'rating_sheet'"):
+        rating_app.import_google_sheet("me", session=two)
+    drive = _FakeDrive([{"id": "abc"}], csv)
+    rating_app.import_google_sheet("me", session=drive)
+    assert drive.calls[-1][0].endswith("/files/abc/export")
+    assert drive.calls[-1][1] == {"mimeType": "text/csv"}
+    assert "copied 4 rated clips from Google Sheet 'rating_sheet'" in capsys.readouterr().out
+    saved = rating_app.load_or_start("me")
+    assert set(saved["rater"]) == {"me"} and rating_app.progress(saved) == (4, 4)
+    rating_app.check("me")  # no blind CSV any more: check still passes on the imported sheet
+    assert "PASS: rated 4 of 4 clips" in capsys.readouterr().out
+    bad = _FakeDrive([{"id": "abc"}], "prompt_id,clip,naturalness\nP01,clip1,4\n")
+    with pytest.raises(ValueError, match="missing columns"):
+        rating_app.import_google_sheet("me", session=bad)
+
+
 def test_rate_builds_the_widgets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     pytest.importorskip("ipywidgets")  # Colab has it; the local dev env may not
     blind = _setup(tmp_path, monkeypatch)

@@ -2226,7 +2226,7 @@
     },
     {
       "kind": "doc",
-      "lines": 178,
+      "lines": 191,
       "path": "docs/DEBUG_LOG.md",
       "purpose": "Debug log"
     },
@@ -2262,7 +2262,7 @@
     },
     {
       "kind": "notebook",
-      "lines": 434,
+      "lines": 479,
       "path": "notebooks/runs/C10_eval_run3.ipynb",
       "purpose": "C10 run 3 — rating and scoring"
     },
@@ -2370,7 +2370,7 @@
     },
     {
       "kind": "module",
-      "lines": 64,
+      "lines": 82,
       "path": "notebooks/specs/c10_eval_run3.py",
       "purpose": "Spec: C10 run 3, blind A/B evaluation: rate the blind clips here, then score into eval.md."
     },
@@ -2784,7 +2784,7 @@
     },
     {
       "kind": "module",
-      "lines": 206,
+      "lines": 257,
       "path": "src/boinga_translator/rating_app.py",
       "purpose": "Interactive blind rating in Colab: play clip1/clip2, score 1-5, save the sheet to Drive."
     },
@@ -3030,7 +3030,7 @@
     },
     {
       "kind": "test",
-      "lines": 123,
+      "lines": 176,
       "path": "tests/test_rating_app.py",
       "purpose": "Tests for rating_app: start/resume a rater's sheet, record scores, progress, check (no widgets)."
     },

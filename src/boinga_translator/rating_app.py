@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import html
+import io
 import os
 import re
 import time
@@ -17,6 +18,7 @@ from boinga_translator.evaluate import CRITERIA, SHEET_COLS, blind_dir, ratings_
 CLIPS = ("clip1", "clip2")
 UNSET = "-"
 SCORES = ("1", "2", "3", "4", "5")
+_DRIVE_FILES = "https://www.googleapis.com/drive/v3/files"
 
 
 def _slug(rater: str) -> str:
@@ -92,11 +94,19 @@ def adopt_blind_sheet(rater: str) -> int:
     src = blind_dir() / "rating_sheet.csv"
     if not src.is_file():
         return 0
-    blind = pd.read_csv(src, dtype=str, keep_default_na=False).reindex(columns=SHEET_COLS,
-                                                                       fill_value="")
+    return _adopt(pd.read_csv(src, dtype=str, keep_default_na=False), rater,
+                  "blind/rating_sheet.csv")
+
+
+def _adopt(sheet: pd.DataFrame, rater: str, source: str) -> int:
+    """Save `sheet` as ratings/<rater>.csv if it has more rated clips than the saved one."""
+    missing = [c for c in ("prompt_id", "clip", *CRITERIA) if c not in sheet.columns]
+    if missing:
+        raise ValueError(f"{source}: missing columns {missing}")
+    sheet = sheet.reindex(columns=SHEET_COLS, fill_value="")
     path = sheet_path(rater)
     have = progress(load_or_start(rater))[0] if path.is_file() else 0
-    done = progress(blind)[0]
+    done = progress(sheet)[0]
     if done <= have:
         return 0
     kept = ""
@@ -104,8 +114,49 @@ def adopt_blind_sheet(rater: str) -> int:
         bak = path.with_name(f"{path.name}.{time.strftime('%Y%m%d-%H%M%S')}.bak")
         os.replace(path, bak)
         kept = f" (previous sheet kept as {bak.name})"
-    save(blind.assign(rater=_slug(rater)), rater)
-    print(f"copied {done} rated clips from blind/rating_sheet.csv to {path}{kept}")
+    save(sheet.assign(rater=_slug(rater)), rater)
+    print(f"copied {done} rated clips from {source} to {path}{kept}")
+    return done
+
+
+def _drive_session() -> object:  # pragma: no cover - needs a Colab sign-in
+    import google.auth
+    from google.auth.transport.requests import AuthorizedSession
+    from google.colab import auth
+
+    auth.authenticate_user()
+    creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/drive.readonly"])
+    return AuthorizedSession(creds)
+
+
+def import_google_sheet(rater: str = "me", name: str = "rating_sheet",
+                        session: object | None = None) -> int:
+    """Copy scores from the Google Sheet called `name` (a converted rating_sheet.csv).
+
+    Finds the one non-trashed Google Sheet with that name in your Drive (Colab asks you to
+    sign in), exports it as CSV and adopts it like `adopt_blind_sheet`. Returns the number
+    of rated clips copied; 0 when there is no such sheet or nothing new.
+    """
+    s = session or _drive_session()
+    quoted = name.replace("\\", "\\\\").replace("'", "\\'")
+    query = (f"name = '{quoted}' and mimeType = 'application/vnd.google-apps.spreadsheet'"
+             " and trashed = false")
+    found = s.get(_DRIVE_FILES, params={"q": query, "fields": "files(id)"})
+    found.raise_for_status()
+    files = found.json().get("files", [])
+    if not files:
+        print(f"no Google Sheet called {name!r} in your Drive: nothing imported")
+        return 0
+    if len(files) > 1:
+        raise ValueError(f"{len(files)} Google Sheets called {name!r} in your Drive; "
+                         "rename or trash all but the rated one")
+    csv = s.get(f"{_DRIVE_FILES}/{files[0]['id']}/export", params={"mimeType": "text/csv"})
+    csv.raise_for_status()
+    sheet = pd.read_csv(io.StringIO(csv.content.decode("utf-8-sig")), dtype=str,
+                        keep_default_na=False)
+    done = _adopt(sheet, rater, f"Google Sheet {name!r}")
+    if not done:
+        print(f"Google Sheet {name!r}: no more rated clips than {sheet_path(rater)}; kept it")
     return done
 
 

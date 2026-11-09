@@ -15,6 +15,24 @@ NOTEBOOK = Notebook(
     gpu=False,
     cells=[
         md("""
+            **Bring in scores from the Google Sheet.** If `rating_sheet.csv` was opened in
+            Google Sheets and saved there, Drive keeps it as a Google Sheet called
+            `rating_sheet`, which Colab cannot read as a file. This cell asks you to sign in
+            to Google (allow it), finds the one Google Sheet called `rating_sheet` in your
+            Drive, exports it as CSV and saves it to `eval/final/ratings/me.csv` when it has
+            more rated clips than what is already saved (an older `me.csv` is kept as
+            `me.csv.<time>.bak`). Expect `copied 40 rated clips from Google Sheet
+            'rating_sheet' ...`, or `no Google Sheet called 'rating_sheet' ...` if you rate in
+            the screen below instead. Two sheets with that name: it stops and asks you to
+            rename or trash the extra one. Nothing here reveals which clip is which voice.
+        """),
+        code("C10.R.import", "Import scores from the Google Sheet", """
+            from boinga_translator import rating_app
+
+            rating_app.import_google_sheet("me")
+        """, expect=[(r"copied \d+ rated clips from Google Sheet|no Google Sheet called"
+                      r"|no more rated clips than")]),
+        md("""
             **Rate the blind clips.** A rating screen for the 20 prompts, one at a time: the
             sentence, then `clip1` and `clip2` (the two voices in a random order; nothing here
             says which is which), each with four 1-5 scores and an optional comment.

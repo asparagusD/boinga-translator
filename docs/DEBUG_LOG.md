@@ -176,3 +176,16 @@ test split (has_reference true); the other-speaker group is removed.
 test_too_few_candidates_raises ("need 20 test-split candidates, found 19"); cluster tests
 removed with the rule.
 **Commit:** fix(eval): take all 20 prompts from our test split
+
+## 2026-11-09 C10 run 3: blind/rating_sheet.csv not found, ratings sit in a Google Sheet
+**Symptom:** C10 run 3 at e18615b (not stale): C10.R `FileNotFoundError: [Errno 2] No such
+file or directory: '/content/drive/MyDrive/boinga-translator/eval/final/blind/rating_sheet.csv'`;
+C10.R.check `FAIL: rated 0 of 40 clips (next: P01)`; C10.4 not run.
+**Root cause:** the sheet was rated in Google Sheets. The blind folder now holds a Google
+Sheet `rating_sheet` (40 rows, every score filled) and no `rating_sheet.csv`; Colab's Drive
+mount cannot read a Google Sheet as a file, and `eval-score` reads only ratings/*.csv.
+**Fix:** `rating_app.import_google_sheet` finds the one Google Sheet called `rating_sheet`
+through the Drive API (Colab sign-in), exports it as CSV and saves it to ratings/me.csv
+(older sheet kept as .bak); new cell C10.R.import runs it before the rating screen.
+**Test added:** tests/test_rating_app.py::test_import_google_sheet (fake Drive session).
+**Commit:** fix(eval): import ratings saved as a Google Sheet
