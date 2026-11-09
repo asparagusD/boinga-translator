@@ -856,7 +856,8 @@ map/notebook and PROGRESS.
   B_boinga 2.83 s, R_real 2.90 s; mean RMS -24.1 / -17.7 / -16.6 dBFS
   (reports/eval_generation.md). C10.3: 40 blind clips, key sha256 printed, no voice name in
   its output, reports/rater_instructions.md (this commit and the next)
-- [ ] (user) raters fill the sheet; user puts each as Drive `eval/c10/ratings/<rater>.csv`
+- [x] (user) rater fills the sheet: one outside rater filled it in Google Sheets; run 3's
+  C10.R.import saved it as Drive `eval/final/ratings/me.csv` (C10.4d, C10.V3)
 - [x] C10.4 code (local + spec run 3): `evaluate.score()`: reads every Drive
   `eval/final/ratings/*.csv`, checks each covers exactly the 40 key rows and every score
   is a whole number 1-5 (bad cells listed by file, spreadsheet row and column; nothing is
