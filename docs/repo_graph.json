@@ -1972,6 +1972,16 @@
     },
     {
       "kind": "test",
+      "source": "tests/test_readme.py",
+      "target": "src/boinga_translator/cli.py"
+    },
+    {
+      "kind": "test",
+      "source": "tests/test_readme.py",
+      "target": "src/boinga_translator/paths.py"
+    },
+    {
+      "kind": "test",
       "source": "tests/test_reload_check.py",
       "target": "src/boinga_translator/paths.py"
     },
@@ -2498,7 +2508,7 @@
     },
     {
       "kind": "doc",
-      "lines": 35,
+      "lines": 189,
       "path": "README.md",
       "purpose": "boinga-translator"
     },
@@ -2558,7 +2568,7 @@
     },
     {
       "kind": "doc",
-      "lines": 1053,
+      "lines": 1057,
       "path": "docs/PROGRESS.md",
       "purpose": "Progress"
     },
@@ -3479,6 +3489,12 @@
       "lines": 421,
       "path": "tests/test_read_colab_run.py",
       "purpose": "Tests for tools/read_colab_run.py: cell statuses, forms, binary stripping, trimming and the CLI."
+    },
+    {
+      "kind": "test",
+      "lines": 48,
+      "path": "tests/test_readme.py",
+      "purpose": "Tests for README.md: relative links resolve, every `boinga` subcommand is listed and real."
     },
     {
       "kind": "test",

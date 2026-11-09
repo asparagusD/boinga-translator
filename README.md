@@ -1,23 +1,179 @@
 # boinga-translator
 
-Single-speaker Chittagonian text-to-speech, built by fine-tuning a pretrained
-Bangla VITS model (coqui-tts 0.28.0).
+Single-speaker **Chittagonian text-to-speech**: a proof of concept that fine-tunes a
+pretrained Bangla VITS voice (`tts_models/bn/custom/vits-male`, coqui-tts 0.28.0) on the
+Chittagonian recordings of "A Synchronized Chittagonian Speech Corpus" (Mendeley Data, DOI
+[10.17632/n9xttk45df.1](https://doi.org/10.17632/n9xttk45df.1)), on Google Colab with a
+$0 budget. You type Chittagonian in Bengali script and one fine-tuned voice reads it aloud.
 
-- Training runs on free Google Colab (`pip install -e .[train]`).
-- A Gradio demo will ship the fine-tuned voice.
-- Local dev needs no GPU: `pip install -e .[dev]` then `pytest -q`.
+**What it is not:** not multi-speaker (one voice, learned from the corpus's mixed clean
+clips), not production-grade (one fine-tune run, informal evaluation), and not native-level
+(in a blind test with one rater it beat the pretrained baseline but stayed far from natural
+Chittagonian).
 
-**Status:** work in progress (proof of concept).
+**Status:** proof of concept, pipeline complete; the end-to-end notebook passes on a fresh
+Colab runtime.
 
-## Run on Colab
+## Quickstart (Colab)
 
-Open the bootstrap notebook (mount Drive, clone, install pinned deps, record the env):
-[notebooks/runs/C1_bootstrap_run1.ipynb](https://colab.research.google.com/github/asparagusD/boinga-translator/blob/main/notebooks/runs/C1_bootstrap_run1.ipynb).
-The repo is private, so Colab must be allowed to read it (File > Open notebook > GitHub,
-tick "Include private repos"). Add a `GH_TOKEN` Colab secret first; the clone cell
-(BOOT.2) explains how if it is missing. Every notebook in `notebooks/runs/` is generated
-from a spec in `notebooks/specs/` by `python tools/build_notebook.py --all`; the bootstrap
-cells come from `notebooks/colab_bootstrap.py`.
+The end-to-end notebook [notebooks/boinga_translator.ipynb](notebooks/boinga_translator.ipynb)
+runs the whole pipeline in 17 sections: environment, data, audit, preparation, the pretrained
+baseline, (optional) fine-tuning, the best checkpoint, evaluation audio, the demo and a
+reproducibility report.
+
+1. **GitHub token** (the repo is private): github.com > Settings > Developer settings >
+   Fine-grained tokens > Generate new token. Repository access: only
+   `asparagusD/boinga-translator`; permissions: Contents = Read-only, nothing else.
+2. **Open the notebook:**
+   [Colab link](https://colab.research.google.com/github/asparagusD/boinga-translator/blob/main/notebooks/boinga_translator.ipynb).
+   If it does not open: Colab > File > Open notebook > GitHub, tick "Include private repos",
+   pick branch `main` and `notebooks/boinga_translator.ipynb`.
+3. **Add the secret:** in Colab, key icon (Secrets) > Add new secret, name `GH_TOKEN`, value
+   = the token; switch on "Notebook access". The bootstrap never prints it and keeps it only
+   in the VM's git credential store.
+4. **Runtime:** Runtime > Change runtime type > T4 GPU (free tier is enough without training).
+5. **`RUN_TRAINING`** (settings cell S0): leave it **off** to reuse the fine-tuned model already
+   promoted to Drive `best/`; the smoke test, fine-tune, checkpoint samples and ranking then
+   print `SKIPPED (RUN_TRAINING=False)`. Tick it to train (run1 resumes from its newest
+   checkpoint; a fresh run1 took about 2.4 h on an RTX PRO 6000 and ~6 GB of Drive).
+6. **Runtime > Run all.** Allow Google Drive access when asked. Everything is kept under
+   `MyDrive/boinga-translator/` and reused, so "Run all" can be repeated: finished work is
+   skipped and training resumes.
+7. Section 16 starts the live demo; press Stop on that cell when you are done so section 17
+   (`reports/repro.json`) runs.
+
+Fine-tuned weights, audio and the dataset live on your Google Drive, never in the repo.
+
+## Repo layout
+
+| Path | What lives there |
+|---|---|
+| [src/boinga_translator/](src/boinga_translator/) | all logic: one module per stage, the `boinga` CLI ([cli.py](src/boinga_translator/cli.py)), every path in [paths.py](src/boinga_translator/paths.py), pinned facts in [settings.py](src/boinga_translator/settings.py) |
+| [tests/](tests/) | pytest suite on tiny synthetic data (never the real corpus) |
+| [configs/](configs/) | char map, speaker selection, splits summary, fine-tune config, baseline and eval prompts |
+| [notebooks/](notebooks/) | end-to-end notebook, per-chunk specs (`specs/`) and the notebooks built from them (`runs/`), the Colab bootstrap |
+| [tools/](tools/) | notebook builder and reader, repo graph, git hooks, self-checks run from notebooks |
+| [reports/](reports/) | small text reports written by the pipeline, Colab run digests, form notes |
+| [docs/](docs/) | [PROGRESS](docs/PROGRESS.md), [DECISIONS](docs/DECISIONS.md), [DEBUG_LOG](docs/DEBUG_LOG.md) |
+
+Every file with its purpose and the import graph: [docs/REPO_GRAPH.md](docs/REPO_GRAPH.md)
+(generated by `python tools/repo_graph.py`).
+
+## The `boinga` command
+
+Installed by `pip install -e .`. Paths come from `paths.py`: Google Drive on Colab,
+`./local` elsewhere (override with `BOINGA_ROOT` / `BOINGA_FAST`). `--run NAME` is a folder
+under `runs/`; `--voice` is `male`, `female` or `both` (`audit`: `male` or `female`).
+
+| Stage | Command | What it does |
+|---|---|---|
+| info | `boinga version` | print the package version |
+| | `boinga env` | record the environment to `reports/env.json` and print it |
+| | `boinga repro` | versions, config hashes, seed, best provenance and run steps/hours to `reports/repro.json` |
+| pretrained | `boinga fetch-pretrained [--voice]` | download and cache the pretrained voices |
+| | `boinga inspect-pretrained [--voice]` | report config/checkpoint facts per voice |
+| | `boinga baseline [--voice]` | synthesise the baseline prompts with each voice |
+| data | `boinga fetch-data` | download, verify (size + sha256) and unpack the corpus (resumable) |
+| | `boinga index` | index the corpus: wav, dialect text, translation, split |
+| | `boinga audit [--voice]` | audit every clip to Drive `reports/audit.csv` (resumable) |
+| | `boinga audit-summary` | summarise audit.csv into `reports/audit_summary.md` |
+| speaker | `boinga embed-speakers` | embed every clean clip's speaker to Drive `speaker_emb/` (resumable) |
+| | `boinga cluster-speakers` | cluster the embeddings by voice into `reports/speaker_ranking.md` |
+| | `boinga save-speaker --id N --base-voice V` | save a cluster as the training speaker (`configs/speaker_selection.json`) |
+| text | `boinga oov` | characters of the selected speaker's text unknown to the base voice (`reports/oov_report.md`) |
+| | `boinga check-tokenizer` | round-trip the selected speaker's text through the base voice's coqui tokenizer |
+| prepare | `boinga prepare [--workers N]` | splits, model-rate wavs, ljspeech manifests and a Drive backup (resumable, restores on a new VM) |
+| train | `boinga build-config --run NAME` | derive `configs/vits_ctg_finetune.json` from the base voice's pretrained config |
+| | `boinga check-loader` | load one coqui train batch and check token ids and finite audio |
+| | `boinga train --run NAME [--max-steps N]` | train a run: resume its latest checkpoint, else start from the pretrained one |
+| | `boinga throughput --run NAME` | step time, losses and memory into `reports/throughput.json` |
+| | `boinga clean-run --run NAME` | delete a smoke run's folder for a fresh start (refuses runs past step 1000) |
+| checkpoints | `boinga record-run --run NAME` | record size + md5 of a run's checkpoints on the VM |
+| | `boinga check-run --run NAME [--drive-api]` | check a run's recorded checkpoints are on Drive |
+| | `boinga keep --run NAME [--steps N ...]` | copy model weights + config of checkpoints to Drive `milestones/<run>/` |
+| | `boinga check-milestones --run NAME [--drive-api]` | check a run's kept milestones on Drive |
+| | `boinga sample --run NAME` | synthesise the test sentences for every unsampled checkpoint (+ the pretrained voice) |
+| | `boinga candidates --run NAME` | rank checkpoints by eval loss_mel into `reports/candidates_<run>.md` |
+| | `boinga promote --run NAME --step N` | copy a checkpoint + config to Drive `best/` with `reports/best_provenance.json` |
+| evaluate | `boinga pick-baseline-ctg` | put 3 held-out dialect lines into `configs/baseline_prompts.json` |
+| | `boinga pick-eval-prompts [--exclude P03,P11]` | pick 20 held-out dialect prompts into `configs/eval_prompts.json` |
+| | `boinga eval-generate` | speak the eval prompts with both voices, copy the real clips (resumable) |
+| | `boinga eval-sheet` | blind clip1/clip2 copies, hidden key and an empty rating sheet |
+| | `boinga eval-score` | unblind the filled rating sheets into `reports/eval.md` |
+| | `boinga eval-mcd` | mel-cepstral distortion of both voices vs the real recordings (relative only) |
+| demo | `boinga demo [--share]` | serve the Gradio demo (fine-tuned and baseline voices) |
+
+`boinga <command> --help` shows every option.
+
+## Retrain
+
+The quick way is `RUN_TRAINING` in the end-to-end notebook. By hand, in a Colab notebook after
+the bootstrap cells (GPU runtime; use a new run name, e.g. `run2`). `prepare` needs the corpus
+index, audit and the saved speaker selection on Drive; on a new Drive run the end-to-end
+notebook (sections 1-6) or `boinga index`, `boinga audit`, `boinga audit-summary` and the
+speaker steps first.
+
+```bash
+boinga fetch-data && boinga prepare            # restores the prepared data on a new VM
+boinga fetch-pretrained --voice both
+boinga build-config --run run2                 # optional: inspect the config (train builds it)
+boinga check-loader                            # one batch: token ids and audio are sane
+boinga train --run run2 --max-steps 20000      # stop at 20,000 total steps
+boinga throughput --run run2
+boinga sample --run run2                       # listen to each checkpoint
+boinga candidates --run run2                   # rank them by eval loss
+boinga promote --run run2 --step 20000         # the step you chose by listening
+```
+
+- **Resume:** run the same `boinga train --run NAME` again. It finds the highest
+  `checkpoint_<step>.pth` in the run's folder and continues it (coqui `continue_path`:
+  weights, optimiser and step); a new run only restores the pretrained weights.
+- **Budget:** every run needs a step budget: `--max-steps N`, or its entry in
+  `train_config.RUN_BUDGETS` (run1: 36,500 steps); without one `boinga train` refuses to start.
+  A session that would leave more than 10 checkpoints in the run folder is refused too, so
+  coqui never deletes one on Drive.
+- **Config:** a new run writes `configs/vits_ctg_finetune.json` and the overrides table in
+  `docs/DECISIONS.md` (both tracked) from the base voice's config, so they change in git for
+  each new run name.
+- **Settings are fixed per run:** a resume reloads the run folder's own `config.json`, so a
+  changed setting needs a new run name (and `boinga build-config` for it).
+- **Drive space:** checkpoints are saved to Drive every 10,000 steps and never deleted, about
+  1 GB each. Check free space (and empty the Drive trash) before a long run.
+- **Smoke test first:** `boinga clean-run --run smoke`, then `boinga train --run smoke
+  --max-steps 50` and `--max-steps 60` (proves training and resume in minutes).
+- Promote only after listening; `reports/best_provenance.json` records what was promoted.
+
+## Demo
+
+- **Colab (recommended):** section 16 of the end-to-end notebook runs an automated self-check,
+  then the live page with a public `gradio.live` link. In any notebook after the bootstrap
+  cells, `!boinga demo --share` does the same.
+- **Elsewhere:** `pip install -e ".[train]"`, point `BOINGA_ROOT` at a folder holding
+  `best/` and `pretrained/` copied from Drive, then `boinga demo` (local URL only; add
+  `--share` for a public link, which anyone holding it can use).
+
+The page reads Bengali-script Chittagonian (up to 300 characters) in the fine-tuned voice or
+the pretrained baseline, and rejects characters the voice cannot say (e.g. Latin letters).
+
+## Contributor workflow: one notebook per chunk
+
+Work is split into chunks (C0-C13) and subchunks, tracked in
+[docs/PROGRESS.md](docs/PROGRESS.md); one subchunk = one commit. Logic lives in
+`src/boinga_translator/`; Colab cells only call it.
+
+1. **Spec:** write `notebooks/specs/c<N>_<slug>.py` with `Notebook(...)`, `md()`, `code()` and
+   `form()` from [tools/nbkit.py](tools/nbkit.py). Every code cell has an explanation cell
+   before it and `expect=` patterns that prove success.
+2. **Build:** `python tools/build_notebook.py --all` writes `notebooks/runs/<C>_<slug>_run<n>.ipynb`
+   with the bootstrap cells from [notebooks/colab_bootstrap.py](notebooks/colab_bootstrap.py)
+   and the branch baked in; `--all --check` fails if a built notebook is stale.
+3. **Run:** push the branch, open the notebook from GitHub in Colab, Runtime > Run all, fill
+   the "Your observations" forms, then File > Download .ipynb into `colab_runs/`.
+4. **Verify:** `python tools/read_colab_run.py colab_runs/<file>.ipynb --save-reports`
+   checks every cell against its `expect`/`forbid` patterns and that the notebook is not
+   stale, writes the digest to `reports/colab_runs/` and saves the reports the run emitted.
+
+Executed notebooks in `colab_runs/` are git-ignored and never committed.
 
 ## Developer setup
 
@@ -26,10 +182,8 @@ python -m venv .venv && .venv/Scripts/python -m pip install -e ".[dev]"   # .ven
 git config core.hooksPath .githooks   # once per clone: commit-msg + pre-commit guards
 ```
 
+Local dev needs no GPU: `pytest -q` and `ruff check .` run on any machine.
+
 The hooks enforce the commit format, block audio/checkpoint/archive files and
 anything over 2 MB, and require a fresh `docs/REPO_GRAPH.md`, clean `ruff` and
 passing `pytest`.
-
-Colab runs: download each executed notebook into `colab_runs/` (git-ignored, never
-committed); Claude Code verifies it with `python tools/read_colab_run.py
-colab_runs/<file>.ipynb --save-reports`, which writes the digest to `reports/colab_runs/`.

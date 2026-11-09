@@ -1019,11 +1019,15 @@ C13.3 is over budget as one commit (6 files), so it is split a/b.
   notebooks/specs/c13_release.py -> notebooks/runs/C13_release_run1.ipynb (CPU, cell C13.1).
   Tests test_env_report (fake configs, provenance, run folder; missing inputs; CLI) (this
   commit)
-- [ ] C13.2a README core: what it is, status, quick start (end-to-end notebook link, GH_TOKEN,
-  RUN_TRAINING), local dev, pipeline table (stage -> `boinga` command -> report), repo
-  layout (pointer to docs/REPO_GRAPH.md), how to reproduce (reports/repro.json). Test
-  tests/test_readme.py: relative links resolve, every `boinga <cmd>` named is in
-  cli.build_parser
+- [x] C13.2a README core (user's C13.2a promptbook): README.md rewritten: what it is / is
+  not, Colab quickstart (GH_TOKEN fine-grained read-only token + secret, open from GitHub,
+  T4, RUN_TRAINING, Run all, stop the live demo), repo layout table + REPO_GRAPH link, every
+  `boinga` subcommand (one line each, from cli.py), retrain (prepare -> build-config ->
+  train -> sample -> candidates -> promote; resume, budget, fixed settings, Drive space,
+  smoke test), demo (Colab, elsewhere), per-chunk notebook workflow (spec, build, run,
+  verify); "Developer setup" kept. New test tests/test_readme.py: relative links resolve,
+  every `boinga <cmd>` named is in cli.build_parser, every subcommand documented, Developer
+  setup kept (this commit)
 - [ ] C13.2b README results/limitations/licences: eval.md headline (B vs A, win rate 0.82,
   1 rater), MCD (relative only), gates G1-G7 with DECISIONS links, limitations (from eval.md
   + G7 limits), credits and licences (dataset name, DOI 10.17632/n9xttk45df.1, authors,
