@@ -999,7 +999,9 @@ skips smoke test, fine-tune, samples and candidates, so the notebook uses the pr
   stale, fresh runtime, Tesla T4, RUN_TRAINING = False: S10-S13 printed `SKIPPED
   (RUN_TRAINING=False)`; S14 "PASS: reload check (3 wavs)", S15 "PASS: generated A=20 B=20
   R=20", S16 "PASS: demo selfcheck (6 cases)", S16.live public link then Stop. Gate G7 —
-  fresh runtime: PASS (DECISIONS) (this commit)
+  fresh runtime: PASS (DECISIONS) (`a7f6174`)
+- [x] after the merge to main: `final.py` branch="main", so the notebook's bootstrap clones
+  main (only BRANCH and the title line change; verified cells unchanged) (this commit)
 
 ## C13
 - [ ] C13.x (subchunks not yet defined)

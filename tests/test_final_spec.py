@@ -22,7 +22,7 @@ def notebook() -> nbkit.Notebook:
 
 def test_identity(notebook: nbkit.Notebook) -> None:
     assert (notebook.chunk, notebook.run, notebook.slug) == ("C12", 1, "final")
-    assert notebook.branch == "chunk/C12-notebook" and notebook.gpu
+    assert notebook.branch == "main" and notebook.gpu  # after the C12 merge
     assert build_notebook.output_path(notebook) == "notebooks/boinga_translator.ipynb"
 
 
