@@ -1239,7 +1239,7 @@ scales).
 **Decision:** New module `app_gradio.py` (never `gradio.py`, which would shadow the library);
 gradio is imported only when the page is built. `gradio==6.31.0` is pinned in the `[train]`
 extra, so the bootstrap installs it: it is the latest release (2026-10-28) and `uv pip
-compile` resolves it together with coqui-tts 0.28.0 for Colab's Python 3.12 (huggingface-hub
+compile` resolves it together with coqui-tts 0.28.0 for Python 3.12 (C11 run 1 installed it on Colab's Python 3.13.16) (huggingface-hub
 2.4.0, transformers 5.22.2). The input check is only what the user specified: empty text and
 more than 300 characters (leading and trailing spaces not counted). Errors reach the page as
 gr.Error with a short message: VoiceBank's ValueErrors as they are, anything else as
@@ -1248,7 +1248,7 @@ held-out prompts of configs/eval_prompts.json, verbatim. The footer credits the 
 (`settings.PRETRAINED_AUTHOR` "@mobassir94", new pinned fact, Apache-2.0, via coqui-tts) and the
 dataset (name, DOI, CC-BY-4.0, authors from settings). `boinga demo [--share]`; `--share`
 opens a public gradio.live link.
-**Consequences:** Characters outside the voice's charset are still not rejected: coqui drops
+**Consequences:** (Charset rejection: superseded by Update (C11.3) below.) Characters outside the voice's charset are still not rejected: coqui drops
 them with only a log warning (C5 follow-up, DECISIONS "Gate G4"), so such text plays with
 words missing. `pip install -e .[train]` now pulls gradio and its web stack into every
 training VM.

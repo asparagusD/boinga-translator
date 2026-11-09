@@ -907,8 +907,8 @@ map/notebook and PROGRESS.
 Branch `chunk/C11-demo`. A Gradio page that speaks typed Chittagonian text with the fine-tuned
 voice (Drive best/, run1 step 36500) and, for comparison, the pretrained baseline, through
 `synth.VoiceBank` (prepare_text, fixed seed and inference scales). The input check rejects
-empty text and text over 300 characters; characters coqui would silently drop are not checked
-yet (C5 follow-up, DECISIONS "Gate G4"). New module
+empty text and text over 300 characters, and since C11.3 characters the voice lacks (coqui
+would drop them silently; C5 follow-up, DECISIONS "Gate G4"). New module
 `app_gradio.py` (not `gradio.py`: it would shadow the library); gradio is imported lazily and
 pinned in the `[train]` extra (the bootstrap installs it). One GPU notebook: spec `notebooks/specs/c11_demo.py` ->
 `notebooks/runs/C11_demo_run1.ipynb`. Local tests use a fake VoiceBank, never coqui or the model; the Blocks test needs gradio (skipped when it is not installed). Line counts
